@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -9,7 +9,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  LogOut,
+  UserCircle,
+  Building2,
 } from "lucide-react";
+import { useAuth } from "@/features/auth";
+import { useCurrentTenant } from "@/features/tenants";
+import { toast } from "@/hooks/use-toast";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -21,7 +27,24 @@ const navItems = [
 
 const AppSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut, user } = useAuth();
+  const { currentTenant, isLoading: isTenantLoading } = useCurrentTenant();
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    await signOut();
+    setIsSigningOut(false);
+
+    toast({
+      title: "Sessão encerrada",
+      description: "Você saiu do FestaAI com segurança.",
+    });
+
+    navigate("/login", { replace: true });
+  };
 
   return (
     <aside
@@ -64,6 +87,49 @@ const AppSidebar = () => {
           );
         })}
       </nav>
+
+      {/* Tenant */}
+      <div className="mx-2 mb-2 rounded-lg border border-sidebar-border bg-sidebar-accent/40 p-2">
+        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-2"}`}>
+          <Building2 className="h-5 w-5 flex-shrink-0 text-primary" />
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold text-sidebar-accent-foreground">
+                {isTenantLoading ? "Carregando empresa..." : currentTenant?.name ?? "Sem empresa ativa"}
+              </p>
+              <p className="text-[11px] text-sidebar-foreground">
+                {currentTenant?.slug ?? "Tenant"}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* User */}
+      <div className="mx-2 mb-2 rounded-lg border border-sidebar-border bg-sidebar-accent/40 p-2">
+        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-2"}`}>
+          <UserCircle className="h-5 w-5 flex-shrink-0 text-sidebar-foreground" />
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium text-sidebar-accent-foreground">
+                {user?.email ?? "Usuário"}
+              </p>
+              <p className="text-[11px] text-sidebar-foreground">Sessão ativa</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Sign out */}
+      <button
+        onClick={handleSignOut}
+        disabled={isSigningOut}
+        className="mx-2 mb-2 flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground disabled:cursor-not-allowed disabled:opacity-60"
+        type="button"
+      >
+        <LogOut className="h-4 w-4 flex-shrink-0" />
+        {!collapsed && <span>{isSigningOut ? "Saindo..." : "Sair"}</span>}
+      </button>
 
       {/* Collapse toggle */}
       <button

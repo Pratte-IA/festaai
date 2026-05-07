@@ -1,19 +1,33 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
+import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import EventChecklist from "@/components/EventChecklist";
 import AppLayout from "@/components/AppLayout";
-import { mockEvents, Payment } from "@/data/mockEvents";
+import {
+  useCreateEventoNota,
+  useCreateEventoPagamento,
+  useCreateEventoTarefa,
+  useEvento,
+  useEventoNotas,
+  useEventoPagamentos,
+  useEventoTarefas,
+  useUpdateEvento,
+  useToggleEventoTarefa,
+} from "@/features/eventos";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "@/hooks/use-toast";
 
-const getTimeRemaining = (partyDate: string): string => {
+const getTimeRemaining = (partyDate: string | null): string => {
+  if (!partyDate) return "Sem data";
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const party = new Date(partyDate);
@@ -25,7 +39,9 @@ const getTimeRemaining = (partyDate: string): string => {
   return `Faltam ${diffDays} dias`;
 };
 
-const getTimeRemainingBadge = (partyDate: string) => {
+const getTimeRemainingBadge = (partyDate: string | null) => {
+  if (!partyDate) return "outline" as const;
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const party = new Date(partyDate);
@@ -37,19 +53,34 @@ const getTimeRemainingBadge = (partyDate: string) => {
   return "outline" as const;
 };
 
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+const formatDate = (date: string | null) => {
+  if (!date) return "Nao informado";
+
+  return new Date(date).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+const formatTime = (time: string | null) => {
+  if (!time) return "Nao informado";
+
+  return time.slice(0, 5);
+};
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
-const calculateAge = (birthDate: string, partyDate: string): number => {
+const calculateAge = (birthDate: string | null, partyDate: string | null): string => {
+  if (!birthDate || !partyDate) return "Nao informado";
+
   const birth = new Date(birthDate);
   const party = new Date(partyDate);
   let age = party.getFullYear() - birth.getFullYear();
   const m = party.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && party.getDate() < birth.getDate())) age--;
-  return age;
+  return `${age} anos`;
 };
 
 const stageLabels: Record<string, string> = {
@@ -75,45 +106,46 @@ const funnelLabels: Record<string, string> = {
   executadas: "Executadas",
 };
 
-interface Task {
-  id: string;
-  text: string;
-  done: boolean;
-}
-
-interface Note {
-  id: string;
-  text: string;
-  date: string;
-}
-
 const EventoDetalhe = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const event = mockEvents.find((e) => e.id === id);
+  const eventoId = id ? Number(id) : null;
+  const isValidEventoId = Number.isInteger(eventoId) && Number(eventoId) > 0;
+  const validEventoId = isValidEventoId ? Number(eventoId) : null;
+  const { data: event, error, isLoading } = useEvento(validEventoId);
+  const { data: payments = [], isLoading: isPaymentsLoading } = useEventoPagamentos(validEventoId);
+  const { data: tasks = [], isLoading: isTasksLoading } = useEventoTarefas(validEventoId);
+  const { data: notes = [], isLoading: isNotesLoading } = useEventoNotas(validEventoId);
+  const createPagamento = useCreateEventoPagamento();
+  const createTarefa = useCreateEventoTarefa();
+  const toggleTarefa = useToggleEventoTarefa();
+  const createNota = useCreateEventoNota();
+  const updateEvento = useUpdateEvento();
 
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: "1", text: "Enviar proposta comercial", done: true },
-    { id: "2", text: "Confirmar pacote escolhido", done: false },
-    { id: "3", text: "Agendar visita ao espaço", done: false },
-  ]);
   const [newTask, setNewTask] = useState("");
-
-  const [notes, setNotes] = useState<Note[]>([
-    { id: "1", text: "Cliente prefere tema de unicórnio. Mãe quer bolo personalizado.", date: "2026-04-10" },
-  ]);
   const [newNote, setNewNote] = useState("");
-
-  const [payments, setPayments] = useState<Payment[]>(event?.payments ?? []);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [newPaymentDate, setNewPaymentDate] = useState("");
   const [newPaymentAmount, setNewPaymentAmount] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  if (!event) {
+  if (isLoading) {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center py-20">
-          <p className="text-muted-foreground">Evento não encontrado.</p>
+          <p className="text-muted-foreground">Carregando evento...</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!isValidEventoId || error || !event) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center py-20">
+          <p className="text-muted-foreground">
+            {error ? "Nao foi possivel carregar este evento." : "Evento nao encontrado."}
+          </p>
           <Button variant="ghost" onClick={() => navigate("/crm")} className="mt-4">
             <ArrowLeft className="w-4 h-4 mr-2" /> Voltar ao CRM
           </Button>
@@ -122,41 +154,120 @@ const EventoDetalhe = () => {
     );
   }
 
-  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-  const balance = event.totalValue - totalPaid;
+  const totalPaid = event.valor_entrada + payments.reduce((sum, p) => sum + p.valor, 0);
+  const balance = event.valor_total - totalPaid;
 
-  const addTask = () => {
-    if (!newTask.trim()) return;
-    setTasks((prev) => [...prev, { id: Date.now().toString(), text: newTask.trim(), done: false }]);
+  const addTask = async () => {
+    const titulo = newTask.trim();
+
+    if (!validEventoId || !titulo) return;
+
+    try {
+      await createTarefa.mutateAsync({
+        eventoId: validEventoId,
+        titulo,
+      });
+    } catch {
+      toast({
+        title: "Nao foi possivel salvar a tarefa",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setNewTask("");
   };
 
-  const toggleTask = (taskId: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)));
+  const toggleTask = async (taskId: number, concluida: boolean) => {
+    if (!validEventoId) return;
+
+    try {
+      await toggleTarefa.mutateAsync({
+        concluida,
+        eventoId: validEventoId,
+        tarefaId: taskId,
+      });
+    } catch {
+      toast({
+        title: "Nao foi possivel atualizar a tarefa",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const addNote = () => {
-    if (!newNote.trim()) return;
-    setNotes((prev) => [
-      { id: Date.now().toString(), text: newNote.trim(), date: new Date().toISOString().split("T")[0] },
-      ...prev,
-    ]);
+  const addNote = async () => {
+    const texto = newNote.trim();
+
+    if (!validEventoId || !texto) return;
+
+    try {
+      await createNota.mutateAsync({
+        eventoId: validEventoId,
+        texto,
+      });
+    } catch {
+      toast({
+        title: "Nao foi possivel salvar a anotacao",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setNewNote("");
   };
 
-  const addPayment = () => {
+  const addPayment = async () => {
     const amount = parseFloat(newPaymentAmount);
-    if (!newPaymentDate || isNaN(amount) || amount <= 0) return;
-    setPayments((prev) => [
-      ...prev,
-      { id: Date.now().toString(), date: newPaymentDate, amount },
-    ]);
+
+    if (!validEventoId || !newPaymentDate || isNaN(amount) || amount <= 0) return;
+
+    try {
+      await createPagamento.mutateAsync({
+        data_pagamento: newPaymentDate,
+        eventoId: validEventoId,
+        valor: amount,
+      });
+    } catch {
+      toast({
+        title: "Nao foi possivel salvar o pagamento",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setNewPaymentDate("");
     setNewPaymentAmount("");
     setShowPaymentForm(false);
   };
 
-  const celebratingAge = calculateAge(event.birthDate, event.partyDate);
+  const celebratingAge = calculateAge(event.aniversariante_data_nascimento, event.data_evento);
+
+  const handleUpdateEvento = async (values: EventoFormValues) => {
+    if (!validEventoId) return;
+
+    try {
+      await updateEvento.mutateAsync({
+        eventoId: validEventoId,
+        values,
+      });
+
+      toast({
+        title: "Evento atualizado",
+        description: "As informacoes foram salvas com sucesso.",
+      });
+      setIsEditDialogOpen(false);
+    } catch {
+      toast({
+        title: "Nao foi possivel atualizar o evento",
+        description: "Revise os dados e tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <AppLayout>
@@ -174,10 +285,10 @@ const EventoDetalhe = () => {
         <div className="glass-card p-6 mb-6">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h1 className="text-2xl font-bold text-foreground">{event.clientName}</h1>
+              <h1 className="text-2xl font-bold text-foreground">{event.cliente_nome}</h1>
               <p className="text-base text-muted-foreground flex items-center gap-1.5">
                 <PartyPopper className="w-4 h-4" />
-                {event.birthdayChildName}
+                {event.aniversariante_nome ?? "Aniversariante nao informado"}
               </p>
             </div>
             <DropdownMenu>
@@ -187,6 +298,10 @@ const EventoDetalhe = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem className="gap-2" onClick={() => setIsEditDialogOpen(true)}>
+                  <Edit3 className="w-4 h-4" />
+                  Editar evento
+                </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2">
                   <ArrowRightLeft className="w-4 h-4" />
                   Mover para outro funil
@@ -202,26 +317,30 @@ const EventoDetalhe = () => {
           <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
-              {formatDate(event.partyDate)}
+              {formatDate(event.data_evento)}
             </span>
-            <Badge variant={getTimeRemainingBadge(event.partyDate)}>
-              {getTimeRemaining(event.partyDate)}
+            <Badge variant={getTimeRemainingBadge(event.data_evento)}>
+              {getTimeRemaining(event.data_evento)}
             </Badge>
             <span className="flex items-center gap-1.5">
               <Users className="w-4 h-4" />
-              {event.guestCount} convidados
+              {event.quantidade_convidados ?? 0} convidados
             </span>
           </div>
 
           <div className="flex items-center gap-2 mt-3">
-            <Badge variant="secondary">{funnelLabels[event.funnel]}</Badge>
+            <Badge variant="secondary">{funnelLabels[event.funil]}</Badge>
             <span className="text-xs text-muted-foreground">→</span>
-            <Badge variant="outline">{stageLabels[event.stage]}</Badge>
+            <Badge variant="outline">{stageLabels[event.etapa]}</Badge>
           </div>
         </div>
 
         {/* 2. AÇÕES RÁPIDAS */}
         <div className="flex flex-wrap gap-3 mb-6">
+          <Button variant="outline" className="gap-2" onClick={() => setIsEditDialogOpen(true)}>
+            <Edit3 className="w-4 h-4" />
+            Editar evento
+          </Button>
           <Button className="bg-[#25D366] hover:bg-[#1da851] text-white gap-2">
             <MessageCircle className="w-4 h-4" />
             WhatsApp
@@ -247,10 +366,10 @@ const EventoDetalhe = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Data da festa" value={formatDate(event.partyDate)} />
-              <InfoRow label="Horário" value={event.partyTime} />
-              <InfoRow label="Convidados" value={`${event.guestCount} pessoas`} />
-              <InfoRow label="Pacote" value={event.selectedPackage} />
+              <InfoRow label="Data da festa" value={formatDate(event.data_evento)} />
+              <InfoRow label="Horario" value={formatTime(event.hora_evento)} />
+              <InfoRow label="Convidados" value={`${event.quantidade_convidados ?? 0} pessoas`} />
+              <InfoRow label="Pacote" value={event.pacote_nome ?? "Pacote nao informado"} />
             </CardContent>
           </Card>
 
@@ -263,9 +382,9 @@ const EventoDetalhe = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Nome" value={event.birthdayChildName} />
-              <InfoRow label="Data de nascimento" value={formatDate(event.birthDate)} />
-              <InfoRow label="Idade a comemorar" value={`${celebratingAge} anos`} highlight />
+              <InfoRow label="Nome" value={event.aniversariante_nome ?? "Nao informado"} />
+              <InfoRow label="Data de nascimento" value={formatDate(event.aniversariante_data_nascimento)} />
+              <InfoRow label="Idade a comemorar" value={celebratingAge} highlight />
             </CardContent>
           </Card>
 
@@ -278,8 +397,8 @@ const EventoDetalhe = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Telefone" value={event.phone} />
-              <InfoRow label="Nome" value={event.clientName} />
+              <InfoRow label="Telefone" value={event.cliente_telefone ?? "Nao informado"} />
+              <InfoRow label="Nome" value={event.cliente_nome} />
             </CardContent>
           </Card>
         </div>
@@ -295,10 +414,10 @@ const EventoDetalhe = () => {
           <CardContent>
             {/* Summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <MiniStat label="Pacote" value={formatCurrency(event.packageValue)} />
-              <MiniStat label="Adicionais" value={formatCurrency(event.addonsValue)} />
-              <MiniStat label="Total" value={formatCurrency(event.totalValue)} highlight />
-              <MiniStat label="Entrada" value={formatCurrency(event.downPayment)} />
+              <MiniStat label="Pacote" value={formatCurrency(event.valor_pacote)} />
+              <MiniStat label="Adicionais" value={formatCurrency(event.valor_adicionais)} />
+              <MiniStat label="Total" value={formatCurrency(event.valor_total)} highlight />
+              <MiniStat label="Entrada" value={formatCurrency(event.valor_entrada)} />
             </div>
 
             <Separator className="my-4" />
@@ -319,13 +438,16 @@ const EventoDetalhe = () => {
             {/* Payments list */}
             <div className="space-y-2 mb-4">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Pagamentos realizados</p>
-              {payments.length === 0 && (
+              {isPaymentsLoading && (
+                <p className="text-sm text-muted-foreground italic">Carregando pagamentos...</p>
+              )}
+              {!isPaymentsLoading && payments.length === 0 && (
                 <p className="text-sm text-muted-foreground italic">Nenhum pagamento registrado</p>
               )}
               {payments.map((p) => (
                 <div key={p.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border/30">
-                  <span className="text-sm text-foreground">{formatDate(p.date)}</span>
-                  <span className="text-sm font-medium text-foreground">{formatCurrency(p.amount)}</span>
+                  <span className="text-sm text-foreground">{formatDate(p.data_pagamento)}</span>
+                  <span className="text-sm font-medium text-foreground">{formatCurrency(p.valor)}</span>
                 </div>
               ))}
             </div>
@@ -349,7 +471,7 @@ const EventoDetalhe = () => {
                   step="0.01"
                 />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={addPayment}>Salvar</Button>
+                  <Button size="sm" onClick={addPayment} disabled={createPagamento.isPending}>Salvar</Button>
                   <Button size="sm" variant="ghost" onClick={() => setShowPaymentForm(false)}>Cancelar</Button>
                 </div>
               </div>
@@ -363,7 +485,7 @@ const EventoDetalhe = () => {
         </Card>
 
         {/* CHECKLIST DE ORGANIZAÇÃO — only for organização stage */}
-        {event.stage === "organizacao" && (
+        {event.etapa === "organizacao" && (
           <div className="mt-4">
             <EventChecklist />
           </div>
@@ -379,14 +501,23 @@ const EventoDetalhe = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 mb-4">
+              {isTasksLoading && (
+                <p className="text-sm text-muted-foreground italic">Carregando tarefas...</p>
+              )}
+              {!isTasksLoading && tasks.length === 0 && (
+                <p className="text-sm text-muted-foreground italic">Nenhuma tarefa registrada</p>
+              )}
               {tasks.map((task) => (
                 <label
                   key={task.id}
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
                 >
-                  <Checkbox checked={task.done} onCheckedChange={() => toggleTask(task.id)} />
-                  <span className={`text-sm ${task.done ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                    {task.text}
+                  <Checkbox
+                    checked={task.concluida}
+                    onCheckedChange={(checked) => toggleTask(task.id, checked === true)}
+                  />
+                  <span className={`text-sm ${task.concluida ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                    {task.titulo}
                   </span>
                 </label>
               ))}
@@ -396,10 +527,14 @@ const EventoDetalhe = () => {
                 placeholder="Nova tarefa..."
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addTask()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    void addTask();
+                  }
+                }}
                 className="text-sm"
               />
-              <Button size="sm" variant="outline" onClick={addTask}>
+              <Button size="sm" variant="outline" onClick={addTask} disabled={createTarefa.isPending}>
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -421,21 +556,35 @@ const EventoDetalhe = () => {
                 onChange={(e) => setNewNote(e.target.value)}
                 className="text-sm min-h-[60px]"
               />
-              <Button size="sm" variant="outline" onClick={addNote} className="self-end">
+              <Button size="sm" variant="outline" onClick={addNote} className="self-end" disabled={createNota.isPending}>
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
             <div className="space-y-3">
+              {isNotesLoading && (
+                <p className="text-sm text-muted-foreground italic">Carregando anotacoes...</p>
+              )}
+              {!isNotesLoading && notes.length === 0 && (
+                <p className="text-sm text-muted-foreground italic">Nenhuma anotacao registrada</p>
+              )}
               {notes.map((note) => (
                 <div key={note.id} className="p-3 rounded-lg bg-muted/40 border border-border/30">
-                  <p className="text-sm text-foreground">{note.text}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{formatDate(note.date)}</p>
+                  <p className="text-sm text-foreground">{note.texto}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{formatDate(note.created_at)}</p>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <EventoFormDialog
+        initialEvento={event}
+        isSubmitting={updateEvento.isPending}
+        onOpenChange={setIsEditDialogOpen}
+        onSubmit={handleUpdateEvento}
+        open={isEditDialogOpen}
+      />
     </AppLayout>
   );
 };

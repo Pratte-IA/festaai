@@ -1,31 +1,51 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
+import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import KanbanBoard from "@/components/KanbanBoard";
-import { FunnelType, salesStages, partyStages, executedStages, mockEvents } from "@/data/mockEvents";
-
-const funnelTabs: { key: FunnelType; label: string }[] = [
-  { key: "vendas", label: "Vendas" },
-  { key: "festa", label: "Festa" },
-  { key: "executadas", label: "Executadas" },
-];
-
-const stageMap = {
-  vendas: salesStages,
-  festa: partyStages,
-  executadas: executedStages,
-};
+import { FunnelType, funnelTabs, stageMap, useCreateEvento, useEventos } from "@/features/eventos";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 const CRM = () => {
+  const navigate = useNavigate();
   const [activeFunnel, setActiveFunnel] = useState<FunnelType>("vendas");
-
-  const filteredEvents = mockEvents.filter((e) => e.funnel === activeFunnel);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { data: eventos = [], error, isLoading } = useEventos({ funnel: activeFunnel });
+  const createEvento = useCreateEvento();
   const stages = stageMap[activeFunnel];
+
+  const handleCreateEvento = async (values: EventoFormValues) => {
+    try {
+      const createdEvento = await createEvento.mutateAsync(values);
+
+      toast({
+        title: "Evento criado",
+        description: "O evento ja esta disponivel no CRM.",
+      });
+      setIsCreateDialogOpen(false);
+      navigate(`/crm/evento/${createdEvento.id}`);
+    } catch {
+      toast({
+        title: "Nao foi possivel criar o evento",
+        description: "Revise os dados e tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">CRM</h1>
-        <p className="text-sm text-muted-foreground mt-1">Gerencie seus eventos do início ao fim</p>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">CRM</h1>
+          <p className="text-sm text-muted-foreground mt-1">Gerencie seus eventos do início ao fim</p>
+        </div>
+        <Button className="gap-2" onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4" />
+          Novo evento
+        </Button>
       </div>
 
       {/* Funnel tabs */}
@@ -45,7 +65,29 @@ const CRM = () => {
         ))}
       </div>
 
-      <KanbanBoard events={filteredEvents} stages={stages} />
+      {isLoading && (
+        <div className="glass-card flex h-48 items-center justify-center text-sm text-muted-foreground">
+          Carregando eventos...
+        </div>
+      )}
+
+      {error && (
+        <div className="glass-card border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
+          Nao foi possivel carregar os eventos. Tente novamente em instantes.
+        </div>
+      )}
+
+      {!isLoading && !error && (
+        <KanbanBoard events={eventos} funnel={activeFunnel} stages={[...stages]} />
+      )}
+
+      <EventoFormDialog
+        initialFunnel={activeFunnel}
+        isSubmitting={createEvento.isPending}
+        onOpenChange={setIsCreateDialogOpen}
+        onSubmit={handleCreateEvento}
+        open={isCreateDialogOpen}
+      />
     </AppLayout>
   );
 };

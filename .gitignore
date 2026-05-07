@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Package manager lockfiles
+# pnpm-lock.yaml is the only lockfile used by this project.
+package-lock.json
+bun.lock
+bun.lockb
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

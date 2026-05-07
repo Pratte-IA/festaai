@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, GripVertical, Users, PartyPopper } from "lucide-react";
-import { Event, Stage } from "@/data/mockEvents";
+import { Evento, FunnelType, Stage, StageDefinition, useUpdateEventoStage } from "@/features/eventos";
+import { toast } from "@/hooks/use-toast";
 
 interface KanbanBoardProps {
-  events: Event[];
-  stages: { key: string; label: string }[];
+  events: Evento[];
+  funnel: FunnelType;
+  stages: StageDefinition[];
 }
 
-const getTimeRemaining = (partyDate: string): string => {
+const getTimeRemaining = (partyDate: string | null): string => {
+  if (!partyDate) return "Sem data";
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const party = new Date(partyDate);
@@ -22,7 +26,9 @@ const getTimeRemaining = (partyDate: string): string => {
   return `Faltam ${diffDays} dias`;
 };
 
-const getTimeRemainingColor = (partyDate: string): string => {
+const getTimeRemainingColor = (partyDate: string | null): string => {
+  if (!partyDate) return "text-muted-foreground";
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const party = new Date(partyDate);
@@ -35,16 +41,12 @@ const getTimeRemainingColor = (partyDate: string): string => {
   return "text-muted-foreground";
 };
 
-const KanbanBoard = ({ events, stages }: KanbanBoardProps) => {
+const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
   const navigate = useNavigate();
-  const [draggedEvent, setDraggedEvent] = useState<string | null>(null);
-  const [localEvents, setLocalEvents] = useState(events);
+  const [draggedEvent, setDraggedEvent] = useState<number | null>(null);
+  const updateEventoStage = useUpdateEventoStage();
 
-  if (events !== localEvents && events.length !== localEvents.length) {
-    setLocalEvents(events);
-  }
-
-  const handleDragStart = (eventId: string) => {
+  const handleDragStart = (eventId: number) => {
     setDraggedEvent(eventId);
   };
 
@@ -54,25 +56,48 @@ const KanbanBoard = ({ events, stages }: KanbanBoardProps) => {
 
   const handleDrop = (stageKey: string) => {
     if (!draggedEvent) return;
-    setLocalEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === draggedEvent ? { ...ev, stage: stageKey as Stage } : ev
-      )
+
+    const draggedEvento = events.find((event) => event.id === draggedEvent);
+
+    if (!draggedEvento || draggedEvento.etapa === stageKey) {
+      setDraggedEvent(null);
+      return;
+    }
+
+    updateEventoStage.mutate(
+      {
+        eventoId: draggedEvent,
+        funnel,
+        stage: stageKey as Stage,
+      },
+      {
+        onError: () => {
+          toast({
+            title: "Nao foi possivel mover o evento",
+            description: "Tente novamente em instantes.",
+            variant: "destructive",
+          });
+        },
+      },
     );
+
     setDraggedEvent(null);
   };
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString("pt-BR", {
+  const formatDate = (date: string | null) => {
+    if (!date) return "Sem data";
+
+    return new Date(date).toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
+  };
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
       {stages.map((stage) => {
-        const stageEvents = localEvents.filter((e) => e.stage === stage.key);
+        const stageEvents = events.filter((e) => e.etapa === stage.key);
         return (
           <div
             key={stage.key}
@@ -103,35 +128,35 @@ const KanbanBoard = ({ events, stages }: KanbanBoardProps) => {
                     <div className="flex-1 min-w-0 space-y-2">
                       {/* Linha 1: Nome do cliente */}
                       <p className="text-sm font-bold text-foreground truncate">
-                        {event.clientName}
+                        {event.cliente_nome}
                       </p>
 
                       {/* Linha 2: Nome do aniversariante */}
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <PartyPopper className="w-3 h-3 flex-shrink-0" />
-                        {event.birthdayChildName}
+                        {event.aniversariante_nome ?? "Aniversariante nao informado"}
                       </p>
 
                       {/* Linha 3: Data de entrada */}
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0" />
-                        Entrada: {formatDate(event.createdAt)}
+                        Entrada: {formatDate(event.created_at)}
                       </p>
 
                       {/* Linha 4: Data da festa + tempo restante */}
                       <p className="text-xs text-muted-foreground flex items-center gap-1 flex-wrap">
                         <Calendar className="w-3 h-3 flex-shrink-0" />
-                        <span>Festa: {formatDate(event.partyDate)}</span>
+                        <span>Festa: {formatDate(event.data_evento)}</span>
                         <span className="text-muted-foreground/40">•</span>
-                        <span className={getTimeRemainingColor(event.partyDate)}>
-                          {getTimeRemaining(event.partyDate)}
+                        <span className={getTimeRemainingColor(event.data_evento)}>
+                          {getTimeRemaining(event.data_evento)}
                         </span>
                       </p>
 
                       {/* Linha 5: Convidados */}
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Users className="w-3 h-3 flex-shrink-0" />
-                        {event.guestCount} convidados
+                        {event.quantidade_convidados ?? 0} convidados
                       </p>
                     </div>
                   </div>
