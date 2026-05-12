@@ -575,6 +575,20 @@ Substituir o CRM mockado por dados reais persistidos em Supabase, mantendo `even
 
 ## Fase 3 - Dashboard Acionavel e Calendario Operacional
 
+**Status:** concluida.
+
+Entregue:
+
+- Migration `calendar_blocks` criada e aplicada no Supabase remoto com `int8`, `tenant_id`, constraint unica por data, trigger `updated_at` e RLS.
+- Tipos Supabase atualizados com `calendar_blocks`.
+- Feature `src/features/calendario` criada para carregar eventos e bloqueios do mes, montar `DayInfo` e alternar bloqueios persistidos.
+- Feature `src/features/dashboard` criada para calcular metricas, proximas festas e alertas a partir de `eventos` e `evento_pagamentos`.
+- `src/pages/Index.tsx` conectado a metricas reais, proximas festas reais e alertas reais por tenant.
+- `src/pages/Calendario.tsx`, `MiniCalendar` e `DayDetailPanel` conectados a eventos reais e bloqueios persistidos.
+- Mutacoes em memoria de `calendarAvailability` substituidas no fluxo principal por persistencia em Supabase.
+- Estados de loading, erro e vazio adicionados com linguagem simples.
+- `pnpm typecheck`, `pnpm lint` e `pnpm build` executados com sucesso; permanecem apenas warnings conhecidos de Fast Refresh em componentes Shadcn.
+
 ### Epic
 
 Transformar o dashboard e calendario em centro de controle real da empresa.
@@ -631,6 +645,19 @@ Transformar o dashboard e calendario em centro de controle real da empresa.
 
 ## Fase 4 - Central de Controle por Cliente
 
+**Status:** concluida.
+
+Entregue:
+
+- Migration `create_tenant_configuration_tables` criada e aplicada no Supabase remoto.
+- Tabelas multi-tenant criadas para pacotes, adicionais, planos comerciais, checklist, templates de mensagem e regras financeiras.
+- Todas as tabelas usam `int8`, `tenant_id`, triggers `updated_at` e RLS por membership.
+- Feature `src/features/configuracoes` criada com hooks React Query para leitura/escrita por tenant.
+- `PackagesConfig`, `AdditionalsConfig`, `PlansConfig` e `ChecklistConfig` conectados ao Supabase.
+- `src/pages/Configuracoes.tsx` conectado a templates manuais de mensagem e regras financeiras persistidas.
+- Texto de mensagens ajustado para modelos manuais/integrações externas, sem automacao interna de follow-up.
+- `pnpm typecheck`, `pnpm lint` e `pnpm build` executados com sucesso; permanecem apenas warnings conhecidos de Fast Refresh em componentes Shadcn.
+
 ### Epic
 
 Persistir configuracoes comerciais e operacionais por tenant.
@@ -681,6 +708,17 @@ Persistir configuracoes comerciais e operacionais por tenant.
 - Mensagens ficam disponiveis como modelos, sem automacao interna de follow-up.
 
 ## Fase 5 - Relatorios
+
+**Status:** concluida.
+
+Entregue:
+
+- Feature `src/features/reports` criada com hook `useReportData`, tipos de período e helpers de cálculo/formatação.
+- `src/pages/Relatorios.tsx` conectado a filtros globais de período.
+- `FinanceiroReport`, `OcupacaoReport`, `PosVendaReport`, `RecompraReport` e `LeadsPerdidosReport` migrados de `mockEvents` para dados reais de `eventos` e `evento_pagamentos`.
+- Relatórios calculam valores em aberto, ocupação, pós-venda, recompra e leads perdidos respeitando `tenant_id` via RLS.
+- Estados de loading, erro e vazio adicionados aos relatórios.
+- `pnpm typecheck`, `pnpm lint` e `pnpm build` executados com sucesso; permanecem apenas warnings conhecidos de Fast Refresh em componentes Shadcn.
 
 ### Epic
 
@@ -742,6 +780,25 @@ Criar relatorios reais, simples e orientados a decisao.
 
 ## Fase 6 - Assinaturas com Asaas e Billing
 
+**Status:** concluida.
+
+Entregue:
+
+- Criada e aplicada a migration `20260511122000_create_billing_tables.sql` no projeto Supabase `FestaAI`.
+- Criadas as tabelas `subscription_plans`, `billing_customers`, `billing_subscriptions` e `billing_webhook_events`.
+- Ativado RLS nas tabelas de billing, com leitura publica apenas para planos ativos e leitura de dados sensiveis restrita aos membros do tenant.
+- Cadastrados os planos iniciais Starter, Profissional e Enterprise em `subscription_plans`.
+- Criada a feature `src/features/billing` com hooks para listar planos, iniciar checkout e consultar assinatura do tenant.
+- Conectada a pagina `/contratar` a `create-asaas-checkout`, sem expor segredo do Asaas no frontend.
+- Criada a pagina protegida `/minha-assinatura` com status do plano, provedor, vencimento e link de cobranca.
+- Adicionado item `Assinatura` na sidebar do app.
+- Criadas e publicadas as Edge Functions `create-asaas-checkout`, `asaas-webhook`, `cancel-subscription` e `billing-provider-router`.
+- Implementado webhook Asaas com token proprio e idempotencia via `billing_webhook_events`.
+- Mantida estrutura com `provider` para preparar fallback futuro para Stripe.
+- Validacoes executadas com sucesso: `pnpm typecheck`, `pnpm lint` e `pnpm build`.
+
+Resumo detalhado: `docs/phase-6-summary.md`.
+
 ### Epic
 
 Habilitar venda e controle de assinaturas usando Asaas como provedor principal.
@@ -798,6 +855,25 @@ Habilitar venda e controle de assinaturas usando Asaas como provedor principal.
 
 ## Fase 7 - E-mails Transacionais com Brevo
 
+**Status:** concluida.
+
+Entregue:
+
+- Adicionadas variaveis Brevo no `.env.local` para preenchimento posterior.
+- Criada e aplicada a migration `20260511130000_create_email_events.sql` no projeto Supabase `FestaAI`.
+- Criada a tabela `email_events` com logs por tenant, status, template, destinatario, payload e retorno do provedor.
+- Ativado RLS em `email_events`, permitindo consulta apenas por membros do tenant.
+- Criada e publicada a Edge Function `send-transactional-email` com Brevo server-side.
+- Implementados templates transacionais iniciais: `welcome`, `invite_member`, `billing_checkout_started`, `billing_payment_confirmed` e `billing_payment_overdue`.
+- Integrado o billing ao envio/log de e-mails:
+  - checkout iniciado via `create-asaas-checkout`;
+  - pagamento confirmado/atrasado via `asaas-webhook`.
+- Criada a feature `src/features/emails` para consulta dos logs de e-mail por tenant.
+- Adicionado bloco de logs transacionais na pagina protegida `/minha-assinatura`.
+- Validacoes executadas com sucesso: `pnpm typecheck`, `pnpm lint` e `pnpm build`.
+
+Resumo detalhado: `docs/phase-7-summary.md`.
+
 ### Epic
 
 Adicionar comunicacoes transacionais seguras e rastreaveis.
@@ -843,6 +919,26 @@ Adicionar comunicacoes transacionais seguras e rastreaveis.
 - Follow-ups seguem fora do FestaAI.
 
 ## Fase 8 - Seguranca, Qualidade e Performance
+
+**Status:** concluida.
+
+Entregue:
+
+- Criadas e aplicadas as migrations `20260511143000_security_performance_hardening.sql` e `20260511144500_restrict_public_function_execution.sql`.
+- Corrigido `search_path` das funcoes publicas auditadas pelo Supabase advisor.
+- Revogado `EXECUTE` publico/anonimo em funcoes sensiveis; helpers de RLS continuam disponiveis apenas para `authenticated`, pois sao usadas pelas policies.
+- Recriadas policies de `profiles` usando `(select auth.uid())` para evitar reavaliacao por linha.
+- Adicionada policy explicita de bloqueio client-side em `billing_webhook_events`.
+- Adicionados indices para foreign keys apontadas pelo advisor de performance.
+- Criado teste SQL `supabase/tests/rls_isolation.sql` para validar isolamento entre tenants.
+- Executado teste RLS em transacao com rollback no Supabase `FestaAI`.
+- Criada politica frontend `canAccessTenantApp` para bloquear tenants `suspended` e `canceled`.
+- Adicionados testes unitarios para regras de funil e politica de acesso do tenant.
+- Aplicado lazy loading de rotas em `src/App.tsx`.
+- Configurado `manualChunks` em `vite.config.ts`, removendo o warning de chunks acima de 500 kB no build.
+- Validacoes executadas com sucesso: `pnpm test`, `pnpm typecheck`, `pnpm typecheck:node`, `pnpm lint` e `pnpm build`.
+
+Resumo detalhado: `docs/phase-8-summary.md`.
 
 ### Epic
 

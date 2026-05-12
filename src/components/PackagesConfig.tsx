@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { PackageData, defaultPackages } from "@/data/packagesData";
+import { useCreateTenantPackage, useDeleteTenantPackage, useTenantPackages } from "@/features/configuracoes";
 import PackageWizard from "./PackageWizard";
 import {
   Users, ChevronDown, ChevronUp, UtensilsCrossed,
   Gamepad2, UsersRound, Plus, Trash2,
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -14,7 +15,9 @@ interface Props {
 }
 
 const PackagesConfig = ({ hideHeader }: Props) => {
-  const [packages, setPackages] = useState<PackageData[]>(defaultPackages);
+  const { data: packages = [], isLoading } = useTenantPackages();
+  const createPackage = useCreateTenantPackage();
+  const deletePackage = useDeleteTenantPackage();
   const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
 
@@ -26,9 +29,19 @@ const PackagesConfig = ({ hideHeader }: Props) => {
     return (
       <PackageWizard
         onCancel={() => setWizardOpen(false)}
-        onSave={(pkg) => {
-          setPackages([...packages, pkg]);
-          setWizardOpen(false);
+          onSave={async (pkg) => {
+            const { id: _id, ...packageInput } = pkg;
+            try {
+              await createPackage.mutateAsync(packageInput);
+              toast({ title: "Pacote salvo", description: "O pacote foi adicionado as configuracoes." });
+              setWizardOpen(false);
+            } catch {
+              toast({
+                title: "Nao foi possivel salvar o pacote",
+                description: "Revise os dados e tente novamente.",
+                variant: "destructive",
+              });
+            }
         }}
       />
     );
@@ -60,6 +73,14 @@ const PackagesConfig = ({ hideHeader }: Props) => {
       )}
 
       <div className="space-y-3">
+        {isLoading && <p className="text-sm text-muted-foreground">Carregando pacotes...</p>}
+        {!isLoading && packages.length === 0 && (
+          <div className="rounded-xl border border-dashed border-border/60 p-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              Nenhum pacote cadastrado. Clique em "Novo Pacote" para começar.
+            </p>
+          </div>
+        )}
         {packages.map((pkg) => {
           const isExpanded = expandedPkg === pkg.id;
           const minWeekday = Math.min(...pkg.pricingTiers.map((t) => t.weekdayPrice));
@@ -107,7 +128,19 @@ const PackagesConfig = ({ hideHeader }: Props) => {
 
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={(e) => { e.stopPropagation(); }}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      try {
+                        await deletePackage.mutateAsync(pkg.id);
+                        toast({ title: "Pacote removido" });
+                      } catch {
+                        toast({
+                          title: "Nao foi possivel remover o pacote",
+                          description: "Tente novamente em instantes.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
                     className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />

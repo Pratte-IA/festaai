@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
-import { CommercialPlan, SetupType, defaultPlans } from "@/data/plansData";
+import { CommercialPlan, SetupType } from "@/data/plansData";
+import { useDeleteTenantPlan, useSaveTenantPlan, useTenantPlans } from "@/features/configuracoes";
+import { toast } from "@/hooks/use-toast";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -20,7 +22,9 @@ const emptyPlan: Omit<CommercialPlan, "id"> = {
 };
 
 const PlansConfig = ({ hideHeader }: Props) => {
-  const [plans, setPlans] = useState<CommercialPlan[]>(defaultPlans);
+  const { data: plans = [], isLoading } = useTenantPlans();
+  const savePlan = useSaveTenantPlan();
+  const deletePlan = useDeleteTenantPlan();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [draft, setDraft] = useState<Omit<CommercialPlan, "id">>(emptyPlan);
@@ -44,7 +48,7 @@ const PlansConfig = ({ hideHeader }: Props) => {
     setDraft(emptyPlan);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!draft.nome.trim()) return;
     const normalized: Omit<CommercialPlan, "id"> = {
       ...draft,
@@ -52,23 +56,49 @@ const PlansConfig = ({ hideHeader }: Props) => {
       fidelidadeMeses: draft.fidelidadeMeses || null,
     };
 
-    if (editingId) {
-      setPlans((prev) =>
-        prev.map((p) => (p.id === editingId ? { id: editingId, ...normalized } : p)),
-      );
-    } else {
-      setPlans((prev) => [...prev, { id: crypto.randomUUID(), ...normalized }]);
+    try {
+      await savePlan.mutateAsync({ id: editingId, values: normalized });
+      toast({ title: editingId ? "Plano atualizado" : "Plano criado" });
+    } catch {
+      toast({
+        title: "Nao foi possivel salvar o plano",
+        description: "Revise os dados e tente novamente.",
+        variant: "destructive",
+      });
+      return;
     }
+
     cancel();
   };
 
-  const remove = (id: string) => {
-    setPlans((prev) => prev.filter((p) => p.id !== id));
+  const remove = async (id: string) => {
+    try {
+      await deletePlan.mutateAsync(id);
+      toast({ title: "Plano removido" });
+    } catch {
+      toast({
+        title: "Nao foi possivel remover o plano",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (editingId === id) cancel();
   };
 
-  const toggleActive = (id: string) => {
-    setPlans((prev) => prev.map((p) => (p.id === id ? { ...p, ativo: !p.ativo } : p)));
+  const toggleActive = async (plan: CommercialPlan) => {
+    const { id, ...values } = plan;
+
+    try {
+      await savePlan.mutateAsync({ id, values: { ...values, ativo: !plan.ativo } });
+    } catch {
+      toast({
+        title: "Nao foi possivel atualizar o plano",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderForm = () => (
@@ -221,6 +251,7 @@ const PlansConfig = ({ hideHeader }: Props) => {
       {(isCreating || editingId) && renderForm()}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {isLoading && <p className="text-sm text-muted-foreground">Carregando planos...</p>}
         {plans.map((plan) => {
           const isEditing = editingId === plan.id;
           return (
@@ -256,7 +287,7 @@ const PlansConfig = ({ hideHeader }: Props) => {
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => remove(plan.id)}
+                    onClick={() => void remove(plan.id)}
                     className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                     title="Excluir"
                   >
@@ -303,7 +334,7 @@ const PlansConfig = ({ hideHeader }: Props) => {
               </div>
 
               <button
-                onClick={() => toggleActive(plan.id)}
+                onClick={() => void toggleActive(plan)}
                 className="mt-4 w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1.5 rounded-lg hover:bg-background/60"
               >
                 {plan.ativo ? "Desativar plano" : "Ativar plano"}

@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { Building2, Loader2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useCurrentTenant } from "@/features/tenants";
+import { canAccessTenantApp, useCurrentTenant } from "@/features/tenants";
 
 import { useAuth } from "./use-auth";
 
@@ -89,6 +89,16 @@ export const ProtectedRoute = ({ children }: PropsWithChildren) => {
         description="Seu usuario ainda nao esta vinculado a uma empresa. Peça para um administrador concluir o convite ou onboarding."
         title="Nenhuma empresa vinculada"
         variant="empty"
+      />
+    );
+  }
+
+  if (currentTenant && !canAccessTenantApp(currentTenant.status)) {
+    return (
+      <RouteState
+        description="O acesso desta empresa esta bloqueado por status de assinatura. Entre em contato com o suporte para regularizar."
+        title="Acesso temporariamente bloqueado"
+        variant="error"
       />
     );
   }

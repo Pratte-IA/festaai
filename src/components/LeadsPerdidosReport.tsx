@@ -1,19 +1,28 @@
 import { useState, useMemo } from "react";
-import { mockEvents, Event } from "@/data/mockEvents";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, AlertTriangle, Filter, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import { MessageCircle, AlertTriangle, Filter, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  daysBetween,
+  isDateInPeriod,
+  openWhatsApp,
+  Priority,
+  ReportComponentProps,
+  useReportData,
+} from "@/features/reports";
+import { Evento } from "@/features/eventos";
 
 interface LostLead {
-  event: Event;
+  event: Evento;
   daysSinceEntry: number;
   daysSinceUpdate: number;
-  priority: "alta" | "media" | "baixa";
+  priority: Priority;
 }
 
-const LeadsPerdidosReport = () => {
+const LeadsPerdidosReport = ({ period }: ReportComponentProps) => {
+  const { data, error, isLoading } = useReportData();
   const [showFilters, setShowFilters] = useState(false);
   const [minDays, setMinDays] = useState("");
   const [maxDays, setMaxDays] = useState("");
@@ -21,23 +30,18 @@ const LeadsPerdidosReport = () => {
   const [maxGuests, setMaxGuests] = useState("");
 
   const leads = useMemo<LostLead[]>(() => {
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    return mockEvents
+    return (data?.eventos ?? [])
       .filter((e) => {
-        if (e.funnel !== "vendas") return false;
-        if (e.stage === "fechado") return false;
-        const created = new Date(e.createdAt);
-        return created < sevenDaysAgo;
+        if (e.funil !== "vendas") return false;
+        if (e.etapa === "fechado") return false;
+        if (!isDateInPeriod(e.created_at.split("T")[0], period)) return false;
+        return daysBetween(e.created_at) >= 7;
       })
       .map((event) => {
-        const created = new Date(event.createdAt);
-        const updated = new Date(event.updatedAt);
-        const daysSinceEntry = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
-        const daysSinceUpdate = Math.floor((now.getTime() - updated.getTime()) / (1000 * 60 * 60 * 24));
+        const daysSinceEntry = daysBetween(event.created_at);
+        const daysSinceUpdate = daysBetween(event.updated_at);
 
-        let priority: "alta" | "media" | "baixa" = "baixa";
+        let priority: Priority = "baixa";
         if (daysSinceUpdate >= 10) priority = "alta";
         else if (daysSinceUpdate >= 5) priority = "media";
 
@@ -47,25 +51,19 @@ const LeadsPerdidosReport = () => {
         const order = { alta: 0, media: 1, baixa: 2 };
         return order[a.priority] - order[b.priority] || b.daysSinceUpdate - a.daysSinceUpdate;
       });
-  }, []);
+  }, [data, period]);
 
   const filtered = useMemo(() => {
     return leads.filter((l) => {
       if (minDays && l.daysSinceEntry < Number(minDays)) return false;
       if (maxDays && l.daysSinceEntry > Number(maxDays)) return false;
-      if (minGuests && l.event.guestCount < Number(minGuests)) return false;
-      if (maxGuests && l.event.guestCount > Number(maxGuests)) return false;
+      if (minGuests && (l.event.quantidade_convidados ?? 0) < Number(minGuests)) return false;
+      if (maxGuests && (l.event.quantidade_convidados ?? 0) > Number(maxGuests)) return false;
       return true;
     });
   }, [leads, minDays, maxDays, minGuests, maxGuests]);
 
-  const openWhatsApp = (phone: string, name: string) => {
-    const cleaned = phone.replace(/\D/g, "");
-    const msg = encodeURIComponent(`Olá ${name}! Tudo bem? Gostaríamos de retomar o contato sobre a festinha! 🎉`);
-    window.open(`https://wa.me/55${cleaned}?text=${msg}`, "_blank");
-  };
-
-  const priorityBadge = (p: "alta" | "media" | "baixa") => {
+  const priorityBadge = (p: Priority) => {
     const styles = {
       alta: "bg-coral/15 text-coral border-coral/30",
       media: "bg-warning/15 text-warning border-warning/30",
@@ -77,6 +75,8 @@ const LeadsPerdidosReport = () => {
 
   return (
     <div className="space-y-6">
+      {isLoading && <div className="glass-card p-4 text-sm text-muted-foreground">Carregando leads perdidos...</div>}
+      {error && <div className="glass-card border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">Nao foi possivel carregar o relatório.</div>}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-card p-4">
           <p className="text-sm text-muted-foreground">Total de leads perdidos</p>
@@ -149,13 +149,13 @@ const LeadsPerdidosReport = () => {
             <TableBody>
               {filtered.map((l) => (
                 <TableRow key={l.event.id} className={l.priority === "alta" ? "bg-coral/5" : ""}>
-                  <TableCell className="font-medium">{l.event.clientName}</TableCell>
-                  <TableCell>{new Date(l.event.createdAt).toLocaleDateString("pt-BR")}</TableCell>
-                  <TableCell className="text-center">{l.event.guestCount}</TableCell>
+                  <TableCell className="font-medium">{l.event.cliente_nome}</TableCell>
+                  <TableCell>{new Date(l.event.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell className="text-center">{l.event.quantidade_convidados ?? 0}</TableCell>
                   <TableCell className="text-center font-semibold">{l.daysSinceUpdate}d</TableCell>
                   <TableCell>
                     <Badge variant="outline" className="capitalize">
-                      {l.event.stage.replace(/_/g, " ")}
+                      {l.event.etapa.replace(/_/g, " ")}
                     </Badge>
                   </TableCell>
                   <TableCell>{priorityBadge(l.priority)}</TableCell>
@@ -164,7 +164,13 @@ const LeadsPerdidosReport = () => {
                       size="sm"
                       variant="ghost"
                       className="gap-1 text-success hover:text-success"
-                      onClick={() => openWhatsApp(l.event.phone, l.event.clientName)}
+                      onClick={() =>
+                        openWhatsApp(
+                          l.event.cliente_telefone,
+                          l.event.cliente_nome,
+                          "Olá {{nome}}! Tudo bem? Gostaríamos de retomar o contato sobre a festinha!",
+                        )
+                      }
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span className="hidden md:inline">Reativar</span>

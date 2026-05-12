@@ -1,20 +1,30 @@
 import { useState, useMemo } from "react";
-import { mockEvents, Event } from "@/data/mockEvents";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Phone, AlertTriangle, Filter, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  formatCurrency,
+  formatDate,
+  isDateInPeriod,
+  openWhatsApp,
+  Priority,
+  ReportComponentProps,
+  useReportData,
+} from "@/features/reports";
+import { Evento } from "@/features/eventos";
 
 interface RecompraClient {
-  event: Event;
+  event: Evento;
   monthsSinceParty: number;
   previousAge: number;
   nextAge: number;
-  priority: "alta" | "media" | "baixa";
+  priority: Priority;
 }
 
-const RecompraReport = () => {
+const RecompraReport = ({ period }: ReportComponentProps) => {
+  const { data, error, isLoading } = useReportData();
   const [showFilters, setShowFilters] = useState(false);
   const [minMonths, setMinMonths] = useState("");
   const [maxMonths, setMaxMonths] = useState("");
@@ -28,11 +38,12 @@ const RecompraReport = () => {
   const clients = useMemo<RecompraClient[]>(() => {
     const now = new Date();
 
-    return mockEvents
-      .filter((e) => e.funnel === "executadas" && new Date(e.partyDate) < now)
+    return (data?.eventos ?? [])
+      .filter((e) => e.funil === "executadas" && isDateInPeriod(e.data_evento, period) && e.data_evento && new Date(e.data_evento) < now)
+      .filter((e) => Boolean(e.aniversariante_data_nascimento))
       .map((event) => {
-        const partyDate = new Date(event.partyDate);
-        const birthDate = new Date(event.birthDate);
+        const partyDate = new Date(`${event.data_evento}T12:00:00`);
+        const birthDate = new Date(`${event.aniversariante_data_nascimento}T12:00:00`);
         const diffMs = now.getTime() - partyDate.getTime();
         const monthsSinceParty = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30.44));
 
@@ -43,7 +54,7 @@ const RecompraReport = () => {
         const previousAge = hadBirthdayByParty ? ageAtParty : ageAtParty - 1;
         const nextAge = previousAge + 1;
 
-        let priority: "alta" | "media" | "baixa" = "baixa";
+        let priority: Priority = "baixa";
         if (monthsSinceParty >= 10 && monthsSinceParty <= 12) {
           priority = "alta";
         } else if (monthsSinceParty >= 8 && monthsSinceParty < 10) {
@@ -56,7 +67,7 @@ const RecompraReport = () => {
         const priorityOrder = { alta: 0, media: 1, baixa: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority] || b.monthsSinceParty - a.monthsSinceParty;
       });
-  }, []);
+  }, [data, period]);
 
   const filtered = useMemo(() => {
     return clients.filter((c) => {
@@ -64,21 +75,15 @@ const RecompraReport = () => {
       if (maxMonths && c.monthsSinceParty > Number(maxMonths)) return false;
       if (minAge && c.nextAge < Number(minAge)) return false;
       if (maxAge && c.nextAge > Number(maxAge)) return false;
-      if (minGuests && c.event.guestCount < Number(minGuests)) return false;
-      if (maxGuests && c.event.guestCount > Number(maxGuests)) return false;
-      if (minTicket && c.event.totalValue < Number(minTicket)) return false;
-      if (maxTicket && c.event.totalValue > Number(maxTicket)) return false;
+      if (minGuests && (c.event.quantidade_convidados ?? 0) < Number(minGuests)) return false;
+      if (maxGuests && (c.event.quantidade_convidados ?? 0) > Number(maxGuests)) return false;
+      if (minTicket && c.event.valor_total < Number(minTicket)) return false;
+      if (maxTicket && c.event.valor_total > Number(maxTicket)) return false;
       return true;
     });
   }, [clients, minMonths, maxMonths, minAge, maxAge, minGuests, maxGuests, minTicket, maxTicket]);
 
-  const openWhatsApp = (phone: string, clientName: string) => {
-    const cleaned = phone.replace(/\D/g, "");
-    const msg = encodeURIComponent(`Olá ${clientName}! Tudo bem? Estamos com novidades para a próxima festinha! 🎉`);
-    window.open(`https://wa.me/55${cleaned}?text=${msg}`, "_blank");
-  };
-
-  const priorityBadge = (priority: "alta" | "media" | "baixa") => {
+  const priorityBadge = (priority: Priority) => {
     const styles = {
       alta: "bg-coral/15 text-coral border-coral/30",
       media: "bg-warning/15 text-warning border-warning/30",
@@ -90,6 +95,8 @@ const RecompraReport = () => {
 
   return (
     <div className="space-y-6">
+      {isLoading && <div className="glass-card p-4 text-sm text-muted-foreground">Carregando clientes para recompra...</div>}
+      {error && <div className="glass-card border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">Nao foi possivel carregar o relatório.</div>}
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-card p-4">
@@ -109,7 +116,7 @@ const RecompraReport = () => {
           <p className="text-sm text-muted-foreground">Ticket médio</p>
           <p className="text-2xl font-bold text-foreground">
             {filtered.length > 0
-              ? `R$ ${Math.round(filtered.reduce((sum, c) => sum + c.event.totalValue, 0) / filtered.length).toLocaleString("pt-BR")}`
+              ? formatCurrency(Math.round(filtered.reduce((sum, c) => sum + c.event.valor_total, 0) / filtered.length))
               : "—"}
           </p>
         </div>
@@ -187,12 +194,12 @@ const RecompraReport = () => {
             <TableBody>
               {filtered.map((c) => (
                 <TableRow key={c.event.id} className={c.priority === "alta" ? "bg-coral/5" : ""}>
-                  <TableCell className="font-medium">{c.event.clientName}</TableCell>
-                  <TableCell>{c.event.birthdayChildName}</TableCell>
+                  <TableCell className="font-medium">{c.event.cliente_nome}</TableCell>
+                  <TableCell>{c.event.aniversariante_nome ?? "Nao informado"}</TableCell>
                   <TableCell className="text-center">{c.previousAge} anos</TableCell>
                   <TableCell className="text-center font-semibold">{c.nextAge} anos</TableCell>
                   <TableCell>
-                    {new Date(c.event.partyDate).toLocaleDateString("pt-BR")}
+                    {formatDate(c.event.data_evento)}
                   </TableCell>
                   <TableCell className="text-center font-semibold">{c.monthsSinceParty}m</TableCell>
                   <TableCell>{priorityBadge(c.priority)}</TableCell>
@@ -202,7 +209,13 @@ const RecompraReport = () => {
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8 text-success hover:text-success"
-                        onClick={() => openWhatsApp(c.event.phone, c.event.clientName)}
+                        onClick={() =>
+                          openWhatsApp(
+                            c.event.cliente_telefone,
+                            c.event.cliente_nome,
+                            "Olá {{nome}}! Tudo bem? Estamos com novidades para a próxima festinha!",
+                          )
+                        }
                         title="Abrir WhatsApp"
                       >
                         <MessageCircle className="w-4 h-4" />
@@ -211,7 +224,7 @@ const RecompraReport = () => {
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8"
-                        onClick={() => window.open(`tel:${c.event.phone.replace(/\D/g, "")}`, "_self")}
+                        onClick={() => window.open(`tel:${c.event.cliente_telefone?.replace(/\D/g, "") ?? ""}`, "_self")}
                         title="Ligar"
                       >
                         <Phone className="w-4 h-4" />

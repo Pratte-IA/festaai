@@ -2,22 +2,18 @@ import { useState, useCallback } from "react";
 import AppLayout from "@/components/AppLayout";
 import MiniCalendar from "@/components/MiniCalendar";
 import DayDetailPanel from "@/components/DayDetailPanel";
-import { DayInfo, getDayInfo } from "@/data/calendarAvailability";
+import { DayInfo } from "@/features/calendario";
 
 const Calendario = () => {
   const [selectedDay, setSelectedDay] = useState<DayInfo | null>(null);
-  const [, setRefresh] = useState(0);
 
   const handleSelectDay = useCallback((day: DayInfo) => {
     setSelectedDay(day);
   }, []);
 
   const handleUpdate = useCallback(() => {
-    if (selectedDay) {
-      setSelectedDay(getDayInfo(selectedDay.date));
-    }
-    setRefresh((r) => r + 1);
-  }, [selectedDay]);
+    setSelectedDay(null);
+  }, []);
 
   return (
     <AppLayout>

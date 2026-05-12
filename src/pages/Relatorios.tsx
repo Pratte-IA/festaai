@@ -6,6 +6,8 @@ import FinanceiroReport from "@/components/FinanceiroReport";
 import OcupacaoReport from "@/components/OcupacaoReport";
 import PosVendaReport from "@/components/PosVendaReport";
 import { Users, UserX, DollarSign, CalendarDays, Star, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ReportComponentProps, ReportPeriod } from "@/features/reports";
 
 const reports = [
   {
@@ -45,7 +47,7 @@ const reports = [
   },
 ];
 
-const reportComponents: Record<string, { component: React.FC; title: string; subtitle: string }> = {
+const reportComponents: Record<string, { component: React.FC<ReportComponentProps>; title: string; subtitle: string }> = {
   recompra: { component: RecompraReport, title: "Clientes para Recompra", subtitle: "Clientes que já realizaram festas e têm potencial de retorno" },
   "leads-perdidos": { component: LeadsPerdidosReport, title: "Leads Perdidos", subtitle: "Leads sem contato há mais de 7 dias que podem ser reativados" },
   financeiro: { component: FinanceiroReport, title: "Financeiro — Valores em Aberto", subtitle: "Clientes com saldo devedor pendente" },
@@ -55,6 +57,11 @@ const reportComponents: Record<string, { component: React.FC; title: string; sub
 
 const Relatorios = () => {
   const [activeReport, setActiveReport] = useState<string | null>(null);
+  const currentYear = new Date().getFullYear();
+  const [period, setPeriod] = useState<ReportPeriod>({
+    endDate: `${currentYear}-12-31`,
+    startDate: `${currentYear}-01-01`,
+  });
 
   if (activeReport && reportComponents[activeReport]) {
     const { component: ReportComponent, title, subtitle } = reportComponents[activeReport];
@@ -70,7 +77,25 @@ const Relatorios = () => {
           <h1 className="text-2xl font-bold text-foreground">{title}</h1>
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
         </div>
-        <ReportComponent />
+        <div className="glass-card mb-6 grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Início do período</label>
+            <Input
+              type="date"
+              value={period.startDate}
+              onChange={(event) => setPeriod((current) => ({ ...current, startDate: event.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Fim do período</label>
+            <Input
+              type="date"
+              value={period.endDate}
+              onChange={(event) => setPeriod((current) => ({ ...current, endDate: event.target.value }))}
+            />
+          </div>
+        </div>
+        <ReportComponent period={period} />
       </AppLayout>
     );
   }

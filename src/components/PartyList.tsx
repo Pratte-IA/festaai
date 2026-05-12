@@ -1,30 +1,27 @@
 import { Calendar, DollarSign } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { DashboardParty } from "@/features/dashboard";
 
-interface Party {
-  id: string;
-  client: string;
-  date: string;
-  value: string;
-  status: string;
-  statusColor: string;
+interface PartyListProps {
+  isLoading?: boolean;
+  parties: DashboardParty[];
 }
 
-const mockParties: Party[] = [
-  { id: "1", client: "Ana Silva", date: "19 Abr", value: "R$ 3.500", status: "Confirmado", statusColor: "bg-success/15 text-success" },
-  { id: "2", client: "João Santos", date: "22 Abr", value: "R$ 4.200", status: "Pendente", statusColor: "bg-warning/15 text-warning" },
-  { id: "3", client: "Maria Costa", date: "26 Abr", value: "R$ 2.800", status: "Confirmado", statusColor: "bg-success/15 text-success" },
-  { id: "4", client: "Pedro Lima", date: "28 Abr", value: "R$ 5.000", status: "Planejando", statusColor: "bg-primary/15 text-primary" },
-  { id: "5", client: "Carla Oliveira", date: "03 Mai", value: "R$ 3.900", status: "Confirmado", statusColor: "bg-success/15 text-success" },
-];
+const PartyList = ({ isLoading = false, parties }: PartyListProps) => {
+  const navigate = useNavigate();
 
-const PartyList = () => {
   return (
     <div className="glass-card p-5 animate-fade-in">
       <h3 className="text-sm font-semibold text-foreground mb-4">Próximas Festas</h3>
       <div className="space-y-3">
-        {mockParties.map((party) => (
+        {isLoading && <p className="text-sm text-muted-foreground">Carregando próximas festas...</p>}
+        {!isLoading && parties.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhuma festa futura encontrada.</p>
+        )}
+        {parties.map((party) => (
           <div
             key={party.id}
+            onClick={() => navigate(`/crm/evento/${party.id}`)}
             className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
           >
             <div className="w-10 h-10 rounded-lg bg-rosa/15 flex items-center justify-center flex-shrink-0">

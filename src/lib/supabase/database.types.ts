@@ -12,6 +12,262 @@ export type Database = {
   };
   public: {
     Tables: {
+      billing_customers: {
+        Row: {
+          company_name: string | null;
+          created_at: string;
+          email: string;
+          id: number;
+          metadata: Json;
+          name: string;
+          phone: string | null;
+          provider: string;
+          provider_customer_id: string | null;
+          tenant_id: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          company_name?: string | null;
+          created_at?: string;
+          email: string;
+          id?: number;
+          metadata?: Json;
+          name: string;
+          phone?: string | null;
+          provider?: string;
+          provider_customer_id?: string | null;
+          tenant_id?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          company_name?: string | null;
+          created_at?: string;
+          email?: string;
+          id?: number;
+          metadata?: Json;
+          name?: string;
+          phone?: string | null;
+          provider?: string;
+          provider_customer_id?: string | null;
+          tenant_id?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "billing_customers_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      billing_subscriptions: {
+        Row: {
+          canceled_at: string | null;
+          checkout_url: string | null;
+          created_at: string;
+          current_period_end: string | null;
+          customer_id: number | null;
+          external_reference: string;
+          id: number;
+          metadata: Json;
+          next_due_date: string | null;
+          plan_id: number | null;
+          provider: string;
+          provider_subscription_id: string | null;
+          status: string;
+          tenant_id: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          canceled_at?: string | null;
+          checkout_url?: string | null;
+          created_at?: string;
+          current_period_end?: string | null;
+          customer_id?: number | null;
+          external_reference: string;
+          id?: number;
+          metadata?: Json;
+          next_due_date?: string | null;
+          plan_id?: number | null;
+          provider?: string;
+          provider_subscription_id?: string | null;
+          status?: string;
+          tenant_id?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          canceled_at?: string | null;
+          checkout_url?: string | null;
+          created_at?: string;
+          current_period_end?: string | null;
+          customer_id?: number | null;
+          external_reference?: string;
+          id?: number;
+          metadata?: Json;
+          next_due_date?: string | null;
+          plan_id?: number | null;
+          provider?: string;
+          provider_subscription_id?: string | null;
+          status?: string;
+          tenant_id?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "billing_subscriptions_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_customers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "billing_subscriptions_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "subscription_plans";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "billing_subscriptions_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      billing_webhook_events: {
+        Row: {
+          created_at: string;
+          event_type: string;
+          external_event_id: string;
+          id: number;
+          payload: Json;
+          processed_at: string | null;
+          provider: string;
+        };
+        Insert: {
+          created_at?: string;
+          event_type: string;
+          external_event_id: string;
+          id?: number;
+          payload: Json;
+          processed_at?: string | null;
+          provider: string;
+        };
+        Update: {
+          created_at?: string;
+          event_type?: string;
+          external_event_id?: string;
+          id?: number;
+          payload?: Json;
+          processed_at?: string | null;
+          provider?: string;
+        };
+        Relationships: [];
+      };
+      calendar_blocks: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          data: string;
+          id: number;
+          motivo: string | null;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          data: string;
+          id?: number;
+          motivo?: string | null;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          data?: string;
+          id?: number;
+          motivo?: string | null;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "calendar_blocks_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      email_events: {
+        Row: {
+          created_at: string;
+          error_message: string | null;
+          id: number;
+          metadata: Json;
+          payload: Json;
+          provider: string;
+          provider_message_id: string | null;
+          recipient_email: string;
+          recipient_name: string | null;
+          sent_at: string | null;
+          status: string;
+          subject: string;
+          template_key: string;
+          tenant_id: number | null;
+        };
+        Insert: {
+          created_at?: string;
+          error_message?: string | null;
+          id?: number;
+          metadata?: Json;
+          payload?: Json;
+          provider?: string;
+          provider_message_id?: string | null;
+          recipient_email: string;
+          recipient_name?: string | null;
+          sent_at?: string | null;
+          status?: string;
+          subject: string;
+          template_key: string;
+          tenant_id?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          error_message?: string | null;
+          id?: number;
+          metadata?: Json;
+          payload?: Json;
+          provider?: string;
+          provider_message_id?: string | null;
+          recipient_email?: string;
+          recipient_name?: string | null;
+          sent_at?: string | null;
+          status?: string;
+          subject?: string;
+          template_key?: string;
+          tenant_id?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "email_events_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       evento_notas: {
         Row: {
           created_at: string;
@@ -278,6 +534,7 @@ export type Database = {
           created_at: string;
           full_name: string | null;
           id: string;
+          is_platform_admin: boolean;
           phone: string | null;
           updated_at: string;
         };
@@ -286,6 +543,7 @@ export type Database = {
           created_at?: string;
           full_name?: string | null;
           id: string;
+          is_platform_admin?: boolean;
           phone?: string | null;
           updated_at?: string;
         };
@@ -294,10 +552,301 @@ export type Database = {
           created_at?: string;
           full_name?: string | null;
           id?: string;
+          is_platform_admin?: boolean;
           phone?: string | null;
           updated_at?: string;
         };
         Relationships: [];
+      };
+      subscription_plans: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          description: string;
+          id: number;
+          loyalty_months: number | null;
+          metadata: Json;
+          monthly_price: number;
+          name: string;
+          provider: string;
+          setup_installments: number | null;
+          setup_price: number;
+          slug: string;
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          description?: string;
+          id?: number;
+          loyalty_months?: number | null;
+          metadata?: Json;
+          monthly_price: number;
+          name: string;
+          provider?: string;
+          setup_installments?: number | null;
+          setup_price?: number;
+          slug: string;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          description?: string;
+          id?: number;
+          loyalty_months?: number | null;
+          metadata?: Json;
+          monthly_price?: number;
+          name?: string;
+          provider?: string;
+          setup_installments?: number | null;
+          setup_price?: number;
+          slug?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      tenant_additionals: {
+        Row: {
+          active: boolean;
+          category: string;
+          created_at: string;
+          created_by: string | null;
+          id: number;
+          name: string;
+          price: number;
+          tenant_id: number;
+          type: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          category?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          name: string;
+          price?: number;
+          tenant_id: number;
+          type?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          category?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          name?: string;
+          price?: number;
+          tenant_id?: number;
+          type?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_additionals_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_checklist_categories: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          created_by: string | null;
+          id: number;
+          name: string;
+          sort_order: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          name: string;
+          sort_order?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          name?: string;
+          sort_order?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_checklist_categories_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_checklist_items: {
+        Row: {
+          active: boolean;
+          category_id: number;
+          created_at: string;
+          created_by: string | null;
+          id: number;
+          label: string;
+          sort_order: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          category_id: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          label: string;
+          sort_order?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          category_id?: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          label?: string;
+          sort_order?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_checklist_items_category_tenant_fkey";
+            columns: ["category_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenant_checklist_categories";
+            referencedColumns: ["id", "tenant_id"];
+          },
+          {
+            foreignKeyName: "tenant_checklist_items_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_commercial_plans: {
+        Row: {
+          ativo: boolean;
+          created_at: string;
+          created_by: string | null;
+          fidelidade_meses: number | null;
+          id: number;
+          mensalidade_valor: number;
+          nome: string;
+          setup_parcelas: number | null;
+          setup_tipo: string;
+          setup_valor: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          ativo?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          fidelidade_meses?: number | null;
+          id?: number;
+          mensalidade_valor?: number;
+          nome: string;
+          setup_parcelas?: number | null;
+          setup_tipo?: string;
+          setup_valor?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          ativo?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          fidelidade_meses?: number | null;
+          id?: number;
+          mensalidade_valor?: number;
+          nome?: string;
+          setup_parcelas?: number | null;
+          setup_tipo?: string;
+          setup_valor?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_commercial_plans_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_financial_settings: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          default_down_payment_percentage: number;
+          max_installments: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          default_down_payment_percentage?: number;
+          max_installments?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          default_down_payment_percentage?: number;
+          max_installments?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_financial_settings_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: true;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       tenant_members: {
         Row: {
@@ -333,6 +882,106 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenant_members_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_message_templates: {
+        Row: {
+          body: string;
+          created_at: string;
+          created_by: string | null;
+          id: number;
+          key: string;
+          tenant_id: number;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          body?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          key: string;
+          tenant_id: number;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          key?: string;
+          tenant_id?: number;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_message_templates_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_packages: {
+        Row: {
+          active: boolean;
+          buffet: Json;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          equipe: Json;
+          estrutura: Json;
+          id: number;
+          name: string;
+          pricing_tiers: Json;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          buffet?: Json;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          equipe?: Json;
+          estrutura?: Json;
+          id?: number;
+          name: string;
+          pricing_tiers?: Json;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          buffet?: Json;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          equipe?: Json;
+          estrutura?: Json;
+          id?: number;
+          name?: string;
+          pricing_tiers?: Json;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_packages_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: false;
             referencedRelation: "tenants";
@@ -383,6 +1032,10 @@ export type Database = {
     Functions: {
       has_tenant_role: {
         Args: { allowed_roles: string[]; target_tenant_id: number };
+        Returns: boolean;
+      };
+      is_platform_admin: {
+        Args: never;
         Returns: boolean;
       };
       is_tenant_member: {

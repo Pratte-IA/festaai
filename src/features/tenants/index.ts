@@ -1,3 +1,4 @@
+export { canAccessTenantApp } from "./access-policy";
 export { TenantProvider } from "./tenant-provider";
 export { useCurrentTenant } from "./use-current-tenant";
 export { tenantsQueryKey, useTenants } from "./use-tenants";

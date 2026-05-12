@@ -1,7 +1,8 @@
-import { DayInfo, formatDateBR, addBlockedDate, removeBlockedDate } from "@/data/calendarAvailability";
 import { Calendar, Users, Lock, Unlock, PartyPopper, Eye } from "lucide-react";
+import { DayInfo, formatDateBR, useToggleCalendarBlock } from "@/features/calendario";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 interface DayDetailPanelProps {
@@ -17,6 +18,7 @@ const statusConfig = {
 
 const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
   const navigate = useNavigate();
+  const toggleCalendarBlock = useToggleCalendarBlock();
 
   if (!day) {
     return (
@@ -31,13 +33,21 @@ const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
 
   const config = statusConfig[day.status];
 
-  const handleToggleBlock = () => {
-    if (day.blockedManually) {
-      removeBlockedDate(day.date);
-    } else {
-      addBlockedDate(day.date);
+  const handleToggleBlock = async () => {
+    try {
+      await toggleCalendarBlock.mutateAsync({
+        blockId: day.blockId,
+        date: day.date,
+        isBlocked: day.blockedManually,
+      });
+      onUpdate();
+    } catch {
+      toast({
+        title: "Nao foi possivel atualizar a data",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
     }
-    onUpdate();
   };
 
   return (
@@ -65,17 +75,19 @@ const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
             >
               <div className="flex items-center gap-2 mb-1">
                 <PartyPopper className="w-4 h-4 text-rosa" />
-                <span className="text-sm font-medium text-foreground">{event.clientName}</span>
+                <span className="text-sm font-medium text-foreground">{event.cliente_nome}</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>🎂 {event.birthdayChildName}</span>
+                <span>{event.aniversariante_nome ?? "Aniversariante nao informado"}</span>
                 <span className="flex items-center gap-1">
                   <Users className="w-3 h-3" />
-                  {event.guestCount}
+                  {event.quantidade_convidados ?? 0}
                 </span>
-                <span>⏰ {event.partyTime}</span>
+                <span>{event.hora_evento?.slice(0, 5) ?? "Sem horario"}</span>
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">{event.selectedPackage}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {event.pacote_nome ?? "Pacote nao informado"}
+              </div>
             </button>
           ))}
         </div>
@@ -94,11 +106,11 @@ const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
             >
               <div className="flex items-center gap-2 mb-1">
                 <Eye className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">{event.clientName}</span>
+                <span className="text-sm font-medium text-foreground">{event.cliente_nome}</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>🎂 {event.birthdayChildName}</span>
-                <span>⏰ {event.partyTime}</span>
+                <span>{event.aniversariante_nome ?? "Aniversariante nao informado"}</span>
+                <span>{event.hora_evento?.slice(0, 5) ?? "Sem horario"}</span>
               </div>
             </button>
           ))}
@@ -125,6 +137,7 @@ const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
           size="sm"
           className="w-full"
           onClick={handleToggleBlock}
+          disabled={toggleCalendarBlock.isPending}
         >
           {day.blockedManually ? (
             <>

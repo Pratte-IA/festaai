@@ -1,24 +1,25 @@
 import { useState, useMemo } from "react";
-import { mockEvents } from "@/data/mockEvents";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Filter, ChevronDown, ChevronUp, CalendarDays } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDate, isDateInPeriod, ReportComponentProps, useReportData } from "@/features/reports";
 
 const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 const MONTHS = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
-const OcupacaoReport = () => {
+const OcupacaoReport = ({ period }: ReportComponentProps) => {
+  const { data, error, isLoading } = useReportData();
   const [showFilters, setShowFilters] = useState(false);
   const [monthFilter, setMonthFilter] = useState<string>("all");
   const [dayFilter, setDayFilter] = useState<string>("all");
 
   const festas = useMemo(() => {
-    return mockEvents
-      .filter((e) => e.eventType === "festa")
+    return (data?.eventos ?? [])
+      .filter((e) => e.tipo_evento === "festa" && isDateInPeriod(e.data_evento, period))
       .map((event) => {
-        const date = new Date(event.partyDate + "T12:00:00");
+        const date = new Date(`${event.data_evento}T12:00:00`);
         return {
           event,
           date,
@@ -28,7 +29,7 @@ const OcupacaoReport = () => {
         };
       })
       .sort((a, b) => a.date.getTime() - b.date.getTime());
-  }, []);
+  }, [data, period]);
 
   const filtered = useMemo(() => {
     return festas.filter((f) => {
@@ -41,7 +42,7 @@ const OcupacaoReport = () => {
   // Occupation rate: unique party dates / total days in filtered period
   const occupationRate = useMemo(() => {
     if (filtered.length === 0) return 0;
-    const uniqueDates = new Set(filtered.map((f) => f.event.partyDate));
+    const uniqueDates = new Set(filtered.map((f) => f.event.data_evento));
     // Estimate total available days based on filter
     let totalDays = 30; // default ~1 month
     if (monthFilter === "all") {
@@ -66,6 +67,8 @@ const OcupacaoReport = () => {
 
   return (
     <div className="space-y-6">
+      {isLoading && <div className="glass-card p-4 text-sm text-muted-foreground">Carregando ocupação...</div>}
+      {error && <div className="glass-card border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">Nao foi possivel carregar o relatório.</div>}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-card p-4">
           <p className="text-sm text-muted-foreground">Total de festas</p>
@@ -82,7 +85,7 @@ const OcupacaoReport = () => {
           <p className="text-sm text-muted-foreground">Média de convidados</p>
           <p className="text-2xl font-bold text-foreground">
             {filtered.length > 0
-              ? Math.round(filtered.reduce((s, f) => s + f.event.guestCount, 0) / filtered.length)
+              ? Math.round(filtered.reduce((s, f) => s + (f.event.quantidade_convidados ?? 0), 0) / filtered.length)
               : "—"}
           </p>
         </div>
@@ -143,12 +146,12 @@ const OcupacaoReport = () => {
             <TableBody>
               {filtered.map((f) => (
                 <TableRow key={f.event.id}>
-                  <TableCell>{f.date.toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell>{formatDate(f.event.data_evento)}</TableCell>
                   <TableCell>{f.weekdayLabel}</TableCell>
-                  <TableCell className="font-medium">{f.event.clientName}</TableCell>
-                  <TableCell>{f.event.selectedPackage}</TableCell>
-                  <TableCell className="text-center">{f.event.guestCount}</TableCell>
-                  <TableCell>{statusBadge(f.event.status)}</TableCell>
+                  <TableCell className="font-medium">{f.event.cliente_nome}</TableCell>
+                  <TableCell>{f.event.pacote_nome ?? "Nao informado"}</TableCell>
+                  <TableCell className="text-center">{f.event.quantidade_convidados ?? 0}</TableCell>
+                  <TableCell>{statusBadge(f.event.status_interno)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -1,12 +1,27 @@
 import { useState } from "react";
 import { Plus, Trash2, GripVertical, ChevronDown, ChevronRight } from "lucide-react";
-import { ChecklistCategory, ChecklistItem, defaultChecklistConfig } from "@/data/checklistConfig";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  useCreateChecklistCategory,
+  useCreateChecklistItem,
+  useDeleteChecklistCategory,
+  useDeleteChecklistItem,
+  useTenantChecklist,
+  useUpdateChecklistCategory,
+  useUpdateChecklistItem,
+} from "@/features/configuracoes";
+import { toast } from "@/hooks/use-toast";
 
 const ChecklistConfig = () => {
-  const [categories, setCategories] = useState<ChecklistCategory[]>(defaultChecklistConfig);
-  const [expandedCats, setExpandedCats] = useState<string[]>(categories.map((c) => c.id));
+  const { data: categories = [], isLoading } = useTenantChecklist();
+  const createCategory = useCreateChecklistCategory();
+  const createItem = useCreateChecklistItem();
+  const updateCategory = useUpdateChecklistCategory();
+  const updateItem = useUpdateChecklistItem();
+  const deleteCategory = useDeleteChecklistCategory();
+  const deleteItem = useDeleteChecklistItem();
+  const [expandedCats, setExpandedCats] = useState<string[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newItemInputs, setNewItemInputs] = useState<Record<string, string>>({});
 
@@ -16,57 +31,67 @@ const ChecklistConfig = () => {
     );
   };
 
-  const toggleCategory = (catId: string) => {
-    setCategories((prev) =>
-      prev.map((c) => (c.id === catId ? { ...c, active: !c.active } : c))
-    );
+  const toggleCategory = async (catId: string, active: boolean) => {
+    try {
+      await updateCategory.mutateAsync({ active, categoryId: catId });
+    } catch {
+      toast({ title: "Nao foi possivel atualizar a categoria", variant: "destructive" });
+    }
   };
 
-  const toggleItem = (catId: string, itemId: string) => {
-    setCategories((prev) =>
-      prev.map((c) =>
-        c.id === catId
-          ? { ...c, items: c.items.map((i) => (i.id === itemId ? { ...i, active: !i.active } : i)) }
-          : c
-      )
-    );
+  const toggleItem = async (itemId: string, active: boolean) => {
+    try {
+      await updateItem.mutateAsync({ active, itemId });
+    } catch {
+      toast({ title: "Nao foi possivel atualizar o item", variant: "destructive" });
+    }
   };
 
-  const removeItem = (catId: string, itemId: string) => {
-    setCategories((prev) =>
-      prev.map((c) =>
-        c.id === catId ? { ...c, items: c.items.filter((i) => i.id !== itemId) } : c
-      )
-    );
+  const removeItem = async (itemId: string) => {
+    try {
+      await deleteItem.mutateAsync(itemId);
+      toast({ title: "Item removido" });
+    } catch {
+      toast({ title: "Nao foi possivel remover o item", variant: "destructive" });
+    }
   };
 
-  const addItem = (catId: string) => {
+  const addItem = async (catId: string) => {
     const label = newItemInputs[catId]?.trim();
     if (!label) return;
-    const newItem: ChecklistItem = {
-      id: `${catId}-${Date.now()}`,
-      label,
-      active: true,
-    };
-    setCategories((prev) =>
-      prev.map((c) => (c.id === catId ? { ...c, items: [...c.items, newItem] } : c))
-    );
+
+    try {
+      await createItem.mutateAsync({ categoryId: catId, label });
+      toast({ title: "Item adicionado" });
+    } catch {
+      toast({ title: "Nao foi possivel adicionar o item", variant: "destructive" });
+      return;
+    }
+
     setNewItemInputs((prev) => ({ ...prev, [catId]: "" }));
   };
 
-  const addCategory = () => {
+  const addCategory = async () => {
     if (!newCategoryName.trim()) return;
-    const id = `cat-${Date.now()}`;
-    setCategories((prev) => [
-      ...prev,
-      { id, name: newCategoryName.trim(), active: true, items: [] },
-    ]);
-    setExpandedCats((prev) => [...prev, id]);
+
+    try {
+      await createCategory.mutateAsync(newCategoryName.trim());
+      toast({ title: "Categoria adicionada" });
+    } catch {
+      toast({ title: "Nao foi possivel adicionar a categoria", variant: "destructive" });
+      return;
+    }
+
     setNewCategoryName("");
   };
 
-  const removeCategory = (catId: string) => {
-    setCategories((prev) => prev.filter((c) => c.id !== catId));
+  const removeCategory = async (catId: string) => {
+    try {
+      await deleteCategory.mutateAsync(catId);
+      toast({ title: "Categoria removida" });
+    } catch {
+      toast({ title: "Nao foi possivel remover a categoria", variant: "destructive" });
+    }
   };
 
   return (
@@ -79,6 +104,13 @@ const ChecklistConfig = () => {
           </p>
         </div>
       </div>
+
+      {isLoading && <p className="text-sm text-muted-foreground">Carregando checklist...</p>}
+      {!isLoading && categories.length === 0 && (
+        <div className="rounded-xl border border-dashed border-border/60 p-8 text-center">
+          <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada.</p>
+        </div>
+      )}
 
       {categories.map((cat) => {
         const isExpanded = expandedCats.includes(cat.id);
@@ -101,13 +133,13 @@ const ChecklistConfig = () => {
                 <input
                   type="checkbox"
                   checked={cat.active}
-                  onChange={() => toggleCategory(cat.id)}
+                  onChange={() => void toggleCategory(cat.id, !cat.active)}
                   className="sr-only peer"
                 />
                 <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-foreground after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4 peer-checked:after:bg-primary-foreground" />
               </label>
               <button
-                onClick={() => removeCategory(cat.id)}
+                onClick={() => void removeCategory(cat.id)}
                 className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
@@ -131,13 +163,13 @@ const ChecklistConfig = () => {
                         <input
                           type="checkbox"
                           checked={item.active}
-                          onChange={() => toggleItem(cat.id, item.id)}
+                          onChange={() => void toggleItem(item.id, !item.active)}
                           className="sr-only peer"
                         />
                         <div className="w-8 h-4 bg-muted rounded-full peer peer-checked:bg-primary/70 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-foreground after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4 peer-checked:after:bg-primary-foreground" />
                       </label>
                       <button
-                        onClick={() => removeItem(cat.id, item.id)}
+                        onClick={() => void removeItem(item.id)}
                         className="p-1 rounded text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -152,10 +184,12 @@ const ChecklistConfig = () => {
                     placeholder="Novo item..."
                     value={newItemInputs[cat.id] || ""}
                     onChange={(e) => setNewItemInputs((prev) => ({ ...prev, [cat.id]: e.target.value }))}
-                    onKeyDown={(e) => e.key === "Enter" && addItem(cat.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") void addItem(cat.id);
+                    }}
                     className="text-sm h-8"
                   />
-                  <Button size="sm" variant="outline" className="h-8 px-3" onClick={() => addItem(cat.id)}>
+                  <Button size="sm" variant="outline" className="h-8 px-3" onClick={() => void addItem(cat.id)}>
                     <Plus className="w-3.5 h-3.5" />
                   </Button>
                 </div>
@@ -171,10 +205,12 @@ const ChecklistConfig = () => {
           placeholder="Nova categoria..."
           value={newCategoryName}
           onChange={(e) => setNewCategoryName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addCategory()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") void addCategory();
+          }}
           className="text-sm"
         />
-        <Button variant="outline" className="gap-2 shrink-0" onClick={addCategory}>
+        <Button variant="outline" className="gap-2 shrink-0" onClick={() => void addCategory()}>
           <Plus className="w-4 h-4" />
           Categoria
         </Button>

@@ -5,17 +5,25 @@ import { supabase } from "@/lib/supabase/client";
 
 export type AuthSessionStatus = "loading" | "authenticated" | "unauthenticated";
 
+export interface AuthUserProfile {
+  email: string | null;
+  id: string;
+  is_platform_admin: boolean;
+}
+
 export interface AuthSessionState {
   error: AuthError | null;
   isAuthenticated: boolean;
+  isPlatformAdmin: boolean;
   isLoading: boolean;
+  profile: AuthUserProfile | null;
   session: Session | null;
   status: AuthSessionStatus;
   user: User | null;
 }
 
 export interface UseAuthSessionResult extends AuthSessionState {
-  refreshSession: () => Promise<void>;
+  refreshSession: () => Promise<Pick<AuthSessionState, "profile" | "session">>;
   signOut: () => Promise<void>;
 }
 
@@ -27,8 +35,37 @@ const getStatus = (isLoading: boolean, session: Session | null): AuthSessionStat
   return session ? "authenticated" : "unauthenticated";
 };
 
+const getFallbackProfile = (user: User): AuthUserProfile => ({
+  email: user.email ?? null,
+  id: user.id,
+  is_platform_admin: false,
+});
+
+const fetchAuthProfile = async (user: User | null): Promise<AuthUserProfile | null> => {
+  if (!user) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, is_platform_admin")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error || !data) {
+    return getFallbackProfile(user);
+  }
+
+  return {
+    email: user.email ?? null,
+    id: data.id,
+    is_platform_admin: data.is_platform_admin === true,
+  };
+};
+
 export const useAuthSession = (): UseAuthSessionResult => {
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<AuthUserProfile | null>(null);
   const [error, setError] = useState<AuthError | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -36,10 +73,17 @@ export const useAuthSession = (): UseAuthSessionResult => {
     setIsLoading(true);
 
     const { data, error: sessionError } = await supabase.auth.getSession();
+    const nextProfile = await fetchAuthProfile(data.session?.user ?? null);
 
     setSession(data.session);
+    setProfile(nextProfile);
     setError(sessionError);
     setIsLoading(false);
+
+    return {
+      profile: nextProfile,
+      session: data.session,
+    };
   }, []);
 
   const signOut = useCallback(async () => {
@@ -51,6 +95,7 @@ export const useAuthSession = (): UseAuthSessionResult => {
     }
 
     setSession(null);
+    setProfile(null);
     setError(null);
   }, []);
 
@@ -59,12 +104,14 @@ export const useAuthSession = (): UseAuthSessionResult => {
 
     const loadSession = async () => {
       const { data, error: sessionError } = await supabase.auth.getSession();
+      const nextProfile = await fetchAuthProfile(data.session?.user ?? null);
 
       if (!isMounted) {
         return;
       }
 
       setSession(data.session);
+      setProfile(nextProfile);
       setError(sessionError);
       setIsLoading(false);
     };
@@ -72,9 +119,18 @@ export const useAuthSession = (): UseAuthSessionResult => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setError(null);
-      setIsLoading(false);
+      setIsLoading(true);
+
+      void fetchAuthProfile(nextSession?.user ?? null).then((nextProfile) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setSession(nextSession);
+        setProfile(nextProfile);
+        setError(null);
+        setIsLoading(false);
+      });
     });
 
     void loadSession();
@@ -86,11 +142,14 @@ export const useAuthSession = (): UseAuthSessionResult => {
   }, []);
 
   const status = getStatus(isLoading, session);
+  const isPlatformAdmin = profile?.is_platform_admin === true;
 
   return {
     error,
     isAuthenticated: status === "authenticated",
+    isPlatformAdmin,
     isLoading,
+    profile,
     refreshSession,
     session,
     signOut,

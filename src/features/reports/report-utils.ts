@@ -1,0 +1,30 @@
+import { Evento } from "@/features/eventos";
+
+import { ReportPeriod } from "./types";
+
+export type Priority = "alta" | "media" | "baixa";
+
+export const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
+export const formatDate = (date: string | null) =>
+  date ? new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR") : "Sem data";
+
+export const daysBetween = (fromDate: string, toDate = new Date()) =>
+  Math.floor((toDate.getTime() - new Date(fromDate).getTime()) / (1000 * 60 * 60 * 24));
+
+export const isDateInPeriod = (date: string | null, period: ReportPeriod) => {
+  if (!date) return false;
+  return date >= period.startDate && date <= period.endDate;
+};
+
+export const getEventTotalPaid = (event: Evento, paidByEventoId: Map<number, number>) =>
+  event.valor_entrada + (paidByEventoId.get(event.id) ?? 0);
+
+export const openWhatsApp = (phone: string | null, name: string, message: string) => {
+  const cleaned = phone?.replace(/\D/g, "") ?? "";
+
+  if (!cleaned) return;
+
+  window.open(`https://wa.me/55${cleaned}?text=${encodeURIComponent(message.replace("{{nome}}", name))}`, "_blank");
+};

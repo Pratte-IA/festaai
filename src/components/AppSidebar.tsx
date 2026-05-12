@@ -12,6 +12,7 @@ import {
   LogOut,
   UserCircle,
   Building2,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
@@ -22,6 +23,7 @@ const navItems = [
   { icon: Users, label: "CRM", path: "/crm" },
   { icon: Calendar, label: "Calendário", path: "/calendario" },
   { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
+  { icon: CreditCard, label: "Assinatura", path: "/minha-assinatura" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 

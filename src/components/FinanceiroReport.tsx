@@ -1,19 +1,30 @@
 import { useState, useMemo } from "react";
-import { mockEvents, Event } from "@/data/mockEvents";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, AlertTriangle, Filter, ChevronDown, ChevronUp, DollarSign } from "lucide-react";
+import { MessageCircle, Filter, ChevronDown, ChevronUp, DollarSign } from "lucide-react";
+import {
+  formatCurrency,
+  formatDate,
+  getEventTotalPaid,
+  isDateInPeriod,
+  openWhatsApp,
+  Priority,
+  ReportComponentProps,
+  useReportData,
+} from "@/features/reports";
+import { Evento } from "@/features/eventos";
 
 interface DebtClient {
-  event: Event;
+  event: Evento;
   totalPaid: number;
   balance: number;
-  priority: "alta" | "media" | "baixa";
+  priority: Priority;
 }
 
-const FinanceiroReport = () => {
+const FinanceiroReport = ({ period }: ReportComponentProps) => {
+  const { data, error, isLoading } = useReportData();
   const [showFilters, setShowFilters] = useState(false);
   const [minBalance, setMinBalance] = useState("");
   const [maxBalance, setMaxBalance] = useState("");
@@ -21,17 +32,19 @@ const FinanceiroReport = () => {
   const [maxTotal, setMaxTotal] = useState("");
 
   const clients = useMemo<DebtClient[]>(() => {
-    return mockEvents
+    if (!data) return [];
+
+    return data.eventos
       .filter((e) => {
-        const paid = e.payments.reduce((s, p) => s + p.amount, 0);
-        return e.totalValue - paid > 0;
+        const paid = getEventTotalPaid(e, data.paidByEventoId);
+        return isDateInPeriod(e.data_evento, period) && e.valor_total - paid > 0;
       })
       .map((event) => {
-        const totalPaid = event.payments.reduce((s, p) => s + p.amount, 0);
-        const balance = event.totalValue - totalPaid;
-        const ratio = balance / event.totalValue;
+        const totalPaid = getEventTotalPaid(event, data.paidByEventoId);
+        const balance = event.valor_total - totalPaid;
+        const ratio = event.valor_total > 0 ? balance / event.valor_total : 0;
 
-        let priority: "alta" | "media" | "baixa" = "baixa";
+        let priority: Priority = "baixa";
         if (ratio >= 0.6) priority = "alta";
         else if (ratio >= 0.3) priority = "media";
 
@@ -41,28 +54,21 @@ const FinanceiroReport = () => {
         const order = { alta: 0, media: 1, baixa: 2 };
         return order[a.priority] - order[b.priority] || b.balance - a.balance;
       });
-  }, []);
+  }, [data, period]);
 
   const filtered = useMemo(() => {
     return clients.filter((c) => {
       if (minBalance && c.balance < Number(minBalance)) return false;
       if (maxBalance && c.balance > Number(maxBalance)) return false;
-      if (minTotal && c.event.totalValue < Number(minTotal)) return false;
-      if (maxTotal && c.event.totalValue > Number(maxTotal)) return false;
+      if (minTotal && c.event.valor_total < Number(minTotal)) return false;
+      if (maxTotal && c.event.valor_total > Number(maxTotal)) return false;
       return true;
     });
   }, [clients, minBalance, maxBalance, minTotal, maxTotal]);
 
   const totalOpen = filtered.reduce((s, c) => s + c.balance, 0);
 
-  const openWhatsApp = (phone: string, name: string, balance: number) => {
-    const cleaned = phone.replace(/\D/g, "");
-    const formatted = balance.toLocaleString("pt-BR");
-    const msg = encodeURIComponent(`Olá ${name}! Passando para lembrar sobre o saldo de R$ ${formatted} referente à festinha. Podemos conversar? 😊`);
-    window.open(`https://wa.me/55${cleaned}?text=${msg}`, "_blank");
-  };
-
-  const priorityBadge = (p: "alta" | "media" | "baixa") => {
+  const priorityBadge = (p: Priority) => {
     const styles = {
       alta: "bg-coral/15 text-coral border-coral/30",
       media: "bg-warning/15 text-warning border-warning/30",
@@ -74,6 +80,8 @@ const FinanceiroReport = () => {
 
   return (
     <div className="space-y-6">
+      {isLoading && <div className="glass-card p-4 text-sm text-muted-foreground">Carregando relatório financeiro...</div>}
+      {error && <div className="glass-card border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">Nao foi possivel carregar o relatório.</div>}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-card p-4">
           <p className="text-sm text-muted-foreground">Clientes com saldo</p>
@@ -85,14 +93,14 @@ const FinanceiroReport = () => {
             <p className="text-sm text-muted-foreground">Total em aberto</p>
           </div>
           <p className="text-2xl font-bold text-coral">
-            R$ {totalOpen.toLocaleString("pt-BR")}
+            {formatCurrency(totalOpen)}
           </p>
         </div>
         <div className="glass-card p-4">
           <p className="text-sm text-muted-foreground">Ticket médio em aberto</p>
           <p className="text-2xl font-bold text-foreground">
             {filtered.length > 0
-              ? `R$ ${Math.round(totalOpen / filtered.length).toLocaleString("pt-BR")}`
+              ? formatCurrency(Math.round(totalOpen / filtered.length))
               : "—"}
           </p>
         </div>
@@ -146,18 +154,24 @@ const FinanceiroReport = () => {
             <TableBody>
               {filtered.map((c) => (
                 <TableRow key={c.event.id} className={c.priority === "alta" ? "bg-coral/5" : ""}>
-                  <TableCell className="font-medium">{c.event.clientName}</TableCell>
-                  <TableCell>{new Date(c.event.partyDate).toLocaleDateString("pt-BR")}</TableCell>
-                  <TableCell className="text-right">R$ {c.event.totalValue.toLocaleString("pt-BR")}</TableCell>
-                  <TableCell className="text-right text-success">R$ {c.totalPaid.toLocaleString("pt-BR")}</TableCell>
-                  <TableCell className="text-right font-semibold text-coral">R$ {c.balance.toLocaleString("pt-BR")}</TableCell>
+                  <TableCell className="font-medium">{c.event.cliente_nome}</TableCell>
+                  <TableCell>{formatDate(c.event.data_evento)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(c.event.valor_total)}</TableCell>
+                  <TableCell className="text-right text-success">{formatCurrency(c.totalPaid)}</TableCell>
+                  <TableCell className="text-right font-semibold text-coral">{formatCurrency(c.balance)}</TableCell>
                   <TableCell>{priorityBadge(c.priority)}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       size="sm"
                       variant="ghost"
                       className="gap-1 text-success hover:text-success"
-                      onClick={() => openWhatsApp(c.event.phone, c.event.clientName, c.balance)}
+                      onClick={() =>
+                        openWhatsApp(
+                          c.event.cliente_telefone,
+                          c.event.cliente_nome,
+                          `Olá {{nome}}! Passando para lembrar sobre o saldo de ${formatCurrency(c.balance)} referente à festinha. Podemos conversar?`,
+                        )
+                      }
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span className="hidden md:inline">Cobrar</span>

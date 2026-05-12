@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getMonthDays, DayInfo } from "@/data/calendarAvailability";
+import { DayInfo, formatDateKey, useCalendarDays } from "@/features/calendario";
 
 const DAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
 
@@ -16,9 +16,9 @@ const MiniCalendar = ({ onSelectDay, selectedDate }: MiniCalendarProps) => {
   const month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
   const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-  const monthDays = getMonthDays(year, month);
+  const todayStr = formatDateKey(today);
+  const { data, error, isLoading } = useCalendarDays(year, month);
+  const monthDays = data?.days ?? [];
 
   const monthNames = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -67,6 +67,15 @@ const MiniCalendar = ({ onSelectDay, selectedDate }: MiniCalendarProps) => {
         {Array.from({ length: firstDay }).map((_, i) => (
           <div key={`empty-${i}`} className="h-9" />
         ))}
+        {isLoading &&
+          Array.from({ length: 14 }).map((_, i) => (
+            <div key={`loading-${i}`} className="h-9 animate-pulse rounded-md bg-muted/40" />
+          ))}
+        {error && (
+          <div className="col-span-7 rounded-md bg-destructive/10 p-3 text-center text-xs text-destructive">
+            Nao foi possivel carregar o calendario.
+          </div>
+        )}
         {monthDays.map((day) => {
           const dayNum = parseInt(day.date.split("-")[2]);
           const isToday = day.date === todayStr;
