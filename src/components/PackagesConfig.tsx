@@ -1,9 +1,20 @@
 import { useState } from "react";
-import { useCreateTenantPackage, useDeleteTenantPackage, useTenantPackages } from "@/features/configuracoes";
+import {
+  useCreateTenantPackage,
+  useDeleteTenantPackage,
+  useTenantEstruturaSettings,
+  useTenantPackages,
+  emptyEstruturaBlock,
+} from "@/features/configuracoes";
 import PackageWizard from "./PackageWizard";
 import {
-  Users, ChevronDown, ChevronUp, UtensilsCrossed,
-  Gamepad2, UsersRound, Plus, Trash2,
+  Users,
+  ChevronDown,
+  ChevronUp,
+  UtensilsCrossed,
+  UsersRound,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -21,27 +32,33 @@ const PackagesConfig = ({ hideHeader }: Props) => {
   const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
 
+  const { data: tenantEstrutura, isLoading: isLoadingEstrutura } = useTenantEstruturaSettings();
+
   const toggleExpand = (id: string) => {
     setExpandedPkg(expandedPkg === id ? null : id);
   };
 
   if (wizardOpen) {
+    if (isLoadingEstrutura) {
+      return <p className="text-sm text-muted-foreground">Carregando estrutura...</p>;
+    }
     return (
       <PackageWizard
+        tenantEstrutura={tenantEstrutura ?? emptyEstruturaBlock()}
         onCancel={() => setWizardOpen(false)}
-          onSave={async (pkg) => {
-            const { id: _id, ...packageInput } = pkg;
-            try {
-              await createPackage.mutateAsync(packageInput);
-              toast({ title: "Pacote salvo", description: "O pacote foi adicionado as configuracoes." });
-              setWizardOpen(false);
-            } catch {
-              toast({
-                title: "Nao foi possivel salvar o pacote",
-                description: "Revise os dados e tente novamente.",
-                variant: "destructive",
-              });
-            }
+        onSave={async (pkg) => {
+          const { id: _id, ...packageInput } = pkg;
+          try {
+            await createPackage.mutateAsync(packageInput);
+            toast({ title: "Pacote salvo", description: "O pacote foi adicionado as configuracoes." });
+            setWizardOpen(false);
+          } catch {
+            toast({
+              title: "Nao foi possivel salvar o pacote",
+              description: "Revise os dados e tente novamente.",
+              variant: "destructive",
+            });
+          }
         }}
       />
     );
@@ -160,7 +177,7 @@ const PackagesConfig = ({ hideHeader }: Props) => {
                     <p className="text-sm text-muted-foreground leading-relaxed">{pkg.description}</p>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Buffet */}
                     <div className="rounded-xl bg-card/60 p-4 space-y-3">
                       <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -187,38 +204,6 @@ const PackagesConfig = ({ hideHeader }: Props) => {
                         <p className="text-xs font-medium text-muted-foreground mb-1.5">Bebidas</p>
                         <div className="flex flex-wrap gap-1">
                           {pkg.buffet.bebidas.map((item) => (
-                            <span key={item} className="text-xs bg-muted/60 text-foreground px-2 py-0.5 rounded-full">{item}</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Estrutura */}
-                    <div className="rounded-xl bg-card/60 p-4 space-y-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                        <Gamepad2 className="w-4 h-4 text-primary" />
-                        Estrutura
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-1.5">Brinquedos</p>
-                        <div className="flex flex-wrap gap-1">
-                          {pkg.estrutura.brinquedos.map((item) => (
-                            <span key={item} className="text-xs bg-muted/60 text-foreground px-2 py-0.5 rounded-full">{item}</span>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-1.5">Espaço</p>
-                        <div className="flex flex-wrap gap-1">
-                          {pkg.estrutura.espaco.map((item) => (
-                            <span key={item} className="text-xs bg-muted/60 text-foreground px-2 py-0.5 rounded-full">{item}</span>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-1.5">Decoração</p>
-                        <div className="flex flex-wrap gap-1">
-                          {pkg.estrutura.decoracao.map((item) => (
                             <span key={item} className="text-xs bg-muted/60 text-foreground px-2 py-0.5 rounded-full">{item}</span>
                           ))}
                         </div>

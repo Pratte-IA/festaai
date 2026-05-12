@@ -9,6 +9,11 @@ export {
   useUpdateChecklistItem,
 } from "./use-tenant-checklist";
 export {
+  emptyEstruturaBlock,
+  useSaveTenantEstruturaSettings,
+  useTenantEstruturaSettings,
+} from "./use-tenant-estrutura-settings";
+export {
   useCreateTenantAdditional,
   useCreateTenantPackage,
   useDeleteTenantAdditional,

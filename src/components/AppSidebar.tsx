@@ -8,14 +8,14 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   LogOut,
   UserCircle,
   Building2,
   CreditCard,
+  LifeBuoy,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
-import { useCurrentTenant } from "@/features/tenants";
+import { useCurrentTenant, useTenantAdminCapability } from "@/features/tenants";
 import { toast } from "@/hooks/use-toast";
 
 const navItems = [
@@ -34,6 +34,11 @@ const AppSidebar = () => {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { currentTenant, isLoading: isTenantLoading } = useCurrentTenant();
+  const { data: tenantAdminCap } = useTenantAdminCapability();
+
+  const navItemsResolved = tenantAdminCap?.isTenantAdmin
+    ? [...navItems, { icon: LifeBuoy, label: "Suporte", path: "/suporte" } as const]
+    : navItems;
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -55,19 +60,31 @@ const AppSidebar = () => {
       }`}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2 px-4 h-16 border-b border-sidebar-border">
-        <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-4 h-4 text-primary-foreground" />
-        </div>
-        {!collapsed && (
-          <span className="text-lg font-bold gradient-text">FestaAI</span>
-        )}
+      <div
+        className={`flex h-16 items-center border-b border-sidebar-border ${
+          collapsed ? "justify-center px-2" : "min-w-0 justify-start px-4"
+        }`}
+      >
+        <img
+          src="/horizontal-festaai.svg"
+          alt="FestaAI"
+          className={
+            collapsed
+              ? "h-10 w-10 shrink-0 object-cover object-left"
+              : "h-10 w-auto max-w-full min-w-0 shrink object-contain object-left"
+          }
+          loading="eager"
+          decoding="async"
+        />
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 py-4 px-2 space-y-1">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+        {navItemsResolved.map((item) => {
+          const isActive =
+            item.path === "/"
+              ? location.pathname === "/"
+              : location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
           return (
             <Link
               key={item.path}

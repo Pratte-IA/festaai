@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PackageData, Additional, PricingTier } from "@/data/packagesData";
+import type { EstruturaBlock } from "@/data/packagesData";
 import { Trash2 } from "lucide-react";
-import { buffetTemplates, estruturaTemplates, itemSuggestions } from "@/data/packageTemplates";
+import { buffetTemplates, itemSuggestions } from "@/data/packageTemplates";
 import {
   Users, Calendar, UtensilsCrossed, Gamepad2, UsersRound,
   Plus, X, Check, ChevronRight, ChevronLeft, Sparkles,
@@ -11,12 +12,18 @@ import {
 interface PackageWizardProps {
   onCancel: () => void;
   onSave: (pkg: PackageData) => void;
+  tenantEstrutura: EstruturaBlock;
 }
+
+const cloneEstrutura = (e: EstruturaBlock): EstruturaBlock => ({
+  brinquedos: [...e.brinquedos],
+  espaco: [...e.espaco],
+  decoracao: [...e.decoracao],
+});
 
 const steps = [
   { key: "info", label: "Informações", icon: Info },
   { key: "buffet", label: "Buffet", icon: UtensilsCrossed },
-  { key: "estrutura", label: "Estrutura", icon: Gamepad2 },
   { key: "equipe", label: "Equipe", icon: UsersRound },
   { key: "precos", label: "Preços", icon: DollarSign },
   { key: "adicionais", label: "Adicionais", icon: Tag },
@@ -37,10 +44,20 @@ const emptyPackage: PackageData = {
   ],
 };
 
-const PackageWizard = ({ onCancel, onSave }: PackageWizardProps) => {
+const PackageWizard = ({ onCancel, onSave, tenantEstrutura }: PackageWizardProps) => {
   const [stepIndex, setStepIndex] = useState(0);
-  const [pkg, setPkg] = useState<PackageData>(emptyPackage);
+  const [pkg, setPkg] = useState<PackageData>(() => ({
+    ...emptyPackage,
+    estrutura: cloneEstrutura(tenantEstrutura),
+  }));
   const [additionals, setAdditionals] = useState<Additional[]>([]);
+
+  useEffect(() => {
+    setPkg((p) => ({ ...p, estrutura: cloneEstrutura(tenantEstrutura) }));
+  }, [tenantEstrutura]);
+
+  const finalize = (data: PackageData) =>
+    onSave({ ...data, estrutura: cloneEstrutura(tenantEstrutura) });
 
   const currentStep = steps[stepIndex];
 
@@ -49,13 +66,9 @@ const PackageWizard = ({ onCancel, onSave }: PackageWizardProps) => {
 
   const updateBuffet = (field: keyof typeof pkg.buffet, value: string[]) =>
     setPkg({ ...pkg, buffet: { ...pkg.buffet, [field]: value } });
-  const updateEstrutura = (field: keyof typeof pkg.estrutura, value: string[]) =>
-    setPkg({ ...pkg, estrutura: { ...pkg.estrutura, [field]: value } });
 
   const applyBuffetTemplate = (key: keyof typeof buffetTemplates) =>
     setPkg({ ...pkg, buffet: { ...buffetTemplates[key] } });
-  const applyEstruturaTemplate = (key: keyof typeof estruturaTemplates) =>
-    setPkg({ ...pkg, estrutura: { ...estruturaTemplates[key] } });
 
   return (
     <div className="space-y-4">
@@ -68,7 +81,7 @@ const PackageWizard = ({ onCancel, onSave }: PackageWizardProps) => {
           <ArrowLeft className="w-4 h-4" /> Voltar para pacotes
         </button>
         <button
-          onClick={() => onSave(pkg)}
+          onClick={() => finalize(pkg)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           <Check className="w-4 h-4" /> Salvar pacote
@@ -156,6 +169,10 @@ const PackageWizard = ({ onCancel, onSave }: PackageWizardProps) => {
             {/* STEP: Buffet */}
             {currentStep.key === "buffet" && (
               <div className="space-y-5">
+                <p className="text-xs text-muted-foreground">
+                  Os brinquedos previstos na festa seguem o que você definiu em Configurações &gt;
+                  Estrutura — o preview ao lado apenas espelha essa lista.
+                </p>
                 <TemplateSelector
                   label="Usar modelo padrão de buffet"
                   options={[
@@ -186,40 +203,6 @@ const PackageWizard = ({ onCancel, onSave }: PackageWizardProps) => {
               </div>
             )}
 
-            {/* STEP: Estrutura */}
-            {currentStep.key === "estrutura" && (
-              <div className="space-y-5">
-                <TemplateSelector
-                  label="Usar modelo padrão de estrutura"
-                  options={[
-                    { key: "basico", label: "Básico" },
-                    { key: "completo", label: "Completo" },
-                    { key: "premium", label: "Premium" },
-                  ]}
-                  onSelect={(key) => applyEstruturaTemplate(key as keyof typeof estruturaTemplates)}
-                />
-                <ItemList
-                  label="Brinquedos"
-                  items={pkg.estrutura.brinquedos}
-                  suggestions={itemSuggestions.brinquedos}
-                  onChange={(v) => updateEstrutura("brinquedos", v)}
-                />
-                <ItemList
-                  label="Espaço"
-                  items={pkg.estrutura.espaco}
-                  suggestions={itemSuggestions.espaco}
-                  onChange={(v) => updateEstrutura("espaco", v)}
-                />
-                <ItemList
-                  label="Decoração"
-                  items={pkg.estrutura.decoracao}
-                  suggestions={itemSuggestions.decoracao}
-                  onChange={(v) => updateEstrutura("decoracao", v)}
-                />
-              </div>
-            )}
-
-            {/* STEP: Equipe */}
             {currentStep.key === "equipe" && (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
@@ -295,7 +278,7 @@ const PackageWizard = ({ onCancel, onSave }: PackageWizardProps) => {
               </button>
             ) : (
               <button
-                onClick={() => onSave(pkg)}
+                onClick={() => finalize(pkg)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-success text-success-foreground text-sm font-medium hover:bg-success/90 transition-colors"
               >
                 <Check className="w-4 h-4" /> Concluir e salvar
@@ -690,12 +673,8 @@ const PackagePreview = ({ pkg, additionals }: { pkg: PackageData; additionals: A
 
       <PreviewBlock
         icon={<Gamepad2 className="w-3.5 h-3.5 text-primary" />}
-        title="Estrutura"
-        sections={[
-          { label: "Brinquedos", items: pkg.estrutura.brinquedos },
-          { label: "Espaço", items: pkg.estrutura.espaco },
-          { label: "Decoração", items: pkg.estrutura.decoracao },
-        ]}
+        title="Brinquedos"
+        sections={[{ label: "Inclusos", items: pkg.estrutura.brinquedos }]}
       />
 
       <div>

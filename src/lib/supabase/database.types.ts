@@ -168,6 +168,107 @@ export type Database = {
         };
         Relationships: [];
       };
+      agent_change_request_internal: {
+        Row: {
+          admin_notes: string | null;
+          request_id: number;
+          updated_at: string;
+        };
+        Insert: {
+          admin_notes?: string | null;
+          request_id: number;
+          updated_at?: string;
+        };
+        Update: {
+          admin_notes?: string | null;
+          request_id?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "agent_change_request_internal_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: true;
+            referencedRelation: "agent_change_requests";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      agent_change_requests: {
+        Row: {
+          approved_at: string | null;
+          billing_status: string;
+          completed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          desired_example: string | null;
+          estimated_price: number | null;
+          id: number;
+          impact_area: string | null;
+          request_type: string;
+          reviewed_at: string | null;
+          status: string;
+          tenant_id: number;
+          title: string;
+          updated_at: string;
+          urgency: string;
+        };
+        Insert: {
+          approved_at?: string | null;
+          billing_status?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description: string;
+          desired_example?: string | null;
+          estimated_price?: number | null;
+          id?: number;
+          impact_area?: string | null;
+          request_type: string;
+          reviewed_at?: string | null;
+          status?: string;
+          tenant_id: number;
+          title: string;
+          updated_at?: string;
+          urgency?: string;
+        };
+        Update: {
+          approved_at?: string | null;
+          billing_status?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          desired_example?: string | null;
+          estimated_price?: number | null;
+          id?: number;
+          impact_area?: string | null;
+          request_type?: string;
+          reviewed_at?: string | null;
+          status?: string;
+          tenant_id?: number;
+          title?: string;
+          updated_at?: string;
+          urgency?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "agent_change_requests_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "agent_change_requests_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       calendar_blocks: {
         Row: {
           created_at: string;
@@ -606,6 +707,89 @@ export type Database = {
         };
         Relationships: [];
       };
+      support_error_report_files: {
+        Row: {
+          byte_size: number;
+          content_type: string | null;
+          created_at: string;
+          file_name: string;
+          id: number;
+          report_id: number;
+          sort_order: number;
+          storage_path: string;
+        };
+        Insert: {
+          byte_size: number;
+          content_type?: string | null;
+          created_at?: string;
+          file_name: string;
+          id?: number;
+          report_id: number;
+          sort_order?: number;
+          storage_path: string;
+        };
+        Update: {
+          byte_size?: number;
+          content_type?: string | null;
+          created_at?: string;
+          file_name?: string;
+          id?: number;
+          report_id?: number;
+          sort_order?: number;
+          storage_path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_error_report_files_report_id_fkey";
+            columns: ["report_id"];
+            isOneToOne: false;
+            referencedRelation: "support_error_reports";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      support_error_reports: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          id: number;
+          tenant_id: number;
+          title: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          description: string;
+          id?: number;
+          tenant_id: number;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: number;
+          tenant_id?: number;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_error_reports_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_error_reports_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       tenant_additionals: {
         Row: {
           active: boolean;
@@ -805,6 +989,41 @@ export type Database = {
             foreignKeyName: "tenant_commercial_plans_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_estrutura_settings: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          estrutura: Json;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          estrutura?: Json;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          estrutura?: Json;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_estrutura_settings_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: true;
             referencedRelation: "tenants";
             referencedColumns: ["id"];
           },

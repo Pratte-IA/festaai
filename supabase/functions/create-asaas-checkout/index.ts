@@ -17,6 +17,40 @@ const checkoutSchema = z.object({
   tenantId: z.number().int().positive().optional().nullable(),
 });
 
+/** Condições comerciais na página /contratar (valores alinhados ao frontend). Se não houver linha no DB com o mesmo slug, usamos um plano ativo como FK e estes valores no Asaas. */
+const COMMERCIAL_CONDITIONS: Record<
+  string,
+  {
+    monthly_price: number;
+    setup_price: number;
+    setup_installments: number | null;
+    loyalty_months: number | null;
+    name: string;
+  }
+> = {
+  avista: {
+    monthly_price: 750,
+    setup_price: 2200,
+    setup_installments: 1,
+    loyalty_months: null,
+    name: "À vista",
+  },
+  parcelado: {
+    monthly_price: 750,
+    setup_price: 2500,
+    setup_installments: 6,
+    loyalty_months: null,
+    name: "Parcelado",
+  },
+  fidelidade: {
+    monthly_price: 650,
+    setup_price: 2000,
+    setup_installments: 6,
+    loyalty_months: 12,
+    name: "Fidelidade",
+  },
+};
+
 type AsaasCustomer = {
   id: string;
 };
@@ -117,7 +151,9 @@ Deno.serve(async (req) => {
 
     const input = checkoutSchema.parse(await req.json());
 
-    const { data: plan, error: planError } = await supabase
+    const condition = COMMERCIAL_CONDITIONS[input.planSlug];
+
+    const { data: planInitial, error: planError } = await supabase
       .from("subscription_plans")
       .select("*")
       .eq("slug", input.planSlug)
@@ -125,7 +161,31 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (planError) throw planError;
-    if (!plan) return jsonResponse({ error: "Plano indisponível." }, 404);
+
+    let plan = planInitial;
+
+    if (!plan) {
+      if (!condition) {
+        return jsonResponse({ error: "Plano indisponível." }, 404);
+      }
+      const { data: fallback, error: fbErr } = await supabase
+        .from("subscription_plans")
+        .select("*")
+        .eq("active", true)
+        .order("id", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (fbErr) throw fbErr;
+      if (!fallback) return jsonResponse({ error: "Plano indisponível." }, 404);
+      plan = {
+        ...fallback,
+        ...condition,
+        slug: input.planSlug,
+        id: fallback.id,
+      };
+    } else if (condition) {
+      plan = { ...plan, ...condition, id: plan.id };
+    }
 
     const customer = await asaasRequest<AsaasCustomer>("/customers", {
       body: JSON.stringify({
@@ -186,7 +246,11 @@ Deno.serve(async (req) => {
         checkout_url: checkoutUrl,
         customer_id: billingCustomer.id,
         external_reference: externalReference,
-        metadata: { asaas_customer_id: customer.id, setup_price: plan.setup_price },
+        metadata: {
+          asaas_customer_id: customer.id,
+          setup_price: plan.setup_price,
+          condition_slug: input.planSlug,
+        },
         next_due_date: nextDueDateISO,
         plan_id: plan.id,
         provider: "asaas",

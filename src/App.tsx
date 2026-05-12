@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, PlatformAdminRoute, ProtectedRoute } from "@/features/auth";
-import { TenantProvider } from "@/features/tenants";
+import { TenantAdminRoute, TenantProvider } from "@/features/tenants";
 
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AdminTenantDetail = lazy(() => import("./pages/AdminTenantDetail.tsx"));
@@ -13,10 +13,23 @@ const Index = lazy(() => import("./pages/Index.tsx"));
 const CRM = lazy(() => import("./pages/CRM.tsx"));
 const Calendario = lazy(() => import("./pages/Calendario.tsx"));
 const Relatorios = lazy(() => import("./pages/Relatorios.tsx"));
-const Configuracoes = lazy(() => import("./pages/Configuracoes.tsx"));
+const ConfiguracoesLayout = lazy(() => import("./pages/configuracoes/layout"));
+const ConfiguracoesHome = lazy(() => import("./pages/configuracoes/index"));
+const ConfiguracoesPacotes = lazy(() => import("./pages/configuracoes/Pacotes"));
+const ConfiguracoesChecklist = lazy(() => import("./pages/configuracoes/Checklist"));
+const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
+const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
+const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
 const MinhaAssinatura = lazy(() => import("./pages/MinhaAssinatura.tsx"));
+const AdminAgentRequests = lazy(() => import("./pages/AdminAgentRequests.tsx"));
+const AdminAgentRequestDetail = lazy(() => import("./pages/AdminAgentRequestDetail.tsx"));
+const Suporte = lazy(() => import("./pages/Suporte.tsx"));
+const SuporteAgente = lazy(() => import("./pages/SuporteAgente.tsx"));
+const SuporteErros = lazy(() => import("./pages/SuporteErros.tsx"));
+const SuporteNovo = lazy(() => import("./pages/SuporteNovo.tsx"));
+const SuporteDetalhe = lazy(() => import("./pages/SuporteDetalhe.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
 const NovaSenha = lazy(() => import("./pages/NovaSenha.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -40,6 +53,22 @@ const App = () => (
             <Suspense fallback={<RouteLoader />}>
               <Routes>
                 <Route
+                  path="/admin/agent-requests/:id"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminAgentRequestDetail />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/agent-requests"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminAgentRequests />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
                   path="/admin/tenants/:id"
                   element={
                     <PlatformAdminRoute>
@@ -53,6 +82,56 @@ const App = () => (
                     <PlatformAdminRoute>
                       <Admin />
                     </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/suporte/novo"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <SuporteNovo />
+                      </TenantAdminRoute>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/suporte/agente"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <SuporteAgente />
+                      </TenantAdminRoute>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/suporte/erros"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <SuporteErros />
+                      </TenantAdminRoute>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/suporte/:id"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <SuporteDetalhe />
+                      </TenantAdminRoute>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/suporte"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <Suporte />
+                      </TenantAdminRoute>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
@@ -99,10 +178,16 @@ const App = () => (
                   path="/configuracoes"
                   element={
                     <ProtectedRoute>
-                      <Configuracoes />
+                      <ConfiguracoesLayout />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<ConfiguracoesHome />} />
+                  <Route path="pacotes" element={<ConfiguracoesPacotes />} />
+                  <Route path="estrutura" element={<ConfiguracoesEstrutura />} />
+                  <Route path="checklist" element={<ConfiguracoesChecklist />} />
+                  <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
+                </Route>
                 <Route
                   path="/minha-assinatura"
                   element={
@@ -111,6 +196,7 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
                 <Route path="/contratar" element={<Contratar />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/nova-senha" element={<NovaSenha />} />

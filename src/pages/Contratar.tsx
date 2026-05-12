@@ -1,63 +1,12 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { BarChart3, Check, Clock, Layers, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useCreateCheckout, useSubscriptionPlans, type SubscriptionPlan } from "@/features/billing";
-import { toast } from "@/hooks/use-toast";
-
-const formatBRL = (value: number) =>
-  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 });
-
-const setupLabel = (plan: SubscriptionPlan) => {
-  if (!plan.setup_installments || plan.setup_installments <= 1) {
-    return `${formatBRL(plan.setup_price)} à vista`;
-  }
-  const parcelas = plan.setup_installments;
-  const valorParcela = plan.setup_price / parcelas;
-  return `${parcelas}x de ${formatBRL(valorParcela)}`;
-};
-
-const planButtonLabel = (plan: SubscriptionPlan) => {
-  const slug = plan.slug.toLowerCase();
-  if (slug === "starter") return "Escolher Starter";
-  if (slug === "profissional") return "Escolher Profissional";
-  if (slug === "enterprise") return "Escolher Enterprise";
-  return `Escolher ${plan.name}`;
-};
-
-const planBenefits: Record<string, string[]> = {
-  Starter: [
-    "CRM completo de leads e eventos",
-    "Calendário e checklist de festas",
-    "Suporte por e-mail",
-  ],
-  Profissional: [
-    "Tudo do Starter",
-    "Relatórios financeiros e ocupação",
-    "Pacotes e adicionais ilimitados",
-    "Suporte prioritário",
-  ],
-  Enterprise: [
-    "Tudo do Profissional",
-    "Multi-unidades e usuários ilimitados",
-    "Integrações personalizadas",
-    "Gerente de sucesso dedicado",
-  ],
-};
-
-const gradientButtonClass =
-  "rounded-xl bg-[linear-gradient(135deg,#5158e7_0%,#d95693_58%,#c77dff_100%)] font-semibold text-white shadow-lg shadow-[#5158e7]/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#d95693]/35 focus-visible:ring-[#5158e7]/40";
+  COMMERCIAL_CONDITIONS,
+  contratarCtaGradientClass,
+  formatContratarBRL,
+} from "./contratar-commercial-data";
 
 const quickBenefits = [
   {
@@ -83,53 +32,18 @@ const quickBenefits = [
 ] as const;
 
 const Contratar = () => {
-  const { data: activePlans = [], error: plansError, isLoading: isLoadingPlans } = useSubscriptionPlans();
-  const createCheckout = useCreateCheckout();
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", empresa: "", mensagem: "" });
-  const highlightedPlanId = useMemo(
-    () => activePlans.find((plan) => plan.slug === "profissional")?.id ?? activePlans[1]?.id,
-    [activePlans],
-  );
+  const { hash } = useLocation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    const id = hash.startsWith("#") ? hash.slice(1) : hash;
+    if (!id) return;
 
-    if (!selectedPlan) {
-      return;
-    }
+    const timer = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
 
-    try {
-      const checkout = await createCheckout.mutateAsync({
-        companyName: form.empresa,
-        email: form.email,
-        message: form.mensagem,
-        name: form.nome,
-        phone: form.telefone,
-        planSlug: selectedPlan.slug,
-      });
-
-      toast({
-        title: "Contratação iniciada",
-        description: checkout.checkoutUrl
-          ? "Abrimos a página segura de pagamento do Asaas."
-          : "Recebemos sua solicitação. A equipe comercial continuará o atendimento.",
-      });
-
-      if (checkout.checkoutUrl) {
-        window.open(checkout.checkoutUrl, "_blank", "noopener,noreferrer");
-      }
-
-      setSelectedPlan(null);
-      setForm({ nome: "", email: "", telefone: "", empresa: "", mensagem: "" });
-    } catch (error) {
-      toast({
-        title: "Não foi possível iniciar a contratação",
-        description: error instanceof Error ? error.message : "Tente novamente em instantes.",
-        variant: "destructive",
-      });
-    }
-  };
+    return () => window.clearTimeout(timer);
+  }, [hash]);
 
   return (
     <div
@@ -189,7 +103,11 @@ const Contratar = () => {
               >
                 <Link to="/login">Já tenho conta</Link>
               </Button>
-              <Button asChild size="sm" className={`min-h-[44px] border-0 ${gradientButtonClass} px-4`}>
+              <Button
+                asChild
+                size="sm"
+                className={`min-h-[44px] border-0 ${contratarCtaGradientClass} px-4`}
+              >
                 <Link to="/login">Entrar</Link>
               </Button>
             </div>
@@ -222,7 +140,11 @@ const Contratar = () => {
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Button asChild size="lg" className={`min-h-[48px] w-full px-10 sm:w-auto ${gradientButtonClass}`}>
+            <Button
+              asChild
+              size="lg"
+              className={`min-h-[48px] w-full px-10 sm:w-auto ${contratarCtaGradientClass}`}
+            >
               <a href="#planos">Ver planos</a>
             </Button>
             <Button
@@ -261,30 +183,22 @@ const Contratar = () => {
         <section id="planos" className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
           <div className="mb-14 text-center">
             <h2 className="text-balance text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-[2.65rem]">
-              Escolha o plano ideal para organizar e vender mais festas
+              Escolha a condição de contratação do FestaAI
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-pretty text-zinc-400">
-              Valores mensais claros e setup definido conforme cada plano. Foco na operação da sua casa de festas.
+              Em todas as condições, você recebe a mesma plataforma FestaAI. A diferença está apenas no setup,
+              mensalidade e fidelidade.
+            </p>
+            <p className="mx-auto mt-3 max-w-2xl text-pretty text-sm text-zinc-500">
+              Todas as opções incluem a plataforma completa FestaAI. O que muda é apenas a forma de contratação.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:gap-8">
-            {isLoadingPlans && (
-              <div className="col-span-full rounded-2xl border border-white/[0.08] bg-white/[0.03] p-14 text-center text-zinc-400 backdrop-blur-sm">
-                Carregando planos...
-              </div>
-            )}
-
-            {plansError && (
-              <div className="col-span-full rounded-2xl border border-red-400/35 bg-red-500/10 p-14 text-center text-red-300">
-                Não foi possível carregar os planos agora.
-              </div>
-            )}
-
-            {activePlans.map((plan) => {
-              const isHighlighted = plan.id === highlightedPlanId;
-              const benefits = planBenefits[plan.name] ?? [];
-              const cta = planButtonLabel(plan);
+            {COMMERCIAL_CONDITIONS.map((plan) => {
+              const isHighlighted = plan.highlight;
+              const benefits = plan.benefits;
+              const cta = plan.cta;
 
               const innerCard = (
                 <div
@@ -294,11 +208,11 @@ const Contratar = () => {
                       : "rounded-2xl border border-white/[0.08] hover:border-white/[0.14]"
                   }`}
                 >
-                  {isHighlighted && (
+                  {isHighlighted && plan.badgeLabel && (
                     <div
-                      className={`absolute left-1/2 top-0 z-10 flex -translate-x-1/2 -translate-y-1/2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white ${gradientButtonClass} shadow-md`}
+                      className={`absolute left-1/2 top-0 z-10 flex -translate-x-1/2 -translate-y-1/2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white ${contratarCtaGradientClass} shadow-md`}
                     >
-                      Mais escolhido
+                      {plan.badgeLabel}
                     </div>
                   )}
 
@@ -309,17 +223,17 @@ const Contratar = () => {
 
                   <div className="mb-6 border-b border-white/[0.08] pb-6">
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <span className="text-4xl font-extrabold tabular-nums text-white">{formatBRL(plan.monthly_price)}</span>
+                      <span className="text-4xl font-extrabold tabular-nums text-white">
+                        {formatContratarBRL(plan.monthly_price)}
+                      </span>
                       <span className="text-sm font-medium text-zinc-400">/mês</span>
                     </div>
                     <p className="mt-3 text-sm text-zinc-400">
-                      Setup: <span className="font-semibold text-zinc-200">{setupLabel(plan)}</span>
+                      Setup: <span className="font-semibold text-zinc-200">{plan.setupDisplay}</span>
                     </p>
-                    {plan.loyalty_months ? (
-                      <p className="mt-2 text-xs text-zinc-500">Fidelidade de {plan.loyalty_months} meses</p>
-                    ) : (
-                      <p className="mt-2 text-xs text-zinc-500">Sem fidelidade</p>
-                    )}
+                    <p className="mt-2 text-xs text-zinc-500">
+                      Fidelidade: <span className="font-medium text-zinc-400">{plan.loyaltyLabel}</span>
+                    </p>
                   </div>
 
                   {benefits.length > 0 && (
@@ -334,29 +248,29 @@ const Contratar = () => {
                   )}
 
                   <Button
+                    asChild
                     className={`mt-auto min-h-[48px] w-full font-semibold ${
                       isHighlighted
-                        ? `${gradientButtonClass} border-0`
+                        ? `${contratarCtaGradientClass} border-0`
                         : "border border-white/[0.2] bg-white/[0.06] text-white hover:bg-white/12"
                     }`}
                     size="lg"
-                    onClick={() => setSelectedPlan(plan)}
                   >
-                    {cta}
+                    <Link to={`/contratar/iniciar/${plan.slug}`}>{cta}</Link>
                   </Button>
                 </div>
               );
 
               return isHighlighted ? (
                 <div
-                  key={plan.id}
+                  key={plan.slug}
                   className="rounded-2xl bg-gradient-to-br from-[#5158e7] via-[#d95693] to-[#c77dff] p-[2px] shadow-[0_0_52px_-8px_rgba(81,88,231,0.55),0_0_32px_-12px_rgba(217,86,147,0.35)]"
                 >
                   {innerCard}
                 </div>
               ) : (
                 <div
-                  key={plan.id}
+                  key={plan.slug}
                   className="transition-all duration-300 hover:shadow-[0_0_32px_-14px_rgba(81,88,231,0.25)]"
                 >
                   {innerCard}
@@ -373,9 +287,13 @@ const Contratar = () => {
               Pare de perder oportunidades e comece a organizar seu salão para vender mais.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-zinc-300">
-              Escolha o plano que combina com a sua operação e avance para a próxima etapa com segurança.
+              Escolha a condição que faz sentido para a sua operação e avance para a próxima etapa com segurança.
             </p>
-            <Button asChild size="lg" className={`mt-10 min-h-[52px] px-10 ${gradientButtonClass}`}>
+            <Button
+              asChild
+              size="lg"
+              className={`mt-10 min-h-[52px] px-10 ${contratarCtaGradientClass}`}
+            >
               <a href="#planos">Quero implementar no meu negócio</a>
             </Button>
           </div>
@@ -387,111 +305,6 @@ const Contratar = () => {
             © {new Date().getFullYear()} FestaAI. Todos os direitos reservados.
           </div>
         </footer>
-
-        {/* Modal de contratação */}
-        <Dialog open={!!selectedPlan} onOpenChange={(open) => !open && setSelectedPlan(null)}>
-          <DialogContent className="border-white/10 bg-[#12121a] text-zinc-100 shadow-2xl sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-white">Contratar plano {selectedPlan?.name}</DialogTitle>
-              <DialogDescription className="text-zinc-400">
-                {selectedPlan && (
-                  <>
-                    {formatBRL(selectedPlan.monthly_price)}/mês · Setup: {setupLabel(selectedPlan)}
-                  </>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome" className="text-zinc-200">
-                  Nome completo
-                </Label>
-                <Input
-                  id="nome"
-                  required
-                  value={form.nome}
-                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                  placeholder="Seu nome"
-                  className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-zinc-200">
-                    E-mail
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="voce@email.com"
-                    className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefone" className="text-zinc-200">
-                    Telefone
-                  </Label>
-                  <Input
-                    id="telefone"
-                    required
-                    value={form.telefone}
-                    onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-                    placeholder="(11) 99999-9999"
-                    className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="empresa" className="text-zinc-200">
-                  Nome da casa de festas
-                </Label>
-                <Input
-                  id="empresa"
-                  required
-                  value={form.empresa}
-                  onChange={(e) => setForm({ ...form, empresa: e.target.value })}
-                  placeholder="Ex: Buffet Encantado"
-                  className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="mensagem" className="text-zinc-200">
-                  Mensagem (opcional)
-                </Label>
-                <Textarea
-                  id="mensagem"
-                  rows={3}
-                  value={form.mensagem}
-                  onChange={(e) => setForm({ ...form, mensagem: e.target.value })}
-                  placeholder="Conte um pouco sobre sua operação"
-                  className="resize-none border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
-                />
-              </div>
-
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="text-zinc-400 hover:bg-white/5 hover:text-white"
-                  onClick={() => setSelectedPlan(null)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={createCheckout.isPending}
-                  className={`border-0 ${gradientButtonClass}`}
-                >
-                  {createCheckout.isPending ? "Criando checkout..." : "Ir para pagamento"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

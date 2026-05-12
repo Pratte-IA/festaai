@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays, CreditCard, ListChecks, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, CreditCard, LifeBuoy, ListChecks, ShieldCheck, Users } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -284,7 +284,17 @@ const AdminTenantDetail = () => {
               </h1>
               {tenant && <p className="mt-2 text-sm text-muted-foreground">{tenant.slug}</p>}
             </div>
-            {tenant && <Badge variant={getStatusVariant(tenant.status)}>{tenant.status}</Badge>}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+              {tenant && (
+                <Button asChild size="sm" variant="outline">
+                  <Link to={`/admin/agent-requests?tenantId=${tenant.id}`}>
+                    <LifeBuoy className="mr-2 h-4 w-4" />
+                    Solicitações do agente
+                  </Link>
+                </Button>
+              )}
+              {tenant && <Badge variant={getStatusVariant(tenant.status)}>{tenant.status}</Badge>}
+            </div>
           </div>
         </header>
 
