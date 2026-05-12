@@ -137,7 +137,7 @@ const Login = () => {
             alt="Arte da marca FestaAI"
             className="block h-full w-full scale-[1.01] object-cover"
           />
-          <div className="absolute inset-x-10 bottom-12 text-white">
+          <div className="absolute inset-x-10 bottom-24 text-white md:bottom-28 lg:bottom-36">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm shadow-sm backdrop-blur">
               <Sparkles className="h-4 w-4 text-[#e6bce9]" />
               Centro de controle para casas de festas infantis
@@ -156,19 +156,6 @@ const Login = () => {
           <div className="absolute -bottom-20 left-8 h-64 w-64 rounded-full bg-[#5158e7]/15 blur-3xl" />
           <div className="absolute right-12 top-1/2 h-40 w-40 rounded-full bg-[#d95693]/10 blur-2xl" />
 
-          <div className="absolute inset-x-4 top-5 z-20 flex justify-center sm:inset-x-8 lg:inset-x-12">
-            <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-2 text-sm shadow-[0_16px_45px_rgba(34,20,60,0.10)] backdrop-blur-xl">
-              <span className="font-medium text-muted-foreground">Ainda não tem uma conta?</span>
-              <Button
-                asChild
-                className="h-8 rounded-full bg-[linear-gradient(135deg,#5158e7_0%,#d95693_100%)] px-4 text-xs font-semibold text-white shadow-md shadow-[#5158e7]/20 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#d95693]/25 focus-visible:ring-[#5158e7]/30"
-                size="sm"
-              >
-                <Link to="/contratar">Ver planos</Link>
-              </Button>
-            </div>
-          </div>
-
           <div className="relative z-10 flex w-full max-w-[480px] flex-col">
             <div className="mb-6 text-center lg:hidden">
               <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground">
@@ -177,6 +164,19 @@ const Login = () => {
               <p className="mt-3 text-base leading-7 text-muted-foreground">
                 Acesse o painel para acompanhar o que precisa de ação, mover eventos no CRM e manter a operação simples para toda a equipe.
               </p>
+            </div>
+
+            <div className="mb-2 flex shrink-0 justify-center">
+              <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-2 text-sm shadow-[0_16px_45px_rgba(34,20,60,0.10)] backdrop-blur-xl">
+                <span className="font-medium text-muted-foreground">Ainda não tem uma conta?</span>
+                <Button
+                  asChild
+                  className="h-8 rounded-full bg-[linear-gradient(135deg,#5158e7_0%,#d95693_100%)] px-4 text-xs font-semibold text-white shadow-md shadow-[#5158e7]/20 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#d95693]/25 focus-visible:ring-[#5158e7]/30"
+                  size="sm"
+                >
+                  <Link to="/contratar">Ver planos</Link>
+                </Button>
+              </div>
             </div>
 
             <Card className="rounded-3xl border-white/80 bg-white/85 shadow-[0_24px_70px_rgba(34,20,60,0.14)] backdrop-blur-xl">
