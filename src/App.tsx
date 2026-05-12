@@ -10,6 +10,7 @@ import { TenantAdminRoute, TenantProvider } from "@/features/tenants";
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AdminTenantDetail = lazy(() => import("./pages/AdminTenantDetail.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
+const Usuarios = lazy(() => import("./pages/Usuarios.tsx"));
 const CRM = lazy(() => import("./pages/CRM.tsx"));
 const Calendario = lazy(() => import("./pages/Calendario.tsx"));
 const Relatorios = lazy(() => import("./pages/Relatorios.tsx"));
@@ -131,6 +132,14 @@ const App = () => (
                       <TenantAdminRoute>
                         <Suporte />
                       </TenantAdminRoute>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/usuarios"
+                  element={
+                    <ProtectedRoute>
+                      <Usuarios />
                     </ProtectedRoute>
                   }
                 />

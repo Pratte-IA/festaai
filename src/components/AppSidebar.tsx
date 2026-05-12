@@ -10,12 +10,14 @@ import {
   ChevronRight,
   LogOut,
   UserCircle,
+  UserCog,
   Building2,
   CreditCard,
   LifeBuoy,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
-import { useCurrentTenant, useTenantAdminCapability } from "@/features/tenants";
+import { useCurrentTenant } from "@/features/tenants";
+import { useTenantAdminCapability } from "@/features/tenants/use-tenant-admin-capability";
 import { toast } from "@/hooks/use-toast";
 
 const navItems = [
@@ -25,6 +27,7 @@ const navItems = [
   { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
   { icon: CreditCard, label: "Assinatura", path: "/minha-assinatura" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
+  { icon: UserCog, label: "Usuários", path: "/usuarios" },
 ];
 
 const AppSidebar = () => {
@@ -107,36 +110,54 @@ const AppSidebar = () => {
         })}
       </nav>
 
-      {/* Tenant */}
-      <div className="mx-2 mb-2 rounded-lg border border-sidebar-border bg-sidebar-accent/40 p-2">
-        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-2"}`}>
-          <Building2 className="h-5 w-5 flex-shrink-0 text-primary" />
-          {!collapsed && (
-            <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-sidebar-accent-foreground">
-                {isTenantLoading ? "Carregando empresa..." : currentTenant?.name ?? "Sem empresa ativa"}
-              </p>
-              <p className="text-[11px] text-sidebar-foreground">
-                {currentTenant?.slug ?? "Tenant"}
-              </p>
+      {/* Empresa atual + conta (um bloco) */}
+      <div
+        className="mx-2 mb-2 rounded-lg border border-sidebar-border bg-sidebar-accent/40 p-2.5"
+        role="group"
+        aria-label={
+          collapsed
+            ? [
+                currentTenant?.name ? `Empresa: ${currentTenant.name}` : null,
+                user?.email ? `Conta: ${user.email}` : null,
+              ]
+                .filter(Boolean)
+                .join(". ") || "Empresa e conta"
+            : undefined
+        }
+        title={
+          collapsed
+            ? [currentTenant?.name, user?.email].filter(Boolean).join(" · ") || undefined
+            : undefined
+        }
+      >
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-1.5 py-0.5">
+            <Building2 className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+            <div className="h-3 w-px shrink-0 bg-sidebar-border/70" aria-hidden />
+            <UserCircle className="h-4 w-4 shrink-0 text-sidebar-foreground" aria-hidden />
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            <div className="flex gap-2">
+              <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold text-sidebar-accent-foreground">
+                  {isTenantLoading ? "Carregando empresa…" : currentTenant?.name ?? "Sem empresa ativa"}
+                </p>
+                <p className="truncate text-[11px] text-sidebar-foreground">
+                  {isTenantLoading ? "…" : currentTenant?.slug ?? "Tenant"}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* User */}
-      <div className="mx-2 mb-2 rounded-lg border border-sidebar-border bg-sidebar-accent/40 p-2">
-        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-2"}`}>
-          <UserCircle className="h-5 w-5 flex-shrink-0 text-sidebar-foreground" />
-          {!collapsed && (
-            <div className="min-w-0">
-              <p className="truncate text-xs font-medium text-sidebar-accent-foreground">
+            <div className="border-t border-sidebar-border/50" />
+            <div className="flex gap-2">
+              <UserCircle className="mt-0.5 h-4 w-4 shrink-0 text-sidebar-foreground" aria-hidden />
+              <p className="min-w-0 truncate text-[11px] leading-snug text-sidebar-accent-foreground">
                 {user?.email ?? "Usuário"}
               </p>
-              <p className="text-[11px] text-sidebar-foreground">Sessão ativa</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Sign out */}

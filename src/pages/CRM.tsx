@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
+import { LeadsUploadDialog } from "@/components/eventos/LeadsUploadDialog";
 import KanbanBoard from "@/components/KanbanBoard";
 import { FunnelType, funnelTabs, stageMap, useCreateEvento, useEventos } from "@/features/eventos";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ const CRM = () => {
   const navigate = useNavigate();
   const [activeFunnel, setActiveFunnel] = useState<FunnelType>("vendas");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const { data: eventos = [], error, isLoading } = useEventos({ funnel: activeFunnel });
   const createEvento = useCreateEvento();
   const stages = stageMap[activeFunnel];
@@ -42,10 +44,16 @@ const CRM = () => {
           <h1 className="text-2xl font-bold text-foreground">CRM</h1>
           <p className="text-sm text-muted-foreground mt-1">Gerencie seus eventos do início ao fim</p>
         </div>
-        <Button className="gap-2" onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4" />
-          Novo evento
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button className="gap-2" variant="outline" type="button" onClick={() => setIsUploadOpen(true)}>
+            <Upload className="h-4 w-4" />
+            Importar CSV
+          </Button>
+          <Button className="gap-2" type="button" onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Novo evento
+          </Button>
+        </div>
       </div>
 
       {/* Funnel tabs */}
@@ -80,6 +88,8 @@ const CRM = () => {
       {!isLoading && !error && (
         <KanbanBoard events={eventos} funnel={activeFunnel} stages={[...stages]} />
       )}
+
+      <LeadsUploadDialog onOpenChange={setIsUploadOpen} open={isUploadOpen} />
 
       <EventoFormDialog
         initialFunnel={activeFunnel}

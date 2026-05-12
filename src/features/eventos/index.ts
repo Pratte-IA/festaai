@@ -7,6 +7,14 @@ export {
 } from "./constants";
 export { eventosQueryKeys } from "./query-keys";
 export { getDefaultStageForFunnel, isStageValidForFunnel } from "./stage-validation";
+export {
+  MAX_LEAD_UPLOAD_ROWS,
+  parseLeadImportCsv,
+  resolveEtapaCell,
+  resolveFunilCell,
+} from "./parse-leads-csv";
+export type { LeadCsvParseResult, LeadCsvRowParsed } from "./parse-leads-csv";
+export { useBulkCreateEventos } from "./use-bulk-create-eventos";
 export { useCreateEvento } from "./use-create-evento";
 export { useEvento } from "./use-evento";
 export { useCreateEventoNota, useEventoNotas } from "./use-evento-notas";
