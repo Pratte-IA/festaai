@@ -1152,8 +1152,16 @@ export type Database = {
         Row: {
           created_at: string;
           created_by: string | null;
+          default_down_payment_fixed_value: number | null;
           default_down_payment_percentage: number;
+          down_payment_method: string;
+          down_payment_mode: string;
+          installment_limit_mode: string;
           max_installments: number;
+          remaining_card_installments: boolean;
+          remaining_due_before_event_enabled: boolean;
+          remaining_due_days_before_event: number;
+          remaining_pix_installments: boolean;
           tenant_id: number;
           updated_at: string;
           updated_by: string | null;
@@ -1161,8 +1169,16 @@ export type Database = {
         Insert: {
           created_at?: string;
           created_by?: string | null;
+          default_down_payment_fixed_value?: number | null;
           default_down_payment_percentage?: number;
+          down_payment_method?: string;
+          down_payment_mode?: string;
+          installment_limit_mode?: string;
           max_installments?: number;
+          remaining_card_installments?: boolean;
+          remaining_due_before_event_enabled?: boolean;
+          remaining_due_days_before_event?: number;
+          remaining_pix_installments?: boolean;
           tenant_id: number;
           updated_at?: string;
           updated_by?: string | null;
@@ -1170,8 +1186,16 @@ export type Database = {
         Update: {
           created_at?: string;
           created_by?: string | null;
+          default_down_payment_fixed_value?: number | null;
           default_down_payment_percentage?: number;
+          down_payment_method?: string;
+          down_payment_mode?: string;
+          installment_limit_mode?: string;
           max_installments?: number;
+          remaining_card_installments?: boolean;
+          remaining_due_before_event_enabled?: boolean;
+          remaining_due_days_before_event?: number;
+          remaining_pix_installments?: boolean;
           tenant_id?: number;
           updated_at?: string;
           updated_by?: string | null;

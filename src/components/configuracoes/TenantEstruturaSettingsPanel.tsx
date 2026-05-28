@@ -32,10 +32,14 @@ export const TenantEstruturaSettingsPanel = () => {
         title: "Estrutura salva",
         description: "Os pacotes ativos foram atualizados com esta configuração.",
       });
-    } catch {
+    } catch (error) {
+      const description =
+        error instanceof Error && error.message.trim().length > 0
+          ? error.message
+          : "Tente novamente em instantes.";
       toast({
         title: "Não foi possível salvar",
-        description: "Tente novamente em instantes.",
+        description,
         variant: "destructive",
       });
     }

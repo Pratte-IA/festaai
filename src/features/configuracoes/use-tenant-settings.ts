@@ -4,6 +4,10 @@ import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
+import {
+  defaultFinancialSettings,
+  type FinancialSettings,
+} from "./financial-settings-types";
 import { configuracoesQueryKeys } from "./query-keys";
 
 export interface MessageTemplate {
@@ -13,10 +17,12 @@ export interface MessageTemplate {
   title: string;
 }
 
-export interface FinancialSettings {
-  default_down_payment_percentage: number;
-  max_installments: number;
-}
+export type { FinancialSettings } from "./financial-settings-types";
+export {
+  defaultFinancialSettings,
+  downPaymentMethodLabels,
+  installmentLimitModeLabels,
+} from "./financial-settings-types";
 
 export const defaultMessageTemplates: MessageTemplate[] = [
   { key: "boas-vindas", title: "Boas Vindas", body: "" },
@@ -98,8 +104,30 @@ export const useTenantFinancialSettings = () => {
       if (error) throw error;
 
       return {
-        default_down_payment_percentage: data?.default_down_payment_percentage ?? 30,
-        max_installments: data?.max_installments ?? 3,
+        ...defaultFinancialSettings,
+        default_down_payment_fixed_value: data?.default_down_payment_fixed_value ?? null,
+        default_down_payment_percentage:
+          data?.default_down_payment_percentage ?? defaultFinancialSettings.default_down_payment_percentage,
+        down_payment_method:
+          (data?.down_payment_method as FinancialSettings["down_payment_method"]) ??
+          defaultFinancialSettings.down_payment_method,
+        down_payment_mode:
+          (data?.down_payment_mode as FinancialSettings["down_payment_mode"]) ??
+          defaultFinancialSettings.down_payment_mode,
+        installment_limit_mode:
+          (data?.installment_limit_mode as FinancialSettings["installment_limit_mode"]) ??
+          defaultFinancialSettings.installment_limit_mode,
+        max_installments: data?.max_installments ?? defaultFinancialSettings.max_installments,
+        remaining_card_installments:
+          data?.remaining_card_installments ?? defaultFinancialSettings.remaining_card_installments,
+        remaining_due_before_event_enabled:
+          data?.remaining_due_before_event_enabled ??
+          defaultFinancialSettings.remaining_due_before_event_enabled,
+        remaining_due_days_before_event:
+          data?.remaining_due_days_before_event ??
+          defaultFinancialSettings.remaining_due_days_before_event,
+        remaining_pix_installments:
+          data?.remaining_pix_installments ?? defaultFinancialSettings.remaining_pix_installments,
       };
     },
     queryKey: configuracoesQueryKeys.financial(currentTenantId),
@@ -117,8 +145,16 @@ export const useSaveTenantFinancialSettings = () => {
 
       const { error } = await supabase.from("tenant_financial_settings").upsert({
         created_by: user.id,
+        default_down_payment_fixed_value: settings.default_down_payment_fixed_value,
         default_down_payment_percentage: settings.default_down_payment_percentage,
+        down_payment_method: settings.down_payment_method,
+        down_payment_mode: settings.down_payment_mode,
+        installment_limit_mode: settings.installment_limit_mode,
         max_installments: settings.max_installments,
+        remaining_card_installments: settings.remaining_card_installments,
+        remaining_due_before_event_enabled: settings.remaining_due_before_event_enabled,
+        remaining_due_days_before_event: settings.remaining_due_days_before_event,
+        remaining_pix_installments: settings.remaining_pix_installments,
         tenant_id: currentTenantId,
         updated_by: user.id,
       });

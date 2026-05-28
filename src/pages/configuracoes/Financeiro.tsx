@@ -3,7 +3,10 @@ import { SettingsSection } from "./settings-section";
 
 const ConfiguracoesFinanceiro = () => (
   <div className="max-w-6xl">
-    <SettingsSection title="Regras padrão">
+    <SettingsSection
+      title="Regras padrão"
+      description="Configure entrada, formas de pagamento do restante e limites de parcelamento."
+    >
       <FinancialSettingsConfig />
     </SettingsSection>
   </div>

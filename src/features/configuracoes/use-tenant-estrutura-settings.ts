@@ -24,6 +24,24 @@ const mapRow = (estrutura: unknown): EstruturaBlock => {
   };
 };
 
+/** PostgREST: relacao (tabela/view) ainda nao existe no schema cache remoto. */
+const isMissingRelationError = (error: { code?: string } | null | undefined) =>
+  error?.code === "PGRST205";
+
+const loadEstruturaFromPackages = async (tenantId: number): Promise<EstruturaBlock> => {
+  const { data, error } = await supabase
+    .from("tenant_packages")
+    .select("estrutura")
+    .eq("tenant_id", tenantId)
+    .eq("active", true)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return mapRow(data?.estrutura);
+};
+
 export const useTenantEstruturaSettings = () => {
   const { currentTenantId } = useCurrentTenant();
 
@@ -37,8 +55,9 @@ export const useTenantEstruturaSettings = () => {
         .maybeSingle();
 
       if (error) {
-        // Tabela ainda nao migrada no ambiente remoto — segue com estrutura vazia.
-        if (error.code === "PGRST205") return emptyEstruturaBlock();
+        if (isMissingRelationError(error)) {
+          return loadEstruturaFromPackages(currentTenantId as number);
+        }
         throw error;
       }
 
@@ -74,7 +93,9 @@ export const useSaveTenantEstruturaSettings = () => {
         { onConflict: "tenant_id" },
       );
 
-      if (upsertError) throw upsertError;
+      if (upsertError && !isMissingRelationError(upsertError)) {
+        throw upsertError;
+      }
 
       const { error: pkgError } = await supabase
         .from("tenant_packages")
