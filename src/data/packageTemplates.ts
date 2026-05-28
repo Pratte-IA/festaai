@@ -3,17 +3,20 @@
 export const buffetTemplates = {
   basico: {
     salgados: ["Coxinha", "Bolinha de queijo", "Mini pizza"],
-    doces: ["Brigadeiro", "Beijinho", "Bolo decorado"],
+    doces: ["Brigadeiro", "Beijinho"],
+    bolo: ["Bolo decorado"],
     bebidas: ["Suco natural", "Refrigerante", "Água"],
   },
   completo: {
     salgados: ["Coxinha", "Bolinha de queijo", "Mini pizza", "Empada", "Enroladinho"],
-    doces: ["Brigadeiro", "Beijinho", "Cajuzinho", "Bolo temático", "Cupcakes"],
+    doces: ["Brigadeiro", "Beijinho", "Cajuzinho", "Cupcakes"],
+    bolo: ["Bolo temático"],
     bebidas: ["Suco natural", "Refrigerante", "Água", "Chá gelado"],
   },
   gourmet: {
     salgados: ["Coxinha gourmet", "Bolinha de queijo", "Mini pizza artesanal", "Empada de camarão", "Mini hambúrguer"],
-    doces: ["Brigadeiro gourmet", "Beijinho", "Bolo designer", "Mesa de doces completa"],
+    doces: ["Brigadeiro gourmet", "Beijinho", "Mesa de doces completa"],
+    bolo: ["Bolo designer"],
     bebidas: ["Suco natural premium", "Refrigerante", "Água com gás", "Drinks kids"],
   },
 };
@@ -39,7 +42,8 @@ export const estruturaTemplates = {
 // Sugestões para autocomplete
 export const itemSuggestions = {
   salgados: ["Coxinha", "Bolinha de queijo", "Mini pizza", "Empada", "Enroladinho", "Mini hambúrguer", "Esfiha", "Pastel", "Quibe", "Risole"],
-  doces: ["Brigadeiro", "Beijinho", "Cajuzinho", "Bolo decorado", "Cupcakes", "Mesa de doces", "Brownie", "Pirulito", "Fios de ovos", "Casadinho"],
+  doces: ["Brigadeiro", "Beijinho", "Cajuzinho", "Cupcakes", "Mesa de doces", "Brownie", "Pirulito", "Fios de ovos", "Casadinho"],
+  bolo: ["Bolo decorado", "Bolo temático", "Bolo personalizado", "Bolo de chocolate", "Bolo de morango", "Naked cake", "Bolo fake", "Topo personalizado"],
   bebidas: ["Suco natural", "Refrigerante", "Água", "Chá gelado", "Drinks kids", "Água com gás", "Água saborizada"],
   brinquedos: ["Piscina de bolinhas", "Cama elástica", "Tobogã inflável", "Oficina de slime", "Just Dance", "Karaokê", "Pula-pula", "Escorregador", "Mesa de jogos"],
   espaco: ["Salão principal (4h)", "Salão principal (5h)", "Salão principal (6h)", "Área externa", "Espaço lounge pais", "Área kids", "Camarim"],

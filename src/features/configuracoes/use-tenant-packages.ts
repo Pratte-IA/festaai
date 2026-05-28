@@ -4,7 +4,14 @@ import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 import { Json } from "@/lib/supabase/database.types";
-import { Additional, PackageData } from "@/data/packagesData";
+import {
+  Additional,
+  normalizeBuffetBlock,
+  normalizeEquipe,
+  normalizePackagePricing,
+  PackageData,
+  serializePackagePricing,
+} from "@/data/packagesData";
 
 import { configuracoesQueryKeys } from "./query-keys";
 
@@ -19,15 +26,20 @@ const mapPackageRow = (row: {
   estrutura: unknown;
   equipe: unknown;
   pricing_tiers: unknown;
-}): PackageData => ({
-  id: String(row.id),
-  name: row.name,
-  description: row.description,
-  buffet: row.buffet as PackageData["buffet"],
-  estrutura: row.estrutura as PackageData["estrutura"],
-  equipe: row.equipe as PackageData["equipe"],
-  pricingTiers: row.pricing_tiers as PackageData["pricingTiers"],
-});
+}): PackageData => {
+  const { schedule, tiers } = normalizePackagePricing(row.pricing_tiers);
+
+  return {
+    id: String(row.id),
+    name: row.name,
+    description: row.description ?? "",
+    buffet: normalizeBuffetBlock(row.buffet),
+    estrutura: row.estrutura as PackageData["estrutura"],
+    equipe: normalizeEquipe(row.equipe, tiers.map((tier) => tier.id)),
+    pricingSchedule: schedule,
+    pricingTiers: tiers,
+  };
+};
 
 const mapAdditionalRow = (row: {
   category: string;
@@ -64,6 +76,37 @@ export const useTenantPackages = () => {
   });
 };
 
+export const useUpdateTenantPackage = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (pkg: PackageData) => {
+      if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
+
+      const { error } = await supabase
+        .from("tenant_packages")
+        .update({
+          buffet: pkg.buffet as unknown as Json,
+          description: pkg.description,
+          equipe: pkg.equipe as unknown as Json,
+          estrutura: pkg.estrutura as unknown as Json,
+          name: pkg.name.trim(),
+          pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
+          updated_by: user.id,
+        })
+        .eq("tenant_id", currentTenantId)
+        .eq("id", Number(pkg.id));
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.packages(currentTenantId) });
+    },
+  });
+};
+
 export const useCreateTenantPackage = () => {
   const queryClient = useQueryClient();
   const { currentTenantId } = useCurrentTenant();
@@ -73,19 +116,24 @@ export const useCreateTenantPackage = () => {
     mutationFn: async (pkg: PackageInput) => {
       if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
-      const { error } = await supabase.from("tenant_packages").insert({
-        buffet: pkg.buffet as unknown as Json,
-        created_by: user.id,
-        description: pkg.description,
-        equipe: pkg.equipe as unknown as Json,
-        estrutura: pkg.estrutura as unknown as Json,
-        name: pkg.name,
-        pricing_tiers: pkg.pricingTiers as unknown as Json,
-        tenant_id: currentTenantId,
-        updated_by: user.id,
-      });
+      const { data, error } = await supabase
+        .from("tenant_packages")
+        .insert({
+          buffet: pkg.buffet as unknown as Json,
+          created_by: user.id,
+          description: pkg.description,
+          equipe: pkg.equipe as unknown as Json,
+          estrutura: pkg.estrutura as unknown as Json,
+          name: pkg.name.trim(),
+          pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
+          tenant_id: currentTenantId,
+          updated_by: user.id,
+        })
+        .select("id")
+        .single();
 
       if (error) throw error;
+      if (!data?.id) throw new Error("Pacote nao foi persistido no banco de dados.");
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.packages(currentTenantId) });

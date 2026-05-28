@@ -23,6 +23,8 @@ export { useCreateEventoTarefa, useEventoTarefas, useToggleEventoTarefa } from "
 export { useEventos } from "./use-eventos";
 export { useUpdateEvento } from "./use-update-evento";
 export { useUpdateEventoStage } from "./use-update-evento-stage";
+export { useEventoClosingResponses, useSubmitClosingForm } from "./use-evento-closing-form";
+export type { ClosingFormSubmission } from "./use-evento-closing-form";
 export type {
   Evento,
   EventoInsert,

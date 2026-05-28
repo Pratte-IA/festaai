@@ -36,7 +36,11 @@ export const useTenantEstruturaSettings = () => {
         .eq("tenant_id", currentTenantId as number)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        // Tabela ainda nao migrada no ambiente remoto — segue com estrutura vazia.
+        if (error.code === "PGRST205") return emptyEstruturaBlock();
+        throw error;
+      }
 
       return mapRow(data?.estrutura);
     },

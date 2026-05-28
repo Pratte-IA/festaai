@@ -31,24 +31,6 @@ export const COMMERCIAL_CONDITIONS: ContratarCommercialCondition[] = [
     loyaltyLabel: "Não",
   },
   {
-    slug: "parcelado",
-    name: "Parcelado",
-    description: "Para quem prefere diluir o valor da implantação e manter liberdade contratual.",
-    monthly_price: 750,
-    setupDisplay: "R$ 2.500,00 em até 6x",
-    benefits: [
-      "Plataforma completa FestaAI",
-      "Agente FestaAI padrão incluso",
-      "CRM de vendas e eventos",
-      "Agenda e organização operacional",
-      "Configuração inicial inclusa",
-      "Setup parcelado em até 6x",
-    ],
-    cta: "Contratar parcelado",
-    highlight: false,
-    loyaltyLabel: "Não",
-  },
-  {
     slug: "fidelidade",
     name: "Fidelidade",
     description:
@@ -68,6 +50,24 @@ export const COMMERCIAL_CONDITIONS: ContratarCommercialCondition[] = [
     highlight: true,
     badgeLabel: "Melhor condição",
     loyaltyLabel: "12 meses",
+  },
+  {
+    slug: "parcelado",
+    name: "Parcelado",
+    description: "Para quem prefere diluir o valor da implantação e manter liberdade contratual.",
+    monthly_price: 750,
+    setupDisplay: "R$ 2.500,00 em até 6x",
+    benefits: [
+      "Plataforma completa FestaAI",
+      "Agente FestaAI padrão incluso",
+      "CRM de vendas e eventos",
+      "Agenda e organização operacional",
+      "Configuração inicial inclusa",
+      "Setup parcelado em até 6x",
+    ],
+    cta: "Contratar parcelado",
+    highlight: false,
+    loyaltyLabel: "Não",
   },
 ];
 

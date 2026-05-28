@@ -6,4 +6,5 @@ export const configuracoesQueryKeys = {
   messages: (tenantId: number | null) => ["configuracoes", tenantId, "messages"] as const,
   packages: (tenantId: number | null) => ["configuracoes", tenantId, "packages"] as const,
   plans: (tenantId: number | null) => ["configuracoes", tenantId, "plans"] as const,
+  closingForm: (tenantId: number | null) => ["configuracoes", tenantId, "closing-form"] as const,
 };

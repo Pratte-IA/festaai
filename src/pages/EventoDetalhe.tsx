@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
+import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
 import EventChecklist from "@/components/EventChecklist";
 import AppLayout from "@/components/AppLayout";
 import {
@@ -128,6 +129,7 @@ const EventoDetalhe = () => {
   const [newPaymentDate, setNewPaymentDate] = useState("");
   const [newPaymentAmount, setNewPaymentAmount] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isClosingDialogOpen, setIsClosingDialogOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -345,7 +347,11 @@ const EventoDetalhe = () => {
             <MessageCircle className="w-4 h-4" />
             WhatsApp
           </Button>
-          <Button className="bg-festa-blue hover:bg-festa-blue/90 text-white gap-2">
+          <Button
+            className="bg-festa-blue hover:bg-festa-blue/90 text-white gap-2"
+            onClick={() => setIsClosingDialogOpen(true)}
+            disabled={event.funil !== "vendas" || event.etapa === "fechado" || event.etapa === "perdido"}
+          >
             <Trophy className="w-4 h-4" />
             Marcar como Vendido
           </Button>
@@ -584,6 +590,18 @@ const EventoDetalhe = () => {
         onOpenChange={setIsEditDialogOpen}
         onSubmit={handleUpdateEvento}
         open={isEditDialogOpen}
+      />
+
+      <ClosingFormDialog
+        evento={event}
+        onOpenChange={setIsClosingDialogOpen}
+        onSuccess={() => {
+          toast({
+            title: "Festa fechada",
+            description: "Os dados foram confirmados e a festa avançou para o funil Festa.",
+          });
+        }}
+        open={isClosingDialogOpen}
       />
     </AppLayout>
   );

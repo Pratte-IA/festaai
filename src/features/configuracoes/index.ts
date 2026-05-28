@@ -20,6 +20,7 @@ export {
   useDeleteTenantPackage,
   useTenantAdditionals,
   useTenantPackages,
+  useUpdateTenantPackage,
 } from "./use-tenant-packages";
 export { useDeleteTenantPlan, useSaveTenantPlan, useTenantPlans } from "./use-tenant-plans";
 export {
@@ -30,3 +31,20 @@ export {
   useTenantMessageTemplates,
 } from "./use-tenant-settings";
 export type { FinancialSettings, MessageTemplate } from "./use-tenant-settings";
+export type {
+  ClosingFormField,
+  ClosingFormFieldType,
+  ClosingFormSection,
+  EventoClosingFieldKey,
+} from "./closing-form-types";
+export {
+  closingFormFieldTypeLabels,
+  closingFormSectionLabels,
+  isEventoMappedField,
+} from "./closing-form-types";
+export {
+  useCreateClosingFormField,
+  useDeleteClosingFormField,
+  useTenantClosingForm,
+  useUpdateClosingFormField,
+} from "./use-tenant-closing-form";

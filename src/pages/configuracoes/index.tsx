@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import {
   ChevronRight,
   ClipboardList,
+  FileCheck2,
   Layers,
   LucideIcon,
   Package,
@@ -33,6 +34,12 @@ const cards: ConfigCardProps[] = [
     title: "Checklist",
     description: "Lista padrão gerada automaticamente para cada evento",
     icon: ClipboardList,
+  },
+  {
+    to: "/configuracoes/formulario-fechamento",
+    title: "Formulário de Fechamento",
+    description: "Campos que o cliente confirma ao fechar a festa e gerar o contrato",
+    icon: FileCheck2,
   },
   {
     to: "/configuracoes/financeiro",

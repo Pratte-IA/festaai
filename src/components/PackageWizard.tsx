@@ -1,18 +1,44 @@
 import { useEffect, useState } from "react";
-import { PackageData, Additional, PricingTier } from "@/data/packagesData";
+import {
+  PackageData,
+  Additional,
+  PricingTier,
+  EquipeBlock,
+  createDefaultEquipe,
+  formatEquipeForTier,
+  formatEquipeSummary,
+  getEquipeQuantity,
+  syncEquipeWithTiers,
+  type PricingSchedule,
+} from "@/data/packagesData";
+import {
+  buildPricingSchedule,
+  createEmptyBandPrices,
+  DEFAULT_PRICING_SCHEDULE,
+  formatBandDays,
+  getTierBandPrice,
+  PRICING_SCHEDULE_PRESETS,
+  remapTierBandPrices,
+  type PricingSchedulePresetId,
+} from "@/data/pricing-schedule";
 import type { EstruturaBlock } from "@/data/packagesData";
+import { ItemList } from "@/components/ItemList";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Trash2 } from "lucide-react";
 import { buffetTemplates, itemSuggestions } from "@/data/packageTemplates";
 import {
-  Users, Calendar, UtensilsCrossed, Gamepad2, UsersRound,
+  Users, UtensilsCrossed, Gamepad2, UsersRound,
   Plus, X, Check, ChevronRight, ChevronLeft, Sparkles,
   Info, DollarSign, Tag, Package as PackageIcon, ArrowLeft
 } from "lucide-react";
 
 interface PackageWizardProps {
   onCancel: () => void;
-  onSave: (pkg: PackageData) => void;
+  onSave: (pkg: PackageData) => void | Promise<void>;
+  onValidationError?: (message: string) => void;
   tenantEstrutura: EstruturaBlock;
+  /** Pacote existente para edição; omitir para criar um novo. */
+  initialPackage?: PackageData;
 }
 
 const cloneEstrutura = (e: EstruturaBlock): EstruturaBlock => ({
@@ -24,40 +50,116 @@ const cloneEstrutura = (e: EstruturaBlock): EstruturaBlock => ({
 const steps = [
   { key: "info", label: "Informações", icon: Info },
   { key: "buffet", label: "Buffet", icon: UtensilsCrossed },
-  { key: "equipe", label: "Equipe", icon: UsersRound },
   { key: "precos", label: "Preços", icon: DollarSign },
+  { key: "equipe", label: "Equipe", icon: UsersRound },
   { key: "adicionais", label: "Adicionais", icon: Tag },
 ];
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
-const emptyPackage: PackageData = {
-  id: crypto.randomUUID(),
-  name: "",
-  description: "",
-  buffet: { salgados: [], doces: [], bebidas: [] },
-  estrutura: { brinquedos: [], espaco: [], decoracao: [] },
-  equipe: { garcom: 1, monitora: 1, limpeza: 1 },
-  pricingTiers: [
-    { id: crypto.randomUUID(), minGuests: 1, maxGuests: 20, weekdayPrice: 0, weekendPrice: 0 },
-  ],
+/** Tamanho padrão de cada faixa de convidados (ex.: 1–10, 11–20). */
+const GUEST_TIER_SPAN = 10;
+
+const clonePackage = (pkg: PackageData): PackageData => ({
+  ...pkg,
+  buffet: {
+    salgados: [...pkg.buffet.salgados],
+    doces: [...pkg.buffet.doces],
+    bolo: [...pkg.buffet.bolo],
+    bebidas: [...pkg.buffet.bebidas],
+  },
+  estrutura: cloneEstrutura(pkg.estrutura),
+  equipe: pkg.equipe.map((role) => ({
+    ...role,
+    quantitiesByTier: { ...role.quantitiesByTier },
+  })),
+  pricingSchedule: {
+    ...pkg.pricingSchedule,
+    bands: pkg.pricingSchedule.bands.map((band) => ({ ...band, days: [...band.days] })),
+  },
+  pricingTiers: pkg.pricingTiers.map((tier) => ({
+    ...tier,
+    bandPrices: { ...tier.bandPrices },
+  })),
+});
+
+const createEmptyPackage = (): PackageData => {
+  const pricingSchedule = DEFAULT_PRICING_SCHEDULE;
+  const defaultTier = {
+    id: crypto.randomUUID(),
+    minGuests: 1,
+    maxGuests: GUEST_TIER_SPAN,
+    bandPrices: createEmptyBandPrices(pricingSchedule.bands),
+  };
+
+  return {
+    id: crypto.randomUUID(),
+    name: "",
+    description: "",
+    buffet: { salgados: [], doces: [], bolo: [], bebidas: [] },
+    estrutura: { brinquedos: [], espaco: [], decoracao: [] },
+    pricingSchedule,
+    pricingTiers: [defaultTier],
+    equipe: createDefaultEquipe([defaultTier.id]),
+  };
 };
 
-const PackageWizard = ({ onCancel, onSave, tenantEstrutura }: PackageWizardProps) => {
+const PackageWizard = ({
+  onCancel,
+  onSave,
+  onValidationError,
+  tenantEstrutura,
+  initialPackage,
+}: PackageWizardProps) => {
+  const isEditing = Boolean(initialPackage);
   const [stepIndex, setStepIndex] = useState(0);
-  const [pkg, setPkg] = useState<PackageData>(() => ({
-    ...emptyPackage,
-    estrutura: cloneEstrutura(tenantEstrutura),
-  }));
+  const [pkg, setPkg] = useState<PackageData>(() =>
+    initialPackage
+      ? clonePackage(initialPackage)
+      : { ...createEmptyPackage(), estrutura: cloneEstrutura(tenantEstrutura) },
+  );
+
+  const updatePricingTiers = (tiers: PackageData["pricingTiers"]) =>
+    setPkg((current) => ({
+      ...current,
+      pricingTiers: tiers,
+      equipe: syncEquipeWithTiers(current.equipe, tiers),
+    }));
+
+  const updatePricingSchedule = (presetId: PricingSchedulePresetId) => {
+    setPkg((current) => {
+      const nextSchedule = buildPricingSchedule(presetId);
+      return {
+        ...current,
+        pricingSchedule: nextSchedule,
+        pricingTiers: current.pricingTiers.map((tier) => ({
+          ...tier,
+          bandPrices: remapTierBandPrices(
+            tier.bandPrices,
+            current.pricingSchedule.bands,
+            nextSchedule.bands,
+          ),
+        })),
+      };
+    });
+  };
   const [additionals, setAdditionals] = useState<Additional[]>([]);
 
   useEffect(() => {
+    if (isEditing) return;
     setPkg((p) => ({ ...p, estrutura: cloneEstrutura(tenantEstrutura) }));
-  }, [tenantEstrutura]);
+  }, [tenantEstrutura, isEditing]);
 
-  const finalize = (data: PackageData) =>
-    onSave({ ...data, estrutura: cloneEstrutura(tenantEstrutura) });
+  const finalize = (data: PackageData) => {
+    if (!data.name.trim()) {
+      onValidationError?.("Informe o nome do pacote antes de salvar.");
+      setStepIndex(0);
+      return;
+    }
+
+    void onSave({ ...data, estrutura: cloneEstrutura(tenantEstrutura) });
+  };
 
   const currentStep = steps[stepIndex];
 
@@ -80,12 +182,19 @@ const PackageWizard = ({ onCancel, onSave, tenantEstrutura }: PackageWizardProps
         >
           <ArrowLeft className="w-4 h-4" /> Voltar para pacotes
         </button>
-        <button
-          onClick={() => finalize(pkg)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          <Check className="w-4 h-4" /> Salvar pacote
-        </button>
+        <div className="flex items-center gap-3">
+          {isEditing && (
+            <span className="text-xs text-muted-foreground hidden sm:inline">
+              Editando: <span className="text-foreground font-medium">{initialPackage?.name}</span>
+            </span>
+          )}
+          <button
+            onClick={() => finalize(pkg)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Check className="w-4 h-4" /> {isEditing ? "Salvar alterações" : "Salvar pacote"}
+          </button>
+        </div>
       </div>
 
       {/* Stepper */}
@@ -195,6 +304,12 @@ const PackageWizard = ({ onCancel, onSave, tenantEstrutura }: PackageWizardProps
                   onChange={(v) => updateBuffet("doces", v)}
                 />
                 <ItemList
+                  label="Bolo"
+                  items={pkg.buffet.bolo}
+                  suggestions={itemSuggestions.bolo}
+                  onChange={(v) => updateBuffet("bolo", v)}
+                />
+                <ItemList
                   label="Bebidas"
                   items={pkg.buffet.bebidas}
                   suggestions={itemSuggestions.bebidas}
@@ -203,54 +318,20 @@ const PackageWizard = ({ onCancel, onSave, tenantEstrutura }: PackageWizardProps
               </div>
             )}
 
-            {currentStep.key === "equipe" && (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Defina a quantidade de profissionais inclusos no pacote.
-                </p>
-                {(["garcom", "monitora", "limpeza"] as const).map((role) => (
-                  <div key={role} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-                    <div>
-                      <p className="text-sm font-medium text-foreground capitalize">{role}</p>
-                      <p className="text-xs text-muted-foreground">Profissionais inclusos</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() =>
-                          setPkg({
-                            ...pkg,
-                            equipe: { ...pkg.equipe, [role]: Math.max(0, pkg.equipe[role] - 1) },
-                          })
-                        }
-                        className="w-8 h-8 rounded-lg bg-muted hover:bg-muted/70 text-foreground flex items-center justify-center transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                      <span className="w-8 text-center text-base font-semibold text-foreground">
-                        {pkg.equipe[role]}
-                      </span>
-                      <button
-                        onClick={() =>
-                          setPkg({
-                            ...pkg,
-                            equipe: { ...pkg.equipe, [role]: pkg.equipe[role] + 1 },
-                          })
-                        }
-                        className="w-8 h-8 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center transition-colors"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* STEP: Preços */}
             {currentStep.key === "precos" && (
               <PrecosStep
+                schedule={pkg.pricingSchedule}
                 tiers={pkg.pricingTiers}
-                onChange={(tiers) => setPkg({ ...pkg, pricingTiers: tiers })}
+                onScheduleChange={updatePricingSchedule}
+                onTiersChange={updatePricingTiers}
+              />
+            )}
+
+            {currentStep.key === "equipe" && (
+              <EquipeStep
+                equipe={pkg.equipe}
+                tiers={pkg.pricingTiers}
+                onChange={(equipe) => setPkg({ ...pkg, equipe })}
               />
             )}
 
@@ -331,130 +412,259 @@ const TemplateSelector = ({
   </div>
 );
 
-const ItemList = ({
-  label,
-  items,
-  suggestions,
+const EquipeStep = ({
+  equipe,
+  tiers,
   onChange,
 }: {
-  label: string;
-  items: string[];
-  suggestions: string[];
-  onChange: (items: string[]) => void;
+  equipe: EquipeBlock;
+  tiers: PackageData["pricingTiers"];
+  onChange: (equipe: EquipeBlock) => void;
 }) => {
-  const [input, setInput] = useState("");
-  const available = suggestions.filter((s) => !items.includes(s));
+  const [newRoleLabel, setNewRoleLabel] = useState("");
 
-  const add = (val: string) => {
-    const v = val.trim();
-    if (!v || items.includes(v)) return;
-    onChange([...items, v]);
-    setInput("");
+  const updateQuantity = (roleId: string, tierId: string, quantity: number) =>
+    onChange(
+      equipe.map((role) =>
+        role.id === roleId
+          ? {
+              ...role,
+              quantitiesByTier: {
+                ...role.quantitiesByTier,
+                [tierId]: Math.max(0, quantity),
+              },
+            }
+          : role,
+      ),
+    );
+
+  const removeRole = (id: string) => onChange(equipe.filter((role) => role.id !== id));
+
+  const addCustomRole = () => {
+    const label = newRoleLabel.trim();
+    if (!label) return;
+    onChange([
+      ...equipe,
+      {
+        id: crypto.randomUUID(),
+        label,
+        quantitiesByTier: Object.fromEntries(tiers.map((tier) => [tier.id, 1])),
+      },
+    ]);
+    setNewRoleLabel("");
   };
 
-  const remove = (val: string) => onChange(items.filter((i) => i !== val));
+  if (tiers.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Cadastre ao menos uma faixa de convidados na etapa de Preços antes de definir a equipe.
+      </p>
+    );
+  }
 
   return (
-    <div>
-      <label className="text-xs font-medium text-muted-foreground block mb-2">{label}</label>
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        A equipe inclusa varia conforme o número de convidados. Defina quantos profissionais entram
+        em cada faixa — use a mesma lógica da tabela de preços.
+      </p>
 
-      {/* Itens selecionados */}
-      <div className="flex flex-wrap gap-1.5 mb-2 min-h-[28px]">
-        {items.length === 0 && (
-          <span className="text-xs text-muted-foreground italic">Nenhum item adicionado</span>
-        )}
-        {items.map((item) => (
-          <span
-            key={item}
-            className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
-          >
-            {item}
-            <button onClick={() => remove(item)} className="hover:text-destructive">
-              <X className="w-3 h-3" />
-            </button>
-          </span>
-        ))}
-      </div>
-
-      {/* Input + add */}
-      <div className="flex gap-2 mb-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), add(input))}
-          placeholder={`Digite um novo ${label.toLowerCase().slice(0, -1)}...`}
-          className="input-base flex-1 text-sm"
-        />
-        <button
-          onClick={() => add(input)}
-          className="flex items-center gap-1 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="w-3 h-3" /> Adicionar
-        </button>
-      </div>
-
-      {/* Sugestões */}
-      {available.length > 0 && (
-        <div>
-          <p className="text-[10px] text-muted-foreground mb-1.5 uppercase tracking-wide">Sugestões</p>
-          <div className="flex flex-wrap gap-1.5">
-            {available.slice(0, 8).map((s) => (
-              <button
-                key={s}
-                onClick={() => add(s)}
-                className="text-xs bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground px-2 py-1 rounded-full transition-colors"
-              >
-                + {s}
-              </button>
+      <div className="overflow-x-auto rounded-xl border border-border/40">
+        <table className="w-full text-sm min-w-[480px]">
+          <thead>
+            <tr className="text-xs text-muted-foreground uppercase tracking-wide border-b border-border bg-muted/20">
+              <th className="text-left font-medium py-2.5 px-3">Profissional</th>
+              {tiers.map((tier) => (
+                <th key={tier.id} className="text-center font-medium py-2.5 px-2 whitespace-nowrap">
+                  {tier.minGuests}–{tier.maxGuests} conv.
+                </th>
+              ))}
+              <th className="w-10" />
+            </tr>
+          </thead>
+          <tbody>
+            {equipe.map((role) => (
+              <tr key={role.id} className="border-b border-border/50 last:border-0">
+                <td className="py-3 px-3 font-medium text-foreground">{role.label}</td>
+                {tiers.map((tier) => {
+                  const qty = getEquipeQuantity(role, tier.id);
+                  return (
+                    <td key={tier.id} className="py-3 px-2">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(role.id, tier.id, qty - 1)}
+                          className="w-7 h-7 rounded-lg bg-muted hover:bg-muted/70 text-foreground flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        <span className="w-6 text-center text-sm font-semibold text-foreground">
+                          {qty}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(role.id, tier.id, qty + 1)}
+                          className="w-7 h-7 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center transition-colors"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </td>
+                  );
+                })}
+                <td className="py-3 pr-2">
+                  <button
+                    type="button"
+                    onClick={() => removeRole(role.id)}
+                    disabled={equipe.length === 1}
+                    className="p-1.5 rounded text-muted-foreground hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    title="Remover tipo de profissional"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
             ))}
-          </div>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+        <p className="text-xs font-medium text-foreground">Outro tipo de profissional</p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            value={newRoleLabel}
+            onChange={(e) => setNewRoleLabel(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addCustomRole()}
+            placeholder="Ex.: Recepcionista, DJ, Cozinheiro..."
+            className="input-base text-sm flex-1"
+          />
+          <button
+            type="button"
+            onClick={addCustomRole}
+            disabled={!newRoleLabel.trim()}
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Adicionar
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
 const PrecosStep = ({
-  tiers,
-  onChange,
+  schedule,
+  tiers: tiersProp,
+  onScheduleChange,
+  onTiersChange,
 }: {
+  schedule: PricingSchedule;
   tiers: PricingTier[];
-  onChange: (tiers: PricingTier[]) => void;
+  onScheduleChange: (presetId: PricingSchedulePresetId) => void;
+  onTiersChange: (tiers: PricingTier[]) => void;
 }) => {
-  const updateTier = (id: string, patch: Partial<PricingTier>) =>
-    onChange(tiers.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  const tiers = tiersProp ?? [];
+  const bands = schedule.bands;
 
-  const removeTier = (id: string) => onChange(tiers.filter((t) => t.id !== id));
+  const updateTier = (id: string, patch: Partial<PricingTier>) =>
+    onTiersChange(tiers.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+
+  const updateBandPrice = (tierId: string, bandId: string, price: number) =>
+    onTiersChange(
+      tiers.map((tier) =>
+        tier.id === tierId
+          ? { ...tier, bandPrices: { ...tier.bandPrices, [bandId]: price } }
+          : tier,
+      ),
+    );
+
+  const removeTier = (id: string) => onTiersChange(tiers.filter((t) => t.id !== id));
 
   const addTier = () => {
     const last = tiers[tiers.length - 1];
     const min = last ? last.maxGuests + 1 : 1;
-    onChange([
+    onTiersChange([
       ...tiers,
       {
         id: crypto.randomUUID(),
         minGuests: min,
-        maxGuests: min + 19,
-        weekdayPrice: 0,
-        weekendPrice: 0,
+        maxGuests: min + GUEST_TIER_SPAN - 1,
+        bandPrices: last
+          ? { ...last.bandPrices }
+          : createEmptyBandPrices(bands),
       },
     ]);
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
+        <p className="text-sm font-medium text-foreground">Como seu salão divide os dias?</p>
+        <p className="text-xs text-muted-foreground">
+          Escolha o modelo que combina com sua operação. Os preços abaixo serão aplicados conforme o
+          dia da festa (e feriados, quando indicado).
+        </p>
+        <div className="space-y-2">
+          {PRICING_SCHEDULE_PRESETS.map((preset) => (
+            <label
+              key={preset.id}
+              className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+                schedule.presetId === preset.id
+                  ? "border-primary/50 bg-primary/5"
+                  : "border-border/40 hover:border-border"
+              }`}
+            >
+              <input
+                type="radio"
+                name="pricing-schedule"
+                checked={schedule.presetId === preset.id}
+                onChange={() => onScheduleChange(preset.id)}
+                className="mt-1"
+              />
+              <div>
+                <p className="text-sm font-medium text-foreground">{preset.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{preset.description}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2 pt-1">
+          {bands.map((band) => (
+            <span
+              key={band.id}
+              className="text-[10px] uppercase tracking-wide rounded-full bg-muted/60 px-2 py-1 text-muted-foreground"
+            >
+              {band.label} ({formatBandDays(band)}
+              {band.includesHolidays ? " + feriados" : ""})
+            </span>
+          ))}
+        </div>
+        {schedule.holidayPolicy === "weekday_band" && !bands.some((b) => b.includesHolidays) && (
+          <p className="text-xs text-muted-foreground italic">
+            Feriados usam o preço da faixa de dias úteis.
+          </p>
+        )}
+      </div>
+
       <p className="text-sm text-muted-foreground">
-        Defina faixas de convidados com valores específicos para dias de semana e finais de semana/feriados.
+        Defina faixas de convidados (padrão de {GUEST_TIER_SPAN} em {GUEST_TIER_SPAN}) e o valor para
+        cada grupo de dias.
       </p>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[520px]">
           <thead>
             <tr className="text-xs text-muted-foreground uppercase tracking-wide border-b border-border">
-              <th className="text-left font-medium py-2 pr-2">Convidados (faixa)</th>
-              <th className="text-left font-medium py-2 px-2">Preço semana</th>
-              <th className="text-left font-medium py-2 px-2">Preço fim de semana</th>
+              <th className="text-left font-medium py-2 pr-2">Convidados</th>
+              {bands.map((band) => (
+                <th key={band.id} className="text-left font-medium py-2 px-2 min-w-[140px]">
+                  <span className="block truncate" title={band.label}>
+                    {band.label}
+                  </span>
+                </th>
+              ))}
               <th className="w-10" />
             </tr>
           </thead>
@@ -480,36 +690,19 @@ const PrecosStep = ({
                     />
                   </div>
                 </td>
-                <td className="py-2 px-2">
-                  <div className="relative">
-                    <Calendar className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-primary" />
-                    <input
-                      type="number"
-                      value={tier.weekdayPrice || ""}
-                      onChange={(e) =>
-                        updateTier(tier.id, { weekdayPrice: Number(e.target.value) })
-                      }
-                      placeholder="0"
-                      className="input-base pl-8 text-sm w-full"
+                {bands.map((band) => (
+                  <td key={band.id} className="py-2 px-2">
+                    <CurrencyInput
+                      value={getTierBandPrice(tier.bandPrices, band.id)}
+                      onChange={(price) => updateBandPrice(tier.id, band.id, price)}
+                      placeholder="0,00"
+                      className="input-base w-full min-w-[100px] text-sm tabular-nums"
                     />
-                  </div>
-                </td>
-                <td className="py-2 px-2">
-                  <div className="relative">
-                    <Calendar className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-rosa" />
-                    <input
-                      type="number"
-                      value={tier.weekendPrice || ""}
-                      onChange={(e) =>
-                        updateTier(tier.id, { weekendPrice: Number(e.target.value) })
-                      }
-                      placeholder="0"
-                      className="input-base pl-8 text-sm w-full"
-                    />
-                  </div>
-                </td>
+                  </td>
+                ))}
                 <td className="py-2 pl-2">
                   <button
+                    type="button"
                     onClick={() => removeTier(tier.id)}
                     disabled={tiers.length === 1}
                     className="p-1.5 rounded text-muted-foreground hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -524,10 +717,11 @@ const PrecosStep = ({
       </div>
 
       <button
+        type="button"
         onClick={addTier}
         className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-border hover:border-primary hover:text-primary text-sm font-medium text-muted-foreground transition-colors"
       >
-        <Plus className="w-4 h-4" /> Adicionar faixa
+        <Plus className="w-4 h-4" /> Adicionar faixa de convidados
       </button>
     </div>
   );
@@ -541,18 +735,18 @@ const AdicionaisStep = ({
   setAdditionals: (a: Additional[]) => void;
 }) => {
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(0);
   const [category, setCategory] = useState<Additional["category"]>("outros");
   const [type, setType] = useState<Additional["type"]>("fixo");
 
   const add = () => {
-    if (!name.trim() || !price) return;
+    if (!name.trim() || price <= 0) return;
     setAdditionals([
       ...additionals,
-      { id: crypto.randomUUID(), name, price: Number(price), category, type },
+      { id: crypto.randomUUID(), name, price, category, type },
     ]);
     setName("");
-    setPrice("");
+    setPrice(0);
   };
 
   return (
@@ -570,12 +764,10 @@ const AdicionaisStep = ({
             placeholder="Nome do adicional"
             className="input-base text-sm"
           />
-          <input
-            type="number"
+          <CurrencyInput
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Preço (R$)"
-            className="input-base text-sm"
+            onChange={setPrice}
+            className="input-base text-sm tabular-nums"
           />
           <select
             value={category}
@@ -667,6 +859,7 @@ const PackagePreview = ({ pkg, additionals }: { pkg: PackageData; additionals: A
         sections={[
           { label: "Salgados", items: pkg.buffet.salgados },
           { label: "Doces", items: pkg.buffet.doces },
+          { label: "Bolo", items: pkg.buffet.bolo },
           { label: "Bebidas", items: pkg.buffet.bebidas },
         ]}
       />
@@ -682,8 +875,17 @@ const PackagePreview = ({ pkg, additionals }: { pkg: PackageData; additionals: A
           <UsersRound className="w-3.5 h-3.5 text-success" />
           <p className="text-xs font-semibold text-foreground">Equipe</p>
         </div>
-        <div className="text-xs text-muted-foreground space-y-0.5">
-          <p>{pkg.equipe.garcom}x Garçom · {pkg.equipe.monitora}x Monitora · {pkg.equipe.limpeza}x Limpeza</p>
+        <div className="text-xs text-muted-foreground space-y-1">
+          {pkg.pricingTiers.length <= 1 ? (
+            <p>{formatEquipeSummary(pkg.equipe, pkg.pricingTiers)}</p>
+          ) : (
+            pkg.pricingTiers.map((tier) => (
+              <p key={tier.id}>
+                <span className="text-foreground/80">{tier.minGuests}–{tier.maxGuests}:</span>{" "}
+                {formatEquipeForTier(pkg.equipe, tier.id)}
+              </p>
+            ))
+          )}
         </div>
       </div>
 
@@ -700,14 +902,20 @@ const PackagePreview = ({ pkg, additionals }: { pkg: PackageData; additionals: A
               <Users className="w-3 h-3" />
               {tier.minGuests}–{tier.maxGuests} convidados
             </div>
-            <div className="flex items-center justify-between pl-4">
-              <span className="text-muted-foreground">Seg-Sex</span>
-              <span className="font-semibold text-foreground">{formatCurrency(tier.weekdayPrice)}</span>
-            </div>
-            <div className="flex items-center justify-between pl-4">
-              <span className="text-muted-foreground">Sáb-Dom</span>
-              <span className="font-semibold text-rosa">{formatCurrency(tier.weekendPrice)}</span>
-            </div>
+            {pkg.pricingSchedule.bands.map((band, bandIndex) => (
+              <div key={band.id} className="flex items-center justify-between pl-4 gap-2">
+                <span className="text-muted-foreground truncate" title={band.label}>
+                  {band.label}
+                </span>
+                <span
+                  className={`font-semibold shrink-0 ${
+                    bandIndex === 0 ? "text-foreground" : "text-rosa"
+                  }`}
+                >
+                  {formatCurrency(getTierBandPrice(tier.bandPrices, band.id))}
+                </span>
+              </div>
+            ))}
           </div>
         ))}
       </div>

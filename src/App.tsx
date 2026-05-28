@@ -18,6 +18,9 @@ const ConfiguracoesLayout = lazy(() => import("./pages/configuracoes/layout"));
 const ConfiguracoesHome = lazy(() => import("./pages/configuracoes/index"));
 const ConfiguracoesPacotes = lazy(() => import("./pages/configuracoes/Pacotes"));
 const ConfiguracoesChecklist = lazy(() => import("./pages/configuracoes/Checklist"));
+const ConfiguracoesFormularioFechamento = lazy(
+  () => import("./pages/configuracoes/FormularioFechamento"),
+);
 const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
@@ -195,6 +198,10 @@ const App = () => (
                   <Route path="pacotes" element={<ConfiguracoesPacotes />} />
                   <Route path="estrutura" element={<ConfiguracoesEstrutura />} />
                   <Route path="checklist" element={<ConfiguracoesChecklist />} />
+                  <Route
+                    path="formulario-fechamento"
+                    element={<ConfiguracoesFormularioFechamento />}
+                  />
                   <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
                 </Route>
                 <Route

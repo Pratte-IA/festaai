@@ -369,6 +369,57 @@ export type Database = {
           },
         ];
       };
+      evento_closing_responses: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          evento_id: number;
+          field_id: number;
+          id: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+          value: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          evento_id: number;
+          field_id: number;
+          id?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          value?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          evento_id?: number;
+          field_id?: number;
+          id?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          value?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "evento_closing_responses_evento_tenant_fkey";
+            columns: ["evento_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "eventos";
+            referencedColumns: ["id", "tenant_id"];
+          },
+          {
+            foreignKeyName: "evento_closing_responses_field_tenant_fkey";
+            columns: ["field_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenant_closing_form_fields";
+            referencedColumns: ["id", "tenant_id"];
+          },
+        ];
+      };
       evento_notas: {
         Row: {
           created_at: string;
@@ -542,6 +593,7 @@ export type Database = {
           created_by: string | null;
           data_evento: string | null;
           etapa: string;
+          fechamento_confirmado_em: string | null;
           funil: string;
           hora_evento: string | null;
           id: number;
@@ -571,6 +623,7 @@ export type Database = {
           created_by?: string | null;
           data_evento?: string | null;
           etapa?: string;
+          fechamento_confirmado_em?: string | null;
           funil?: string;
           hora_evento?: string | null;
           id?: number;
@@ -600,6 +653,7 @@ export type Database = {
           created_by?: string | null;
           data_evento?: string | null;
           etapa?: string;
+          fechamento_confirmado_em?: string | null;
           funil?: string;
           hora_evento?: string | null;
           id?: number;
@@ -839,6 +893,65 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenant_additionals_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_closing_form_fields: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          created_by: string | null;
+          field_key: string | null;
+          field_type: string;
+          id: number;
+          is_system: boolean;
+          label: string;
+          required: boolean;
+          section: string;
+          sort_order: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          field_key?: string | null;
+          field_type?: string;
+          id?: number;
+          is_system?: boolean;
+          label: string;
+          required?: boolean;
+          section: string;
+          sort_order?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          field_key?: string | null;
+          field_type?: string;
+          id?: number;
+          is_system?: boolean;
+          label?: string;
+          required?: boolean;
+          section?: string;
+          sort_order?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_closing_form_fields_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: false;
             referencedRelation: "tenants";
