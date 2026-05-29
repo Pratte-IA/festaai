@@ -15,10 +15,15 @@ const SEGMENT_META: Record<string, { title: string; description: string }> = {
     title: "Checklist",
     description: "Configure categorias e itens por pacote, com opção de replicar entre pacotes",
   },
-  "formulario-fechamento": {
-    title: "Formulário de Fechamento",
+  "formulario-contratacao": {
+    title: "Formulário de Contratação",
     description:
-      "Defina os campos que o cliente confirma ao fechar a festa. Campos do sistema preenchem automaticamente os dados do contrato e do evento.",
+      "Configure o formulário que o cliente preenche ao contratar a festa: campos, pacotes, adicionais, pagamento e aceites.",
+  },
+  "formulario-fechamento": {
+    title: "Formulário de Contratação",
+    description:
+      "Configure o formulário que o cliente preenche ao contratar a festa: campos, pacotes, adicionais, pagamento e aceites.",
   },
   financeiro: {
     title: "Financeiro",

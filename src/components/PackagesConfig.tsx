@@ -2,8 +2,11 @@ import { useState } from "react";
 import {
   useCreateTenantPackage,
   useDeleteTenantPackage,
+  useDuplicateTenantPackage,
+  useReorderTenantPackage,
   useTenantEstruturaSettings,
   useTenantPackages,
+  useToggleTenantPackageActive,
   useUpdateTenantPackage,
   emptyEstruturaBlock,
 } from "@/features/configuracoes";
@@ -16,6 +19,10 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
+  Copy,
+  ArrowDown,
+  ArrowUp,
+  Power,
   UtensilsCrossed,
   UsersRound,
   Pencil,
@@ -28,22 +35,26 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 interface Props {
+  adminMode?: boolean;
   hideHeader?: boolean;
 }
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Erro desconhecido.";
 
-const PackagesConfig = ({ hideHeader }: Props) => {
+const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
   const { currentTenantId, isLoading: isTenantLoading } = useCurrentTenant();
   const {
     data: packages = [],
     error: packagesError,
     isLoading: isPackagesLoading,
-  } = useTenantPackages();
+  } = useTenantPackages({ includeInactive: adminMode });
   const createPackage = useCreateTenantPackage();
   const updatePackage = useUpdateTenantPackage();
   const deletePackage = useDeleteTenantPackage();
+  const duplicatePackage = useDuplicateTenantPackage();
+  const reorderPackage = useReorderTenantPackage();
+  const togglePackageActive = useToggleTenantPackageActive();
   const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [packageToEdit, setPackageToEdit] = useState<PackageData | null>(null);
@@ -167,17 +178,23 @@ const PackagesConfig = ({ hideHeader }: Props) => {
             </p>
           </div>
         )}
-        {packages.map((pkg) => {
+        {packages.map((pkg, packageIndex) => {
           const isExpanded = expandedPkg === pkg.id;
+          const isInactive = pkg.active === false;
           const pricingTiers = pkg.pricingTiers ?? [];
           const pricingBands = pkg.pricingSchedule?.bands ?? [];
-          const minGuests = pricingTiers[0]?.minGuests ?? 0;
-          const maxGuests = pricingTiers[pricingTiers.length - 1]?.maxGuests ?? 0;
+          const minTierGuests = pricingTiers[0]?.minGuests ?? 0;
+          const maxTierGuests = pricingTiers[pricingTiers.length - 1]?.maxGuests ?? 0;
+          const guestLabel = pkg.includedGuests
+            ? `${pkg.includedGuests} convidados inclusos`
+            : `${minTierGuests}–${maxTierGuests} convidados`;
 
           return (
             <div
               key={pkg.id}
-              className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden transition-colors hover:border-border"
+              className={`rounded-2xl border bg-card/40 overflow-hidden transition-colors hover:border-border ${
+                isInactive ? "border-border/40 opacity-70" : "border-border/60"
+              }`}
             >
               {/* Simplified Header Card */}
               <div
@@ -185,12 +202,25 @@ const PackagesConfig = ({ hideHeader }: Props) => {
                 onClick={() => toggleExpand(pkg.id)}
               >
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-foreground mb-2">{pkg.name}</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-base font-semibold text-foreground">{pkg.name}</h3>
+                    {isInactive && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-muted text-muted-foreground">
+                        Inativo
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5" />
-                      {minGuests}–{maxGuests} convidados
+                      {guestLabel}
                     </span>
+                    {pkg.durationMinutes ? (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                        <span>{pkg.durationMinutes} min</span>
+                      </>
+                    ) : null}
                     <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
                     <span>
                       {pricingTiers.length}{" "}
@@ -228,6 +258,87 @@ const PackagesConfig = ({ hideHeader }: Props) => {
                 )}
 
                 <div className="flex items-center gap-1">
+                  {adminMode && (
+                    <>
+                      <button
+                        type="button"
+                        title="Mover para cima"
+                        disabled={packageIndex === 0 || reorderPackage.isPending}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await reorderPackage.mutateAsync({ direction: "up", id: pkg.id });
+                          } catch {
+                            toast({ title: "Nao foi possivel reordenar", variant: "destructive" });
+                          }
+                        }}
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-40"
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        title="Mover para baixo"
+                        disabled={packageIndex === packages.length - 1 || reorderPackage.isPending}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await reorderPackage.mutateAsync({ direction: "down", id: pkg.id });
+                          } catch {
+                            toast({ title: "Nao foi possivel reordenar", variant: "destructive" });
+                          }
+                        }}
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-40"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        title="Duplicar pacote"
+                        disabled={duplicatePackage.isPending}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await duplicatePackage.mutateAsync(pkg.id);
+                            toast({ title: "Pacote duplicado" });
+                          } catch {
+                            toast({
+                              title: "Nao foi possivel duplicar o pacote",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        title={isInactive ? "Ativar pacote" : "Inativar pacote"}
+                        disabled={togglePackageActive.isPending}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await togglePackageActive.mutateAsync({
+                              active: isInactive,
+                              id: pkg.id,
+                            });
+                            toast({
+                              title: isInactive ? "Pacote ativado" : "Pacote inativado",
+                            });
+                          } catch {
+                            toast({
+                              title: "Nao foi possivel alterar o status",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        <Power className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
                   <button
                     type="button"
                     title="Editar pacote"
@@ -245,8 +356,13 @@ const PackagesConfig = ({ hideHeader }: Props) => {
                     onClick={async (e) => {
                       e.stopPropagation();
                       try {
-                        await deletePackage.mutateAsync(pkg.id);
-                        toast({ title: "Pacote removido" });
+                        const result = await deletePackage.mutateAsync(pkg.id);
+                        toast({
+                          title: result?.deactivated ? "Pacote inativado" : "Pacote removido",
+                          description: result?.deactivated
+                            ? "Este pacote ja foi usado em eventos e foi inativado em vez de excluido."
+                            : undefined,
+                        });
                         if (expandedPkg === pkg.id) setExpandedPkg(null);
                       } catch {
                         toast({
@@ -283,6 +399,37 @@ const PackagesConfig = ({ hideHeader }: Props) => {
                   </div>
                   {pkg.description && (
                     <p className="text-sm text-muted-foreground leading-relaxed">{pkg.description}</p>
+                  )}
+
+                  {(pkg.includedItems?.length || pkg.excludedItems?.length || pkg.rules) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {pkg.includedItems && pkg.includedItems.length > 0 && (
+                        <div className="rounded-xl bg-card/60 p-4">
+                          <p className="text-sm font-semibold text-foreground mb-2">Itens inclusos</p>
+                          <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-4">
+                            {pkg.includedItems.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {pkg.excludedItems && pkg.excludedItems.length > 0 && (
+                        <div className="rounded-xl bg-card/60 p-4">
+                          <p className="text-sm font-semibold text-foreground mb-2">Itens não inclusos</p>
+                          <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-4">
+                            {pkg.excludedItems.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {pkg.rules && (
+                        <div className="rounded-xl bg-card/60 p-4 md:col-span-2">
+                          <p className="text-sm font-semibold text-foreground mb-2">Regras do pacote</p>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{pkg.rules}</p>
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

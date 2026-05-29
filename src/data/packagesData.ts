@@ -273,17 +273,76 @@ export interface PackageData {
   equipe: EquipeBlock;
   pricingSchedule: PricingSchedule;
   pricingTiers: PricingTier[];
+  active?: boolean;
+  durationMinutes?: number | null;
+  excludedItems?: string[];
+  includedGuests?: number | null;
+  includedItems?: string[];
+  rules?: string | null;
+  sortOrder?: number;
 }
 
 export type { PricingSchedule };
+
+export type AdditionalCategory =
+  | "buffet"
+  | "estrutura"
+  | "equipe"
+  | "entretenimento"
+  | "decoracao"
+  | "brinquedos"
+  | "fotografia"
+  | "lembrancinhas"
+  | "tempo_adicional"
+  | "outros";
+
+export type AdditionalBillingType = "fixo" | "por_unidade" | "por_pessoa" | "por_hora";
 
 export interface Additional {
   id: string;
   name: string;
   price: number;
-  category: "buffet" | "estrutura" | "equipe" | "entretenimento" | "outros";
-  type: "fixo" | "por_unidade";
+  category: AdditionalCategory;
+  type: AdditionalBillingType;
+  active?: boolean;
+  description?: string | null;
+  isRequired?: boolean;
+  sortOrder?: number;
 }
+
+export const additionalCategoryLabels: Record<AdditionalCategory, string> = {
+  buffet: "Buffet",
+  brinquedos: "Brinquedos",
+  decoracao: "Decoração",
+  equipe: "Equipe",
+  entretenimento: "Entretenimento",
+  estrutura: "Estrutura",
+  fotografia: "Fotografia",
+  lembrancinhas: "Lembrancinhas",
+  outros: "Outros",
+  tempo_adicional: "Tempo adicional",
+};
+
+export const additionalBillingTypeLabels: Record<AdditionalBillingType, string> = {
+  fixo: "Valor fixo",
+  por_hora: "Por hora",
+  por_pessoa: "Por pessoa",
+  por_unidade: "Por unidade",
+};
+
+export const parsePackageItems = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+};
+
+export const linesToItems = (text: string): string[] =>
+  text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+export const itemsToLines = (items: string[] | undefined): string =>
+  (items ?? []).join("\n");
 
 export const defaultPackages: PackageData[] = [
   {

@@ -6,6 +6,7 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -311,6 +312,101 @@ export const FinancialSettingsConfig = () => {
                 </label>
               ))}
             </RadioGroup>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Prazos e limites de entrada"
+        description="Complementa as regras de entrada com percentual mínimo e prazos máximos."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="min-deposit-percentage" className="mb-2 block">
+              Percentual mínimo de entrada (%)
+            </Label>
+            <Input
+              id="min-deposit-percentage"
+              type="number"
+              min="0"
+              max="100"
+              value={form.min_deposit_percentage ?? ""}
+              onChange={(event) =>
+                updateForm({
+                  min_deposit_percentage: event.target.value
+                    ? Number(event.target.value)
+                    : null,
+                })
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="max-deposit-due-days" className="mb-2 block">
+              Prazo máximo para entrada (dias)
+            </Label>
+            <Input
+              id="max-deposit-due-days"
+              type="number"
+              min="0"
+              value={form.max_deposit_due_days ?? ""}
+              onChange={(event) =>
+                updateForm({
+                  max_deposit_due_days: event.target.value ? Number(event.target.value) : null,
+                })
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="max-balance-due-days" className="mb-2 block">
+              Prazo máximo para saldo (dias)
+            </Label>
+            <Input
+              id="max-balance-due-days"
+              type="number"
+              min="0"
+              value={form.max_balance_due_days ?? ""}
+              onChange={(event) =>
+                updateForm({
+                  max_balance_due_days: event.target.value ? Number(event.target.value) : null,
+                })
+              }
+            />
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Políticas comerciais"
+        description="Textos exibidos ou referenciados nas regras de cancelamento e remarcação."
+      >
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="cancellation-policy" className="mb-2 block">
+              Política de cancelamento
+            </Label>
+            <Textarea
+              id="cancellation-policy"
+              value={form.cancellation_policy ?? ""}
+              onChange={(event) =>
+                updateForm({ cancellation_policy: event.target.value || null })
+              }
+              rows={4}
+              placeholder="Descreva as condições de cancelamento..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="rescheduling-policy" className="mb-2 block">
+              Política de remarcação
+            </Label>
+            <Textarea
+              id="rescheduling-policy"
+              value={form.rescheduling_policy ?? ""}
+              onChange={(event) =>
+                updateForm({ rescheduling_policy: event.target.value || null })
+              }
+              rows={4}
+              placeholder="Descreva as condições de remarcação..."
+            />
           </div>
         </div>
       </SectionCard>

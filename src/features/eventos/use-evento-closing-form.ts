@@ -3,12 +3,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
+import { Json } from "@/lib/supabase/database.types";
 
+import { isEventoMappedField } from "../configuracoes/closing-form-types";
+import {
+  type AcceptanceResponsePayload,
+  type AdicionalSnapshotItem,
+} from "./closing-form-runtime";
 import { eventosQueryKeys } from "./query-keys";
 import { Evento, EventoUpdate } from "./types";
-import { isEventoMappedField } from "../configuracoes/closing-form-types";
 
 export interface ClosingFormSubmission {
+  acceptanceResponses?: AcceptanceResponsePayload[];
+  adicionaisSnapshot?: AdicionalSnapshotItem[] | null;
   eventoId: number;
   fieldValues: Record<string, string>;
   fields: Array<{
@@ -17,7 +24,26 @@ export interface ClosingFormSubmission {
     id: string;
     required: boolean;
   }>;
+  pacoteId?: number | null;
 }
+
+const applyFieldValueToEvento = (
+  eventoUpdates: EventoUpdate,
+  fieldKey: string,
+  fieldType: string,
+  value: string,
+) => {
+  switch (fieldType) {
+    case "number":
+      (eventoUpdates as Record<string, unknown>)[fieldKey] = value === "" ? null : Number(value);
+      break;
+    case "currency":
+      (eventoUpdates as Record<string, unknown>)[fieldKey] = value === "" ? 0 : Number(value);
+      break;
+    default:
+      (eventoUpdates as Record<string, unknown>)[fieldKey] = value === "" ? null : value;
+  }
+};
 
 export const useEventoClosingResponses = (eventoId: number | null) => {
   const { currentTenantId } = useCurrentTenant();
@@ -44,13 +70,45 @@ export const useEventoClosingResponses = (eventoId: number | null) => {
   });
 };
 
+export const useEventoAcceptanceResponses = (eventoId: number | null) => {
+  const { currentTenantId } = useCurrentTenant();
+
+  return useQuery({
+    enabled: Boolean(currentTenantId && eventoId),
+    queryFn: async (): Promise<Record<string, boolean>> => {
+      const { data, error } = await supabase
+        .from("evento_acceptance_responses")
+        .select("term_id, accepted")
+        .eq("tenant_id", currentTenantId as number)
+        .eq("evento_id", eventoId as number);
+
+      if (error) throw error;
+
+      const responses: Record<string, boolean> = {};
+      (data ?? []).forEach((row) => {
+        responses[String(row.term_id)] = row.accepted;
+      });
+
+      return responses;
+    },
+    queryKey: eventosQueryKeys.acceptanceResponses(currentTenantId, eventoId),
+  });
+};
+
 export const useSubmitClosingForm = () => {
   const queryClient = useQueryClient();
   const { currentTenantId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ eventoId, fieldValues, fields }: ClosingFormSubmission): Promise<Evento> => {
+    mutationFn: async ({
+      acceptanceResponses = [],
+      adicionaisSnapshot = null,
+      eventoId,
+      fieldValues,
+      fields,
+      pacoteId = null,
+    }: ClosingFormSubmission): Promise<Evento> => {
       if (!currentTenantId || !user) {
         throw new Error("Sessao ou tenant atual indisponivel.");
       }
@@ -68,16 +126,7 @@ export const useSubmitClosingForm = () => {
         const value = fieldValues[field.id] ?? "";
 
         if (field.fieldKey && isEventoMappedField(field.fieldKey)) {
-          switch (field.fieldType) {
-            case "number":
-              eventoUpdates[field.fieldKey] = value === "" ? null : Number(value);
-              break;
-            case "currency":
-              eventoUpdates[field.fieldKey] = value === "" ? 0 : Number(value);
-              break;
-            default:
-              eventoUpdates[field.fieldKey] = value === "" ? null : value;
-          }
+          applyFieldValueToEvento(eventoUpdates, field.fieldKey, field.fieldType, value);
           return;
         }
 
@@ -93,9 +142,30 @@ export const useSubmitClosingForm = () => {
       const adicionaisValue = fieldValues[
         fields.find((field) => field.fieldKey === "valor_adicionais")?.id ?? ""
       ];
+      const entradaValue = fieldValues[
+        fields.find((field) => field.fieldKey === "valor_entrada")?.id ?? ""
+      ];
+      const saldoFieldId = fields.find((field) => field.fieldKey === "valor_saldo")?.id;
 
       if (pacoteValue !== undefined && adicionaisValue !== undefined) {
         eventoUpdates.valor_total = Number(pacoteValue || 0) + Number(adicionaisValue || 0);
+      }
+
+      if (saldoFieldId) {
+        eventoUpdates.valor_saldo = Number(fieldValues[saldoFieldId] || 0);
+      } else if (eventoUpdates.valor_total !== undefined) {
+        eventoUpdates.valor_saldo = Math.max(
+          Number(eventoUpdates.valor_total || 0) - Number(entradaValue || 0),
+          0,
+        );
+      }
+
+      if (pacoteId != null) {
+        eventoUpdates.pacote_id = pacoteId;
+      }
+
+      if (adicionaisSnapshot != null) {
+        eventoUpdates.adicionais_snapshot = adicionaisSnapshot as unknown as Json;
       }
 
       const { data: evento, error: eventoError } = await supabase
@@ -128,6 +198,24 @@ export const useSubmitClosingForm = () => {
         if (responsesError) throw responsesError;
       }
 
+      if (acceptanceResponses.length > 0) {
+        const now = new Date().toISOString();
+        const { error: acceptanceError } = await supabase.from("evento_acceptance_responses").upsert(
+          acceptanceResponses.map((response) => ({
+            accepted: response.accepted,
+            accepted_at: response.accepted ? now : null,
+            created_by: user.id,
+            evento_id: eventoId,
+            tenant_id: currentTenantId,
+            term_id: response.termId,
+            updated_by: user.id,
+          })),
+          { onConflict: "evento_id,term_id" },
+        );
+
+        if (acceptanceError) throw acceptanceError;
+      }
+
       return evento;
     },
     onSuccess: (evento) => {
@@ -137,6 +225,9 @@ export const useSubmitClosingForm = () => {
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.closingResponses(currentTenantId, evento.id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.acceptanceResponses(currentTenantId, evento.id),
       });
     },
   });

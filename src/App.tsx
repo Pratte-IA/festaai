@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,8 +18,8 @@ const ConfiguracoesLayout = lazy(() => import("./pages/configuracoes/layout"));
 const ConfiguracoesHome = lazy(() => import("./pages/configuracoes/index"));
 const ConfiguracoesPacotes = lazy(() => import("./pages/configuracoes/Pacotes"));
 const ConfiguracoesChecklist = lazy(() => import("./pages/configuracoes/Checklist"));
-const ConfiguracoesFormularioFechamento = lazy(
-  () => import("./pages/configuracoes/FormularioFechamento"),
+const ConfiguracoesFormularioContratacao = lazy(
+  () => import("./pages/configuracoes/FormularioContratacao"),
 );
 const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
@@ -199,8 +199,12 @@ const App = () => (
                   <Route path="estrutura" element={<ConfiguracoesEstrutura />} />
                   <Route path="checklist" element={<ConfiguracoesChecklist />} />
                   <Route
+                    path="formulario-contratacao"
+                    element={<ConfiguracoesFormularioContratacao />}
+                  />
+                  <Route
                     path="formulario-fechamento"
-                    element={<ConfiguracoesFormularioFechamento />}
+                    element={<Navigate to="/configuracoes/formulario-contratacao" replace />}
                   />
                   <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
                 </Route>

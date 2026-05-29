@@ -23,8 +23,29 @@ export { useCreateEventoTarefa, useEventoTarefas, useToggleEventoTarefa } from "
 export { useEventos } from "./use-eventos";
 export { useUpdateEvento } from "./use-update-evento";
 export { useUpdateEventoStage } from "./use-update-evento-stage";
-export { useEventoClosingResponses, useSubmitClosingForm } from "./use-evento-closing-form";
+export {
+  useEventoAcceptanceResponses,
+  useEventoClosingResponses,
+  useSubmitClosingForm,
+} from "./use-evento-closing-form";
+export {
+  useAcceptEventoContract,
+  useEventoContract,
+  useEventoContractAcceptance,
+  useGenerateEventoContract,
+  useTenantDefaultContractTemplate,
+} from "./use-evento-contract";
+export type {
+  AcceptEventoContractInput,
+  ContractSnapshot,
+  EventoContract,
+  EventoContractAcceptance,
+  EventoContractStatus,
+  TenantContractTemplate,
+} from "./contracts/contract-types";
+export { formatContractHashShort, hashContractContent } from "./contracts/contract-hash";
 export type { ClosingFormSubmission } from "./use-evento-closing-form";
+export type { AdicionalSnapshotItem } from "./closing-form-runtime";
 export type {
   Evento,
   EventoInsert,

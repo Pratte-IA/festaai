@@ -36,9 +36,9 @@ const cards: ConfigCardProps[] = [
     icon: ClipboardList,
   },
   {
-    to: "/configuracoes/formulario-fechamento",
-    title: "Formulário de Fechamento",
-    description: "Campos que o cliente confirma ao fechar a festa e gerar o contrato",
+    to: "/configuracoes/formulario-contratacao",
+    title: "Formulário de Contratação",
+    description: "Configure campos, pacotes, adicionais, pagamento e aceites do formulário da festa",
     icon: FileCheck2,
   },
   {

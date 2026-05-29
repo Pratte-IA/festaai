@@ -369,6 +369,60 @@ export type Database = {
           },
         ];
       };
+      evento_acceptance_responses: {
+        Row: {
+          accepted: boolean;
+          accepted_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          evento_id: number;
+          id: number;
+          tenant_id: number;
+          term_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          accepted?: boolean;
+          accepted_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          evento_id: number;
+          id?: number;
+          tenant_id: number;
+          term_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          accepted?: boolean;
+          accepted_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          evento_id?: number;
+          id?: number;
+          tenant_id?: number;
+          term_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "evento_acceptance_responses_evento_tenant_fkey";
+            columns: ["evento_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "eventos";
+            referencedColumns: ["id", "tenant_id"];
+          },
+          {
+            foreignKeyName: "evento_acceptance_responses_term_tenant_fkey";
+            columns: ["term_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenant_acceptance_terms";
+            referencedColumns: ["id", "tenant_id"];
+          },
+        ];
+      };
       evento_closing_responses: {
         Row: {
           created_at: string;
@@ -416,6 +470,163 @@ export type Database = {
             columns: ["field_id", "tenant_id"];
             isOneToOne: false;
             referencedRelation: "tenant_closing_form_fields";
+            referencedColumns: ["id", "tenant_id"];
+          },
+        ];
+      };
+      evento_contract_acceptances: {
+        Row: {
+          accepted_at: string;
+          accepted_by_cpf: string | null;
+          accepted_by_email: string | null;
+          accepted_by_name: string;
+          accepted_by_phone: string | null;
+          accepted_terms_snapshot: Json;
+          acceptance_text: string;
+          contract_id: number;
+          created_at: string;
+          created_by: string | null;
+          evento_id: number;
+          id: number;
+          ip_address: unknown | null;
+          metadata: Json;
+          tenant_id: number;
+          user_agent: string | null;
+        };
+        Insert: {
+          accepted_at?: string;
+          accepted_by_cpf?: string | null;
+          accepted_by_email?: string | null;
+          accepted_by_name: string;
+          accepted_by_phone?: string | null;
+          accepted_terms_snapshot?: Json;
+          acceptance_text: string;
+          contract_id: number;
+          created_at?: string;
+          created_by?: string | null;
+          evento_id: number;
+          id?: number;
+          ip_address?: unknown | null;
+          metadata?: Json;
+          tenant_id: number;
+          user_agent?: string | null;
+        };
+        Update: {
+          accepted_at?: string;
+          accepted_by_cpf?: string | null;
+          accepted_by_email?: string | null;
+          accepted_by_name?: string;
+          accepted_by_phone?: string | null;
+          accepted_terms_snapshot?: Json;
+          acceptance_text?: string;
+          contract_id?: number;
+          created_at?: string;
+          created_by?: string | null;
+          evento_id?: number;
+          id?: number;
+          ip_address?: unknown | null;
+          metadata?: Json;
+          tenant_id?: number;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "evento_contract_acceptances_contract_tenant_fkey";
+            columns: ["contract_id", "tenant_id"];
+            isOneToOne: true;
+            referencedRelation: "evento_contracts";
+            referencedColumns: ["id", "tenant_id"];
+          },
+          {
+            foreignKeyName: "evento_contract_acceptances_evento_tenant_fkey";
+            columns: ["evento_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "eventos";
+            referencedColumns: ["id", "tenant_id"];
+          },
+        ];
+      };
+      evento_contracts: {
+        Row: {
+          accepted_at: string | null;
+          contract_hash: string;
+          contract_html: string;
+          contract_number: string;
+          contract_snapshot: Json;
+          contract_text: string | null;
+          created_at: string;
+          created_by: string | null;
+          evento_id: number;
+          generated_at: string;
+          id: number;
+          status: Database["public"]["Enums"]["evento_contract_status"];
+          superseded_by: number | null;
+          template_id: number;
+          template_version: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          contract_hash: string;
+          contract_html: string;
+          contract_number: string;
+          contract_snapshot?: Json;
+          contract_text?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          evento_id: number;
+          generated_at?: string;
+          id?: number;
+          status?: Database["public"]["Enums"]["evento_contract_status"];
+          superseded_by?: number | null;
+          template_id: number;
+          template_version?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          accepted_at?: string | null;
+          contract_hash?: string;
+          contract_html?: string;
+          contract_number?: string;
+          contract_snapshot?: Json;
+          contract_text?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          evento_id?: number;
+          generated_at?: string;
+          id?: number;
+          status?: Database["public"]["Enums"]["evento_contract_status"];
+          superseded_by?: number | null;
+          template_id?: number;
+          template_version?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "evento_contracts_evento_tenant_fkey";
+            columns: ["evento_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "eventos";
+            referencedColumns: ["id", "tenant_id"];
+          },
+          {
+            foreignKeyName: "evento_contracts_superseded_by_fkey";
+            columns: ["superseded_by"];
+            isOneToOne: false;
+            referencedRelation: "evento_contracts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "evento_contracts_template_tenant_fkey";
+            columns: ["template_id", "tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenant_contract_templates";
             referencedColumns: ["id", "tenant_id"];
           },
         ];
@@ -584,25 +795,46 @@ export type Database = {
       };
       eventos: {
         Row: {
+          adicionais_snapshot: Json | null;
           aniversariante_data_nascimento: string | null;
+          aniversariante_idade: number | null;
           aniversariante_nome: string | null;
+          aniversariante_personagem: string | null;
+          aniversariante_tema: string | null;
+          cliente_bairro: string | null;
+          cliente_cep: string | null;
+          cliente_cidade: string | null;
+          cliente_cpf: string | null;
           cliente_email: string | null;
+          cliente_estado: string | null;
           cliente_nome: string;
+          cliente_numero: string | null;
+          cliente_rg: string | null;
+          cliente_rua: string | null;
           cliente_telefone: string | null;
           created_at: string;
           created_by: string | null;
           data_evento: string | null;
+          data_limite_pagamento: string | null;
           etapa: string;
           fechamento_confirmado_em: string | null;
+          forma_pagamento_entrada: string | null;
+          forma_pagamento_saldo: string | null;
           funil: string;
           hora_evento: string | null;
+          hora_termino: string | null;
           id: number;
           motivo_perda: string | null;
           observacoes: string | null;
+          observacoes_festa: string | null;
           origem: string | null;
+          pacote_convidados_inclusos: number | null;
           pacote_id: number | null;
           pacote_nome: string | null;
+          parcelas: number | null;
+          quantidade_adultos: number | null;
           quantidade_convidados: number | null;
+          quantidade_crianas: number | null;
           status_interno: string;
           tenant_id: number;
           tipo_evento: string;
@@ -611,28 +843,50 @@ export type Database = {
           valor_adicionais: number;
           valor_entrada: number;
           valor_pacote: number;
+          valor_saldo: number;
           valor_total: number;
         };
         Insert: {
+          adicionais_snapshot?: Json | null;
           aniversariante_data_nascimento?: string | null;
+          aniversariante_idade?: number | null;
           aniversariante_nome?: string | null;
+          aniversariante_personagem?: string | null;
+          aniversariante_tema?: string | null;
+          cliente_bairro?: string | null;
+          cliente_cep?: string | null;
+          cliente_cidade?: string | null;
+          cliente_cpf?: string | null;
           cliente_email?: string | null;
+          cliente_estado?: string | null;
           cliente_nome: string;
+          cliente_numero?: string | null;
+          cliente_rg?: string | null;
+          cliente_rua?: string | null;
           cliente_telefone?: string | null;
           created_at?: string;
           created_by?: string | null;
           data_evento?: string | null;
+          data_limite_pagamento?: string | null;
           etapa?: string;
           fechamento_confirmado_em?: string | null;
+          forma_pagamento_entrada?: string | null;
+          forma_pagamento_saldo?: string | null;
           funil?: string;
           hora_evento?: string | null;
+          hora_termino?: string | null;
           id?: number;
           motivo_perda?: string | null;
           observacoes?: string | null;
+          observacoes_festa?: string | null;
           origem?: string | null;
+          pacote_convidados_inclusos?: number | null;
           pacote_id?: number | null;
           pacote_nome?: string | null;
+          parcelas?: number | null;
+          quantidade_adultos?: number | null;
           quantidade_convidados?: number | null;
+          quantidade_crianas?: number | null;
           status_interno?: string;
           tenant_id: number;
           tipo_evento?: string;
@@ -641,28 +895,50 @@ export type Database = {
           valor_adicionais?: number;
           valor_entrada?: number;
           valor_pacote?: number;
+          valor_saldo?: number;
           valor_total?: number;
         };
         Update: {
+          adicionais_snapshot?: Json | null;
           aniversariante_data_nascimento?: string | null;
+          aniversariante_idade?: number | null;
           aniversariante_nome?: string | null;
+          aniversariante_personagem?: string | null;
+          aniversariante_tema?: string | null;
+          cliente_bairro?: string | null;
+          cliente_cep?: string | null;
+          cliente_cidade?: string | null;
+          cliente_cpf?: string | null;
           cliente_email?: string | null;
+          cliente_estado?: string | null;
           cliente_nome?: string;
+          cliente_numero?: string | null;
+          cliente_rg?: string | null;
+          cliente_rua?: string | null;
           cliente_telefone?: string | null;
           created_at?: string;
           created_by?: string | null;
           data_evento?: string | null;
+          data_limite_pagamento?: string | null;
           etapa?: string;
           fechamento_confirmado_em?: string | null;
+          forma_pagamento_entrada?: string | null;
+          forma_pagamento_saldo?: string | null;
           funil?: string;
           hora_evento?: string | null;
+          hora_termino?: string | null;
           id?: number;
           motivo_perda?: string | null;
           observacoes?: string | null;
+          observacoes_festa?: string | null;
           origem?: string | null;
+          pacote_convidados_inclusos?: number | null;
           pacote_id?: number | null;
           pacote_nome?: string | null;
+          parcelas?: number | null;
+          quantidade_adultos?: number | null;
           quantidade_convidados?: number | null;
+          quantidade_crianas?: number | null;
           status_interno?: string;
           tenant_id?: number;
           tipo_evento?: string;
@@ -671,6 +947,7 @@ export type Database = {
           valor_adicionais?: number;
           valor_entrada?: number;
           valor_pacote?: number;
+          valor_saldo?: number;
           valor_total?: number;
         };
         Relationships: [
@@ -856,9 +1133,12 @@ export type Database = {
           category: string;
           created_at: string;
           created_by: string | null;
+          description: string | null;
           id: number;
+          is_required: boolean;
           name: string;
           price: number;
+          sort_order: number;
           tenant_id: number;
           type: string;
           updated_at: string;
@@ -869,9 +1149,12 @@ export type Database = {
           category?: string;
           created_at?: string;
           created_by?: string | null;
+          description?: string | null;
           id?: number;
+          is_required?: boolean;
           name: string;
           price?: number;
+          sort_order?: number;
           tenant_id: number;
           type?: string;
           updated_at?: string;
@@ -882,9 +1165,12 @@ export type Database = {
           category?: string;
           created_at?: string;
           created_by?: string | null;
+          description?: string | null;
           id?: number;
+          is_required?: boolean;
           name?: string;
           price?: number;
+          sort_order?: number;
           tenant_id?: number;
           type?: string;
           updated_at?: string;
@@ -900,14 +1186,77 @@ export type Database = {
           },
         ];
       };
+      tenant_acceptance_terms: {
+        Row: {
+          active: boolean;
+          appears_in_contract: boolean;
+          content: string;
+          created_at: string;
+          created_by: string | null;
+          id: number;
+          is_required: boolean;
+          is_system: boolean;
+          sort_order: number;
+          tenant_id: number;
+          term_key: string | null;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          appears_in_contract?: boolean;
+          content: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          is_required?: boolean;
+          is_system?: boolean;
+          sort_order?: number;
+          tenant_id: number;
+          term_key?: string | null;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          appears_in_contract?: boolean;
+          content?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          is_required?: boolean;
+          is_system?: boolean;
+          sort_order?: number;
+          tenant_id?: number;
+          term_key?: string | null;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_acceptance_terms_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       tenant_closing_form_fields: {
         Row: {
           active: boolean;
+          category: string;
+          config: Json;
           created_at: string;
           created_by: string | null;
+          description: string | null;
           field_key: string | null;
           field_type: string;
           id: number;
+          is_locked: boolean;
           is_system: boolean;
           label: string;
           required: boolean;
@@ -916,14 +1265,24 @@ export type Database = {
           tenant_id: number;
           updated_at: string;
           updated_by: string | null;
+          usage_ai: boolean;
+          usage_checklist: boolean;
+          usage_contract: boolean;
+          usage_internal_task: boolean;
+          usage_party_summary: boolean;
+          usage_reports: boolean;
         };
         Insert: {
           active?: boolean;
+          category?: string;
+          config?: Json;
           created_at?: string;
           created_by?: string | null;
+          description?: string | null;
           field_key?: string | null;
           field_type?: string;
           id?: number;
+          is_locked?: boolean;
           is_system?: boolean;
           label: string;
           required?: boolean;
@@ -932,14 +1291,24 @@ export type Database = {
           tenant_id: number;
           updated_at?: string;
           updated_by?: string | null;
+          usage_ai?: boolean;
+          usage_checklist?: boolean;
+          usage_contract?: boolean;
+          usage_internal_task?: boolean;
+          usage_party_summary?: boolean;
+          usage_reports?: boolean;
         };
         Update: {
           active?: boolean;
+          category?: string;
+          config?: Json;
           created_at?: string;
           created_by?: string | null;
+          description?: string | null;
           field_key?: string | null;
           field_type?: string;
           id?: number;
+          is_locked?: boolean;
           is_system?: boolean;
           label?: string;
           required?: boolean;
@@ -948,10 +1317,69 @@ export type Database = {
           tenant_id?: number;
           updated_at?: string;
           updated_by?: string | null;
+          usage_ai?: boolean;
+          usage_checklist?: boolean;
+          usage_contract?: boolean;
+          usage_internal_task?: boolean;
+          usage_party_summary?: boolean;
+          usage_reports?: boolean;
         };
         Relationships: [
           {
             foreignKeyName: "tenant_closing_form_fields_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_contract_templates: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          id: number;
+          is_active: boolean;
+          is_default: boolean;
+          name: string;
+          template_html: string;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+          version: number;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: number;
+          is_active?: boolean;
+          is_default?: boolean;
+          name: string;
+          template_html: string;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: number;
+          is_active?: boolean;
+          is_default?: boolean;
+          name?: string;
+          template_html?: string;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_contract_templates_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: false;
             referencedRelation: "tenants";
@@ -1160,6 +1588,7 @@ export type Database = {
       };
       tenant_financial_settings: {
         Row: {
+          cancellation_policy: string | null;
           created_at: string;
           created_by: string | null;
           default_down_payment_fixed_value: number | null;
@@ -1167,16 +1596,21 @@ export type Database = {
           down_payment_method: string;
           down_payment_mode: string;
           installment_limit_mode: string;
+          max_balance_due_days: number | null;
+          max_deposit_due_days: number | null;
           max_installments: number;
+          min_deposit_percentage: number | null;
           remaining_card_installments: boolean;
           remaining_due_before_event_enabled: boolean;
           remaining_due_days_before_event: number;
           remaining_pix_installments: boolean;
+          rescheduling_policy: string | null;
           tenant_id: number;
           updated_at: string;
           updated_by: string | null;
         };
         Insert: {
+          cancellation_policy?: string | null;
           created_at?: string;
           created_by?: string | null;
           default_down_payment_fixed_value?: number | null;
@@ -1184,16 +1618,21 @@ export type Database = {
           down_payment_method?: string;
           down_payment_mode?: string;
           installment_limit_mode?: string;
+          max_balance_due_days?: number | null;
+          max_deposit_due_days?: number | null;
           max_installments?: number;
+          min_deposit_percentage?: number | null;
           remaining_card_installments?: boolean;
           remaining_due_before_event_enabled?: boolean;
           remaining_due_days_before_event?: number;
           remaining_pix_installments?: boolean;
+          rescheduling_policy?: string | null;
           tenant_id: number;
           updated_at?: string;
           updated_by?: string | null;
         };
         Update: {
+          cancellation_policy?: string | null;
           created_at?: string;
           created_by?: string | null;
           default_down_payment_fixed_value?: number | null;
@@ -1201,11 +1640,15 @@ export type Database = {
           down_payment_method?: string;
           down_payment_mode?: string;
           installment_limit_mode?: string;
+          max_balance_due_days?: number | null;
+          max_deposit_due_days?: number | null;
           max_installments?: number;
+          min_deposit_percentage?: number | null;
           remaining_card_installments?: boolean;
           remaining_due_before_event_enabled?: boolean;
           remaining_due_days_before_event?: number;
           remaining_pix_installments?: boolean;
+          rescheduling_policy?: string | null;
           tenant_id?: number;
           updated_at?: string;
           updated_by?: string | null;
@@ -1305,6 +1748,74 @@ export type Database = {
           },
         ];
       };
+      tenant_payment_methods: {
+        Row: {
+          active: boolean;
+          allowed_for_deposit: boolean;
+          allowed_for_remaining_balance: boolean;
+          allows_installments: boolean;
+          created_at: string;
+          created_by: string | null;
+          fee_fixed: number | null;
+          fee_percentage: number | null;
+          id: number;
+          max_installments: number | null;
+          name: string;
+          notes: string | null;
+          payment_type: string;
+          sort_order: number;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          active?: boolean;
+          allowed_for_deposit?: boolean;
+          allowed_for_remaining_balance?: boolean;
+          allows_installments?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          fee_fixed?: number | null;
+          fee_percentage?: number | null;
+          id?: number;
+          max_installments?: number | null;
+          name: string;
+          notes?: string | null;
+          payment_type: string;
+          sort_order?: number;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          active?: boolean;
+          allowed_for_deposit?: boolean;
+          allowed_for_remaining_balance?: boolean;
+          allows_installments?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          fee_fixed?: number | null;
+          fee_percentage?: number | null;
+          id?: number;
+          max_installments?: number | null;
+          name?: string;
+          notes?: string | null;
+          payment_type?: string;
+          sort_order?: number;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_payment_methods_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       tenant_packages: {
         Row: {
           active: boolean;
@@ -1312,11 +1823,17 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           description: string;
+          duration_minutes: number | null;
           equipe: Json;
           estrutura: Json;
+          excluded_items: Json;
           id: number;
+          included_guests: number | null;
+          included_items: Json;
           name: string;
           pricing_tiers: Json;
+          rules: string | null;
+          sort_order: number;
           tenant_id: number;
           updated_at: string;
           updated_by: string | null;
@@ -1327,11 +1844,17 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           description?: string;
+          duration_minutes?: number | null;
           equipe?: Json;
           estrutura?: Json;
+          excluded_items?: Json;
           id?: number;
+          included_guests?: number | null;
+          included_items?: Json;
           name: string;
           pricing_tiers?: Json;
+          rules?: string | null;
+          sort_order?: number;
           tenant_id: number;
           updated_at?: string;
           updated_by?: string | null;
@@ -1342,11 +1865,17 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           description?: string;
+          duration_minutes?: number | null;
           equipe?: Json;
           estrutura?: Json;
+          excluded_items?: Json;
           id?: number;
+          included_guests?: number | null;
+          included_items?: Json;
           name?: string;
           pricing_tiers?: Json;
+          rules?: string | null;
+          sort_order?: number;
           tenant_id?: number;
           updated_at?: string;
           updated_by?: string | null;
@@ -1425,7 +1954,7 @@ export type Database = {
       };
     };
     Enums: {
-      [_ in never]: never;
+      evento_contract_status: "accepted" | "cancelled" | "draft" | "generated" | "superseded";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1549,6 +2078,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      evento_contract_status: ["accepted", "cancelled", "draft", "generated", "superseded"],
+    },
   },
 } as const;

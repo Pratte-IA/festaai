@@ -8,6 +8,8 @@ import {
   formatEquipeForTier,
   formatEquipeSummary,
   getEquipeQuantity,
+  itemsToLines,
+  linesToItems,
   syncEquipeWithTiers,
   type PricingSchedule,
 } from "@/data/packagesData";
@@ -265,6 +267,69 @@ const PackageWizard = ({
                     value={pkg.description}
                     onChange={(e) => setPkg({ ...pkg, description: e.target.value })}
                     placeholder="Texto de venda que aparecerá nas propostas..."
+                    rows={3}
+                    className="input-base resize-none"
+                  />
+                </Field>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Field label="Duração (minutos)">
+                    <input
+                      type="number"
+                      min="0"
+                      value={pkg.durationMinutes ?? ""}
+                      onChange={(e) =>
+                        setPkg({
+                          ...pkg,
+                          durationMinutes: e.target.value ? Number(e.target.value) : null,
+                        })
+                      }
+                      placeholder="Ex: 240"
+                      className="input-base"
+                    />
+                  </Field>
+                  <Field label="Convidados inclusos">
+                    <input
+                      type="number"
+                      min="0"
+                      value={pkg.includedGuests ?? ""}
+                      onChange={(e) =>
+                        setPkg({
+                          ...pkg,
+                          includedGuests: e.target.value ? Number(e.target.value) : null,
+                        })
+                      }
+                      placeholder="Ex: 50"
+                      className="input-base"
+                    />
+                  </Field>
+                </div>
+                <Field label="Itens inclusos (um por linha)">
+                  <textarea
+                    value={itemsToLines(pkg.includedItems)}
+                    onChange={(e) =>
+                      setPkg({ ...pkg, includedItems: linesToItems(e.target.value) })
+                    }
+                    placeholder="Ex: Decoração básica&#10;Garçom"
+                    rows={3}
+                    className="input-base resize-none"
+                  />
+                </Field>
+                <Field label="Itens não inclusos (um por linha)">
+                  <textarea
+                    value={itemsToLines(pkg.excludedItems)}
+                    onChange={(e) =>
+                      setPkg({ ...pkg, excludedItems: linesToItems(e.target.value) })
+                    }
+                    placeholder="Ex: Bolo personalizado&#10;Doces finos"
+                    rows={3}
+                    className="input-base resize-none"
+                  />
+                </Field>
+                <Field label="Regras do pacote">
+                  <textarea
+                    value={pkg.rules ?? ""}
+                    onChange={(e) => setPkg({ ...pkg, rules: e.target.value || null })}
+                    placeholder="Regras comerciais, restrições ou observações..."
                     rows={3}
                     className="input-base resize-none"
                   />

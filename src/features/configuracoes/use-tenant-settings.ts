@@ -105,6 +105,7 @@ export const useTenantFinancialSettings = () => {
 
       return {
         ...defaultFinancialSettings,
+        cancellation_policy: data?.cancellation_policy ?? null,
         default_down_payment_fixed_value: data?.default_down_payment_fixed_value ?? null,
         default_down_payment_percentage:
           data?.default_down_payment_percentage ?? defaultFinancialSettings.default_down_payment_percentage,
@@ -117,7 +118,10 @@ export const useTenantFinancialSettings = () => {
         installment_limit_mode:
           (data?.installment_limit_mode as FinancialSettings["installment_limit_mode"]) ??
           defaultFinancialSettings.installment_limit_mode,
+        max_balance_due_days: data?.max_balance_due_days ?? null,
+        max_deposit_due_days: data?.max_deposit_due_days ?? null,
         max_installments: data?.max_installments ?? defaultFinancialSettings.max_installments,
+        min_deposit_percentage: data?.min_deposit_percentage ?? null,
         remaining_card_installments:
           data?.remaining_card_installments ?? defaultFinancialSettings.remaining_card_installments,
         remaining_due_before_event_enabled:
@@ -128,6 +132,7 @@ export const useTenantFinancialSettings = () => {
           defaultFinancialSettings.remaining_due_days_before_event,
         remaining_pix_installments:
           data?.remaining_pix_installments ?? defaultFinancialSettings.remaining_pix_installments,
+        rescheduling_policy: data?.rescheduling_policy ?? null,
       };
     },
     queryKey: configuracoesQueryKeys.financial(currentTenantId),
@@ -144,17 +149,22 @@ export const useSaveTenantFinancialSettings = () => {
       if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
       const { error } = await supabase.from("tenant_financial_settings").upsert({
+        cancellation_policy: settings.cancellation_policy?.trim() || null,
         created_by: user.id,
         default_down_payment_fixed_value: settings.default_down_payment_fixed_value,
         default_down_payment_percentage: settings.default_down_payment_percentage,
         down_payment_method: settings.down_payment_method,
         down_payment_mode: settings.down_payment_mode,
         installment_limit_mode: settings.installment_limit_mode,
+        max_balance_due_days: settings.max_balance_due_days,
+        max_deposit_due_days: settings.max_deposit_due_days,
         max_installments: settings.max_installments,
+        min_deposit_percentage: settings.min_deposit_percentage,
         remaining_card_installments: settings.remaining_card_installments,
         remaining_due_before_event_enabled: settings.remaining_due_before_event_enabled,
         remaining_due_days_before_event: settings.remaining_due_days_before_event,
         remaining_pix_installments: settings.remaining_pix_installments,
+        rescheduling_policy: settings.rescheduling_policy?.trim() || null,
         tenant_id: currentTenantId,
         updated_by: user.id,
       });

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
+import { EventoContractCard, shouldShowEventoContractCard } from "@/components/eventos/EventoContractCard";
 import EventChecklist from "@/components/EventChecklist";
 import AppLayout from "@/components/AppLayout";
 import {
@@ -489,6 +490,8 @@ const EventoDetalhe = () => {
             )}
           </CardContent>
         </Card>
+
+        {shouldShowEventoContractCard(event) && <EventoContractCard evento={event} />}
 
         {/* CHECKLIST DE ORGANIZAÇÃO — only for organização stage */}
         {event.etapa === "organizacao" && (
