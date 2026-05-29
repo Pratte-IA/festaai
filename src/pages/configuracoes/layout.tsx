@@ -13,11 +13,12 @@ const SEGMENT_META: Record<string, { title: string; description: string }> = {
   },
   checklist: {
     title: "Checklist",
-    description: "Itens gerados automaticamente para cada festa",
+    description: "Configure categorias e itens por pacote, com opção de replicar entre pacotes",
   },
   "formulario-fechamento": {
     title: "Formulário de Fechamento",
-    description: "Campos confirmados pelo cliente ao fechar a festa",
+    description:
+      "Defina os campos que o cliente confirma ao fechar a festa. Campos do sistema preenchem automaticamente os dados do contrato e do evento.",
   },
   financeiro: {
     title: "Financeiro",

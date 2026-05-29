@@ -4,6 +4,7 @@ export {
   useCreateChecklistItem,
   useDeleteChecklistCategory,
   useDeleteChecklistItem,
+  useReplicateChecklistToPackage,
   useTenantChecklist,
   useUpdateChecklistCategory,
   useUpdateChecklistItem,

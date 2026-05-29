@@ -99,14 +99,6 @@ const ClosingFormConfig = () => {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">Formulário de Fechamento</h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Defina os campos que o cliente confirma ao fechar a festa. Campos do sistema preenchem
-          automaticamente os dados do contrato e do evento.
-        </p>
-      </div>
-
       {isLoading && <p className="text-sm text-muted-foreground">Carregando formulário...</p>}
 
       {SECTIONS.map((section) => {

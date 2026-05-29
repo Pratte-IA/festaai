@@ -1,29 +1,81 @@
-import { useState } from "react";
-import { Plus, Trash2, GripVertical, ChevronDown, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Copy, Plus, Trash2, GripVertical, ChevronDown, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   useCreateChecklistCategory,
   useCreateChecklistItem,
   useDeleteChecklistCategory,
   useDeleteChecklistItem,
+  useReplicateChecklistToPackage,
   useTenantChecklist,
+  useTenantPackages,
   useUpdateChecklistCategory,
   useUpdateChecklistItem,
 } from "@/features/configuracoes";
 import { toast } from "@/hooks/use-toast";
 
 const ChecklistConfig = () => {
-  const { data: categories = [], isLoading } = useTenantChecklist();
-  const createCategory = useCreateChecklistCategory();
-  const createItem = useCreateChecklistItem();
-  const updateCategory = useUpdateChecklistCategory();
-  const updateItem = useUpdateChecklistItem();
-  const deleteCategory = useDeleteChecklistCategory();
-  const deleteItem = useDeleteChecklistItem();
+  const { data: packages = [], isLoading: isLoadingPackages } = useTenantPackages();
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+  const [replicateOpen, setReplicateOpen] = useState(false);
+  const [targetPackageId, setTargetPackageId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (packages.length === 0) {
+      setSelectedPackageId(null);
+      return;
+    }
+
+    setSelectedPackageId((current) =>
+      current && packages.some((pkg) => pkg.id === current) ? current : packages[0].id
+    );
+  }, [packages]);
+
+  const { data: categories = [], isLoading: isLoadingChecklist } = useTenantChecklist(selectedPackageId);
+  const createCategory = useCreateChecklistCategory(selectedPackageId);
+  const createItem = useCreateChecklistItem(selectedPackageId);
+  const updateCategory = useUpdateChecklistCategory(selectedPackageId);
+  const updateItem = useUpdateChecklistItem(selectedPackageId);
+  const deleteCategory = useDeleteChecklistCategory(selectedPackageId);
+  const deleteItem = useDeleteChecklistItem(selectedPackageId);
+  const replicateChecklist = useReplicateChecklistToPackage();
+
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newItemInputs, setNewItemInputs] = useState<Record<string, string>>({});
+
+  const selectedPackage = useMemo(
+    () => packages.find((pkg) => pkg.id === selectedPackageId),
+    [packages, selectedPackageId]
+  );
+
+  const replicateTargets = useMemo(
+    () => packages.filter((pkg) => pkg.id !== selectedPackageId),
+    [packages, selectedPackageId]
+  );
+
+  useEffect(() => {
+    setExpandedCats([]);
+    setNewCategoryName("");
+    setNewItemInputs({});
+  }, [selectedPackageId]);
 
   const toggleExpand = (catId: string) => {
     setExpandedCats((prev) =>
@@ -94,21 +146,97 @@ const ChecklistConfig = () => {
     }
   };
 
+  const openReplicateDialog = () => {
+    setTargetPackageId(replicateTargets[0]?.id ?? null);
+    setReplicateOpen(true);
+  };
+
+  const handleReplicate = async () => {
+    if (!selectedPackageId || !targetPackageId) return;
+
+    try {
+      await replicateChecklist.mutateAsync({
+        sourcePackageId: selectedPackageId,
+        targetPackageId,
+      });
+      toast({
+        title: "Checklist replicado",
+        description: `As categorias foram copiadas para ${packages.find((pkg) => pkg.id === targetPackageId)?.name ?? "o pacote selecionado"}.`,
+      });
+      setReplicateOpen(false);
+    } catch (error) {
+      const description =
+        error instanceof Error && error.message.trim().length > 0
+          ? error.message
+          : "Nao foi possivel replicar o checklist.";
+      toast({ title: "Falha ao replicar", description, variant: "destructive" });
+    }
+  };
+
+  if (isLoadingPackages) {
+    return <p className="text-sm text-muted-foreground">Carregando pacotes...</p>;
+  }
+
+  if (packages.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-border/60 p-8 text-center">
+        <p className="text-sm text-muted-foreground">
+          Cadastre um pacote em{" "}
+          <Link to="/configuracoes/pacotes" className="text-primary hover:underline">
+            Configurações &gt; Pacotes
+          </Link>{" "}
+          para configurar o checklist.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Checklist de Organização</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Configure as categorias e itens que serão gerados automaticamente para cada festa
-          </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2 min-w-[220px] max-w-sm">
+          <label className="text-sm font-medium text-foreground" htmlFor="checklist-package">
+            Pacote
+          </label>
+          <Select
+            value={selectedPackageId ?? undefined}
+            onValueChange={(value) => setSelectedPackageId(value)}
+          >
+            <SelectTrigger id="checklist-package">
+              <SelectValue placeholder="Selecione um pacote" />
+            </SelectTrigger>
+            <SelectContent>
+              {packages.map((pkg) => (
+                <SelectItem key={pkg.id} value={pkg.id}>
+                  {pkg.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="gap-2 shrink-0"
+          disabled={!selectedPackageId || replicateTargets.length === 0}
+          onClick={openReplicateDialog}
+        >
+          <Copy className="h-4 w-4" />
+          Replicar para outro pacote
+        </Button>
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">Carregando checklist...</p>}
-      {!isLoading && categories.length === 0 && (
+      {selectedPackage && (
+        <p className="text-sm text-muted-foreground">
+          Editando checklist do pacote <span className="font-medium text-foreground">{selectedPackage.name}</span>.
+        </p>
+      )}
+
+      {isLoadingChecklist && <p className="text-sm text-muted-foreground">Carregando checklist...</p>}
+      {!isLoadingChecklist && categories.length === 0 && (
         <div className="rounded-xl border border-dashed border-border/60 p-8 text-center">
-          <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada.</p>
+          <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada para este pacote.</p>
         </div>
       )}
 
@@ -118,9 +246,11 @@ const ChecklistConfig = () => {
 
         return (
           <div key={cat.id} className="glass-card overflow-hidden">
-            {/* Category header */}
             <div className="flex items-center gap-3 p-4">
-              <button onClick={() => toggleExpand(cat.id)} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                onClick={() => toggleExpand(cat.id)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
               <div className="flex-1 min-w-0">
@@ -146,7 +276,6 @@ const ChecklistConfig = () => {
               </button>
             </div>
 
-            {/* Items */}
             {isExpanded && (
               <div className="border-t border-border/30 px-4 pb-4">
                 <div className="space-y-1 mt-3">
@@ -156,7 +285,9 @@ const ChecklistConfig = () => {
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors group"
                     >
                       <GripVertical className="w-3.5 h-3.5 text-muted-foreground/30" />
-                      <span className={`text-sm flex-1 ${item.active ? "text-foreground" : "text-muted-foreground line-through"}`}>
+                      <span
+                        className={`text-sm flex-1 ${item.active ? "text-foreground" : "text-muted-foreground line-through"}`}
+                      >
                         {item.label}
                       </span>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -178,7 +309,6 @@ const ChecklistConfig = () => {
                   ))}
                 </div>
 
-                {/* Add item */}
                 <div className="flex gap-2 mt-3">
                   <Input
                     placeholder="Novo item..."
@@ -199,7 +329,6 @@ const ChecklistConfig = () => {
         );
       })}
 
-      {/* Add category */}
       <div className="flex gap-2">
         <Input
           placeholder="Nova categoria..."
@@ -209,12 +338,65 @@ const ChecklistConfig = () => {
             if (e.key === "Enter") void addCategory();
           }}
           className="text-sm"
+          disabled={!selectedPackageId}
         />
-        <Button variant="outline" className="gap-2 shrink-0" onClick={() => void addCategory()}>
+        <Button
+          variant="outline"
+          className="gap-2 shrink-0"
+          onClick={() => void addCategory()}
+          disabled={!selectedPackageId}
+        >
           <Plus className="w-4 h-4" />
           Categoria
         </Button>
       </div>
+
+      <Dialog open={replicateOpen} onOpenChange={setReplicateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Replicar checklist</DialogTitle>
+            <DialogDescription>
+              Copia todas as categorias e itens de{" "}
+              <span className="font-medium text-foreground">{selectedPackage?.name}</span> para outro pacote. O
+              checklist do pacote de destino sera substituido.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground" htmlFor="replicate-target-package">
+              Pacote de destino
+            </label>
+            <Select
+              value={targetPackageId ?? undefined}
+              onValueChange={(value) => setTargetPackageId(value)}
+            >
+              <SelectTrigger id="replicate-target-package">
+                <SelectValue placeholder="Selecione o pacote de destino" />
+              </SelectTrigger>
+              <SelectContent>
+                {replicateTargets.map((pkg) => (
+                  <SelectItem key={pkg.id} value={pkg.id}>
+                    {pkg.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setReplicateOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void handleReplicate()}
+              disabled={!targetPackageId || replicateChecklist.isPending}
+            >
+              {replicateChecklist.isPending ? "Replicando..." : "Replicar checklist"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

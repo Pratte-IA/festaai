@@ -966,6 +966,7 @@ export type Database = {
           created_by: string | null;
           id: number;
           name: string;
+          package_id: number;
           sort_order: number;
           tenant_id: number;
           updated_at: string;
@@ -977,6 +978,7 @@ export type Database = {
           created_by?: string | null;
           id?: number;
           name: string;
+          package_id: number;
           sort_order?: number;
           tenant_id: number;
           updated_at?: string;
@@ -988,12 +990,20 @@ export type Database = {
           created_by?: string | null;
           id?: number;
           name?: string;
+          package_id?: number;
           sort_order?: number;
           tenant_id?: number;
           updated_at?: string;
           updated_by?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "tenant_checklist_categories_package_id_fkey";
+            columns: ["package_id"];
+            isOneToOne: false;
+            referencedRelation: "tenant_packages";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "tenant_checklist_categories_tenant_id_fkey";
             columns: ["tenant_id"];

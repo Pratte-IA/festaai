@@ -14,6 +14,7 @@ import {
 } from "@/data/packagesData";
 
 import { configuracoesQueryKeys } from "./query-keys";
+import { seedDefaultChecklistForPackage } from "./seed-default-checklist";
 
 type PackageInput = Omit<PackageData, "id">;
 type AdditionalInput = Omit<Additional, "id">;
@@ -134,6 +135,8 @@ export const useCreateTenantPackage = () => {
 
       if (error) throw error;
       if (!data?.id) throw new Error("Pacote nao foi persistido no banco de dados.");
+
+      await seedDefaultChecklistForPackage(currentTenantId, data.id, user.id);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.packages(currentTenantId) });

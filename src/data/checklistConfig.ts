@@ -11,46 +11,43 @@ export interface ChecklistCategory {
   items: ChecklistItem[];
 }
 
-export const defaultChecklistConfig: ChecklistCategory[] = [
+export interface ChecklistCategoryTemplate {
+  name: string;
+  items: string[];
+}
+
+export const defaultChecklistTemplate: ChecklistCategoryTemplate[] = [
   {
-    id: "buffet",
-    name: "Buffet",
-    active: true,
-    items: [
-      { id: "buffet-1", label: "Confirmar cardápio com o cliente", active: true },
-      { id: "buffet-2", label: "Encomendar bolo", active: true },
-      { id: "buffet-3", label: "Confirmar fornecedor de salgados", active: true },
-      { id: "buffet-4", label: "Comprar bebidas", active: true },
-      { id: "buffet-5", label: "Preparar mesa de doces", active: true },
-    ],
+    name: "Equipe de Limpeza",
+    items: ["Contratar equipe"],
   },
   {
-    id: "decoracao",
     name: "Decoração",
-    active: true,
-    items: [
-      { id: "deco-1", label: "Definir tema com o cliente", active: true },
-      { id: "deco-2", label: "Comprar balões e painéis", active: true },
-      { id: "deco-3", label: "Montar decoração da mesa principal", active: true },
-      { id: "deco-4", label: "Preparar lembrancinhas", active: true },
-      { id: "deco-5", label: "Arrumar espaço da festa", active: true },
-    ],
+    items: ["Contratar decoradora", "Alinhar decoração com a mãe"],
   },
   {
-    id: "equipe",
-    name: "Equipe",
-    active: true,
-    items: [
-      { id: "equipe-1", label: "Escalar monitores", active: true },
-      { id: "equipe-2", label: "Confirmar DJ / som", active: true },
-      { id: "equipe-3", label: "Confirmar fotógrafo", active: true },
-      { id: "equipe-4", label: "Confirmar recepcionista", active: true },
-      { id: "equipe-5", label: "Briefing com equipe", active: true },
-    ],
+    name: "Buffet",
+    items: ["Salgado", "Doce", "Bolo", "Bebidas sem álcool"],
+  },
+  {
+    name: "Equipe da Festa",
+    items: ["Recepcionista", "Copeira", "Garçom", "Monitora"],
   },
 ];
 
-// Generate a checklist for an event based on active config
+export const defaultChecklistConfig: ChecklistCategory[] = defaultChecklistTemplate.map(
+  (category, categoryIndex) => ({
+    id: `cat-${categoryIndex}`,
+    name: category.name,
+    active: true,
+    items: category.items.map((label, itemIndex) => ({
+      id: `cat-${categoryIndex}-item-${itemIndex}`,
+      label,
+      active: true,
+    })),
+  })
+);
+
 export interface EventChecklistItem {
   id: string;
   label: string;
