@@ -4,7 +4,7 @@ export const DEFAULT_CONTRACT_TEMPLATE_HTML = `<article class="contract-document
 
 <h2>1. Partes</h2>
 <p><strong>CONTRATADA:</strong> Espaço de festas (conforme cadastro do estabelecimento).</p>
-<p><strong>CONTRATANTE:</strong> {{cliente_nome}}, CPF {{cliente_cpf}}, RG {{cliente_rg}}, residente em {{cliente_endereco}}.</p>
+<p><strong>CONTRATANTE:</strong> {{cliente_nome}}, CPF {{cliente_cpf}}, residente em {{cliente_endereco}}.</p>
 <p><strong>Contato:</strong> {{cliente_telefone}} · {{cliente_email}}</p>
 
 <h2>2. Dados da festa</h2>
@@ -12,9 +12,8 @@ export const DEFAULT_CONTRACT_TEMPLATE_HTML = `<article class="contract-document
   <li><strong>Aniversariante:</strong> {{aniversariante_nome}}</li>
   <li><strong>Data de nascimento:</strong> {{aniversariante_data_nascimento}}</li>
   <li><strong>Data da festa:</strong> {{data_evento}}</li>
-  <li><strong>Horário:</strong> {{hora_evento}} às {{hora_termino}}</li>
-  <li><strong>Convidados:</strong> {{quantidade_convidados}} (adultos: {{quantidade_adultos}}, crianças: {{quantidade_crianas}})</li>
-  <li><strong>Tema:</strong> {{aniversariante_tema}}</li>
+  <li><strong>Horário:</strong> {{hora_evento}}</li>
+  <li><strong>Convidados:</strong> {{quantidade_convidados}}</li>
 </ul>
 
 <h2>3. Pacote contratado</h2>
@@ -48,7 +47,6 @@ export const DEFAULT_CONTRACT_TEMPLATE_HTML = `<article class="contract-document
 
 <h2>8. Observações</h2>
 <p>{{observacoes}}</p>
-<p>{{observacoes_festa}}</p>
 
 <h2>9. Termos e autorizações</h2>
 <pre>{{aceites}}</pre>

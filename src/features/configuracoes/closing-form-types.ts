@@ -36,7 +36,6 @@ export type EventoClosingFieldKey =
   | "cliente_telefone"
   | "cliente_email"
   | "cliente_cpf"
-  | "cliente_rg"
   | "cliente_cep"
   | "cliente_rua"
   | "cliente_numero"
@@ -45,16 +44,9 @@ export type EventoClosingFieldKey =
   | "cliente_estado"
   | "aniversariante_nome"
   | "aniversariante_data_nascimento"
-  | "aniversariante_idade"
-  | "aniversariante_tema"
-  | "aniversariante_personagem"
   | "data_evento"
   | "hora_evento"
-  | "hora_termino"
   | "quantidade_convidados"
-  | "quantidade_adultos"
-  | "quantidade_crianas"
-  | "observacoes_festa"
   | "pacote_nome"
   | "pacote_convidados_inclusos"
   | "valor_pacote"
@@ -135,7 +127,6 @@ export const EVENTO_CLOSING_FIELD_KEYS = new Set<string>([
   "cliente_telefone",
   "cliente_email",
   "cliente_cpf",
-  "cliente_rg",
   "cliente_cep",
   "cliente_rua",
   "cliente_numero",
@@ -144,16 +135,9 @@ export const EVENTO_CLOSING_FIELD_KEYS = new Set<string>([
   "cliente_estado",
   "aniversariante_nome",
   "aniversariante_data_nascimento",
-  "aniversariante_idade",
-  "aniversariante_tema",
-  "aniversariante_personagem",
   "data_evento",
   "hora_evento",
-  "hora_termino",
   "quantidade_convidados",
-  "quantidade_adultos",
-  "quantidade_crianas",
-  "observacoes_festa",
   "pacote_nome",
   "pacote_convidados_inclusos",
   "valor_pacote",

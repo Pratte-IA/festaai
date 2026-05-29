@@ -49,10 +49,14 @@ import {
   applyPackageToFieldValues,
   buildAdicionaisSnapshot,
   buildFieldIdByKey,
+  buildPackageEventoUpdates,
   CLOSING_FORM_SECTIONS,
   getAdditionalsTotal,
   getEventoFieldValueAsString,
   getPackageFromPrice,
+  getPackagePriceForGuests,
+  isHiddenPackageFieldKey,
+  PACKAGE_SELECTOR_FIELD_KEY,
   parseAdicionaisSnapshot,
   recalculateFinancialTotals,
   resolveGuestCount,
@@ -164,10 +168,27 @@ export const ClosingFormDialog = ({
     if (!open || isLoading) return;
 
     let values = buildInitialValues(activeFields, evento, savedResponses);
-    values = recalculateFinancialTotals(values, fieldIdByKey);
+
+    const initialPackageId = evento.pacote_id ? String(evento.pacote_id) : null;
+    const initialPackage = initialPackageId
+      ? packages.find((pkg) => pkg.id === initialPackageId) ?? null
+      : null;
+
+    if (initialPackage) {
+      const guestCount = resolveGuestCount(evento, values, fieldIdByKey);
+      values = applyPackageToFieldValues(initialPackage, guestCount, values, fieldIdByKey);
+      values = recalculateFinancialTotals(values, fieldIdByKey, {
+        pacoteValue:
+          guestCount > 0
+            ? getPackagePriceForGuests(initialPackage, guestCount)
+            : getPackageFromPrice(initialPackage),
+      });
+    } else {
+      values = recalculateFinancialTotals(values, fieldIdByKey);
+    }
 
     setFieldValues(values);
-    setSelectedPackageId(evento.pacote_id ? String(evento.pacote_id) : null);
+    setSelectedPackageId(initialPackageId);
 
     const snapshot = parseAdicionaisSnapshot(evento.adicionais_snapshot);
     setAdditionalSelections(new Map(snapshot.map((item) => [String(item.id), item.quantity])));
@@ -187,13 +208,41 @@ export const ClosingFormDialog = ({
     open,
     savedAcceptances,
     savedResponses,
+    packages,
   ]);
 
-  const syncFinancialFields = (nextValues: Record<string, string>) =>
-    recalculateFinancialTotals(nextValues, fieldIdByKey);
+  const syncFinancialFields = (
+    nextValues: Record<string, string>,
+    pacoteValue?: number,
+  ) => recalculateFinancialTotals(nextValues, fieldIdByKey, { pacoteValue });
+
+  const resolveSelectedPackage = () =>
+    packages.find((pkg) => pkg.id === selectedPackageId) ?? null;
+
+  const resolvePacoteValue = (
+    values: Record<string, string>,
+    pkg: PackageData | null = resolveSelectedPackage(),
+  ) => {
+    if (!pkg) return undefined;
+    const guestCount = resolveGuestCount(evento, values, fieldIdByKey);
+    return guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+  };
 
   const updateFieldValue = (fieldId: string, value: string) => {
-    setFieldValues((previous) => syncFinancialFields({ ...previous, [fieldId]: value }));
+    setFieldValues((previous) => {
+      let next = { ...previous, [fieldId]: value };
+      const changedField = activeFields.find((field) => field.id === fieldId);
+
+      if (changedField?.fieldKey === "quantidade_convidados") {
+        const pkg = resolveSelectedPackage();
+        if (pkg) {
+          const guestCount = Number(value) || 0;
+          next = applyPackageToFieldValues(pkg, guestCount, next, fieldIdByKey);
+        }
+      }
+
+      return syncFinancialFields(next, resolvePacoteValue(next));
+    });
 
     setErrors((previous) => {
       if (!previous[fieldId]) return previous;
@@ -209,7 +258,9 @@ export const ClosingFormDialog = ({
 
     setFieldValues((previous) => {
       const withPackage = applyPackageToFieldValues(pkg, guestCount, previous, fieldIdByKey);
-      return syncFinancialFields(withPackage);
+      const pacoteValue =
+        guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+      return syncFinancialFields(withPackage, pacoteValue);
     });
   };
 
@@ -233,7 +284,7 @@ export const ClosingFormDialog = ({
           fieldNext[adicionaisSelecionadosId] = snapshot.map((item) => item.name).join(", ");
         }
 
-        return syncFinancialFields(fieldNext);
+        return syncFinancialFields(fieldNext, resolvePacoteValue(fieldNext));
       });
 
       return next;
@@ -255,7 +306,7 @@ export const ClosingFormDialog = ({
         const fieldNext = { ...fieldPrevious };
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
-        return syncFinancialFields(fieldNext);
+        return syncFinancialFields(fieldNext, resolvePacoteValue(fieldNext));
       });
 
       return next;
@@ -311,13 +362,8 @@ export const ClosingFormDialog = ({
       if (!value) nextErrors[field.id] = "Este campo é obrigatório.";
     });
 
-    const pacoteNomeField = activeFields.find((field) => field.fieldKey === "pacote_nome");
-    if (
-      pacoteNomeField?.required &&
-      packages.length > 0 &&
-      !selectedPackageId &&
-      !(fieldValues[pacoteNomeField.id]?.trim())
-    ) {
+    const pacoteNomeField = activeFields.find((field) => field.fieldKey === PACKAGE_SELECTOR_FIELD_KEY);
+    if (pacoteNomeField?.required && packages.length > 0 && !selectedPackageId) {
       nextErrors.pacote = "Selecione um pacote para continuar.";
     }
 
@@ -336,6 +382,7 @@ export const ClosingFormDialog = ({
     if (!validate()) return;
 
     const guestCount = resolveGuestCount(evento, fieldValues, fieldIdByKey);
+    const selectedPackage = resolveSelectedPackage();
     const adicionaisSnapshot = buildAdicionaisSnapshot(
       additionals,
       additionalSelections,
@@ -358,6 +405,9 @@ export const ClosingFormDialog = ({
           required: field.required,
         })),
         pacoteId: selectedPackageId ? Number(selectedPackageId) : evento.pacote_id,
+        packageEventoUpdates: selectedPackage
+          ? buildPackageEventoUpdates(selectedPackage, guestCount)
+          : undefined,
       });
 
       onOpenChange(false);
@@ -516,44 +566,51 @@ export const ClosingFormDialog = ({
 
   const renderPackageSection = () => {
     const sectionFields = (fieldsBySection.get("pacote") ?? []).filter(
-      (field) => field.fieldKey !== "pacote_nome" || packages.length === 0,
+      (field) => !isHiddenPackageFieldKey(field.fieldKey) && field.fieldKey !== PACKAGE_SELECTOR_FIELD_KEY,
     );
+    const selectedPackage = resolveSelectedPackage();
+    const guestCount = resolveGuestCount(evento, fieldValues, fieldIdByKey);
+    const selectedPrice = selectedPackage ? resolvePacoteValue(fieldValues, selectedPackage) : undefined;
 
     return (
       <div className="space-y-4">
         {packages.length > 0 && (
-          <div className="grid grid-cols-1 gap-3">
-            {packages.map((pkg) => {
-              const isSelected = selectedPackageId === pkg.id;
-              const fromPrice = getPackageFromPrice(pkg);
-
-              return (
-                <button
-                  key={pkg.id}
-                  type="button"
-                  onClick={() => handleSelectPackage(pkg)}
-                  className={cn(
-                    "rounded-xl border p-4 text-left transition-colors",
-                    isSelected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                      : "border-border/60 bg-background/50 hover:border-border",
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-foreground">{pkg.name}</p>
-                    {fromPrice > 0 && (
-                      <span className="text-sm font-bold text-primary shrink-0">
-                        a partir de {formatCurrency(fromPrice)}
-                      </span>
-                    )}
-                  </div>
-                  {pkg.description && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{pkg.description}</p>
-                  )}
-                </button>
-              );
-            })}
+          <div className="space-y-2">
+            <Label htmlFor="closing-package-select" className="text-xs">
+              Pacote contratado *
+            </Label>
+            <Select
+              value={selectedPackageId ?? undefined}
+              onValueChange={(packageId) => {
+                const pkg = packages.find((item) => item.id === packageId);
+                if (pkg) handleSelectPackage(pkg);
+              }}
+            >
+              <SelectTrigger id="closing-package-select" className="text-sm">
+                <SelectValue placeholder="Selecione um pacote" />
+              </SelectTrigger>
+              <SelectContent>
+                {packages.map((pkg) => (
+                  <SelectItem key={pkg.id} value={pkg.id}>
+                    {pkg.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedPackage && selectedPrice != null && selectedPrice > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Valor do pacote
+                {guestCount > 0 ? ` para ${guestCount} convidado${guestCount === 1 ? "" : "s"}` : ""}:{" "}
+                <span className="font-medium text-foreground">{formatCurrency(selectedPrice)}</span>
+              </p>
+            )}
           </div>
+        )}
+
+        {packages.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            Nenhum pacote ativo cadastrado na central de controle.
+          </p>
         )}
 
         {sectionFields.map((field) => (

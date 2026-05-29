@@ -22,4 +22,10 @@ export const eventosQueryKeys = {
     ["eventos", tenantId, "contract", contractId, "acceptance"] as const,
   contractTemplate: (tenantId: number | null) =>
     ["eventos", tenantId, "contract-template"] as const,
+  contractsList: (tenantId: number | null) =>
+    ["eventos", tenantId, "contracts", "list"] as const,
+  contractById: (tenantId: number | null, contractId: number | null) =>
+    ["eventos", tenantId, "contracts", contractId] as const,
+  contractHistory: (tenantId: number | null, eventoId: number | null) =>
+    ["eventos", tenantId, "contracts", "history", eventoId] as const,
 };

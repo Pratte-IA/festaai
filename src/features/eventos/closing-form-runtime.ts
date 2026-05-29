@@ -2,8 +2,20 @@ import type { Additional, PackageData } from "@/data/packagesData";
 import { itemsToLines } from "@/data/packagesData";
 import { getTierBandPrice } from "@/data/pricing-schedule";
 import type { ClosingFormSection } from "@/features/configuracoes/closing-form-types";
-import type { Evento } from "@/features/eventos/types";
+import type { Evento, EventoUpdate } from "@/features/eventos/types";
 import type { Json } from "@/lib/supabase/database.types";
+
+export const PACKAGE_SELECTOR_FIELD_KEY = "pacote_nome";
+
+export const HIDDEN_PACKAGE_FIELD_KEYS = new Set([
+  "valor_pacote",
+  "pacote_convidados_inclusos",
+  "pacote_itens_inclusos",
+  "pacote_itens_nao_inclusos",
+]);
+
+export const isHiddenPackageFieldKey = (fieldKey: string | null): boolean =>
+  Boolean(fieldKey && HIDDEN_PACKAGE_FIELD_KEYS.has(fieldKey));
 
 export const CLOSING_FORM_SECTIONS: ClosingFormSection[] = [
   "cliente",
@@ -164,9 +176,19 @@ export const applyPackageToFieldValues = (
   return next;
 };
 
+export const buildPackageEventoUpdates = (
+  pkg: PackageData,
+  guestCount: number,
+): Pick<EventoUpdate, "pacote_convidados_inclusos" | "pacote_nome" | "valor_pacote"> => ({
+  pacote_convidados_inclusos: pkg.includedGuests ?? null,
+  pacote_nome: pkg.name,
+  valor_pacote: guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg),
+});
+
 export const recalculateFinancialTotals = (
   fieldValues: Record<string, string>,
   fieldIdByKey: Map<string, string>,
+  options?: { pacoteValue?: number },
 ): Record<string, string> => {
   const next = { ...fieldValues };
   const get = (key: string) => {
@@ -178,7 +200,7 @@ export const recalculateFinancialTotals = (
     if (id) next[id] = String(value);
   };
 
-  const pacote = get("valor_pacote");
+  const pacote = options?.pacoteValue ?? get("valor_pacote");
   const adicionais = get("valor_adicionais");
   const total = pacote + adicionais;
   const entrada = get("valor_entrada");

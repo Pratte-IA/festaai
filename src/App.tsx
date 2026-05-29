@@ -12,6 +12,8 @@ const AdminTenantDetail = lazy(() => import("./pages/AdminTenantDetail.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Usuarios = lazy(() => import("./pages/Usuarios.tsx"));
 const CRM = lazy(() => import("./pages/CRM.tsx"));
+const Contratos = lazy(() => import("./pages/Contratos.tsx"));
+const ContratoDetalhe = lazy(() => import("./pages/ContratoDetalhe.tsx"));
 const Calendario = lazy(() => import("./pages/Calendario.tsx"));
 const Relatorios = lazy(() => import("./pages/Relatorios.tsx"));
 const ConfiguracoesLayout = lazy(() => import("./pages/configuracoes/layout"));
@@ -167,6 +169,22 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <EventoDetalhe />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/contratos/:contractId"
+                  element={
+                    <ProtectedRoute>
+                      <ContratoDetalhe />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/contratos"
+                  element={
+                    <ProtectedRoute>
+                      <Contratos />
                     </ProtectedRoute>
                   }
                 />

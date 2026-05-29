@@ -77,35 +77,12 @@ type TemplateRow = {
   version: number;
 };
 
-type ContractRow = {
-  accepted_at: string | null;
-  contract_hash: string;
-  contract_html: string;
-  contract_number: string;
-  contract_snapshot: Json;
-  contract_text: string | null;
-  evento_id: number;
-  generated_at: string;
-  id: number;
-  status: EventoContractStatus;
-  superseded_by: number | null;
-  template_id: number;
-  template_version: number;
-};
-
-type AcceptanceRow = {
-  accepted_at: string;
-  accepted_by_cpf: string | null;
-  accepted_by_email: string | null;
-  accepted_by_name: string;
-  accepted_by_phone: string | null;
-  accepted_terms_snapshot: Json;
-  acceptance_text: string;
-  contract_id: number;
-  id: number;
-  metadata: Json;
-  user_agent: string | null;
-};
+import {
+  mapAcceptanceRow,
+  mapContractRow,
+  type AcceptanceRow,
+  type ContractRow,
+} from "./contracts/contract-mappers";
 
 const mapTemplateRow = (row: TemplateRow): TenantContractTemplate => ({
   description: row.description,
@@ -115,37 +92,6 @@ const mapTemplateRow = (row: TemplateRow): TenantContractTemplate => ({
   name: row.name,
   templateHtml: row.template_html,
   version: row.version,
-});
-
-const mapContractRow = (row: ContractRow): EventoContract => ({
-  acceptedAt: row.accepted_at,
-  contractHash: row.contract_hash,
-  contractHtml: row.contract_html,
-  contractNumber: row.contract_number,
-  contractSnapshot: row.contract_snapshot as EventoContract["contractSnapshot"],
-  contractText: row.contract_text,
-  eventoId: String(row.evento_id),
-  generatedAt: row.generated_at,
-  id: String(row.id),
-  status: row.status,
-  supersededBy: row.superseded_by != null ? String(row.superseded_by) : null,
-  templateId: String(row.template_id),
-  templateVersion: row.template_version,
-});
-
-const mapAcceptanceRow = (row: AcceptanceRow): EventoContractAcceptance => ({
-  acceptedAt: row.accepted_at,
-  acceptedByCpf: row.accepted_by_cpf,
-  acceptedByEmail: row.accepted_by_email,
-  acceptedByName: row.accepted_by_name,
-  acceptedByPhone: row.accepted_by_phone,
-  acceptedTermsSnapshot: (row.accepted_terms_snapshot ??
-    []) as EventoContractAcceptance["acceptedTermsSnapshot"],
-  acceptanceText: row.acceptance_text,
-  contractId: String(row.contract_id),
-  id: String(row.id),
-  metadata: (row.metadata ?? {}) as Record<string, unknown>,
-  userAgent: row.user_agent,
 });
 
 export const useTenantDefaultContractTemplate = () => {
@@ -408,9 +354,18 @@ export const useGenerateEventoContract = () => {
       if (error) throw error;
       return mapContractRow(data as ContractRow);
     },
-    onSuccess: (_contract, evento) => {
+    onSuccess: (contract, evento) => {
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contract(currentTenantId, evento.id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractsList(currentTenantId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractById(currentTenantId, Number(contract.id)),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractHistory(currentTenantId, evento.id),
       });
     },
   });
@@ -504,6 +459,15 @@ export const useAcceptEventoContract = () => {
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contractAcceptance(currentTenantId, input.contractId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractsList(currentTenantId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractById(currentTenantId, Number(input.contractId)),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractHistory(currentTenantId, input.eventoId),
       });
     },
   });

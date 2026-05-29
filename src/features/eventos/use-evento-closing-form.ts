@@ -25,6 +25,10 @@ export interface ClosingFormSubmission {
     required: boolean;
   }>;
   pacoteId?: number | null;
+  packageEventoUpdates?: Pick<
+    EventoUpdate,
+    "pacote_convidados_inclusos" | "pacote_nome" | "valor_pacote"
+  >;
 }
 
 const applyFieldValueToEvento = (
@@ -108,6 +112,7 @@ export const useSubmitClosingForm = () => {
       fieldValues,
       fields,
       pacoteId = null,
+      packageEventoUpdates,
     }: ClosingFormSubmission): Promise<Evento> => {
       if (!currentTenantId || !user) {
         throw new Error("Sessao ou tenant atual indisponivel.");
@@ -126,6 +131,15 @@ export const useSubmitClosingForm = () => {
         const value = fieldValues[field.id] ?? "";
 
         if (field.fieldKey && isEventoMappedField(field.fieldKey)) {
+          if (
+            packageEventoUpdates &&
+            (field.fieldKey === "pacote_nome" ||
+              field.fieldKey === "valor_pacote" ||
+              field.fieldKey === "pacote_convidados_inclusos")
+          ) {
+            return;
+          }
+
           applyFieldValueToEvento(eventoUpdates, field.fieldKey, field.fieldType, value);
           return;
         }
@@ -136,9 +150,13 @@ export const useSubmitClosingForm = () => {
         });
       });
 
-      const pacoteValue = fieldValues[
-        fields.find((field) => field.fieldKey === "valor_pacote")?.id ?? ""
-      ];
+      if (packageEventoUpdates) {
+        Object.assign(eventoUpdates, packageEventoUpdates);
+      }
+
+      const pacoteValue =
+        packageEventoUpdates?.valor_pacote ??
+        fieldValues[fields.find((field) => field.fieldKey === "valor_pacote")?.id ?? ""];
       const adicionaisValue = fieldValues[
         fields.find((field) => field.fieldKey === "valor_adicionais")?.id ?? ""
       ];
@@ -147,7 +165,7 @@ export const useSubmitClosingForm = () => {
       ];
       const saldoFieldId = fields.find((field) => field.fieldKey === "valor_saldo")?.id;
 
-      if (pacoteValue !== undefined && adicionaisValue !== undefined) {
+      if (pacoteValue != null && adicionaisValue !== undefined) {
         eventoUpdates.valor_total = Number(pacoteValue || 0) + Number(adicionaisValue || 0);
       }
 

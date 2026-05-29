@@ -6,9 +6,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ContractDocumentView } from "@/components/contracts/ContractDocumentView";
 import type { EventoContract } from "@/features/eventos/contracts/contract-types";
 import { formatContractHashShort } from "@/features/eventos/contracts/contract-hash";
-import { cn } from "@/lib/utils";
 
 interface ContractViewDialogProps {
   contract: EventoContract | null;
@@ -57,17 +57,9 @@ export const ContractViewDialog = ({ contract, onOpenChange, open }: ContractVie
 
       <ScrollArea className="flex-1 max-h-[calc(90vh-10rem)]">
         {contract ? (
-          <div
-            className={cn(
-              "px-6 py-5 text-sm leading-relaxed text-foreground",
-              "[&_.contract-document_h1]:text-xl [&_.contract-document_h1]:font-bold [&_.contract-document_h1]:mb-4",
-              "[&_.contract-document_h2]:text-base [&_.contract-document_h2]:font-semibold [&_.contract-document_h2]:mt-6 [&_.contract-document_h2]:mb-2",
-              "[&_.contract-document_p]:mb-2",
-              "[&_.contract-document_ul]:list-disc [&_.contract-document_ul]:pl-5 [&_.contract-document_ul]:mb-3",
-              "[&_.contract-document_pre]:whitespace-pre-wrap [&_.contract-document_pre]:rounded-md [&_.contract-document_pre]:bg-muted/50 [&_.contract-document_pre]:p-3 [&_.contract-document_pre]:text-xs",
-            )}
-            dangerouslySetInnerHTML={{ __html: contract.contractHtml }}
-          />
+          <div className="px-6 py-5">
+            <ContractDocumentView html={contract.contractHtml} />
+          </div>
         ) : (
           <p className="px-6 py-8 text-sm text-muted-foreground">Nenhum contrato disponível.</p>
         )}

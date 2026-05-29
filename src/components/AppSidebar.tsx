@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
+  FileText,
   BarChart3,
   Settings,
   Calendar,
@@ -22,6 +23,7 @@ import { toast } from "@/hooks/use-toast";
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Users, label: "CRM", path: "/crm" },
+  { icon: FileText, label: "Contratos", path: "/contratos" },
   { icon: Calendar, label: "Calendário", path: "/calendario" },
   { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
   { icon: CreditCard, label: "Assinatura", path: "/minha-assinatura" },
