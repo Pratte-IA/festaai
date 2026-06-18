@@ -11,6 +11,7 @@ import {
   setEvolutionWebhook,
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
+import { provisionTenantN8nWorkflow } from "../_shared/n8n-provision.ts";
 
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
@@ -35,7 +36,7 @@ Deno.serve(async (req) => {
 
     const { data: tenant, error: tenantError } = await service
       .from("tenants")
-      .select("slug")
+      .select("id, name, slug")
       .eq("id", tenantId)
       .maybeSingle();
 
@@ -48,7 +49,7 @@ Deno.serve(async (req) => {
     const webhookUrl = Deno.env.get("EVOLUTION_WEBHOOK_URL") ?? null;
     const globalWebhookToken = Deno.env.get("EVOLUTION_WEBHOOK_TOKEN") ?? null;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("VITE_SUPABASE_ANON_KEY") ?? null;
-    const webhookToken = generateWebhookToken();
+    const webhookToken = globalWebhookToken ?? generateWebhookToken();
     const integration = Deno.env.get("EVOLUTION_INSTANCE_INTEGRATION") ?? "WHATSAPP-BAILEYS";
     const webhookConfig = buildWebhookConfig(webhookUrl, webhookToken, anonKey);
 
@@ -103,18 +104,21 @@ Deno.serve(async (req) => {
 
     if (insertError) throw insertError;
 
-    const resolvedToken =
-      (typeof createResult.body?.hash === "string" ? createResult.body.hash : null) ??
-      globalWebhookToken ??
-      webhookToken;
-
     const { error: secretError } = await service.from("whatsapp_connection_webhook_secrets").insert({
       connection_id: connection.id,
       instance_name: instanceName,
-      webhook_token: resolvedToken,
+      webhook_token: webhookToken,
     });
 
     if (secretError) throw secretError;
+
+    if (webhookConfig) {
+      try {
+        await setEvolutionWebhook(instanceName, webhookConfig);
+      } catch {
+        // best-effort; regenerate/list também re-sincronizam
+      }
+    }
 
     if (!qrCode) {
       qrCode = await tryFetchQrCode(instanceName);
@@ -122,6 +126,16 @@ Deno.serve(async (req) => {
         await service.from("whatsapp_connections").update({ qr_code: qrCode }).eq("id", connection.id);
         connection.qr_code = qrCode;
       }
+    }
+
+    try {
+      await provisionTenantN8nWorkflow(service, {
+        id: tenant.id,
+        name: tenant.name,
+        slug: tenant.slug,
+      });
+    } catch {
+      // best-effort: admin pode reprovisionar manualmente
     }
 
     return jsonResponse({ ok: true, connection });

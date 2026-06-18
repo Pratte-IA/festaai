@@ -189,11 +189,19 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
 
   const { data: automationSettings } = await ctx.service
     .from("tenant_automation_settings")
-    .select("inbound_automation_enabled, n8n_routing_key")
+    .select("inbound_automation_enabled, n8n_inbound_webhook_url, n8n_provision_status, n8n_routing_key")
     .eq("tenant_id", tenant.id)
     .maybeSingle();
 
-  const automationEnabled = automationSettings?.inbound_automation_enabled === true;
+  const tenantWebhookUrl =
+    typeof automationSettings?.n8n_inbound_webhook_url === "string"
+      ? automationSettings.n8n_inbound_webhook_url
+      : null;
+
+  const canForward =
+    automationSettings?.inbound_automation_enabled === true &&
+    automationSettings?.n8n_provision_status === "active" &&
+    Boolean(tenantWebhookUrl);
 
   for (const message of messages) {
     const skipReason = shouldSkipMessage(message);
@@ -202,12 +210,21 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       continue;
     }
 
-    if (!automationEnabled) {
+    if (!canForward) {
+      const skipMessage =
+        automationSettings?.n8n_provision_status === "draft"
+          ? "Workflow N8N em rascunho — personalize, publique no N8N e ative manualmente no FestaAi."
+          : !automationSettings?.inbound_automation_enabled
+            ? "Automação inbound desabilitada para o tenant."
+            : !tenantWebhookUrl
+              ? "URL do workflow N8N não configurada."
+              : "Automação inbound não liberada.";
+
       await logAutomationDispatch(ctx, {
         connectionId: ctx.connection.id,
         customerPhone: message.customerPhone,
         direction: "inbound_to_n8n",
-        errorMessage: "Automação inbound desabilitada para o tenant.",
+        errorMessage: skipMessage,
         event: ctx.eventName,
         messageId: message.id,
         n8nStatus: "skipped",
@@ -259,7 +276,7 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
 
     if (dedupeError) throw dedupeError;
 
-    const forwardResult = await forwardToN8n(n8nPayload);
+    const forwardResult = await forwardToN8n(n8nPayload, tenantWebhookUrl as string);
 
     const { error: updateLogError } = await ctx.service
       .from("automation_dispatch_logs")

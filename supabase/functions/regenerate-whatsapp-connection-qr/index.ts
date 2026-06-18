@@ -2,7 +2,7 @@ import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 import { resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
-import { tryFetchQrCode } from "../_shared/evolution-client.ts";
+import { tryFetchQrCode, syncConnectionWebhook } from "../_shared/evolution-client.ts";
 
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
@@ -35,6 +35,12 @@ Deno.serve(async (req) => {
     if (fetchError) throw fetchError;
     if (!connection) {
       return jsonResponse({ ok: false, error: "Conexão não encontrada." }, 404);
+    }
+
+    try {
+      await syncConnectionWebhook(service, connection);
+    } catch {
+      // best-effort — corrige token Evolution ↔ banco antes de novo QR
     }
 
     const qrCode = await tryFetchQrCode(connection.instance_name);

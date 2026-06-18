@@ -1256,21 +1256,45 @@ export type Database = {
         Row: {
           created_at: string;
           inbound_automation_enabled: boolean;
+          n8n_editor_url: string | null;
+          n8n_folder_id: string | null;
+          n8n_inbound_webhook_url: string | null;
+          n8n_last_error: string | null;
+          n8n_provision_status: string;
+          n8n_provisioned_at: string | null;
           n8n_routing_key: string | null;
+          n8n_workflow_id: string | null;
+          n8n_workflows: Json | null;
           tenant_id: number;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
           inbound_automation_enabled?: boolean;
+          n8n_editor_url?: string | null;
+          n8n_folder_id?: string | null;
+          n8n_inbound_webhook_url?: string | null;
+          n8n_last_error?: string | null;
+          n8n_provision_status?: string;
+          n8n_provisioned_at?: string | null;
           n8n_routing_key?: string | null;
+          n8n_workflow_id?: string | null;
+          n8n_workflows?: Json | null;
           tenant_id: number;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
           inbound_automation_enabled?: boolean;
+          n8n_editor_url?: string | null;
+          n8n_folder_id?: string | null;
+          n8n_inbound_webhook_url?: string | null;
+          n8n_last_error?: string | null;
+          n8n_provision_status?: string;
+          n8n_provisioned_at?: string | null;
           n8n_routing_key?: string | null;
+          n8n_workflow_id?: string | null;
+          n8n_workflows?: Json | null;
           tenant_id?: number;
           updated_at?: string;
         };

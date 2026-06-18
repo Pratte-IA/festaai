@@ -37,13 +37,15 @@ const parseTimeoutMs = () => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 5000;
 };
 
-export const forwardToN8n = async (payload: N8nInboundPayload): Promise<N8nForwardResult> => {
-  const webhookUrl = Deno.env.get("N8N_INBOUND_WEBHOOK_URL");
+export const forwardToN8n = async (
+  payload: N8nInboundPayload,
+  webhookUrl: string,
+): Promise<N8nForwardResult> => {
   const secret = Deno.env.get("N8N_WEBHOOK_SECRET");
 
   if (!webhookUrl) {
     return {
-      errorMessage: "N8N_INBOUND_WEBHOOK_URL não configurada.",
+      errorMessage: "URL do webhook N8N do tenant não configurada.",
       ok: false,
       responseStatus: null,
     };

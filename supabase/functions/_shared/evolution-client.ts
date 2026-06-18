@@ -178,8 +178,54 @@ export const buildWebhookConfig = (
 export const setEvolutionWebhook = async (instanceName: string, webhookConfig: Record<string, unknown>) => {
   await evolutionFetch(`/webhook/set/${instanceName}`, {
     method: "POST",
-    body: JSON.stringify(webhookConfig),
+    body: JSON.stringify({ webhook: webhookConfig }),
   });
+};
+
+export const syncConnectionWebhook = async (
+  service: {
+    from: (table: string) => {
+      select: (columns: string) => {
+        eq: (column: string, value: number) => {
+          maybeSingle: () => Promise<{ data: { webhook_token: string } | null }>;
+        };
+      };
+      upsert: (
+        values: Record<string, unknown>,
+        options: { onConflict: string },
+      ) => Promise<{ error: unknown }>;
+    };
+  },
+  connection: { id: number; instance_name: string },
+): Promise<string | null> => {
+  const webhookUrl = Deno.env.get("EVOLUTION_WEBHOOK_URL") ?? null;
+  if (!webhookUrl) return null;
+
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("VITE_SUPABASE_ANON_KEY") ?? null;
+  const globalToken = Deno.env.get("EVOLUTION_WEBHOOK_TOKEN") ?? null;
+
+  const { data: secretRow } = await service
+    .from("whatsapp_connection_webhook_secrets")
+    .select("webhook_token")
+    .eq("connection_id", connection.id)
+    .maybeSingle();
+
+  const webhookToken = secretRow?.webhook_token ?? globalToken ?? generateWebhookToken();
+  const webhookConfig = buildWebhookConfig(webhookUrl, webhookToken, anonKey);
+  if (!webhookConfig) return null;
+
+  await setEvolutionWebhook(connection.instance_name, webhookConfig);
+
+  await service.from("whatsapp_connection_webhook_secrets").upsert(
+    {
+      connection_id: connection.id,
+      instance_name: connection.instance_name,
+      webhook_token: webhookToken,
+    },
+    { onConflict: "connection_id" },
+  );
+
+  return webhookToken;
 };
 
 export const deleteEvolutionInstance = async (instanceName: string): Promise<void> => {
