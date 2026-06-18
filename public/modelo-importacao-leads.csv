@@ -1,4 +1,4 @@
-funil,etapa,nome,telefone,email,origem,data festa,hora,aniversariante,convidados,pacote_nome,valor_pacote,valor_entrada,observacoes
-vendas,proposta_enviada,Maria Silva,11999998888,maria@exemplo.com,Instagram,15/06/2026,,Julia,40,Pacote Ouro,,,
-festa,organizacao,Ana Paula,11977776666,ana@exemplo.com,,20/06/2026,14:30,Sophia,45,Pacote Diamante,5500,,Follow-up tema com familia
-executadas,redes_sociais,Carlos Mendes,,carlos@exemplo.com,,10/05/2026,,,,Pacote Full,8200,,Post destaque no instagram semana seguinte
+funil,etapa,nome,telefone,email,origem,data festa,hora,aniversariante,nascimento,convidados,pacote_nome,valor_pacote,valor_entrada,observacoes
+vendas,proposta_enviada,Maria Silva,11999998888,maria@exemplo.com,Instagram,15/06/2026,,Julia,12/03/2019,40,Pacote Ouro,,,
+festa,organizacao,Ana Paula,11977776666,ana@exemplo.com,,20/06/2026,14:30,Sophia,15/06/2020,45,Pacote Diamante,5500,,Follow-up tema com familia
+executadas,redes_sociais,Carlos Mendes,,carlos@exemplo.com,,10/05/2026,,,,,Pacote Full,8200,,Post destaque no instagram semana seguinte

@@ -51,7 +51,12 @@ const HEADER_ALIASES: Record<string, string[]> = {
   data_evento: ["data_evento", "data_festa", "data", "dia_evento"],
   hora_evento: ["hora", "horario", "hora_evento"],
   aniversariante_nome: ["aniversariante", "crianca", "nome_aniversariante"],
-  aniversariante_data_nascimento: ["nascimento", "data_nascimento", "aniversariante_data_nascimento"],
+  aniversariante_data_nascimento: [
+    "nascimento",
+    "data_nascimento",
+    "data_de_nascimento",
+    "aniversariante_data_nascimento",
+  ],
   quantidade_convidados: ["convidados", "qtd_convidados", "quantidade_convidados", "guests"],
   pacote_nome: ["pacote", "pacote_nome"],
   valor_pacote: ["valor_pacote", "valor_do_pacote", "pacote_valor"],

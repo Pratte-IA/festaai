@@ -155,4 +155,12 @@ describe("parseLeadImportCsv", () => {
     const r = parseLeadImportCsv(csv);
     expect(r.rows[0].status_interno).toBe("perdido");
   });
+
+  it("importa data de nascimento do aniversariante", () => {
+    const csv = stripUtf8Bom("funil,etapa,nome,aniversariante,nascimento\nvendas,contato_inicial,Ana,Julia,12/03/2019\n");
+    const r = parseLeadImportCsv(csv);
+    expect(r.rows).toHaveLength(1);
+    expect(r.rows[0].aniversariante_nome).toBe("Julia");
+    expect(r.rows[0].aniversariante_data_nascimento).toBe("2019-03-12");
+  });
 });

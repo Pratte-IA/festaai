@@ -141,7 +141,7 @@ export const LeadsUploadDialog = ({ onOpenChange, open }: LeadsUploadDialogProps
             </a>
             . O cabecalho precisa incluir as colunas <span className="font-medium text-foreground">funil</span>,{" "}
             <span className="font-medium text-foreground">etapa</span> e o nome do cliente (nome ou equivalente).
-            Opcionais incluem telefone, email, dados da festa e valores; em cada linha o par funil / etapa indica onde o card
+            Opcionais incluem telefone, email, dados da festa, data de nascimento do aniversariante (coluna nascimento) e valores; em cada linha o par funil / etapa indica onde o card
             entra no CRM. Celula etapa em branco usa a primeira etapa daquele funil. Datas: DD/MM/AAAA ou AAAA-MM-DD. Ate{" "}
             {MAX_LEAD_UPLOAD_ROWS} linhas validas por arquivo.
           </DialogDescription>
