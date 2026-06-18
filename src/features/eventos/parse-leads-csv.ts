@@ -1,5 +1,5 @@
 import { funnelTabs, stageMap } from "./constants";
-import { getDefaultStageForFunnel } from "./stage-validation";
+import { getDefaultStageForFunnel, resolveFunnelStageForImport } from "./stage-validation";
 import { FunnelType, InternalStatus, Stage } from "./types";
 
 export interface LeadCsvRowParsed {
@@ -343,7 +343,7 @@ export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
       issues.push({ line: lineNumber, message: funilHit.error });
       continue;
     }
-    const rowFunil = funilHit.funil;
+    let rowFunil = funilHit.funil;
 
     const cliente_telefone = cellAt(fields, columnByField, "cliente_telefone").trim() || null;
     const telefone_digits = cliente_telefone?.replace(/\D/g, "") ?? "";
@@ -398,12 +398,20 @@ export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
     const valor_total = Math.round((valor_pacote + valor_adicionais) * 100) / 100;
 
     const etapaRaw = cellAt(fields, columnByField, "etapa");
-    const hit = resolveEtapaCell(etapaRaw, rowFunil);
-    if (hit && "error" in hit) {
-      issues.push({ line: lineNumber, message: hit.error });
-      continue;
+    let etapa: Stage;
+
+    if (normalizeHeaderKey(etapaRaw) === "fechado") {
+      const migrated = resolveFunnelStageForImport(rowFunil, "fechado" as Stage);
+      rowFunil = migrated.funnel;
+      etapa = migrated.stage;
+    } else {
+      const hit = resolveEtapaCell(etapaRaw, rowFunil);
+      if (hit && "error" in hit) {
+        issues.push({ line: lineNumber, message: hit.error });
+        continue;
+      }
+      etapa = hit && "etapa" in hit ? hit.etapa : getDefaultStageForFunnel(rowFunil);
     }
-    const etapa: Stage = hit && "etapa" in hit ? hit.etapa : getDefaultStageForFunnel(rowFunil);
 
     const row: LeadCsvRowParsed = {
       aniversariante_data_nascimento,

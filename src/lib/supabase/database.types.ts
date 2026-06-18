@@ -269,6 +269,69 @@ export type Database = {
           },
         ];
       };
+      automation_dispatch_logs: {
+        Row: {
+          connection_id: number | null;
+          created_at: string;
+          customer_phone: string | null;
+          direction: string;
+          error_message: string | null;
+          event: string;
+          id: number;
+          instance_name: string | null;
+          message_id: string | null;
+          n8n_response_status: number | null;
+          n8n_status: string;
+          payload: Json | null;
+          tenant_id: number | null;
+        };
+        Insert: {
+          connection_id?: number | null;
+          created_at?: string;
+          customer_phone?: string | null;
+          direction: string;
+          error_message?: string | null;
+          event: string;
+          id?: number;
+          instance_name?: string | null;
+          message_id?: string | null;
+          n8n_response_status?: number | null;
+          n8n_status?: string;
+          payload?: Json | null;
+          tenant_id?: number | null;
+        };
+        Update: {
+          connection_id?: number | null;
+          created_at?: string;
+          customer_phone?: string | null;
+          direction?: string;
+          error_message?: string | null;
+          event?: string;
+          id?: number;
+          instance_name?: string | null;
+          message_id?: string | null;
+          n8n_response_status?: number | null;
+          n8n_status?: string;
+          payload?: Json | null;
+          tenant_id?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "automation_dispatch_logs_connection_id_fkey";
+            columns: ["connection_id"];
+            isOneToOne: false;
+            referencedRelation: "whatsapp_connections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "automation_dispatch_logs_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       calendar_blocks: {
         Row: {
           created_at: string;
@@ -818,6 +881,7 @@ export type Database = {
           data_limite_pagamento: string | null;
           etapa: string;
           fechamento_confirmado_em: string | null;
+          boas_vindas_whatsapp_agendado_em: string | null;
           forma_pagamento_entrada: string | null;
           forma_pagamento_saldo: string | null;
           funil: string;
@@ -870,6 +934,7 @@ export type Database = {
           data_limite_pagamento?: string | null;
           etapa?: string;
           fechamento_confirmado_em?: string | null;
+          boas_vindas_whatsapp_agendado_em?: string | null;
           forma_pagamento_entrada?: string | null;
           forma_pagamento_saldo?: string | null;
           funil?: string;
@@ -922,6 +987,7 @@ export type Database = {
           data_limite_pagamento?: string | null;
           etapa?: string;
           fechamento_confirmado_em?: string | null;
+          boas_vindas_whatsapp_agendado_em?: string | null;
           forma_pagamento_entrada?: string | null;
           forma_pagamento_saldo?: string | null;
           funil?: string;
@@ -1181,6 +1247,38 @@ export type Database = {
             foreignKeyName: "tenant_additionals_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_automation_settings: {
+        Row: {
+          created_at: string;
+          inbound_automation_enabled: boolean;
+          n8n_routing_key: string | null;
+          tenant_id: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          inbound_automation_enabled?: boolean;
+          n8n_routing_key?: string | null;
+          tenant_id: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          inbound_automation_enabled?: boolean;
+          n8n_routing_key?: string | null;
+          tenant_id?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_automation_settings_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: true;
             referencedRelation: "tenants";
             referencedColumns: ["id"];
           },
@@ -1925,6 +2023,154 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      whatsapp_connection_webhook_secrets: {
+        Row: {
+          connection_id: number;
+          created_at: string;
+          instance_name: string;
+          updated_at: string;
+          webhook_token: string;
+        };
+        Insert: {
+          connection_id: number;
+          created_at?: string;
+          instance_name: string;
+          updated_at?: string;
+          webhook_token: string;
+        };
+        Update: {
+          connection_id?: number;
+          created_at?: string;
+          instance_name?: string;
+          updated_at?: string;
+          webhook_token?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_connection_webhook_secrets_connection_id_fkey";
+            columns: ["connection_id"];
+            isOneToOne: true;
+            referencedRelation: "whatsapp_connections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      whatsapp_connections: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: number;
+          instance_name: string;
+          last_error: string | null;
+          last_seen_at: string | null;
+          name: string;
+          phone: string | null;
+          provider: string;
+          qr_code: string | null;
+          status: string;
+          tenant_id: number;
+          type: string;
+          updated_at: string;
+          webhook_url: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          instance_name: string;
+          last_error?: string | null;
+          last_seen_at?: string | null;
+          name: string;
+          phone?: string | null;
+          provider?: string;
+          qr_code?: string | null;
+          status?: string;
+          tenant_id: number;
+          type?: string;
+          updated_at?: string;
+          webhook_url?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: number;
+          instance_name?: string;
+          last_error?: string | null;
+          last_seen_at?: string | null;
+          name?: string;
+          phone?: string | null;
+          provider?: string;
+          qr_code?: string | null;
+          status?: string;
+          tenant_id?: number;
+          type?: string;
+          updated_at?: string;
+          webhook_url?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_connections_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "whatsapp_connections_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      whatsapp_webhook_ingest_logs: {
+        Row: {
+          auth_status: string;
+          created_at: string;
+          error_message: string | null;
+          event: string | null;
+          id: number;
+          instance_name: string | null;
+          payload: Json | null;
+          processing_status: string;
+          source: string;
+          tenant_id: number | null;
+        };
+        Insert: {
+          auth_status: string;
+          created_at?: string;
+          error_message?: string | null;
+          event?: string | null;
+          id?: number;
+          instance_name?: string | null;
+          payload?: Json | null;
+          processing_status?: string;
+          source?: string;
+          tenant_id?: number | null;
+        };
+        Update: {
+          auth_status?: string;
+          created_at?: string;
+          error_message?: string | null;
+          event?: string | null;
+          id?: number;
+          instance_name?: string | null;
+          payload?: Json | null;
+          processing_status?: string;
+          source?: string;
+          tenant_id?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_webhook_ingest_logs_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {

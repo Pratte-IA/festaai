@@ -29,12 +29,16 @@ const SEGMENT_META: Record<string, { title: string; description: string }> = {
     title: "Financeiro",
     description: "Regras padrão para pagamentos e parcelamentos",
   },
+  "integracoes/whatsapp": {
+    title: "WhatsApp",
+    description: "Conecte números WhatsApp da sua casa de festas via Evolution API",
+  },
 };
 
 const ConfiguracoesLayout = () => {
   const { pathname } = useLocation();
-  const segment = pathname.replace(/^\/configuracoes\/?/, "").split("/")[0];
-  const meta = segment ? SEGMENT_META[segment] : undefined;
+  const relativePath = pathname.replace(/^\/configuracoes\/?/, "");
+  const meta = SEGMENT_META[relativePath] ?? SEGMENT_META[relativePath.split("/")[0]];
 
   return (
     <AppLayout>

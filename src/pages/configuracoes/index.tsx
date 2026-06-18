@@ -6,6 +6,7 @@ import {
   Layers,
   LucideIcon,
   Package,
+  PlugZap,
   Wallet,
 } from "lucide-react";
 
@@ -46,6 +47,12 @@ const cards: ConfigCardProps[] = [
     title: "Financeiro",
     description: "Entrada padrão, parcelas e regras de pagamento",
     icon: Wallet,
+  },
+  {
+    to: "/configuracoes/integracoes/whatsapp",
+    title: "WhatsApp",
+    description: "Conecte números WhatsApp via Evolution para disparos automáticos",
+    icon: PlugZap,
   },
 ];
 

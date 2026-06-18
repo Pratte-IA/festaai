@@ -33,7 +33,6 @@ const LeadsPerdidosReport = ({ period }: ReportComponentProps) => {
     return (data?.eventos ?? [])
       .filter((e) => {
         if (e.funil !== "vendas") return false;
-        if (e.etapa === "fechado") return false;
         if (!isDateInPeriod(e.created_at.split("T")[0], period)) return false;
         return daysBetween(e.created_at) >= 7;
       })

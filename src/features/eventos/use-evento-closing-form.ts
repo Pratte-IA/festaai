@@ -119,6 +119,7 @@ export const useSubmitClosingForm = () => {
       }
 
       const eventoUpdates: EventoUpdate = {
+        boas_vindas_whatsapp_agendado_em: new Date().toISOString(),
         fechamento_confirmado_em: new Date().toISOString(),
         funil: "festa",
         etapa: "boas_vindas",

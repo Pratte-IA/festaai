@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { AcceptanceTermsTab } from "@/components/formulario-contratacao/AcceptanceTermsTab";
 import { FormPreviewPanel } from "@/components/formulario-contratacao/FormPreviewPanel";
 import { FormStructureTab } from "@/components/formulario-contratacao/FormStructureTab";
+import { PublicFormLinkCard } from "@/components/formulario-contratacao/PublicFormLinkCard";
 import { AddonsTab } from "@/components/formulario-contratacao/AddonsTab";
 import { PackagesTab } from "@/components/formulario-contratacao/PackagesTab";
 import { PaymentTab } from "@/components/formulario-contratacao/PaymentTab";
@@ -39,6 +40,7 @@ export const FormConfigurationPage = () => {
 
   return (
     <div className="max-w-6xl space-y-6">
+      <PublicFormLinkCard />
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList
           className={cn(

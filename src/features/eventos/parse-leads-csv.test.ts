@@ -163,4 +163,12 @@ describe("parseLeadImportCsv", () => {
     expect(r.rows[0].aniversariante_nome).toBe("Julia");
     expect(r.rows[0].aniversariante_data_nascimento).toBe("2019-03-12");
   });
+
+  it("migra etapa fechado para funil festa na importacao", () => {
+    const csv = stripUtf8Bom("funil,etapa,nome\nvendas,fechado,Maria\n");
+    const r = parseLeadImportCsv(csv);
+    expect(r.rows).toHaveLength(1);
+    expect(r.rows[0].funil).toBe("festa");
+    expect(r.rows[0].etapa).toBe("boas_vindas");
+  });
 });

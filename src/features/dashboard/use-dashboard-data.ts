@@ -82,7 +82,7 @@ const getStatusLabel = (evento: Evento) => {
     };
   }
 
-  if (evento.funil === "festa" || evento.funil === "executadas" || evento.etapa === "fechado") {
+  if (evento.funil === "festa" || evento.funil === "executadas") {
     return {
       label: "Confirmado",
       statusColor: "bg-success/15 text-success",
@@ -185,7 +185,7 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
   const payments = paymentsResult.data ?? [];
   const monthEvents = events.filter((event) => event.created_at >= startIso && event.created_at <= endIso);
   const closedEvents = monthEvents.filter(
-    (event) => event.etapa === "fechado" || event.funil === "festa" || event.funil === "executadas",
+    (event) => event.funil === "festa" || event.funil === "executadas",
   );
   const paidByEvent = new Map<number, number>();
 

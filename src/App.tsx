@@ -25,9 +25,11 @@ const ConfiguracoesFormularioContratacao = lazy(
 );
 const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
+const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"));
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
 const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
+const FormularioCliente = lazy(() => import("./pages/FormularioCliente.tsx"));
 const MinhaAssinatura = lazy(() => import("./pages/MinhaAssinatura.tsx"));
 const AdminAgentRequests = lazy(() => import("./pages/AdminAgentRequests.tsx"));
 const AdminAgentRequestDetail = lazy(() => import("./pages/AdminAgentRequestDetail.tsx"));
@@ -205,6 +207,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/conexoes"
+                  element={
+                    <ProtectedRoute>
+                      <Navigate to="/configuracoes/integracoes/whatsapp" replace />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/configuracoes"
                   element={
                     <ProtectedRoute>
@@ -225,6 +235,14 @@ const App = () => (
                     element={<Navigate to="/configuracoes/formulario-contratacao" replace />}
                   />
                   <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
+                  <Route
+                    path="integracoes/whatsapp"
+                    element={
+                      <TenantAdminRoute>
+                        <ConfiguracoesWhatsApp />
+                      </TenantAdminRoute>
+                    }
+                  />
                 </Route>
                 <Route
                   path="/minha-assinatura"
@@ -236,6 +254,7 @@ const App = () => (
                 />
                 <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
                 <Route path="/contratar" element={<Contratar />} />
+                <Route path="/formulario/:tenantSlug" element={<FormularioCliente />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/nova-senha" element={<NovaSenha />} />
                 <Route path="*" element={<NotFound />} />

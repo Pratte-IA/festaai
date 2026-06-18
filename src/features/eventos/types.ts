@@ -8,7 +8,7 @@ export type SalesStage =
   | "proposta_enviada"
   | "negociacao"
   | "visita_agendada"
-  | "fechado"
+  | "contrato"
   | "perdido";
 
 export type PartyStage =

@@ -90,11 +90,10 @@ const stageLabels: Record<string, string> = {
   proposta_enviada: "Proposta Enviada",
   negociacao: "Negociação",
   visita_agendada: "Visita Agendada",
-  fechado: "Fechado",
+  contrato: "Contrato",
   perdido: "Perdido",
   boas_vindas: "Boas Vindas",
   planejamento: "Planejamento",
-  contrato: "Contrato",
   organizacao: "Organização",
   festa_pronta: "Festa Pronta",
   aguardando_feedback: "Aguardando Feedback",
@@ -351,7 +350,7 @@ const EventoDetalhe = () => {
           <Button
             className="bg-festa-blue hover:bg-festa-blue/90 text-white gap-2"
             onClick={() => setIsClosingDialogOpen(true)}
-            disabled={event.funil !== "vendas" || event.etapa === "fechado" || event.etapa === "perdido"}
+            disabled={event.funil !== "vendas" || event.etapa === "perdido"}
           >
             <Trophy className="w-4 h-4" />
             Marcar como Vendido
