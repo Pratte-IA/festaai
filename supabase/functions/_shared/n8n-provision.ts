@@ -34,9 +34,7 @@ interface N8nWorkflowResponse {
   id?: string;
   name?: string;
   nodes?: N8nWorkflowNode[];
-  parentFolder?: { id: string; name?: string } | null;
   settings?: Record<string, unknown>;
-  staticData?: unknown;
 }
 
 interface N8nFolderResponse {
@@ -115,9 +113,9 @@ const buildEditorUrl = (workflowId: string) => {
   return `${editorBase}/workflow/${workflowId}`;
 };
 
-const buildFolderEditorUrl = (projectId: string, folderId: string) => {
+const buildProjectEditorUrl = (projectId: string) => {
   const editorBase = Deno.env.get("N8N_EDITOR_BASE_URL")?.replace(/\/$/, "") ?? "https://editor.pratte.com.br";
-  return `${editorBase}/projects/${projectId}/folders/${folderId}/workflows`;
+  return `${editorBase}/projects/${projectId}/workflows`;
 };
 
 const extractWebhookProductionUrl = (workflow: N8nWorkflowResponse): string | null => {
@@ -190,11 +188,6 @@ const listProjectWorkflows = async (projectId: string): Promise<N8nWorkflowSumma
   return collected;
 };
 
-const buildProjectEditorUrl = (projectId: string) => {
-  const editorBase = Deno.env.get("N8N_EDITOR_BASE_URL")?.replace(/\/$/, "") ?? "https://editor.pratte.com.br";
-  return `${editorBase}/projects/${projectId}/workflows`;
-};
-
 const normalizeTemplateLabel = (templateName: string) =>
   templateName.replace(/^TEMPLATE\s+/i, "").trim();
 
@@ -245,7 +238,7 @@ const getTemplateWorkflows = async (
       }));
     }
   } catch {
-    // N8N 2.7.x pode não expor API de pastas — fallback por prefixo de nome.
+    // fallback por prefixo de nome
   }
 
   const summaries = await listProjectWorkflows(projectId);
@@ -260,19 +253,6 @@ const getTemplateWorkflows = async (
   return summaries
     .filter((workflow) => matchesTemplateName(workflow.name ?? ""))
     .map((workflow) => ({ id: workflow.id, name: workflow.name ?? workflow.id }));
-};
-
-const createTenantFolder = async (projectId: string, folderName: string): Promise<string | null> => {
-  try {
-    const created = await n8nApiFetch<N8nFolderResponse>(`/projects/${projectId}/folders`, {
-      body: JSON.stringify({ name: folderName.slice(0, 128) }),
-      method: "POST",
-    });
-
-    return created.id ?? null;
-  } catch {
-    return null;
-  }
 };
 
 const cloneWorkflow = async (source: N8nWorkflowResponse, name: string) => {
@@ -351,7 +331,7 @@ const findOrchestratorWorkflow = (
 };
 
 /**
- * Clona a pasta Templates N8N inteira para o tenant, sem publicar (active: false).
+ * Clona os workflows template N8N do tenant, sem publicar (active: false).
  * inbound_automation_enabled permanece false até ativação manual no FestaAi.
  */
 export const provisionTenantN8nWorkflow = async (
@@ -363,19 +343,18 @@ export const provisionTenantN8nWorkflow = async (
 
   const { data: existing } = await service
     .from("tenant_automation_settings")
-    .select("n8n_folder_id, n8n_provision_status, n8n_workflow_id, n8n_workflows")
+    .select("n8n_provision_status, n8n_workflow_id, n8n_workflows")
     .eq("tenant_id", tenant.id)
     .maybeSingle();
 
   if (existing?.n8n_workflow_id && existing.n8n_provision_status !== "error") {
-    const folderId = existing.n8n_folder_id ? String(existing.n8n_folder_id) : null;
     const workflowId = String(existing.n8n_workflow_id);
 
     return {
       clonedWorkflows: Array.isArray(existing.n8n_workflows) ? existing.n8n_workflows as N8nClonedWorkflowRef[] : [],
       editorUrl: buildEditorUrl(workflowId),
-      folderEditorUrl: folderId ? buildFolderEditorUrl(projectId, folderId) : buildProjectEditorUrl(projectId),
-      folderId,
+      folderEditorUrl: buildProjectEditorUrl(projectId),
+      folderId: null,
       provisionStatus: (existing.n8n_provision_status as N8nProvisionStatus) ?? "draft",
       skipped: true,
       webhookUrl: null,
@@ -389,9 +368,6 @@ export const provisionTenantN8nWorkflow = async (
       "Nenhum workflow template encontrado. Verifique a pasta Templates ou N8N_TEMPLATE_NAME_PREFIX.",
     );
   }
-
-  const folderName = `${tenant.name} - FESTAAI`;
-  const tenantFolderId = await createTenantFolder(projectId, folderName);
 
   const idMap = new Map<string, string>();
   const clones: Array<{ created: N8nWorkflowResponse; templateId: string; templateName: string }> = [];
@@ -440,16 +416,14 @@ export const provisionTenantN8nWorkflow = async (
   }
 
   const webhookUrl = extractWebhookProductionUrl(orchestrator.created);
-  const folderEditorUrl = tenantFolderId
-    ? buildFolderEditorUrl(projectId, tenantFolderId)
-    : buildProjectEditorUrl(projectId);
   const editorUrl = buildEditorUrl(orchestratorId);
+  const projectEditorUrl = buildProjectEditorUrl(projectId);
 
   const { error: upsertError } = await service.from("tenant_automation_settings").upsert(
     {
       inbound_automation_enabled: false,
       n8n_editor_url: editorUrl,
-      n8n_folder_id: tenantFolderId,
+      n8n_folder_id: null,
       n8n_inbound_webhook_url: webhookUrl,
       n8n_last_error: null,
       n8n_provision_status: "draft",
@@ -467,8 +441,8 @@ export const provisionTenantN8nWorkflow = async (
   return {
     clonedWorkflows,
     editorUrl,
-    folderEditorUrl,
-    folderId: tenantFolderId,
+    folderEditorUrl: projectEditorUrl,
+    folderId: null,
     provisionStatus: "draft",
     webhookUrl,
     workflowId: orchestratorId,

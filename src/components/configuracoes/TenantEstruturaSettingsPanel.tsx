@@ -16,7 +16,13 @@ const clone = (e: EstruturaBlock): EstruturaBlock => ({
   decoracao: [...e.decoracao],
 });
 
-export const TenantEstruturaSettingsPanel = () => {
+export const TenantEstruturaSettingsPanel = ({
+  guidedMode = false,
+  onDraftChange,
+}: {
+  guidedMode?: boolean;
+  onDraftChange?: (draft: EstruturaBlock) => void;
+}) => {
   const { data: saved, isLoading } = useTenantEstruturaSettings();
   const saveMutation = useSaveTenantEstruturaSettings();
   const [draft, setDraft] = useState<EstruturaBlock>(() => emptyEstruturaBlock());
@@ -24,6 +30,10 @@ export const TenantEstruturaSettingsPanel = () => {
   useEffect(() => {
     if (saved) setDraft(clone(saved));
   }, [saved]);
+
+  useEffect(() => {
+    onDraftChange?.(draft);
+  }, [draft, onDraftChange]);
 
   const handleSave = async () => {
     try {
@@ -45,8 +55,10 @@ export const TenantEstruturaSettingsPanel = () => {
     }
   };
 
-  const isDirty =
-    saved && JSON.stringify(saved.brinquedos) !== JSON.stringify(draft.brinquedos);
+  const hasChanges =
+    JSON.stringify(saved?.brinquedos ?? []) !== JSON.stringify(draft.brinquedos);
+
+  const canSave = draft.brinquedos.length > 0 && hasChanges;
 
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Carregando estrutura...</p>;
@@ -63,15 +75,17 @@ export const TenantEstruturaSettingsPanel = () => {
             </p>
             <EstruturaListsForm value={draft} onChange={setDraft} />
           </div>
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              onClick={() => void handleSave()}
-              disabled={saveMutation.isPending || !isDirty}
-            >
-              {saveMutation.isPending ? "Salvando..." : "Salvar estrutura"}
-            </Button>
-          </div>
+          {!guidedMode && (
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                onClick={() => void handleSave()}
+                disabled={saveMutation.isPending || !canSave}
+              >
+                {saveMutation.isPending ? "Salvando..." : "Salvar estrutura"}
+              </Button>
+            </div>
+          )}
         </div>
         <aside className="lg:col-span-2 space-y-3 lg:sticky lg:top-4 self-start">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">

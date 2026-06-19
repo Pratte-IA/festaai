@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   PackageData,
-  Additional,
   PricingTier,
   EquipeBlock,
   createDefaultEquipe,
@@ -10,6 +9,7 @@ import {
   getEquipeQuantity,
   itemsToLines,
   linesToItems,
+  packageHasBuffet,
   syncEquipeWithTiers,
   type PricingSchedule,
 } from "@/data/packagesData";
@@ -28,20 +28,48 @@ import { ItemList } from "@/components/ItemList";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Trash2 } from "lucide-react";
 import { buffetTemplates, itemSuggestions } from "@/data/packageTemplates";
+import { formatDurationMinutes, parseDurationInput } from "@/lib/duration";
 import {
   Users, UtensilsCrossed, Gamepad2, UsersRound,
-  Plus, X, Check, ChevronRight, ChevronLeft, Sparkles,
-  Info, DollarSign, Tag, Package as PackageIcon, ArrowLeft
+  Plus, X, Check, ChevronRight, ChevronLeft,
+  Info, DollarSign, Package as PackageIcon, ArrowLeft
 } from "lucide-react";
 
 interface PackageWizardProps {
   onCancel: () => void;
-  onSave: (pkg: PackageData) => void | Promise<void>;
+  onSave: (
+    pkg: PackageData,
+    options?: { close?: boolean },
+  ) => void | Promise<PackageData | void>;
   onValidationError?: (message: string) => void;
   tenantEstrutura: EstruturaBlock;
+  /** Pacotes existentes para copiar o buffet (exceto o pacote em edição). */
+  otherPackages?: PackageData[];
   /** Pacote existente para edição; omitir para criar um novo. */
   initialPackage?: PackageData;
+  /** Exibe fluxo da configuração guiada na última etapa. */
+  guidedMode?: boolean;
+  onGuidedContinue?: () => void;
+  guidedContinuePending?: boolean;
+  onStepChange?: (stepIndex: number) => void;
 }
+
+const cloneBuffet = (buffet: PackageData["buffet"]): PackageData["buffet"] => ({
+  hasBuffet: buffet.hasBuffet !== false,
+  salgados: [...buffet.salgados],
+  doces: [...buffet.doces],
+  bolo: [...buffet.bolo],
+  bebidas: [...buffet.bebidas],
+});
+
+const NO_BUFFET_TEMPLATE_KEY = "none";
+
+const BUFFET_TEMPLATE_OPTIONS = [
+  { key: NO_BUFFET_TEMPLATE_KEY, label: "Não possui buffet" },
+  { key: "basico", label: "Buffet básico" },
+  { key: "completo", label: "Buffet completo" },
+  { key: "gourmet", label: "Buffet gourmet" },
+] as const;
 
 const cloneEstrutura = (e: EstruturaBlock): EstruturaBlock => ({
   brinquedos: [...e.brinquedos],
@@ -54,7 +82,6 @@ const steps = [
   { key: "buffet", label: "Buffet", icon: UtensilsCrossed },
   { key: "precos", label: "Preços", icon: DollarSign },
   { key: "equipe", label: "Equipe", icon: UsersRound },
-  { key: "adicionais", label: "Adicionais", icon: Tag },
 ];
 
 const formatCurrency = (value: number) =>
@@ -65,12 +92,7 @@ const GUEST_TIER_SPAN = 10;
 
 const clonePackage = (pkg: PackageData): PackageData => ({
   ...pkg,
-  buffet: {
-    salgados: [...pkg.buffet.salgados],
-    doces: [...pkg.buffet.doces],
-    bolo: [...pkg.buffet.bolo],
-    bebidas: [...pkg.buffet.bebidas],
-  },
+  buffet: cloneBuffet(pkg.buffet),
   estrutura: cloneEstrutura(pkg.estrutura),
   equipe: pkg.equipe.map((role) => ({
     ...role,
@@ -112,10 +134,16 @@ const PackageWizard = ({
   onSave,
   onValidationError,
   tenantEstrutura,
+  otherPackages = [],
   initialPackage,
+  guidedMode = false,
+  onGuidedContinue,
+  guidedContinuePending = false,
+  onStepChange,
 }: PackageWizardProps) => {
   const isEditing = Boolean(initialPackage);
   const [stepIndex, setStepIndex] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const [pkg, setPkg] = useState<PackageData>(() =>
     initialPackage
       ? clonePackage(initialPackage)
@@ -146,33 +174,150 @@ const PackageWizard = ({
       };
     });
   };
-  const [additionals, setAdditionals] = useState<Additional[]>([]);
+  const [includedItemsText, setIncludedItemsText] = useState(() =>
+    itemsToLines(initialPackage?.includedItems),
+  );
+  const [excludedItemsText, setExcludedItemsText] = useState(() =>
+    itemsToLines(initialPackage?.excludedItems),
+  );
+  const [durationText, setDurationText] = useState(() =>
+    formatDurationMinutes(initialPackage?.durationMinutes),
+  );
+  const [buffetTemplateKey, setBuffetTemplateKey] = useState(() =>
+    initialPackage && !packageHasBuffet(initialPackage.buffet) ? NO_BUFFET_TEMPLATE_KEY : "",
+  );
+  const [copyBuffetPackageId, setCopyBuffetPackageId] = useState("");
 
   useEffect(() => {
     if (isEditing) return;
     setPkg((p) => ({ ...p, estrutura: cloneEstrutura(tenantEstrutura) }));
   }, [tenantEstrutura, isEditing]);
 
-  const finalize = (data: PackageData) => {
+  useEffect(() => {
+    onStepChange?.(stepIndex);
+  }, [onStepChange, stepIndex]);
+
+  const buildPayload = (data: PackageData): PackageData | null => {
     if (!data.name.trim()) {
       onValidationError?.("Informe o nome do pacote antes de salvar.");
-      setStepIndex(0);
-      return;
+      return null;
     }
 
-    void onSave({ ...data, estrutura: cloneEstrutura(tenantEstrutura) });
+    const trimmedDuration = durationText.trim();
+    let durationMinutes: number | null = null;
+    if (trimmedDuration) {
+      const parsedDuration = parseDurationInput(trimmedDuration);
+      if (parsedDuration === null) {
+        onValidationError?.("Duração inválida. Use formatos como 1h30, 2h ou 45min.");
+        return null;
+      }
+      durationMinutes = parsedDuration;
+    }
+
+    return {
+      ...data,
+      durationMinutes,
+      estrutura: cloneEstrutura(tenantEstrutura),
+    };
+  };
+
+  const persistPackage = async (data: PackageData, close: boolean) => {
+    const payload = buildPayload(data);
+    if (!payload) return false;
+
+    setIsSaving(true);
+    try {
+      const saved = await onSave(payload, { close });
+      if (!saved) return false;
+
+      setPkg(clonePackage(saved));
+      return true;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const finalize = async (data: PackageData, close = true) => {
+    const payload = buildPayload(data);
+    if (!payload) {
+      setStepIndex(0);
+      return false;
+    }
+
+    setIsSaving(true);
+    try {
+      await onSave(payload, { close });
+      return true;
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const currentStep = steps[stepIndex];
 
-  const goNext = () => setStepIndex((i) => Math.min(i + 1, steps.length - 1));
+  const goNext = async () => {
+    const saved = await persistPackage(pkg, false);
+    if (!saved) {
+      if (!pkg.name.trim()) {
+        setStepIndex(0);
+      }
+      return;
+    }
+    setStepIndex((index) => Math.min(index + 1, steps.length - 1));
+  };
+
+  const handleGuidedContinue = async () => {
+    const saved = await finalize(pkg, true);
+    if (saved) {
+      onGuidedContinue?.();
+    }
+  };
   const goPrev = () => setStepIndex((i) => Math.max(i - 1, 0));
 
-  const updateBuffet = (field: keyof typeof pkg.buffet, value: string[]) =>
-    setPkg({ ...pkg, buffet: { ...pkg.buffet, [field]: value } });
+  const updateBuffet = (field: keyof PackageData["buffet"], value: string[]) => {
+    if (field === "hasBuffet") return;
+    setPkg((current) => ({
+      ...current,
+      buffet: { ...current.buffet, hasBuffet: true, [field]: value },
+    }));
+    if (buffetTemplateKey === NO_BUFFET_TEMPLATE_KEY) {
+      setBuffetTemplateKey("");
+    }
+  };
 
-  const applyBuffetTemplate = (key: keyof typeof buffetTemplates) =>
-    setPkg({ ...pkg, buffet: { ...buffetTemplates[key] } });
+  const applyNoBuffet = () => {
+    setPkg((current) => ({
+      ...current,
+      buffet: { hasBuffet: false, salgados: [], doces: [], bolo: [], bebidas: [] },
+    }));
+    setBuffetTemplateKey(NO_BUFFET_TEMPLATE_KEY);
+    setCopyBuffetPackageId("");
+  };
+
+  const applyBuffetTemplate = (key: keyof typeof buffetTemplates) => {
+    setPkg((current) => ({
+      ...current,
+      buffet: { hasBuffet: true, ...cloneBuffet(buffetTemplates[key]) },
+    }));
+    setBuffetTemplateKey(key);
+    setCopyBuffetPackageId("");
+  };
+
+  const applyBuffetFromPackage = (packageId: string) => {
+    const source = otherPackages.find((item) => item.id === packageId);
+    if (!source) return;
+
+    setPkg((current) => ({
+      ...current,
+      buffet: cloneBuffet(source.buffet),
+    }));
+    setCopyBuffetPackageId(packageId);
+    setBuffetTemplateKey(
+      packageHasBuffet(source.buffet) ? "" : NO_BUFFET_TEMPLATE_KEY,
+    );
+  };
+
+  const hasBuffet = packageHasBuffet(pkg.buffet);
 
   return (
     <div className="space-y-4">
@@ -191,8 +336,9 @@ const PackageWizard = ({
             </span>
           )}
           <button
-            onClick={() => finalize(pkg)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            onClick={() => void finalize(pkg, true)}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             <Check className="w-4 h-4" /> {isEditing ? "Salvar alterações" : "Salvar pacote"}
           </button>
@@ -272,18 +418,27 @@ const PackageWizard = ({
                   />
                 </Field>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Duração (minutos)">
+                  <Field label="Duração">
                     <input
-                      type="number"
-                      min="0"
-                      value={pkg.durationMinutes ?? ""}
-                      onChange={(e) =>
-                        setPkg({
-                          ...pkg,
-                          durationMinutes: e.target.value ? Number(e.target.value) : null,
-                        })
-                      }
-                      placeholder="Ex: 240"
+                      type="text"
+                      value={durationText}
+                      onChange={(e) => setDurationText(e.target.value)}
+                      onBlur={() => {
+                        const trimmed = durationText.trim();
+                        if (!trimmed) {
+                          setDurationText("");
+                          setPkg((current) => ({ ...current, durationMinutes: null }));
+                          return;
+                        }
+
+                        const parsed = parseDurationInput(trimmed);
+                        if (parsed === null) return;
+
+                        const formatted = formatDurationMinutes(parsed);
+                        setDurationText(formatted);
+                        setPkg((current) => ({ ...current, durationMinutes: parsed }));
+                      }}
+                      placeholder="Ex: 1h30, 2h, 45min"
                       className="input-base"
                     />
                   </Field>
@@ -305,22 +460,32 @@ const PackageWizard = ({
                 </div>
                 <Field label="Itens inclusos (um por linha)">
                   <textarea
-                    value={itemsToLines(pkg.includedItems)}
-                    onChange={(e) =>
-                      setPkg({ ...pkg, includedItems: linesToItems(e.target.value) })
-                    }
-                    placeholder="Ex: Decoração básica&#10;Garçom"
+                    value={includedItemsText}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setIncludedItemsText(value);
+                      setPkg((current) => ({
+                        ...current,
+                        includedItems: linesToItems(value),
+                      }));
+                    }}
+                    placeholder={"Ex: Decoração básica\nGarçom"}
                     rows={3}
                     className="input-base resize-none"
                   />
                 </Field>
                 <Field label="Itens não inclusos (um por linha)">
                   <textarea
-                    value={itemsToLines(pkg.excludedItems)}
-                    onChange={(e) =>
-                      setPkg({ ...pkg, excludedItems: linesToItems(e.target.value) })
-                    }
-                    placeholder="Ex: Bolo personalizado&#10;Doces finos"
+                    value={excludedItemsText}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setExcludedItemsText(value);
+                      setPkg((current) => ({
+                        ...current,
+                        excludedItems: linesToItems(value),
+                      }));
+                    }}
+                    placeholder={"Ex: Bolo personalizado\nDoces finos"}
                     rows={3}
                     className="input-base resize-none"
                   />
@@ -344,18 +509,69 @@ const PackageWizard = ({
             {currentStep.key === "buffet" && (
               <div className="space-y-5">
                 <p className="text-xs text-muted-foreground">
-                  Os brinquedos previstos na festa seguem o que você definiu em Configurações &gt;
-                  Estrutura — o preview ao lado apenas espelha essa lista.
+                  Monte o cardápio por categoria ou marque que o pacote não inclui buffet — ideal
+                  para locação somente do espaço.
                 </p>
-                <TemplateSelector
-                  label="Usar modelo padrão de buffet"
-                  options={[
-                    { key: "basico", label: "Básico" },
-                    { key: "completo", label: "Completo" },
-                    { key: "gourmet", label: "Gourmet" },
-                  ]}
-                  onSelect={(key) => applyBuffetTemplate(key as keyof typeof buffetTemplates)}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Field label="Modelo de buffet">
+                    <select
+                      value={buffetTemplateKey}
+                      onChange={(e) => {
+                        const key = e.target.value;
+                        if (!key) {
+                          setBuffetTemplateKey("");
+                          return;
+                        }
+                        if (key === NO_BUFFET_TEMPLATE_KEY) {
+                          applyNoBuffet();
+                          return;
+                        }
+                        applyBuffetTemplate(key as keyof typeof buffetTemplates);
+                      }}
+                      className="input-base text-sm"
+                    >
+                      <option value="">Selecione um modelo de buffet</option>
+                      {BUFFET_TEMPLATE_OPTIONS.map((option) => (
+                        <option key={option.key} value={option.key}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  {otherPackages.length > 0 && hasBuffet && (
+                    <Field label="Copiar buffet de outro pacote">
+                      <select
+                        value={copyBuffetPackageId}
+                        onChange={(e) => {
+                          const packageId = e.target.value;
+                          if (!packageId) {
+                            setCopyBuffetPackageId("");
+                            return;
+                          }
+                          applyBuffetFromPackage(packageId);
+                        }}
+                        className="input-base text-sm"
+                      >
+                        <option value="">Selecione um pacote</option>
+                        {otherPackages.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  )}
+                </div>
+                {!hasBuffet ? (
+                  <div className="rounded-xl border border-border/50 bg-muted/20 p-4">
+                    <p className="text-sm text-foreground font-medium">Buffet não incluso</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Este pacote cobre apenas o que estiver descrito nas informações e preços — por
+                      exemplo, aluguel do salão sem alimentação.
+                    </p>
+                  </div>
+                ) : (
+                  <>
                 <ItemList
                   label="Salgados"
                   items={pkg.buffet.salgados}
@@ -380,6 +596,8 @@ const PackageWizard = ({
                   suggestions={itemSuggestions.bebidas}
                   onChange={(v) => updateBuffet("bebidas", v)}
                 />
+                  </>
+                )}
               </div>
             )}
 
@@ -399,11 +617,6 @@ const PackageWizard = ({
                 onChange={(equipe) => setPkg({ ...pkg, equipe })}
               />
             )}
-
-            {/* STEP: Adicionais */}
-            {currentStep.key === "adicionais" && (
-              <AdicionaisStep additionals={additionals} setAdditionals={setAdditionals} />
-            )}
           </div>
 
           {/* Nav buttons */}
@@ -417,15 +630,26 @@ const PackageWizard = ({
             </button>
             {stepIndex < steps.length - 1 ? (
               <button
-                onClick={goNext}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                onClick={() => void goNext()}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                Avançar <ChevronRight className="w-4 h-4" />
+                {isSaving ? "Salvando..." : "Avançar"} <ChevronRight className="w-4 h-4" />
+              </button>
+            ) : guidedMode ? (
+              <button
+                onClick={() => void handleGuidedContinue()}
+                disabled={isSaving || guidedContinuePending}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                <Check className="w-4 h-4" />
+                {isSaving || guidedContinuePending ? "Salvando..." : "Salvar e continuar"}
               </button>
             ) : (
               <button
-                onClick={() => finalize(pkg)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-success text-success-foreground text-sm font-medium hover:bg-success/90 transition-colors"
+                onClick={() => void finalize(pkg, true)}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-success text-success-foreground text-sm font-medium hover:bg-success/90 transition-colors disabled:opacity-50"
               >
                 <Check className="w-4 h-4" /> Concluir e salvar
               </button>
@@ -434,7 +658,7 @@ const PackageWizard = ({
         </div>
 
         {/* Preview lateral */}
-        <PackagePreview pkg={pkg} additionals={additionals} />
+        <PackagePreview pkg={pkg} />
       </div>
     </div>
   );
@@ -446,34 +670,6 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   <div>
     <label className="text-xs font-medium text-muted-foreground block mb-1.5">{label}</label>
     {children}
-  </div>
-);
-
-const TemplateSelector = ({
-  label,
-  options,
-  onSelect,
-}: {
-  label: string;
-  options: { key: string; label: string }[];
-  onSelect: (key: string) => void;
-}) => (
-  <div className="bg-gradient-to-r from-primary/10 to-rosa/10 border border-primary/20 rounded-xl p-4">
-    <div className="flex items-center gap-2 mb-3">
-      <Sparkles className="w-4 h-4 text-primary" />
-      <p className="text-sm font-medium text-foreground">{label}</p>
-    </div>
-    <div className="flex flex-wrap gap-2">
-      {options.map((opt) => (
-        <button
-          key={opt.key}
-          onClick={() => onSelect(opt.key)}
-          className="px-3 py-1.5 rounded-lg bg-background/60 hover:bg-background border border-border text-xs font-medium text-foreground transition-colors"
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
   </div>
 );
 
@@ -792,107 +988,7 @@ const PrecosStep = ({
   );
 };
 
-const AdicionaisStep = ({
-  additionals,
-  setAdditionals,
-}: {
-  additionals: Additional[];
-  setAdditionals: (a: Additional[]) => void;
-}) => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState(0);
-  const [category, setCategory] = useState<Additional["category"]>("outros");
-  const [type, setType] = useState<Additional["type"]>("fixo");
-
-  const add = () => {
-    if (!name.trim() || price <= 0) return;
-    setAdditionals([
-      ...additionals,
-      { id: crypto.randomUUID(), name, price, category, type },
-    ]);
-    setName("");
-    setPrice(0);
-  };
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Crie itens opcionais que podem ser incluídos sob demanda nas propostas.
-      </p>
-
-      <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nome do adicional"
-            className="input-base text-sm"
-          />
-          <CurrencyInput
-            value={price}
-            onChange={setPrice}
-            className="input-base text-sm tabular-nums"
-          />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as Additional["category"])}
-            className="input-base text-sm"
-          >
-            <option value="buffet">Buffet</option>
-            <option value="estrutura">Estrutura</option>
-            <option value="equipe">Equipe</option>
-            <option value="entretenimento">Entretenimento</option>
-            <option value="outros">Outros</option>
-          </select>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as Additional["type"])}
-            className="input-base text-sm"
-          >
-            <option value="fixo">Fixo</option>
-            <option value="por_unidade">Por unidade</option>
-          </select>
-        </div>
-        <button
-          onClick={add}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Adicionar adicional
-        </button>
-      </div>
-
-      {additionals.length > 0 && (
-        <div className="space-y-2">
-          {additionals.map((a) => (
-            <div key={a.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-              <div>
-                <p className="text-sm font-medium text-foreground">{a.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {a.category} • {a.type === "fixo" ? "Fixo" : "Por unidade"}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-foreground">
-                  {formatCurrency(a.price)}
-                </span>
-                <button
-                  onClick={() => setAdditionals(additionals.filter((x) => x.id !== a.id))}
-                  className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-
-const PackagePreview = ({ pkg, additionals }: { pkg: PackageData; additionals: Additional[] }) => (
+const PackagePreview = ({ pkg }: { pkg: PackageData }) => (
   <div className="lg:col-span-1">
     <div className="glass-card p-5 lg:sticky lg:top-4 space-y-4">
       <div className="flex items-center gap-2 pb-3 border-b border-border">
@@ -921,6 +1017,9 @@ const PackagePreview = ({ pkg, additionals }: { pkg: PackageData; additionals: A
       <PreviewBlock
         icon={<UtensilsCrossed className="w-3.5 h-3.5 text-coral" />}
         title="Buffet"
+        emptyMessage={
+          !packageHasBuffet(pkg.buffet) ? "Buffet não incluso neste pacote" : undefined
+        }
         sections={[
           { label: "Salgados", items: pkg.buffet.salgados },
           { label: "Doces", items: pkg.buffet.doces },
@@ -984,22 +1083,6 @@ const PackagePreview = ({ pkg, additionals }: { pkg: PackageData; additionals: A
           </div>
         ))}
       </div>
-
-      {additionals.length > 0 && (
-        <div className="pt-3 border-t border-border">
-          <p className="text-xs font-semibold text-foreground mb-2">
-            Adicionais ({additionals.length})
-          </p>
-          <div className="space-y-1">
-            {additionals.map((a) => (
-              <div key={a.id} className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground truncate">{a.name}</span>
-                <span className="text-foreground font-medium">{formatCurrency(a.price)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   </div>
 );
@@ -1008,10 +1091,12 @@ const PreviewBlock = ({
   icon,
   title,
   sections,
+  emptyMessage,
 }: {
   icon: React.ReactNode;
   title: string;
   sections: { label: string; items: string[] }[];
+  emptyMessage?: string;
 }) => {
   const hasContent = sections.some((s) => s.items.length > 0);
   return (
@@ -1020,7 +1105,11 @@ const PreviewBlock = ({
         {icon}
         <p className="text-xs font-semibold text-foreground">{title}</p>
       </div>
-      {!hasContent && <p className="text-xs text-muted-foreground italic">Nenhum item</p>}
+      {emptyMessage ? (
+        <p className="text-xs text-muted-foreground italic">{emptyMessage}</p>
+      ) : !hasContent ? (
+        <p className="text-xs text-muted-foreground italic">Nenhum item</p>
+      ) : null}
       <div className="space-y-1.5">
         {sections.map(
           (s) =>

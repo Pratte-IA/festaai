@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import AppLayout from "@/components/AppLayout";
+import { ContractModuleGate } from "@/components/contracts/ContractModuleGate";
 import { ContractStatusBadge } from "@/features/eventos/contracts/contract-status";
 import { formatContractHashShort } from "@/features/eventos/contracts/contract-hash";
 import type {
@@ -116,6 +117,7 @@ const Contratos = () => {
 
   return (
     <AppLayout>
+      <ContractModuleGate>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Contratos</h1>
@@ -331,6 +333,7 @@ const Contratos = () => {
           )}
         </CardContent>
       </Card>
+      </ContractModuleGate>
     </AppLayout>
   );
 };

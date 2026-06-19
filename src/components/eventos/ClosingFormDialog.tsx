@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   additionalBillingTypeLabels,
   additionalCategoryLabels,
+  isAdditionalApplicableToPackage,
 } from "@/data/packagesData";
 import type { PackageData } from "@/data/packagesData";
 import {
@@ -154,6 +155,12 @@ export const ClosingFormDialog = ({
   const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const applicableAdditionals = useMemo(
+    () =>
+      additionals.filter((item) => isAdditionalApplicableToPackage(item, selectedPackageId)),
+    [additionals, selectedPackageId],
+  );
+
   const isLoading =
     isFieldsLoading ||
     isResponsesLoading ||
@@ -256,11 +263,36 @@ export const ClosingFormDialog = ({
     setSelectedPackageId(pkg.id);
     const guestCount = resolveGuestCount(evento, fieldValues, fieldIdByKey);
 
-    setFieldValues((previous) => {
-      const withPackage = applyPackageToFieldValues(pkg, guestCount, previous, fieldIdByKey);
-      const pacoteValue =
-        guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
-      return syncFinancialFields(withPackage, pacoteValue);
+    setAdditionalSelections((previous) => {
+      const next = new Map(
+        [...previous.entries()].filter(([id]) =>
+          isAdditionalApplicableToPackage(
+            additionals.find((item) => item.id === id) ?? { packageIds: [] },
+            pkg.id,
+          ),
+        ),
+      );
+
+      const snapshot = buildAdicionaisSnapshot(additionals, next, guestCount);
+      const total = getAdditionalsTotal(snapshot);
+
+      setFieldValues((fieldPrevious) => {
+        const withPackage = applyPackageToFieldValues(pkg, guestCount, fieldPrevious, fieldIdByKey);
+        const pacoteValue =
+          guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+        const fieldNext = syncFinancialFields(withPackage, pacoteValue);
+        const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
+        const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");
+
+        if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
+        if (adicionaisSelecionadosId) {
+          fieldNext[adicionaisSelecionadosId] = snapshot.map((item) => item.name).join(", ");
+        }
+
+        return fieldNext;
+      });
+
+      return next;
     });
   };
 
@@ -337,7 +369,7 @@ export const ClosingFormDialog = ({
       case "pacote":
         return packages.length > 0;
       case "adicionais":
-        return additionals.length > 0;
+        return applicableAdditionals.length > 0;
       case "pagamento":
         return paymentMethods.length > 0 || Boolean(financialSettings);
       case "aceites":
@@ -631,14 +663,14 @@ export const ClosingFormDialog = ({
 
   const renderAdditionalsSection = () => {
     const sectionFields = (fieldsBySection.get("adicionais") ?? []).filter(
-      (field) => field.fieldKey !== "adicionais_selecionados" || additionals.length === 0,
+      (field) => field.fieldKey !== "adicionais_selecionados" || applicableAdditionals.length === 0,
     );
 
     return (
       <div className="space-y-4">
-        {additionals.length > 0 && (
+        {applicableAdditionals.length > 0 && (
           <div className="space-y-2">
-            {additionals.map((item) => {
+            {applicableAdditionals.map((item) => {
               const isSelected = additionalSelections.has(item.id);
               const quantity = additionalSelections.get(item.id) ?? 1;
 

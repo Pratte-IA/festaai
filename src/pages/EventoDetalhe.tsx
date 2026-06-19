@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
+import { MoveEventoFunnelDialog } from "@/components/eventos/MoveEventoFunnelDialog";
 import { EventoContractCard, shouldShowEventoContractCard } from "@/components/eventos/EventoContractCard";
 import EventChecklist from "@/components/EventChecklist";
 import AppLayout from "@/components/AppLayout";
@@ -10,6 +11,7 @@ import {
   useCreateEventoNota,
   useCreateEventoPagamento,
   useCreateEventoTarefa,
+  useDeleteEvento,
   useEvento,
   useEventoNotas,
   useEventoPagamentos,
@@ -17,9 +19,20 @@ import {
   useUpdateEvento,
   useToggleEventoTarefa,
 } from "@/features/eventos";
+import { useTenantAdminCapability } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -122,6 +135,8 @@ const EventoDetalhe = () => {
   const toggleTarefa = useToggleEventoTarefa();
   const createNota = useCreateEventoNota();
   const updateEvento = useUpdateEvento();
+  const deleteEvento = useDeleteEvento();
+  const { data: adminCapability } = useTenantAdminCapability();
 
   const [newTask, setNewTask] = useState("");
   const [newNote, setNewNote] = useState("");
@@ -130,6 +145,8 @@ const EventoDetalhe = () => {
   const [newPaymentAmount, setNewPaymentAmount] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isClosingDialogOpen, setIsClosingDialogOpen] = useState(false);
+  const [isMoveFunnelOpen, setIsMoveFunnelOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -271,6 +288,27 @@ const EventoDetalhe = () => {
     }
   };
 
+  const handleDeleteEvento = async () => {
+    if (!validEventoId) return;
+
+    try {
+      await deleteEvento.mutateAsync(validEventoId);
+      toast({
+        title: "Lead excluido",
+        description: "O registro foi removido do CRM.",
+      });
+      navigate("/crm", { replace: true });
+    } catch {
+      toast({
+        title: "Nao foi possivel excluir o lead",
+        description: "Apenas administradores podem excluir leads. Tente novamente se tiver permissao.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const canDeleteLead = adminCapability?.isTenantAdmin ?? false;
+
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
@@ -304,11 +342,18 @@ const EventoDetalhe = () => {
                   <Edit3 className="w-4 h-4" />
                   Editar evento
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
+                <DropdownMenuItem className="gap-2" onClick={() => setIsMoveFunnelOpen(true)}>
                   <ArrowRightLeft className="w-4 h-4" />
                   Mover para outro funil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  className="gap-2 text-destructive focus:text-destructive"
+                  disabled={!canDeleteLead}
+                  onClick={() => {
+                    if (!canDeleteLead) return;
+                    setIsDeleteOpen(true);
+                  }}
+                >
                   <Trash2 className="w-4 h-4" />
                   Excluir lead
                 </DropdownMenuItem>
@@ -404,6 +449,7 @@ const EventoDetalhe = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <InfoRow label="Telefone" value={event.cliente_telefone ?? "Nao informado"} />
+              <InfoRow label="E-mail" value={event.cliente_email ?? "Nao informado"} />
               <InfoRow label="Nome" value={event.cliente_nome} />
             </CardContent>
           </Card>
@@ -605,6 +651,34 @@ const EventoDetalhe = () => {
         }}
         open={isClosingDialogOpen}
       />
+
+      <MoveEventoFunnelDialog
+        evento={event}
+        onOpenChange={setIsMoveFunnelOpen}
+        open={isMoveFunnelOpen}
+      />
+
+      <AlertDialog onOpenChange={setIsDeleteOpen} open={isDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir lead?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acao remove permanentemente o lead de {event.cliente_nome}, incluindo tarefas,
+              anotacoes, pagamentos e contratos vinculados. Nao e possivel desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteEvento.isPending}
+              onClick={() => void handleDeleteEvento()}
+            >
+              Excluir lead
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };

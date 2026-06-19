@@ -8,11 +8,22 @@ import {
 } from "@/data/pricing-schedule";
 
 export interface BuffetBlock {
+  /** Quando `false`, o pacote não inclui buffet (ex.: somente aluguel do espaço). */
+  hasBuffet?: boolean;
   salgados: string[];
   doces: string[];
   bolo: string[];
   bebidas: string[];
 }
+
+export const packageHasBuffet = (buffet: BuffetBlock): boolean => buffet.hasBuffet !== false;
+
+export const emptyBuffetBlock = (): BuffetBlock => ({
+  salgados: [],
+  doces: [],
+  bolo: [],
+  bebidas: [],
+});
 
 const BOLO_IN_DOCES_PATTERN = /bolo/i;
 
@@ -257,6 +268,7 @@ export const normalizeBuffetBlock = (raw: unknown): BuffetBlock => {
   const split = splitBoloFromDoces(doces, bolo);
 
   return {
+    hasBuffet: (buffet as { hasBuffet?: boolean }).hasBuffet !== false,
     salgados: Array.isArray(buffet.salgados) ? buffet.salgados.map(String) : [],
     doces: split.doces,
     bolo: split.bolo,
@@ -306,9 +318,21 @@ export interface Additional {
   type: AdditionalBillingType;
   active?: boolean;
   description?: string | null;
+  /** IDs dos pacotes em que o adicional pode ser ofertado. Vazio = todos os pacotes. */
+  packageIds?: string[];
   isRequired?: boolean;
   sortOrder?: number;
 }
+
+export const isAdditionalApplicableToPackage = (
+  additional: Pick<Additional, "packageIds">,
+  packageId: string | null | undefined,
+): boolean => {
+  if (!packageId) return false;
+  const ids = additional.packageIds ?? [];
+  if (ids.length === 0) return true;
+  return ids.includes(packageId);
+};
 
 export const additionalCategoryLabels: Record<AdditionalCategory, string> = {
   buffet: "Buffet",

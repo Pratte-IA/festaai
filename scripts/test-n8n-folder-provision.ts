@@ -50,7 +50,7 @@ if (!tenant) {
 }
 
 console.log(`Provisionando N8N para: ${tenant.name} (id=${tenant.id})`);
-console.log(`Pasta esperada: "${tenant.name} - FESTAAI"`);
+console.log(`Prefixo dos workflows: "${tenant.name} - ..."`);
 
 const result = await provisionTenantN8nWorkflow(service, tenant);
 

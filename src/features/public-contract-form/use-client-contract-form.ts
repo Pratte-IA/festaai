@@ -57,6 +57,7 @@ const mapAdditional = (row: Record<string, unknown>): Additional => ({
   id: String(row.id),
   isRequired: Boolean(row.isRequired),
   name: String(row.name),
+  packageIds: Array.isArray(row.packageIds) ? row.packageIds.map(String) : [],
   price: typeof row.price === "number" ? row.price : 0,
   sortOrder: typeof row.sortOrder === "number" ? row.sortOrder : 0,
   type: (row.type as Additional["type"]) ?? "fixo",

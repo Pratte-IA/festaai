@@ -28,4 +28,10 @@ export const eventosQueryKeys = {
     ["eventos", tenantId, "contracts", contractId] as const,
   contractHistory: (tenantId: number | null, eventoId: number | null) =>
     ["eventos", tenantId, "contracts", "history", eventoId] as const,
+  contractModuleAcceptance: (tenantId: number | null) =>
+    ["eventos", tenantId, "contracts", "module-acceptance"] as const,
+  contractModuleSettings: (tenantId: number | null) =>
+    ["eventos", tenantId, "contracts", "module-settings"] as const,
+  contractTypeTemplates: (tenantId: number | null) =>
+    ["eventos", tenantId, "contracts", "type-templates"] as const,
 };

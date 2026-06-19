@@ -22,6 +22,7 @@ export {
   useDuplicateTenantPackage,
   useReorderTenantAdditional,
   useReorderTenantPackage,
+  useSyncTenantAdditionals,
   useTenantAdditionals,
   useTenantAdditionalsAdmin,
   useTenantPackages,

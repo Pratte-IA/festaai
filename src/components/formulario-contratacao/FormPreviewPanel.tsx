@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   additionalBillingTypeLabels,
   additionalCategoryLabels,
+  isAdditionalApplicableToPackage,
 } from "@/data/packagesData";
 import type { PackageData } from "@/data/packagesData";
 import {
@@ -226,6 +227,12 @@ export const FormPreviewPanel = () => {
   const [selectedAdditionalIds, setSelectedAdditionalIds] = useState<Set<string>>(new Set());
   const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
 
+  const applicableAdditionals = useMemo(
+    () =>
+      additionals.filter((item) => isAdditionalApplicableToPackage(item, selectedPackageId)),
+    [additionals, selectedPackageId],
+  );
+
   const isLoading =
     isFieldsLoading ||
     isPackagesLoading ||
@@ -297,11 +304,31 @@ export const FormPreviewPanel = () => {
     setSelectedPackageId(pkg.id);
     const guestCount = resolveGuestCount(PREVIEW_EVENTO, fieldValues, fieldIdByKey);
 
-    setFieldValues((previous) => {
-      const withPackage = applyPackageToFieldValues(pkg, guestCount, previous, fieldIdByKey);
-      const pacoteValue =
-        guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
-      return syncFinancialFields(withPackage, pacoteValue);
+    setSelectedAdditionalIds((previous) => {
+      const next = new Set(
+        [...previous].filter((id) =>
+          isAdditionalApplicableToPackage(
+            additionals.find((item) => item.id === id) ?? { packageIds: [] },
+            pkg.id,
+          ),
+        ),
+      );
+
+      const selectedTotal = additionals
+        .filter((item) => next.has(item.id))
+        .reduce((sum, item) => sum + item.price, 0);
+
+      setFieldValues((fieldPrevious) => {
+        const withPackage = applyPackageToFieldValues(pkg, guestCount, fieldPrevious, fieldIdByKey);
+        const pacoteValue =
+          guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+        const fieldNext = syncFinancialFields(withPackage, pacoteValue);
+        const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
+        if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(selectedTotal);
+        return fieldNext;
+      });
+
+      return next;
     });
   };
 
@@ -343,7 +370,7 @@ export const FormPreviewPanel = () => {
       case "pacote":
         return packages.length > 0;
       case "adicionais":
-        return additionals.length > 0;
+        return applicableAdditionals.length > 0;
       case "pagamento":
         return paymentMethods.length > 0 || Boolean(financialSettings);
       case "aceites":
@@ -441,9 +468,9 @@ export const FormPreviewPanel = () => {
       <div className="space-y-4">
         {sectionFields.length > 0 && renderFormFields(sectionFields)}
 
-        {additionals.length > 0 && (
+        {applicableAdditionals.length > 0 && (
           <div className="space-y-2">
-            {additionals.map((item) => {
+            {applicableAdditionals.map((item) => {
               const isSelected = selectedAdditionalIds.has(item.id);
 
               return (
@@ -464,7 +491,6 @@ export const FormPreviewPanel = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
                       <span className="text-sm font-medium text-foreground">{item.name}</span>
-                      {item.isRequired && <PreviewBadge variant="primary">Obrigatório</PreviewBadge>}
                       <PreviewBadge variant="outline">
                         {additionalBillingTypeLabels[item.type]}
                       </PreviewBadge>

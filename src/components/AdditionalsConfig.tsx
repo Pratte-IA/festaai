@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -11,20 +11,19 @@ import {
 import {
   Additional,
   additionalBillingTypeLabels,
-  additionalCategoryLabels,
-  AdditionalBillingType,
-  AdditionalCategory,
 } from "@/data/packagesData";
 import {
   useCreateTenantAdditional,
   useDeleteTenantAdditional,
   useReorderTenantAdditional,
   useTenantAdditionals,
+  useTenantPackages,
   useToggleTenantAdditionalActive,
   useUpdateTenantAdditional,
 } from "@/features/configuracoes";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import {
   Dialog,
   DialogContent,
@@ -34,22 +33,77 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
-const emptyDraft = (): Omit<Additional, "id"> => ({
-  active: true,
-  category: "outros",
-  description: "",
-  isRequired: false,
+type AdditionalDraft = Pick<Additional, "name" | "price" | "packageIds">;
+
+const emptyDraft = (): AdditionalDraft => ({
   name: "",
+  packageIds: [],
   price: 0,
-  type: "fixo",
 });
+
+const PackageApplicabilityField = ({
+  packages,
+  selectedIds,
+  onChange,
+}: {
+  packages: { id: string; name: string }[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+}) => {
+  const togglePackage = (packageId: string, checked: boolean) => {
+    if (checked) {
+      onChange(Array.from(new Set([...selectedIds, packageId])));
+      return;
+    }
+    onChange(selectedIds.filter((id) => id !== packageId));
+  };
+
+  if (packages.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Cadastre ao menos um pacote antes de vincular adicionais.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>Aplicável em quais pacotes</Label>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {packages.map((pkg) => (
+          <label
+            key={pkg.id}
+            className="flex items-center gap-2 rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm"
+          >
+            <Checkbox
+              checked={selectedIds.includes(pkg.id)}
+              onCheckedChange={(checked) => togglePackage(pkg.id, checked === true)}
+            />
+            <span className="truncate">{pkg.name}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const formatPackageLabels = (
+  packageIds: string[] | undefined,
+  packages: { id: string; name: string }[],
+) => {
+  const ids = packageIds ?? [];
+  if (ids.length === 0) return "Todos os pacotes";
+  const names = ids
+    .map((id) => packages.find((pkg) => pkg.id === id)?.name)
+    .filter(Boolean) as string[];
+  return names.length > 0 ? names.join(", ") : "Pacotes não encontrados";
+};
 
 interface Props {
   adminMode?: boolean;
@@ -61,24 +115,21 @@ const AdditionalEditorDialog = ({
   onClose,
   onSaved,
   open,
+  packages,
 }: {
   additional: Additional | null;
   onClose: () => void;
   onSaved: () => void;
   open: boolean;
+  packages: { id: string; name: string }[];
 }) => {
   const updateAdditional = useUpdateTenantAdditional();
-  const [form, setForm] = useState<Omit<Additional, "id">>(() =>
+  const [form, setForm] = useState<AdditionalDraft>(() =>
     additional
       ? {
-          active: additional.active ?? true,
-          category: additional.category,
-          description: additional.description ?? "",
-          isRequired: additional.isRequired ?? false,
           name: additional.name,
+          packageIds: additional.packageIds ?? [],
           price: additional.price,
-          sortOrder: additional.sortOrder,
-          type: additional.type,
         }
       : emptyDraft(),
   );
@@ -87,26 +138,29 @@ const AdditionalEditorDialog = ({
     if (!nextOpen) onClose();
     else if (additional) {
       setForm({
-        active: additional.active ?? true,
-        category: additional.category,
-        description: additional.description ?? "",
-        isRequired: additional.isRequired ?? false,
         name: additional.name,
+        packageIds: additional.packageIds ?? [],
         price: additional.price,
-        sortOrder: additional.sortOrder,
-        type: additional.type,
       });
     }
   };
 
   const handleSave = async () => {
     if (!additional || !form.name.trim()) return;
+    if ((form.packageIds?.length ?? 0) === 0) {
+      toast({
+        title: "Selecione ao menos um pacote",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       await updateAdditional.mutateAsync({
         ...additional,
-        ...form,
-        description: form.description?.trim() || null,
+        name: form.name.trim(),
+        packageIds: form.packageIds,
+        price: form.price,
       });
       toast({ title: "Adicional atualizado" });
       onSaved();
@@ -132,68 +186,19 @@ const AdditionalEditorDialog = ({
             />
           </div>
           <div>
-            <Label htmlFor="edit-additional-description">Descrição</Label>
-            <Textarea
-              id="edit-additional-description"
-              value={form.description ?? ""}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              rows={2}
+            <Label htmlFor="edit-additional-price">Valor</Label>
+            <CurrencyInput
+              id="edit-additional-price"
+              value={form.price}
+              onChange={(price) => setForm({ ...form, price })}
+              className="input-base text-sm tabular-nums"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="edit-additional-price">Valor</Label>
-              <Input
-                id="edit-additional-price"
-                min="0"
-                step="0.01"
-                type="number"
-                value={form.price || ""}
-                onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-additional-category">Categoria</Label>
-              <select
-                id="edit-additional-category"
-                value={form.category}
-                onChange={(e) =>
-                  setForm({ ...form, category: e.target.value as AdditionalCategory })
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                {(Object.keys(additionalCategoryLabels) as AdditionalCategory[]).map((key) => (
-                  <option key={key} value={key}>
-                    {additionalCategoryLabels[key]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="edit-additional-type">Tipo de cobrança</Label>
-            <select
-              id="edit-additional-type"
-              value={form.type}
-              onChange={(e) =>
-                setForm({ ...form, type: e.target.value as AdditionalBillingType })
-              }
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              {(Object.keys(additionalBillingTypeLabels) as AdditionalBillingType[]).map((key) => (
-                <option key={key} value={key}>
-                  {additionalBillingTypeLabels[key]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={form.isRequired ?? false}
-              onCheckedChange={(checked) => setForm({ ...form, isRequired: checked === true })}
-            />
-            Obrigatório no formulário
-          </label>
+          <PackageApplicabilityField
+            packages={packages}
+            selectedIds={form.packageIds ?? []}
+            onChange={(packageIds) => setForm({ ...form, packageIds })}
+          />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -212,21 +217,41 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
   const { data: additionals = [], isLoading } = useTenantAdditionals({
     includeInactive: adminMode,
   });
+  const { data: packages = [], isLoading: isPackagesLoading } = useTenantPackages({
+    includeInactive: adminMode,
+  });
+  const packageOptions = useMemo(
+    () => packages.map((pkg) => ({ id: pkg.id, name: pkg.name })),
+    [packages],
+  );
+
   const createAdditional = useCreateTenantAdditional();
   const deleteAdditional = useDeleteTenantAdditional();
   const reorderAdditional = useReorderTenantAdditional();
   const toggleAdditionalActive = useToggleTenantAdditionalActive();
   const [isCreating, setIsCreating] = useState(false);
-  const [draft, setDraft] = useState<Omit<Additional, "id">>(emptyDraft());
+  const [draft, setDraft] = useState<AdditionalDraft>(emptyDraft());
   const [editingAdditional, setEditingAdditional] = useState<Additional | null>(null);
 
   const saveAdditional = async () => {
     if (!draft.name.trim()) return;
+    if ((draft.packageIds?.length ?? 0) === 0) {
+      toast({
+        title: "Selecione ao menos um pacote",
+        description: "Indique em quais pacotes este adicional pode ser ofertado.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       await createAdditional.mutateAsync({
-        ...draft,
-        description: draft.description?.trim() || null,
+        active: true,
+        category: "outros",
+        name: draft.name.trim(),
+        packageIds: draft.packageIds,
+        price: draft.price,
+        type: "fixo",
       });
       toast({ title: "Adicional salvo" });
       setDraft(emptyDraft());
@@ -247,7 +272,8 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
           <h2 className="text-lg font-semibold text-foreground">Adicionais</h2>
           <button
             onClick={() => setIsCreating((current) => !current)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            disabled={isPackagesLoading || packageOptions.length === 0}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             <Plus className="w-4 h-4" /> Novo Adicional
           </button>
@@ -258,7 +284,8 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
         <div className="flex justify-end">
           <button
             onClick={() => setIsCreating((current) => !current)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            disabled={isPackagesLoading || packageOptions.length === 0}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             <Plus className="w-4 h-4" /> Novo Adicional
           </button>
@@ -266,63 +293,32 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
       )}
 
       {isCreating && (
-        <div className="rounded-xl border border-primary/40 bg-card/60 p-4 space-y-3">
+        <div className="rounded-xl border border-primary/40 bg-card/60 p-4 space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <Input
-              value={draft.name}
-              onChange={(event) => setDraft({ ...draft, name: event.target.value })}
-              placeholder="Nome do adicional"
-            />
-            <Input
-              min="0"
-              step="0.01"
-              type="number"
-              value={draft.price || ""}
-              onChange={(event) => setDraft({ ...draft, price: Number(event.target.value) })}
-              placeholder="Valor"
-            />
+            <div>
+              <Label htmlFor="additional-name">Nome</Label>
+              <Input
+                id="additional-name"
+                value={draft.name}
+                onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+                placeholder="Nome do adicional"
+              />
+            </div>
+            <div>
+              <Label htmlFor="additional-price">Valor</Label>
+              <CurrencyInput
+                id="additional-price"
+                value={draft.price}
+                onChange={(price) => setDraft({ ...draft, price })}
+                className="input-base text-sm tabular-nums"
+              />
+            </div>
           </div>
-          <Textarea
-            value={draft.description ?? ""}
-            onChange={(event) => setDraft({ ...draft, description: event.target.value })}
-            placeholder="Descrição (opcional)"
-            rows={2}
+          <PackageApplicabilityField
+            packages={packageOptions}
+            selectedIds={draft.packageIds ?? []}
+            onChange={(packageIds) => setDraft({ ...draft, packageIds })}
           />
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <select
-              value={draft.category}
-              onChange={(event) =>
-                setDraft({ ...draft, category: event.target.value as AdditionalCategory })
-              }
-              className="rounded-lg border border-border/60 bg-background/50 p-2.5 text-sm text-foreground"
-            >
-              {(Object.keys(additionalCategoryLabels) as AdditionalCategory[]).map((key) => (
-                <option key={key} value={key}>
-                  {additionalCategoryLabels[key]}
-                </option>
-              ))}
-            </select>
-            <select
-              value={draft.type}
-              onChange={(event) =>
-                setDraft({ ...draft, type: event.target.value as AdditionalBillingType })
-              }
-              className="rounded-lg border border-border/60 bg-background/50 p-2.5 text-sm text-foreground"
-            >
-              {(Object.keys(additionalBillingTypeLabels) as AdditionalBillingType[]).map((key) => (
-                <option key={key} value={key}>
-                  {additionalBillingTypeLabels[key]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={draft.isRequired ?? false}
-              onCheckedChange={(checked) => setDraft({ ...draft, isRequired: checked === true })}
-            />
-            Obrigatório no formulário
-          </label>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setIsCreating(false)}>
               Cancelar
@@ -335,8 +331,10 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {isLoading && <p className="text-sm text-muted-foreground">Carregando adicionais...</p>}
-        {!isLoading && additionals.length === 0 && (
+        {(isLoading || isPackagesLoading) && (
+          <p className="text-sm text-muted-foreground">Carregando adicionais...</p>
+        )}
+        {!isLoading && !isPackagesLoading && additionals.length === 0 && (
           <div className="rounded-xl border border-dashed border-border/60 p-8 text-center md:col-span-2 lg:col-span-3">
             <p className="text-sm text-muted-foreground">Nenhum adicional cadastrado.</p>
           </div>
@@ -358,27 +356,19 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 bg-primary/10 text-primary">
                     {additionalBillingTypeLabels[item.type]}
                   </span>
-                  {item.isRequired && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 bg-amber-500/10 text-amber-700 dark:text-amber-400">
-                      Obrigatório
-                    </span>
-                  )}
                   {isInactive && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 bg-muted text-muted-foreground">
                       Inativo
                     </span>
                   )}
                 </div>
-                {item.description && (
-                  <p className="text-xs text-muted-foreground mb-1.5 line-clamp-2">{item.description}</p>
-                )}
-                <div className="flex items-center gap-2">
-                  <span className="text-base font-bold text-foreground">
+                <div className="space-y-1">
+                  <span className="text-base font-bold text-foreground block">
                     {formatCurrency(item.price)}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    {additionalCategoryLabels[item.category] ?? item.category}
-                  </span>
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {formatPackageLabels(item.packageIds, packageOptions)}
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col gap-1 shrink-0">
@@ -476,6 +466,7 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
       <AdditionalEditorDialog
         additional={editingAdditional}
         open={Boolean(editingAdditional)}
+        packages={packageOptions}
         onClose={() => setEditingAdditional(null)}
         onSaved={() => setEditingAdditional(null)}
       />

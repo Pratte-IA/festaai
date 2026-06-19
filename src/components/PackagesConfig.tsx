@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useCreateTenantPackage,
   useDeleteTenantPackage,
@@ -11,9 +11,10 @@ import {
   emptyEstruturaBlock,
 } from "@/features/configuracoes";
 import type { PackageData } from "@/data/packagesData";
-import { useCurrentTenant } from "@/features/tenants";
 import PackageWizard from "./PackageWizard";
-import { formatEquipeForTier, getEquipeQuantity } from "@/data/packagesData";
+import { useCurrentTenant } from "@/features/tenants";
+import { formatDurationMinutes } from "@/lib/duration";
+import { formatEquipeForTier, getEquipeQuantity, packageHasBuffet } from "@/data/packagesData";
 import { getTierBandPrice } from "@/data/pricing-schedule";
 import {
   Users,
@@ -36,13 +37,24 @@ const formatCurrency = (value: number) =>
 
 interface Props {
   adminMode?: boolean;
+  guidedMode?: boolean;
   hideHeader?: boolean;
+  onGuidedContinue?: () => void;
+  guidedContinuePending?: boolean;
+  onWizardStateChange?: (state: { isOpen: boolean; isLastStep: boolean }) => void;
 }
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Erro desconhecido.";
 
-const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
+const PackagesConfig = ({
+  adminMode = false,
+  guidedMode = false,
+  hideHeader,
+  onGuidedContinue,
+  guidedContinuePending = false,
+  onWizardStateChange,
+}: Props) => {
   const { currentTenantId, isLoading: isTenantLoading } = useCurrentTenant();
   const {
     data: packages = [],
@@ -59,9 +71,21 @@ const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [packageToEdit, setPackageToEdit] = useState<PackageData | null>(null);
 
+  const [wizardStepIndex, setWizardStepIndex] = useState(0);
+  const wizardLastStepIndex = 3;
+
+  useEffect(() => {
+    if (!guidedMode) return;
+    onWizardStateChange?.({
+      isOpen: wizardOpen,
+      isLastStep: wizardOpen && wizardStepIndex === wizardLastStepIndex,
+    });
+  }, [guidedMode, onWizardStateChange, wizardOpen, wizardStepIndex]);
+
   const closeWizard = () => {
     setWizardOpen(false);
     setPackageToEdit(null);
+    setWizardStepIndex(0);
   };
 
   const openCreateWizard = () => {
@@ -77,18 +101,29 @@ const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
   const { data: tenantEstrutura, isLoading: isLoadingEstrutura } = useTenantEstruturaSettings();
   const isLoading = isTenantLoading || isPackagesLoading;
 
+  useEffect(() => {
+    if (!guidedMode || isLoading || wizardOpen || packages.length > 0) return;
+    openCreateWizard();
+  }, [guidedMode, isLoading, packages.length, wizardOpen]);
+
   const toggleExpand = (id: string) => {
     setExpandedPkg(expandedPkg === id ? null : id);
   };
 
   if (wizardOpen) {
     if (isLoadingEstrutura) {
-      return <p className="text-sm text-muted-foreground">Carregando estrutura...</p>;
+      return <p className="text-sm text-muted-foreground">Carregando assistente...</p>;
     }
     return (
       <PackageWizard
+        key={packageToEdit?.id ?? "create"}
         tenantEstrutura={tenantEstrutura ?? emptyEstruturaBlock()}
+        otherPackages={packages.filter((item) => item.id !== packageToEdit?.id)}
         initialPackage={packageToEdit ?? undefined}
+        guidedMode={guidedMode}
+        guidedContinuePending={guidedContinuePending}
+        onGuidedContinue={onGuidedContinue}
+        onStepChange={setWizardStepIndex}
         onCancel={closeWizard}
         onValidationError={(message) =>
           toast({
@@ -97,7 +132,7 @@ const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
             variant: "destructive",
           })
         }
-        onSave={async (pkg) => {
+        onSave={async (pkg, options) => {
           if (!currentTenantId) {
             toast({
               title: "Empresa ainda nao carregada",
@@ -107,27 +142,41 @@ const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
             return;
           }
 
-          const isEditing = Boolean(packageToEdit);
+          const close = options?.close ?? true;
+          const persistedId = packageToEdit?.id;
+
           try {
-            if (isEditing) {
-              await updatePackage.mutateAsync(pkg);
-              toast({
-                title: "Pacote atualizado",
-                description: "As alteracoes foram salvas com sucesso.",
-              });
-            } else {
-              const { id: _id, ...packageInput } = pkg;
-              await createPackage.mutateAsync(packageInput);
+            if (persistedId) {
+              const savedPackage = { ...pkg, id: persistedId };
+              await updatePackage.mutateAsync(savedPackage);
+              if (close) {
+                toast({
+                  title: "Pacote atualizado",
+                  description: "As alteracoes foram salvas com sucesso.",
+                });
+                closeWizard();
+              }
+              return savedPackage;
+            }
+
+            const { id: _id, ...packageInput } = pkg;
+            const created = await createPackage.mutateAsync(packageInput);
+            const savedPackage = { ...pkg, id: created.id };
+            setPackageToEdit(savedPackage);
+
+            if (close) {
               toast({
                 title: "Pacote salvo",
                 description: "O pacote foi adicionado as configuracoes.",
               });
+              closeWizard();
             }
-            closeWizard();
+
+            return savedPackage;
           } catch (error) {
             console.error("[PackagesConfig] Falha ao salvar pacote:", error);
             toast({
-              title: isEditing ? "Nao foi possivel atualizar o pacote" : "Nao foi possivel salvar o pacote",
+              title: persistedId ? "Nao foi possivel atualizar o pacote" : "Nao foi possivel salvar o pacote",
               description: getErrorMessage(error),
               variant: "destructive",
             });
@@ -218,7 +267,7 @@ const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
                     {pkg.durationMinutes ? (
                       <>
                         <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-                        <span>{pkg.durationMinutes} min</span>
+                        <span>{formatDurationMinutes(pkg.durationMinutes)}</span>
                       </>
                     ) : null}
                     <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
@@ -439,6 +488,10 @@ const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
                         <UtensilsCrossed className="w-4 h-4 text-coral" />
                         Buffet
                       </div>
+                      {!packageHasBuffet(pkg.buffet) ? (
+                        <p className="text-sm text-muted-foreground italic">Buffet não incluso</p>
+                      ) : (
+                        <>
                       <div>
                         <p className="text-xs font-medium text-muted-foreground mb-1.5">Salgados</p>
                         <div className="flex flex-wrap gap-1">
@@ -475,6 +528,8 @@ const PackagesConfig = ({ adminMode = false, hideHeader }: Props) => {
                           ))}
                         </div>
                       </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Equipe */}

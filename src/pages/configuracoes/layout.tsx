@@ -5,7 +5,11 @@ import AppLayout from "@/components/AppLayout";
 const SEGMENT_META: Record<string, { title: string; description: string }> = {
   pacotes: {
     title: "Pacotes",
-    description: "Catálogo, buffet, equipe, faixas de preço e adicionais",
+    description: "Catálogo, buffet, equipe e faixas de preço",
+  },
+  adicionais: {
+    title: "Adicionais",
+    description: "Itens extras opcionais compartilhados entre todos os pacotes",
   },
   estrutura: {
     title: "Estrutura",

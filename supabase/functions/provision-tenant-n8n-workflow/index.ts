@@ -45,8 +45,8 @@ Deno.serve(async (req) => {
         folderEditorUrl: result.folderEditorUrl,
         folderId: result.folderId,
         message: result.skipped
-          ? "Pasta N8N já provisionada para este tenant."
-          : "Pasta Templates clonada em rascunho. Personalize no N8N, publique manualmente e só então ative a automação no FestaAi.",
+          ? "Workflows N8N já provisionados para este tenant."
+          : "Templates clonados em rascunho. Personalize no N8N, publique manualmente e só então ative a automação no FestaAi.",
         provisionStatus: result.provisionStatus,
         skipped: result.skipped ?? false,
         webhookUrl: result.webhookUrl,

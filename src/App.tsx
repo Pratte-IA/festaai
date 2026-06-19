@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, PlatformAdminRoute, ProtectedRoute } from "@/features/auth";
+import { GuidedSetupProvider } from "@/features/guided-setup";
 import { TenantAdminRoute, TenantProvider } from "@/features/tenants";
 
 const Admin = lazy(() => import("./pages/Admin.tsx"));
@@ -25,6 +26,7 @@ const ConfiguracoesFormularioContratacao = lazy(
 );
 const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
+const ConfiguracoesAdicionais = lazy(() => import("./pages/configuracoes/Adicionais"));
 const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"));
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
@@ -41,6 +43,7 @@ const SuporteDetalhe = lazy(() => import("./pages/SuporteDetalhe.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
 const NovaSenha = lazy(() => import("./pages/NovaSenha.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const ConfiguracaoInicial = lazy(() => import("./pages/ConfiguracaoInicial.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -58,8 +61,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Suspense fallback={<RouteLoader />}>
-              <Routes>
+            <GuidedSetupProvider>
+              <Suspense fallback={<RouteLoader />}>
+                <Routes>
                 <Route
                   path="/admin/agent-requests/:id"
                   element={
@@ -151,6 +155,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/configuracao-inicial"
+                  element={
+                    <ProtectedRoute>
+                      <ConfiguracaoInicial />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/"
                   element={
                     <ProtectedRoute>
@@ -224,6 +236,7 @@ const App = () => (
                 >
                   <Route index element={<ConfiguracoesHome />} />
                   <Route path="pacotes" element={<ConfiguracoesPacotes />} />
+                  <Route path="adicionais" element={<ConfiguracoesAdicionais />} />
                   <Route path="estrutura" element={<ConfiguracoesEstrutura />} />
                   <Route path="checklist" element={<ConfiguracoesChecklist />} />
                   <Route
@@ -258,8 +271,9 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/nova-senha" element={<NovaSenha />} />
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+                </Routes>
+              </Suspense>
+            </GuidedSetupProvider>
           </BrowserRouter>
         </TooltipProvider>
       </TenantProvider>

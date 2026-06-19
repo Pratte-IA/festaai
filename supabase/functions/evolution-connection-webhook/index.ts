@@ -7,6 +7,7 @@ import {
   parseEvolutionMessages,
   shouldSkipMessage,
 } from "../_shared/evolution-message.ts";
+import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
 
 type AuthStatus = "valid" | "invalid" | "missing" | "disabled";
@@ -208,6 +209,17 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
     if (skipReason) {
       await logWebhookIngest(ctx, "skipped", `Mensagem ignorada: ${skipReason}.`);
       continue;
+    }
+
+    try {
+      await ensureVendasLeadFromWhatsapp(ctx.service, {
+        customerName: message.customerName,
+        customerPhone: message.customerPhone as string,
+        tenantId: tenant.id,
+      });
+    } catch (leadError) {
+      const leadMessage = leadError instanceof Error ? leadError.message : "Erro ao garantir lead em Vendas.";
+      await logWebhookIngest(ctx, "skipped", `Lead não criado: ${leadMessage}`);
     }
 
     if (!canForward) {

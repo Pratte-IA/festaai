@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import AppLayout from "@/components/AppLayout";
+import { ContractModuleGate } from "@/components/contracts/ContractModuleGate";
 import { ContractAcceptanceDialog } from "@/components/eventos/ContractAcceptanceDialog";
 import { ContractDocumentView } from "@/components/contracts/ContractDocumentView";
 import { ContractStatusBadge } from "@/features/eventos/contracts/contract-status";
@@ -140,9 +141,11 @@ const ContratoDetalhe = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-          Carregando contrato...
-        </div>
+        <ContractModuleGate>
+          <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+            Carregando contrato...
+          </div>
+        </ContractModuleGate>
       </AppLayout>
     );
   }
@@ -150,21 +153,24 @@ const ContratoDetalhe = () => {
   if (error || !contract) {
     return (
       <AppLayout>
-        <div className="space-y-4">
-          <Button variant="ghost" className="gap-2" onClick={() => navigate("/contratos")}>
-            <ArrowLeft className="h-4 w-4" />
-            Voltar
-          </Button>
-          <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-            Contrato não encontrado ou indisponível.
+        <ContractModuleGate>
+          <div className="space-y-4">
+            <Button variant="ghost" className="gap-2" onClick={() => navigate("/contratos")}>
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </Button>
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+              Contrato não encontrado ou indisponível.
+            </div>
           </div>
-        </div>
+        </ContractModuleGate>
       </AppLayout>
     );
   }
 
   return (
     <AppLayout>
+      <ContractModuleGate>
       <div className="mb-6 space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate("/contratos")}>
@@ -341,6 +347,7 @@ const ContratoDetalhe = () => {
           onSuccess={() => navigate(`/contratos/${contract.id}`, { replace: true })}
         />
       )}
+      </ContractModuleGate>
     </AppLayout>
   );
 };

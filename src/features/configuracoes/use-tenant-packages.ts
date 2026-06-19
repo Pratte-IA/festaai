@@ -15,7 +15,9 @@ import {
 } from "@/data/packagesData";
 
 import { configuracoesQueryKeys } from "./query-keys";
+import { guidedSetupQueryKeys } from "@/features/guided-setup/query-keys";
 import { seedDefaultChecklistForPackage } from "./seed-default-checklist";
+import { syncTenantAdditionals } from "./sync-tenant-additionals";
 
 type PackageInput = Omit<PackageData, "id">;
 type AdditionalInput = Omit<Additional, "id">;
@@ -44,10 +46,17 @@ type AdditionalRow = {
   id: number;
   is_required: boolean;
   name: string;
+  package_ids: number[] | null;
   price: number;
   sort_order: number;
   type: string;
 };
+
+const mapPackageIds = (packageIds: number[] | null | undefined): string[] =>
+  (packageIds ?? []).map(String);
+
+const serializePackageIds = (packageIds: string[] | undefined): number[] =>
+  (packageIds ?? []).map(Number).filter((id) => Number.isFinite(id) && id > 0);
 
 const mapPackageRow = (row: PackageRow): PackageData => {
   const { schedule, tiers } = normalizePackagePricing(row.pricing_tiers);
@@ -78,6 +87,7 @@ const mapAdditionalRow = (row: AdditionalRow): Additional => ({
   id: String(row.id),
   isRequired: row.is_required,
   name: row.name,
+  packageIds: mapPackageIds(row.package_ids),
   price: row.price,
   sortOrder: row.sort_order,
   type: row.type as Additional["type"],
@@ -97,6 +107,7 @@ const invalidatePackages = (
 ) => {
   void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.packages(tenantId) });
   void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.packagesAdmin(tenantId) });
+  void queryClient.invalidateQueries({ queryKey: guidedSetupQueryKeys.derived(tenantId) });
 };
 
 const invalidateAdditionals = (
@@ -214,6 +225,8 @@ export const useCreateTenantPackage = () => {
       if (!data?.id) throw new Error("Pacote nao foi persistido no banco de dados.");
 
       await seedDefaultChecklistForPackage(currentTenantId, data.id, user.id);
+
+      return { id: String(data.id) };
     },
     onSuccess: () => invalidatePackages(queryClient, currentTenantId),
   });
@@ -446,8 +459,9 @@ export const useCreateTenantAdditional = () => {
         category: additional.category,
         created_by: user.id,
         description: additional.description?.trim() || null,
-        is_required: additional.isRequired ?? false,
+        is_required: false,
         name: additional.name.trim(),
+        package_ids: serializePackageIds(additional.packageIds),
         price: additional.price,
         sort_order: nextSortOrder,
         tenant_id: currentTenantId,
@@ -476,8 +490,9 @@ export const useUpdateTenantAdditional = () => {
           active: additional.active ?? true,
           category: additional.category,
           description: additional.description?.trim() || null,
-          is_required: additional.isRequired ?? false,
+          is_required: false,
           name: additional.name.trim(),
+          package_ids: serializePackageIds(additional.packageIds),
           price: additional.price,
           sort_order: additional.sortOrder ?? 0,
           type: additional.type,
@@ -528,6 +543,34 @@ export const useDeleteTenantAdditional = () => {
         .eq("id", Number(additionalId));
 
       if (error) throw error;
+    },
+    onSuccess: () => invalidateAdditionals(queryClient, currentTenantId),
+  });
+};
+
+export const useSyncTenantAdditionals = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({
+      desired,
+      existing,
+    }: {
+      desired: Additional[];
+      existing: Additional[];
+    }) => {
+      if (!currentTenantId || !user) {
+        throw new Error("Sessao ou tenant atual indisponivel.");
+      }
+
+      return syncTenantAdditionals({
+        desired,
+        existing,
+        tenantId: currentTenantId,
+        userId: user.id,
+      });
     },
     onSuccess: () => invalidateAdditionals(queryClient, currentTenantId),
   });

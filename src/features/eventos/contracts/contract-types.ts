@@ -1,3 +1,5 @@
+import type { ContractTemplateKey } from "./contract-template-types";
+
 export type EventoContractStatus =
   | "accepted"
   | "cancelled"
@@ -12,6 +14,7 @@ export interface TenantContractTemplate {
   isDefault: boolean;
   name: string;
   templateHtml: string;
+  templateKey: ContractTemplateKey | null;
   version: number;
 }
 

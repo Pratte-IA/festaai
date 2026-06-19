@@ -17,6 +17,7 @@ import {
   buildContract,
   buildContractNumber,
 } from "./contracts/contract-builder";
+import { parseTenantContractTemplateParams } from "./contracts/contract-template-params";
 import {
   CONTRACT_ACCEPTANCE_DECLARATION,
   type AcceptEventoContractInput,
@@ -25,6 +26,15 @@ import {
   type EventoContractStatus,
   type TenantContractTemplate,
 } from "./contracts/contract-types";
+import {
+  isContractTemplateKey,
+} from "./contracts/contract-template-types";
+import {
+  mapAcceptanceRow,
+  mapContractRow,
+  type AcceptanceRow,
+  type ContractRow,
+} from "./contracts/contract-mappers";
 import { eventosQueryKeys } from "./query-keys";
 import { Evento } from "./types";
 
@@ -74,15 +84,9 @@ type TemplateRow = {
   is_default: boolean;
   name: string;
   template_html: string;
+  template_key: string | null;
   version: number;
 };
-
-import {
-  mapAcceptanceRow,
-  mapContractRow,
-  type AcceptanceRow,
-  type ContractRow,
-} from "./contracts/contract-mappers";
 
 const mapTemplateRow = (row: TemplateRow): TenantContractTemplate => ({
   description: row.description,
@@ -91,6 +95,7 @@ const mapTemplateRow = (row: TemplateRow): TenantContractTemplate => ({
   isDefault: row.is_default,
   name: row.name,
   templateHtml: row.template_html,
+  templateKey: row.template_key && isContractTemplateKey(row.template_key) ? row.template_key : null,
   version: row.version,
 });
 
@@ -176,6 +181,8 @@ export const useGenerateEventoContract = () => {
         financialResult,
         existingContractsResult,
         pendingGeneratedResult,
+        companyProfileResult,
+        moduleSettingsResult,
       ] = await Promise.all([
         supabase
           .from("tenant_contract_templates")
@@ -220,6 +227,18 @@ export const useGenerateEventoContract = () => {
           .eq("tenant_id", currentTenantId)
           .eq("evento_id", evento.id)
           .eq("status", "generated")
+          .maybeSingle(),
+        supabase
+          .from("tenant_company_profiles")
+          .select(
+            "tenant_id, company_name, cnpj, address_cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state, legal_representative_name, legal_representative_cpf, completed_at",
+          )
+          .eq("tenant_id", currentTenantId)
+          .maybeSingle(),
+        supabase
+          .from("tenant_contract_module_settings")
+          .select("template_params")
+          .eq("tenant_id", currentTenantId)
           .maybeSingle(),
       ]);
 
@@ -283,8 +302,8 @@ export const useGenerateEventoContract = () => {
 
       const sequence = (existingContractsResult.count ?? 0) + 1;
       const contractNumber = buildContractNumber(currentTenantId, evento.id, sequence);
-
       const template = mapTemplateRow(templateResult.data as TemplateRow);
+
       const built = await buildContract({
         acceptanceResponses,
         acceptanceTerms: (acceptanceTermsResult.data ?? []).map((row) => ({
@@ -324,11 +343,31 @@ export const useGenerateEventoContract = () => {
           },
         })),
         closingResponses,
+        companyProfile: companyProfileResult.data
+          ? {
+              addressCity: companyProfileResult.data.address_city,
+              addressComplement: companyProfileResult.data.address_complement,
+              addressNeighborhood: companyProfileResult.data.address_neighborhood,
+              addressNumber: companyProfileResult.data.address_number,
+              addressState: companyProfileResult.data.address_state,
+              addressStreet: companyProfileResult.data.address_street,
+              addressCep: companyProfileResult.data.address_cep,
+              cnpj: companyProfileResult.data.cnpj,
+              companyName: companyProfileResult.data.company_name,
+              completedAt: companyProfileResult.data.completed_at,
+              legalRepresentativeCpf: companyProfileResult.data.legal_representative_cpf,
+              legalRepresentativeName: companyProfileResult.data.legal_representative_name,
+              tenantId: companyProfileResult.data.tenant_id,
+            }
+          : null,
         contractNumber,
         evento,
         financialSettings,
         packageData,
         templateHtml: template.templateHtml,
+        templateParams: parseTenantContractTemplateParams(
+          moduleSettingsResult.data?.template_params,
+        ),
       });
 
       const { data, error } = await supabase

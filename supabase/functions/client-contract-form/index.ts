@@ -180,7 +180,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
         .order("sort_order", { ascending: true }),
       admin
         .from("tenant_additionals")
-        .select("id, name, description, category, type, price, active, sort_order, is_required")
+        .select("id, name, description, category, type, price, active, sort_order, is_required, package_ids")
         .eq("tenant_id", tenant.id)
         .eq("active", true)
         .order("sort_order", { ascending: true }),
@@ -219,8 +219,9 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
       category: item.category,
       description: item.description,
       id: String(item.id),
-      isRequired: item.is_required,
+      isRequired: false,
       name: item.name,
+      packageIds: (item.package_ids ?? []).map(String),
       price: item.price,
       sortOrder: item.sort_order,
       type: item.type,

@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   additionalBillingTypeLabels,
   additionalCategoryLabels,
+  isAdditionalApplicableToPackage,
   type PackageData,
 } from "@/data/packagesData";
 import {
@@ -101,6 +102,14 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
     [config.paymentMethods],
   );
 
+  const applicableAdditionals = useMemo(
+    () =>
+      config.additionals.filter((item) =>
+        isAdditionalApplicableToPackage(item, selectedPackageId),
+      ),
+    [config.additionals, selectedPackageId],
+  );
+
   const syncFinancialFields = (nextValues: Record<string, string>, pacoteValue?: number) =>
     recalculateFinancialTotals(nextValues, fieldIdByKey, { pacoteValue });
 
@@ -144,11 +153,30 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
     setSelectedPackageId(pkg.id);
     const guestCount = resolveGuestCount(EMPTY_EVENTO, fieldValues, fieldIdByKey);
 
-    setFieldValues((previous) => {
-      const withPackage = applyPackageToFieldValues(pkg, guestCount, previous, fieldIdByKey);
-      const pacoteValue =
-        guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
-      return syncFinancialFields(withPackage, pacoteValue);
+    setAdditionalSelections((previous) => {
+      const next = new Map(
+        [...previous.entries()].filter(([id]) =>
+          isAdditionalApplicableToPackage(
+            config.additionals.find((item) => item.id === id) ?? { packageIds: [] },
+            pkg.id,
+          ),
+        ),
+      );
+
+      const snapshot = buildAdicionaisSnapshot(config.additionals, next, guestCount);
+      const total = getAdditionalsTotal(snapshot);
+
+      setFieldValues((fieldPrevious) => {
+        const withPackage = applyPackageToFieldValues(pkg, guestCount, fieldPrevious, fieldIdByKey);
+        const pacoteValue =
+          guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+        const fieldNext = syncFinancialFields(withPackage, pacoteValue);
+        const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
+        if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
+        return fieldNext;
+      });
+
+      return next;
     });
   };
 
@@ -181,7 +209,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       case "pacote":
         return config.packages.length > 0;
       case "adicionais":
-        return config.additionals.length > 0;
+        return applicableAdditionals.length > 0;
       case "pagamento":
         return config.paymentMethods.length > 0 || Boolean(config.financialSettings);
       case "aceites":
@@ -461,7 +489,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
                 )}
 
                 {section === "adicionais" &&
-                  config.additionals.map((item) => {
+                  applicableAdditionals.map((item) => {
                     const isSelected = additionalSelections.has(item.id);
                     return (
                       <label

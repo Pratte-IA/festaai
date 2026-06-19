@@ -1,12 +1,18 @@
 import type { ClosingFormField } from "@/features/configuracoes/closing-form-types";
 import type { FinancialSettings } from "@/features/configuracoes/financial-settings-types";
 import type { TenantAcceptanceTerm } from "@/features/configuracoes/acceptance-term-types";
-import type { Evento } from "@/features/eventos/types";
-import { parsePackageItems } from "@/data/packagesData";
 import type { PackageData } from "@/data/packagesData";
+import type { Evento } from "@/features/eventos/types";
+import type { TenantCompanyProfile } from "@/features/guided-setup/types";
+import { parsePackageItems } from "@/data/packagesData";
 
 import { parseAdicionaisSnapshot } from "../closing-form-runtime";
 import { hashContractContent } from "./contract-hash";
+import {
+  buildContractTenantPlaceholders,
+  defaultTenantContractTemplateParams,
+  type TenantContractTemplateParams,
+} from "./contract-template-params";
 import {
   EMPTY_PLACEHOLDER,
   type ContractSnapshot,
@@ -57,11 +63,13 @@ export interface ContractBuildInput {
   acceptanceTerms: TenantAcceptanceTerm[];
   closingFields: ClosingFormField[];
   closingResponses: Record<string, string>;
+  companyProfile?: TenantCompanyProfile | null;
   contractNumber: string;
   evento: Evento;
   financialSettings: FinancialSettings;
   packageData: PackageData | null;
   templateHtml: string;
+  templateParams?: TenantContractTemplateParams;
 }
 
 export interface ContractBuildResult {
@@ -183,7 +191,7 @@ export const buildPlaceholderMap = (
 ): Record<string, string> => {
   const { evento } = input;
 
-  return {
+  const eventPlaceholders = {
     aceites: formatAceitesBlock(snapshot.aceites),
     adicionais_contratados: formatAdditionalsBlock(snapshot.adicionais),
     aniversariante_data_nascimento: formatDate(evento.aniversariante_data_nascimento),
@@ -233,6 +241,19 @@ export const buildPlaceholderMap = (
     valor_pacote: formatCurrency(evento.valor_pacote),
     valor_saldo: formatCurrency(evento.valor_saldo),
     valor_total: formatCurrency(evento.valor_total),
+  };
+
+  const tenantPlaceholders = buildContractTenantPlaceholders({
+    companyProfile: input.companyProfile,
+    evento,
+    financialSettings: input.financialSettings,
+    packageData: input.packageData,
+    params: input.templateParams ?? defaultTenantContractTemplateParams(),
+  });
+
+  return {
+    ...tenantPlaceholders,
+    ...eventPlaceholders,
   };
 };
 

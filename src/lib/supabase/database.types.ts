@@ -1203,6 +1203,7 @@ export type Database = {
           id: number;
           is_required: boolean;
           name: string;
+          package_ids: number[];
           price: number;
           sort_order: number;
           tenant_id: number;
@@ -1219,6 +1220,7 @@ export type Database = {
           id?: number;
           is_required?: boolean;
           name: string;
+          package_ids?: number[];
           price?: number;
           sort_order?: number;
           tenant_id: number;
@@ -1235,6 +1237,7 @@ export type Database = {
           id?: number;
           is_required?: boolean;
           name?: string;
+          package_ids?: number[];
           price?: number;
           sort_order?: number;
           tenant_id?: number;
@@ -1367,6 +1370,74 @@ export type Database = {
           },
         ];
       };
+      tenant_company_profiles: {
+        Row: {
+          address_city: string | null;
+          address_complement: string | null;
+          address_neighborhood: string | null;
+          address_number: string | null;
+          address_state: string | null;
+          address_street: string | null;
+          address_cep: string | null;
+          cnpj: string | null;
+          company_name: string | null;
+          completed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          legal_representative_cpf: string | null;
+          legal_representative_name: string | null;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          address_city?: string | null;
+          address_complement?: string | null;
+          address_neighborhood?: string | null;
+          address_number?: string | null;
+          address_state?: string | null;
+          address_street?: string | null;
+          address_cep?: string | null;
+          cnpj?: string | null;
+          company_name?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          legal_representative_cpf?: string | null;
+          legal_representative_name?: string | null;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          address_city?: string | null;
+          address_complement?: string | null;
+          address_neighborhood?: string | null;
+          address_number?: string | null;
+          address_state?: string | null;
+          address_street?: string | null;
+          address_cep?: string | null;
+          cnpj?: string | null;
+          company_name?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          legal_representative_cpf?: string | null;
+          legal_representative_name?: string | null;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_company_profiles_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: true;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       tenant_closing_form_fields: {
         Row: {
           active: boolean;
@@ -1466,6 +1537,7 @@ export type Database = {
           is_default: boolean;
           name: string;
           template_html: string;
+          template_key: string;
           tenant_id: number;
           updated_at: string;
           updated_by: string | null;
@@ -1480,6 +1552,7 @@ export type Database = {
           is_default?: boolean;
           name: string;
           template_html: string;
+          template_key: string;
           tenant_id: number;
           updated_at?: string;
           updated_by?: string | null;
@@ -1494,6 +1567,7 @@ export type Database = {
           is_default?: boolean;
           name?: string;
           template_html?: string;
+          template_key?: string;
           tenant_id?: number;
           updated_at?: string;
           updated_by?: string | null;
@@ -1502,6 +1576,91 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenant_contract_templates_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_contract_module_settings: {
+        Row: {
+          default_template_key: string | null;
+          models_configured_at: string | null;
+          template_params: Json;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          default_template_key?: string | null;
+          models_configured_at?: string | null;
+          template_params?: Json;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          default_template_key?: string | null;
+          models_configured_at?: string | null;
+          template_params?: Json;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_contract_module_settings_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: true;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_contract_module_acceptances: {
+        Row: {
+          accepted_at: string;
+          accepted_by_cpf: string | null;
+          accepted_by_email: string | null;
+          accepted_by_name: string;
+          accepted_by_user_id: string;
+          acceptance_text: string;
+          created_at: string;
+          id: number;
+          tenant_id: number;
+          terms_version: number;
+          user_agent: string | null;
+        };
+        Insert: {
+          accepted_at?: string;
+          accepted_by_cpf?: string | null;
+          accepted_by_email?: string | null;
+          accepted_by_name: string;
+          accepted_by_user_id: string;
+          acceptance_text: string;
+          created_at?: string;
+          id?: number;
+          tenant_id: number;
+          terms_version: number;
+          user_agent?: string | null;
+        };
+        Update: {
+          accepted_at?: string;
+          accepted_by_cpf?: string | null;
+          accepted_by_email?: string | null;
+          accepted_by_name?: string;
+          accepted_by_user_id?: string;
+          acceptance_text?: string;
+          created_at?: string;
+          id?: number;
+          tenant_id?: number;
+          terms_version?: number;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_contract_module_acceptances_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: false;
             referencedRelation: "tenants";
@@ -1778,6 +1937,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenant_financial_settings_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: true;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenant_guided_setup_progress: {
+        Row: {
+          completed_at: string | null;
+          completed_steps: string[];
+          current_step: string;
+          tenant_id: number;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          completed_at?: string | null;
+          completed_steps?: string[];
+          current_step?: string;
+          tenant_id: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          completed_at?: string | null;
+          completed_steps?: string[];
+          current_step?: string;
+          tenant_id?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenant_guided_setup_progress_tenant_id_fkey";
             columns: ["tenant_id"];
             isOneToOne: true;
             referencedRelation: "tenants";
