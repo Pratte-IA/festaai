@@ -205,6 +205,7 @@ const mapPublicTerm = (term: Record<string, unknown>) => ({
   showAtSigning: Boolean(term.show_at_signing),
   showInForm: Boolean(term.show_in_form),
   sortOrder: Number(term.sort_order ?? 0),
+  termKey: typeof term.term_key === "string" ? term.term_key : null,
   title: String(term.title),
 });
 
@@ -330,6 +331,7 @@ const generateEventoContractForPublicFlow = async (
       content: row.content,
       id: row.id,
       showInForm: row.show_in_form ?? true,
+      termKey: row.term_key ?? null,
       title: row.title,
     })),
     closingFields: (closingFieldsResult.data ?? []).map((row) => ({
@@ -389,7 +391,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
       admin
         .from("tenant_acceptance_terms")
         .select(
-          "id, title, content, is_required, active, sort_order, appears_in_contract, show_in_form, show_at_signing",
+          "id, title, content, is_required, active, sort_order, appears_in_contract, show_in_form, show_at_signing, term_key",
         )
         .eq("tenant_id", tenant.id)
         .eq("active", true)
@@ -625,15 +627,13 @@ const handleSubmit = async (
 
   if (payload.acceptanceResponses.length > 0) {
     const { error: acceptanceError } = await admin.from("evento_acceptance_responses").upsert(
-      payload.acceptanceResponses
-        .filter((response) => response.accepted)
-        .map((response) => ({
-          accepted: true,
-          accepted_at: now,
-          evento_id: matchedEvento.id,
-          tenant_id: tenant.id,
-          term_id: response.termId,
-        })),
+      payload.acceptanceResponses.map((response) => ({
+        accepted: response.accepted,
+        accepted_at: now,
+        evento_id: matchedEvento.id,
+        tenant_id: tenant.id,
+        term_id: response.termId,
+      })),
       { onConflict: "evento_id,term_id" },
     );
 

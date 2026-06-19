@@ -47,3 +47,18 @@ export const defaultPaymentMethodInput = (): TenantPaymentMethodInput => ({
   paymentType: "pix",
   sortOrder: 0,
 });
+
+/** Tipos não oferecidos ao cliente para pagamento do saldo restante. */
+export const EXCLUDED_BALANCE_PAYMENT_TYPES = new Set<PaymentMethodType>(["boleto"]);
+
+export const isEligibleBalancePaymentMethod = (
+  method: Pick<TenantPaymentMethod, "allowedForRemainingBalance" | "paymentType">,
+): boolean =>
+  method.allowedForRemainingBalance &&
+  !EXCLUDED_BALANCE_PAYMENT_TYPES.has(method.paymentType);
+
+export const filterBalancePaymentMethods = <
+  T extends Pick<TenantPaymentMethod, "allowedForRemainingBalance" | "paymentType">,
+>(
+  methods: T[],
+): T[] => methods.filter(isEligibleBalancePaymentMethod);

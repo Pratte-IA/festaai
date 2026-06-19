@@ -1,3 +1,5 @@
+import { isBrazilianNationalHoliday, parseIsoDateString } from "./brazilian-holidays";
+
 /** 0 = domingo … 6 = sábado (padrão JavaScript Date.getDay). */
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -137,6 +139,46 @@ export const getTierBandPrice = (
 export const getTierMinBandPrice = (bandPrices: Record<string, number>): number => {
   const values = Object.values(bandPrices).map((v) => Math.max(0, Number(v) || 0));
   return values.length > 0 ? Math.min(...values) : 0;
+};
+
+export const getWeekdayFromIsoDate = (dateStr: string): Weekday | null => {
+  const parts = parseIsoDateString(dateStr);
+  if (!parts) return null;
+
+  const date = new Date(parts.year, parts.month - 1, parts.day, 12, 0, 0, 0);
+  return date.getDay() as Weekday;
+};
+
+/** Escolhe a faixa de preço conforme dia da semana e feriado nacional. */
+export const resolvePricingBandForDate = (
+  schedule: PricingSchedule,
+  dateStr: string,
+  isHoliday: (date: string) => boolean = isBrazilianNationalHoliday,
+): PricingBand | null => {
+  const weekday = getWeekdayFromIsoDate(dateStr);
+  if (weekday == null || schedule.bands.length === 0) return null;
+
+  const holiday = isHoliday(dateStr);
+
+  if (holiday) {
+    const holidayBand = schedule.bands.find((band) => band.includesHolidays);
+    if (holidayBand) return holidayBand;
+
+    if (schedule.holidayPolicy === "weekend_band") {
+      const weekendBand = schedule.bands.find(
+        (band) => band.days.includes(6) || band.days.includes(0),
+      );
+      if (weekendBand) return weekendBand;
+    } else {
+      const weekdayBand = schedule.bands.find(
+        (band) => !band.days.includes(6) && !band.days.includes(0),
+      );
+      if (weekdayBand) return weekdayBand;
+    }
+  }
+
+  const dayBand = schedule.bands.find((band) => band.days.includes(weekday));
+  return dayBand ?? schedule.bands[0] ?? null;
 };
 
 /** Payload salvo em `tenant_packages.pricing_tiers` (novo formato). */

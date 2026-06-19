@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Loader2, PlugZap, Plus, QrCode, RefreshCw, Smartphone, Trash2 } from "lucide-react";
 
+import {
+  SettingsPageHeader,
+  SettingsStatChip,
+} from "@/components/configuracoes/SettingsPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +19,8 @@ import {
   type WhatsappConnectionStatus,
 } from "@/features/whatsapp-connections";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
 const statusLabels: Record<WhatsappConnectionStatus, string> = {
   connected: "Conectado",
@@ -129,6 +135,23 @@ const ConfiguracoesWhatsApp = () => {
   const deleteConnection = useDeleteWhatsappConnection();
 
   const connectedCount = connections.filter((connection) => connection.status === "connected").length;
+  const connectingCount = connections.filter((connection) => connection.status === "connecting").length;
+
+  const novaConexaoButton = (className?: string) => (
+    <Button
+      type="button"
+      onClick={() => void handleCreate()}
+      disabled={createConnection.isPending}
+      className={cn("shrink-0 gap-2", className)}
+    >
+      {createConnection.isPending ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Plus className="h-4 w-4" />
+      )}
+      Nova conexão
+    </Button>
+  );
 
   const handleCreate = async () => {
     const name = connectionName.trim();
@@ -195,7 +218,32 @@ const ConfiguracoesWhatsApp = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="max-w-4xl space-y-4">
+      <SettingsPageHeader
+        title={SETTINGS_PAGE_META["integracoes/whatsapp"].title}
+        description={SETTINGS_PAGE_META["integracoes/whatsapp"].description}
+        renderAction={(className) => novaConexaoButton(className)}
+        stats={
+          !isLoading ? (
+            <>
+              <SettingsStatChip>
+                {connectedCount}{" "}
+                {connectedCount === 1 ? "conexão ativa" : "conexões ativas"}
+              </SettingsStatChip>
+              <SettingsStatChip>
+                {connections.length}{" "}
+                {connections.length === 1 ? "instância cadastrada" : "instâncias cadastradas"}
+              </SettingsStatChip>
+              {connectingCount > 0 && (
+                <SettingsStatChip>
+                  {connectingCount} aguardando QR Code
+                </SettingsStatChip>
+              )}
+            </>
+          ) : null
+        }
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -223,19 +271,7 @@ const ConfiguracoesWhatsApp = () => {
               <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
               Atualizar
             </Button>
-            <Button
-              type="button"
-              onClick={() => void handleCreate()}
-              disabled={createConnection.isPending}
-              className="gap-2"
-            >
-              {createConnection.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-              Nova conexão
-            </Button>
+            {novaConexaoButton("hidden sm:inline-flex")}
           </div>
         </CardContent>
       </Card>

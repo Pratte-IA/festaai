@@ -31,9 +31,37 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  SettingsPageHeader,
+  SettingsStatChip,
+} from "@/components/configuracoes/SettingsPageHeader";
+import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
+const getPackageHeaderStats = (packages: PackageData[]) => {
+  const activePackages = packages.filter((pkg) => pkg.active !== false);
+  const tierCount = activePackages.reduce(
+    (sum, pkg) => sum + (pkg.pricingTiers?.length ?? 0),
+    0,
+  );
+  const maxGuests = activePackages.reduce((max, pkg) => {
+    const pkgMax = (pkg.pricingTiers ?? []).reduce(
+      (tierMax, tier) => Math.max(tierMax, tier.maxGuests ?? 0),
+      0,
+    );
+    return Math.max(max, pkgMax);
+  }, 0);
+
+  return {
+    activeCount: activePackages.length,
+    tierCount,
+    maxGuests,
+  };
+};
 
 interface Props {
   adminMode?: boolean;
@@ -186,31 +214,47 @@ const PackagesConfig = ({
     );
   }
 
+  const { activeCount, tierCount, maxGuests } = getPackageHeaderStats(packages);
+
+  const novoPacoteButton = (className?: string) => (
+    <Button
+      onClick={openCreateWizard}
+      disabled={isLoading || !currentTenantId}
+      className={cn("shrink-0", className)}
+    >
+      <Plus className="w-4 h-4" />
+      Novo Pacote
+    </Button>
+  );
+
   return (
-    <div className="space-y-5">
+    <div className={hideHeader ? "space-y-4" : "space-y-5"}>
       {!hideHeader && (
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground">Pacotes de Festa</h2>
-          <button
-            onClick={openCreateWizard}
-            disabled={isLoading || !currentTenantId}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4" /> Novo Pacote
-          </button>
+          {novoPacoteButton()}
         </div>
       )}
 
       {hideHeader && (
-        <div className="flex justify-end">
-          <button
-            onClick={openCreateWizard}
-            disabled={isLoading || !currentTenantId}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4" /> Novo Pacote
-          </button>
-        </div>
+        <SettingsPageHeader
+          title={SETTINGS_PAGE_META.pacotes.title}
+          description={SETTINGS_PAGE_META.pacotes.description}
+          renderAction={(className) => novoPacoteButton(className)}
+          stats={
+            !isLoading && !packagesError ? (
+              <>
+                <SettingsStatChip>
+                  {activeCount} {activeCount === 1 ? "pacote ativo" : "pacotes ativos"}
+                </SettingsStatChip>
+                <SettingsStatChip>
+                  {tierCount} {tierCount === 1 ? "faixa de preço" : "faixas de preço"}
+                </SettingsStatChip>
+                {maxGuests > 0 && <SettingsStatChip>até {maxGuests} convidados</SettingsStatChip>}
+              </>
+            ) : null
+          }
+        />
       )}
 
       <div className="space-y-3">

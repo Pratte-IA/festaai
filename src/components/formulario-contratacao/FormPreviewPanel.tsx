@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Eye, FileCheck2, Info, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,44 +23,34 @@ import {
   ClosingFormField,
   ClosingFormSection,
   closingFormSectionLabels,
-  downPaymentMethodLabels,
-  installmentLimitModeLabels,
   isFormPhaseTerm,
+  buildDefaultTermResponses,
   parseFieldConfig,
-  paymentMethodTypeLabels,
   useTenantAcceptanceTerms,
   useTenantAdditionals,
   useTenantClosingForm,
-  useTenantFinancialSettings,
   useTenantPackages,
   useTenantPaymentMethods,
-  type PaymentMethodType,
-  type TenantAcceptanceTerm,
 } from "@/features/configuracoes";
 import type { Evento } from "@/features/eventos/types";
 import { cn } from "@/lib/utils";
+import { resolvePricingBandForDate } from "@/data/pricing-schedule";
+import { isBrazilianNationalHoliday } from "@/data/brazilian-holidays";
+import { AcceptanceTermResponseField, setTermResponse } from "./AcceptanceTermResponseField";
 import {
   applyPackageToFieldValues,
   buildFieldIdByKey,
-  getPackageFromPrice,
-  getPackagePriceForGuests,
+  filterClientVisiblePaymentFields,
+  isClientFacingClosingFormField,
+  resolveEventDateFromFieldValues,
+  resolvePackagePrice,
   isClosingFormFieldApplicableToPackage,
   isHiddenPackageFieldKey,
   PACKAGE_SELECTOR_FIELD_KEY,
   recalculateFinancialTotals,
   resolveGuestCount,
 } from "@/features/eventos/closing-form-runtime";
-
-const PREVIEW_SECTIONS: ClosingFormSection[] = [
-  "cliente",
-  "aniversariante",
-  "festa",
-  "pacote",
-  "adicionais",
-  "pagamento",
-  "contrato",
-  "aceites",
-];
+import { PUBLIC_FORM_SECTIONS } from "@/features/public-contract-form";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -96,14 +86,44 @@ const PreviewBadge = ({
 };
 
 interface PreviewFieldInputProps {
+  depositMethods: Array<{ id: string; name: string }>;
   field: ClosingFormField;
   onChange: (value: string) => void;
   value: string;
 }
 
-const PreviewFieldInput = ({ field, onChange, value }: PreviewFieldInputProps) => {
+const PreviewFieldInput = ({
+  depositMethods,
+  field,
+  onChange,
+  value,
+}: PreviewFieldInputProps) => {
   const config = parseFieldConfig(field.config);
-  const isReadOnlyTotal = field.fieldKey === "valor_total";
+  const isReadOnlyTotal =
+    field.fieldKey === "valor_total" || field.fieldKey === "valor_saldo";
+
+  if (field.fieldKey === "forma_pagamento_entrada") {
+    if (depositMethods.length === 0) {
+      return (
+        <p className="text-xs text-muted-foreground">Nenhum método configurado para entrada.</p>
+      );
+    }
+
+    return (
+      <Select value={value || undefined} onValueChange={onChange}>
+        <SelectTrigger id={`preview-field-${field.id}`} className="text-sm bg-background">
+          <SelectValue placeholder="Selecione o método da entrada" />
+        </SelectTrigger>
+        <SelectContent>
+          {depositMethods.map((method) => (
+            <SelectItem key={method.id} value={method.name}>
+              {method.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
 
   if (field.fieldType === "textarea") {
     return (
@@ -222,12 +242,25 @@ export const FormPreviewPanel = () => {
     includeInactive: false,
   });
   const { data: acceptanceTerms = [], isLoading: isTermsLoading } = useTenantAcceptanceTerms();
-  const { data: financialSettings, isLoading: isFinancialLoading } = useTenantFinancialSettings();
+
+  const depositMethods = useMemo(
+    () => paymentMethods.filter((method) => method.allowedForDeposit),
+    [paymentMethods],
+  );
 
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedAdditionalIds, setSelectedAdditionalIds] = useState<Set<string>>(new Set());
-  const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
+  const [termResponses, setTermResponses] = useState<Record<string, boolean | undefined>>({});
+
+  const activeTerms = useMemo(
+    () => acceptanceTerms.filter((term) => isFormPhaseTerm(term)),
+    [acceptanceTerms],
+  );
+
+  useEffect(() => {
+    setTermResponses(buildDefaultTermResponses(activeTerms));
+  }, [activeTerms]);
 
   const applicableAdditionals = useMemo(
     () =>
@@ -240,28 +273,23 @@ export const FormPreviewPanel = () => {
     isPackagesLoading ||
     isAdditionalsLoading ||
     isPaymentMethodsLoading ||
-    isTermsLoading ||
-    isFinancialLoading;
+    isTermsLoading;
 
   const activeFields = useMemo(
     () =>
       fields
         .filter((field) => field.active)
+        .filter((field) => isClientFacingClosingFormField(field))
         .filter((field) => isClosingFormFieldApplicableToPackage(field, selectedPackageId))
         .sort((a, b) => a.sortOrder - b.sortOrder),
     [fields, selectedPackageId],
-  );
-
-  const activeTerms = useMemo(
-    () => acceptanceTerms.filter((term) => isFormPhaseTerm(term)),
-    [acceptanceTerms],
   );
 
   const fieldIdByKey = useMemo(() => buildFieldIdByKey(activeFields), [activeFields]);
 
   const fieldsBySection = useMemo(() => {
     const grouped = new Map<ClosingFormSection, ClosingFormField[]>();
-    PREVIEW_SECTIONS.forEach((section) => grouped.set(section, []));
+    PUBLIC_FORM_SECTIONS.forEach((section) => grouped.set(section, []));
 
     activeFields.forEach((field) => {
       const sectionFields = grouped.get(field.section) ?? [];
@@ -281,7 +309,16 @@ export const FormPreviewPanel = () => {
   ) => {
     if (!pkg) return undefined;
     const guestCount = resolveGuestCount(PREVIEW_EVENTO, values, fieldIdByKey);
-    return guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+    const eventDate = resolveEventDateFromFieldValues(values, fieldIdByKey);
+    return resolvePackagePrice(pkg, guestCount, eventDate);
+  };
+
+  const refreshPackagePricing = (
+    values: Record<string, string>,
+    pkg: PackageData,
+  ): Record<string, string> => {
+    const guestCount = resolveGuestCount(PREVIEW_EVENTO, values, fieldIdByKey);
+    return applyPackageToFieldValues(pkg, guestCount, values, fieldIdByKey);
   };
 
   const syncFinancialFields = (
@@ -294,11 +331,13 @@ export const FormPreviewPanel = () => {
       let next = { ...previous, [fieldId]: value };
       const changedField = activeFields.find((field) => field.id === fieldId);
 
-      if (changedField?.fieldKey === "quantidade_convidados") {
+      if (
+        changedField?.fieldKey === "quantidade_convidados" ||
+        changedField?.fieldKey === "data_evento"
+      ) {
         const pkg = resolveSelectedPackage();
         if (pkg) {
-          const guestCount = Number(value) || 0;
-          next = applyPackageToFieldValues(pkg, guestCount, next, fieldIdByKey);
+          next = refreshPackagePricing(next, pkg);
         }
       }
 
@@ -325,9 +364,9 @@ export const FormPreviewPanel = () => {
         .reduce((sum, item) => sum + item.price, 0);
 
       setFieldValues((fieldPrevious) => {
-        const withPackage = applyPackageToFieldValues(pkg, guestCount, fieldPrevious, fieldIdByKey);
-        const pacoteValue =
-          guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+        const withPackage = refreshPackagePricing(fieldPrevious, pkg);
+        const eventDate = resolveEventDateFromFieldValues(withPackage, fieldIdByKey);
+        const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate);
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(selectedTotal);
@@ -370,13 +409,8 @@ export const FormPreviewPanel = () => {
     });
   };
 
-  const toggleTerm = (term: TenantAcceptanceTerm) => {
-    setAcceptedTermIds((previous) => {
-      const next = new Set(previous);
-      if (next.has(term.id)) next.delete(term.id);
-      else next.add(term.id);
-      return next;
-    });
+  const updateTermResponse = (termId: string, accepted: boolean) => {
+    setTermResponses((previous) => setTermResponse(previous, termId, accepted));
   };
 
   const shouldShowSection = (section: ClosingFormSection) => {
@@ -389,7 +423,7 @@ export const FormPreviewPanel = () => {
       case "adicionais":
         return applicableAdditionals.length > 0;
       case "pagamento":
-        return paymentMethods.length > 0 || Boolean(financialSettings);
+        return filterClientVisiblePaymentFields(sectionFields).length > 0;
       case "aceites":
         return activeTerms.length > 0;
       default:
@@ -397,7 +431,7 @@ export const FormPreviewPanel = () => {
     }
   };
 
-  const visibleSections = PREVIEW_SECTIONS.filter(shouldShowSection);
+  const visibleSections = PUBLIC_FORM_SECTIONS.filter(shouldShowSection);
 
   const renderFormFields = (sectionFields: ClosingFormField[]) => (
     <div className="space-y-3">
@@ -415,6 +449,7 @@ export const FormPreviewPanel = () => {
               <p className="text-xs text-muted-foreground">{field.description}</p>
             )}
           <PreviewFieldInput
+            depositMethods={depositMethods}
             field={field}
             value={fieldValues[field.id] ?? ""}
             onChange={(value) => updateFieldValue(field.id, value)}
@@ -430,7 +465,15 @@ export const FormPreviewPanel = () => {
     );
     const selectedPackage = resolveSelectedPackage();
     const guestCount = resolveGuestCount(PREVIEW_EVENTO, fieldValues, fieldIdByKey);
-    const selectedPrice = selectedPackage ? resolvePacoteValue(fieldValues, selectedPackage) : undefined;
+    const eventDate = resolveEventDateFromFieldValues(fieldValues, fieldIdByKey);
+    const selectedPrice = selectedPackage
+      ? resolvePackagePrice(selectedPackage, guestCount, eventDate)
+      : undefined;
+    const pricingBand =
+      selectedPackage && eventDate
+        ? resolvePricingBandForDate(selectedPackage.pricingSchedule, eventDate)
+        : null;
+    const isHoliday = eventDate ? isBrazilianNationalHoliday(eventDate) : false;
 
     return (
       <div className="space-y-4">
@@ -460,8 +503,17 @@ export const FormPreviewPanel = () => {
             {selectedPackage && selectedPrice != null && selectedPrice > 0 && (
               <p className="text-xs text-muted-foreground">
                 Valor do pacote
-                {guestCount > 0 ? ` para ${guestCount} convidado${guestCount === 1 ? "" : "s"}` : ""}:{" "}
+                {guestCount > 0 ? ` para ${guestCount} convidado${guestCount === 1 ? "" : "s"}` : ""}
+                {eventDate ? ` em ${new Date(`${eventDate}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}
+                :{" "}
                 <span className="font-medium text-foreground">{formatCurrency(selectedPrice)}</span>
+                {pricingBand ? (
+                  <>
+                    {" "}
+                    · faixa <span className="font-medium text-foreground">{pricingBand.label}</span>
+                    {isHoliday ? " (feriado)" : ""}
+                  </>
+                ) : null}
               </p>
             )}
           </div>
@@ -529,92 +581,11 @@ export const FormPreviewPanel = () => {
   };
 
   const renderPaymentSection = () => {
-    const sectionFields = fieldsBySection.get("pagamento") ?? [];
-    const settings = financialSettings;
+    const sectionFields = filterClientVisiblePaymentFields(fieldsBySection.get("pagamento") ?? []);
 
     return (
       <div className="space-y-4">
         {sectionFields.length > 0 && renderFormFields(sectionFields)}
-
-        {paymentMethods.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Métodos disponíveis
-            </p>
-            {paymentMethods.map((method) => (
-              <div
-                key={method.id}
-                className="rounded-xl border border-border/60 bg-background/50 p-3 space-y-1"
-              >
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-medium text-foreground">{method.name}</span>
-                  <PreviewBadge>
-                    {paymentMethodTypeLabels[method.paymentType as PaymentMethodType]}
-                  </PreviewBadge>
-                  {method.allowsInstallments && method.maxInstallments && (
-                    <PreviewBadge variant="outline">Até {method.maxInstallments}x</PreviewBadge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Entrada: {method.allowedForDeposit ? "Sim" : "Não"} · Saldo:{" "}
-                  {method.allowedForRemainingBalance ? "Sim" : "Não"}
-                  {(method.feePercentage != null || method.feeFixed != null) && (
-                    <>
-                      {" "}
-                      · Taxas:{" "}
-                      {method.feePercentage != null ? `${method.feePercentage}%` : "—"}
-                      {method.feeFixed != null ? ` + ${formatCurrency(method.feeFixed)}` : ""}
-                    </>
-                  )}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {settings && (
-          <div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Regras financeiras globais
-            </p>
-            <ul className="text-sm text-muted-foreground space-y-1.5">
-              {settings.min_deposit_percentage != null && (
-                <li>Entrada mínima: {settings.min_deposit_percentage}%</li>
-              )}
-              <li>
-                Entrada padrão:{" "}
-                {settings.down_payment_mode === "percentage"
-                  ? `${settings.default_down_payment_percentage}%`
-                  : formatCurrency(settings.default_down_payment_fixed_value ?? 0)}{" "}
-                via {downPaymentMethodLabels[settings.down_payment_method]}
-              </li>
-              {settings.max_deposit_due_days != null && (
-                <li>Prazo máximo para entrada: {settings.max_deposit_due_days} dias</li>
-              )}
-              {settings.max_balance_due_days != null && (
-                <li>Prazo máximo para saldo: {settings.max_balance_due_days} dias</li>
-              )}
-              <li>Parcelas máximas: {settings.max_installments}</li>
-              <li>{installmentLimitModeLabels[settings.installment_limit_mode]}</li>
-            </ul>
-            {settings.cancellation_policy && (
-              <div>
-                <p className="text-xs font-medium text-foreground mb-1">Política de cancelamento</p>
-                <p className="text-xs text-muted-foreground whitespace-pre-wrap">
-                  {settings.cancellation_policy}
-                </p>
-              </div>
-            )}
-            {settings.rescheduling_policy && (
-              <div>
-                <p className="text-xs font-medium text-foreground mb-1">Política de remarcação</p>
-                <p className="text-xs text-muted-foreground whitespace-pre-wrap">
-                  {settings.rescheduling_policy}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     );
   };
@@ -629,32 +600,12 @@ export const FormPreviewPanel = () => {
         {activeTerms.length > 0 && (
           <div className="space-y-2">
             {activeTerms.map((term) => (
-              <label
+              <AcceptanceTermResponseField
                 key={term.id}
-                className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/50 p-3 cursor-pointer"
-              >
-                <Checkbox
-                  checked={acceptedTermIds.has(term.id)}
-                  onCheckedChange={() => toggleTerm(term)}
-                  className="mt-0.5"
-                />
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-foreground">{term.title}</span>
-                    {term.isRequired ? (
-                      <PreviewBadge variant="primary">Obrigatório</PreviewBadge>
-                    ) : (
-                      <PreviewBadge variant="outline">Opcional</PreviewBadge>
-                    )}
-                    {term.appearsInContract ? (
-                      <PreviewBadge>Aparece no contrato</PreviewBadge>
-                    ) : (
-                      <PreviewBadge variant="muted">Só no formulário</PreviewBadge>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground whitespace-pre-wrap">{term.content}</p>
-                </div>
-              </label>
+                term={term}
+                response={termResponses[term.id]}
+                onResponseChange={updateTermResponse}
+              />
             ))}
           </div>
         )}

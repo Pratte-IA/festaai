@@ -12,22 +12,39 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MAX_LEAD_UPLOAD_ROWS, parseLeadImportCsv, useBulkCreateEventos } from "@/features/eventos";
+import {
+  FunnelType,
+  getDefaultStageForFunnel,
+  MAX_LEAD_UPLOAD_ROWS,
+  parseLeadImportCsv,
+  useBulkCreateEventos,
+  downloadLeadImportCsvTemplate,
+  getLeadImportCsvFilename,
+  getLeadImportFunnelLabel,
+  getLeadImportStageLabel,
+} from "@/features/eventos";
 import { toast } from "@/hooks/use-toast";
 
-const TEMPLATE_HREF = "/modelo-importacao-leads.csv";
-
 interface LeadsUploadDialogProps {
+  initialFunnel?: FunnelType;
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }
 
-export const LeadsUploadDialog = ({ onOpenChange, open }: LeadsUploadDialogProps) => {
+export const LeadsUploadDialog = ({
+  initialFunnel = "vendas",
+  onOpenChange,
+  open,
+}: LeadsUploadDialogProps) => {
   const bulkCreate = useBulkCreateEventos();
   const inputRef = useRef<HTMLInputElement>(null);
   const pickerId = useId();
   const [csvRawText, setCsvRawText] = useState<string | null>(null);
   const [fileLabel, setFileLabel] = useState<string | null>(null);
+  const defaultStage = getDefaultStageForFunnel(initialFunnel);
+  const funnelLabel = getLeadImportFunnelLabel(initialFunnel);
+  const stageLabel = getLeadImportStageLabel(initialFunnel, defaultStage);
+  const templateFilename = getLeadImportCsvFilename(initialFunnel);
 
   const parseResult = useMemo(
     () => (csvRawText ? parseLeadImportCsv(csvRawText) : null),
@@ -135,14 +152,20 @@ export const LeadsUploadDialog = ({ onOpenChange, open }: LeadsUploadDialogProps
         <DialogHeader className="text-left">
           <DialogTitle>Importar eventos e leads (CSV)</DialogTitle>
           <DialogDescription>
-            Um unico arquivo modelo mostra todas as combinacoes. Baixe e copie a estrutura:{" "}
-            <a href={TEMPLATE_HREF} className="text-primary underline-offset-4 hover:underline" download>
-              modelo-importacao-leads.csv
-            </a>
+            Modelo para o funil <span className="font-medium text-foreground">{funnelLabel}</span> (
+            etapa padrao: <span className="font-medium text-foreground">{stageLabel}</span>). Baixe e preencha o que
+            tiver disponivel:{" "}
+            <button
+              type="button"
+              className="text-primary underline-offset-4 hover:underline"
+              onClick={() => downloadLeadImportCsvTemplate(initialFunnel, defaultStage)}
+            >
+              {templateFilename}
+            </button>
             . O cabecalho precisa incluir as colunas <span className="font-medium text-foreground">funil</span>,{" "}
             <span className="font-medium text-foreground">etapa</span> e o nome do cliente (nome ou equivalente).
-            Opcionais incluem telefone, email, dados da festa, data de nascimento do aniversariante (coluna nascimento) e valores; em cada linha o par funil / etapa indica onde o card
-            entra no CRM. Celula etapa em branco usa a primeira etapa daquele funil. Datas: DD/MM/AAAA ou AAAA-MM-DD. Ate{" "}
+            Demais colunas sao opcionais — telefone, e-mail, tipo de evento, dados da festa, valores e observacoes.
+            Celula etapa em branco usa a primeira etapa daquele funil. Datas: DD/MM/AAAA ou AAAA-MM-DD. Ate{" "}
             {MAX_LEAD_UPLOAD_ROWS} linhas validas por arquivo.
           </DialogDescription>
         </DialogHeader>

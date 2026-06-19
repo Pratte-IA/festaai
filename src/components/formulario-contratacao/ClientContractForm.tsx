@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, FileCheck2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,9 +20,11 @@ import {
   type PackageData,
 } from "@/data/packagesData";
 import {
+  buildAcceptanceResponsesPayload,
+  buildDefaultTermResponses,
   closingFormSectionLabels,
-  installmentLimitModeLabels,
   parseFieldConfig,
+  validateAcceptanceTermResponses,
   type ClosingFormField,
   type ClosingFormSection,
 } from "@/features/configuracoes";
@@ -31,9 +33,11 @@ import {
   buildAdicionaisSnapshot,
   buildFieldIdByKey,
   buildPackageEventoUpdates,
+  filterClientVisiblePaymentFields,
   getAdditionalsTotal,
-  getPackageFromPrice,
-  getPackagePriceForGuests,
+  isClientFacingClosingFormField,
+  resolveEventDateFromFieldValues,
+  resolvePackagePrice,
   isClosingFormFieldApplicableToPackage,
   isHiddenPackageFieldKey,
   PACKAGE_SELECTOR_FIELD_KEY,
@@ -51,6 +55,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { ClientContractSigningStep } from "./ClientContractSigningStep";
+import { AcceptanceTermResponseField, setTermResponse } from "./AcceptanceTermResponseField";
 
 type ClientFormStep = "form" | "contract" | "done";
 
@@ -69,16 +74,31 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [additionalSelections, setAdditionalSelections] = useState<Map<string, number>>(new Map());
-  const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
+  const [termResponses, setTermResponses] = useState<Record<string, boolean | undefined>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState<ClientFormStep>("form");
   const [submitResult, setSubmitResult] = useState<ClientContractFormSubmitResult | null>(null);
   const [acceptResult, setAcceptResult] = useState<ClientContractAcceptResult | null>(null);
 
+  const activeTerms = useMemo(
+    () => config.acceptanceTerms.filter((term) => term.active && term.showInForm !== false),
+    [config.acceptanceTerms],
+  );
+
+  useEffect(() => {
+    setTermResponses((previous) => ({
+      ...buildDefaultTermResponses(activeTerms),
+      ...Object.fromEntries(
+        Object.entries(previous).filter(([termId]) => activeTerms.some((term) => term.id === termId)),
+      ),
+    }));
+  }, [activeTerms]);
+
   const activeFields = useMemo(
     () =>
       config.fields
         .filter((field) => field.active)
+        .filter((field) => isClientFacingClosingFormField(field))
         .filter((field) => isClosingFormFieldApplicableToPackage(field, selectedPackageId))
         .sort((a, b) => a.sortOrder - b.sortOrder),
     [config.fields, selectedPackageId],
@@ -99,18 +119,8 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
     return grouped;
   }, [activeFields]);
 
-  const activeTerms = useMemo(
-    () => config.acceptanceTerms.filter((term) => term.active && term.showInForm !== false),
-    [config.acceptanceTerms],
-  );
-
   const depositMethods = useMemo(
     () => config.paymentMethods.filter((method) => method.allowedForDeposit),
-    [config.paymentMethods],
-  );
-
-  const balanceMethods = useMemo(
-    () => config.paymentMethods.filter((method) => method.allowedForRemainingBalance),
     [config.paymentMethods],
   );
 
@@ -134,7 +144,16 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
   ) => {
     if (!pkg) return undefined;
     const guestCount = resolveGuestCount(EMPTY_EVENTO, values, fieldIdByKey);
-    return guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+    const eventDate = resolveEventDateFromFieldValues(values, fieldIdByKey);
+    return resolvePackagePrice(pkg, guestCount, eventDate);
+  };
+
+  const refreshPackagePricing = (
+    values: Record<string, string>,
+    pkg: PackageData,
+  ): Record<string, string> => {
+    const guestCount = resolveGuestCount(EMPTY_EVENTO, values, fieldIdByKey);
+    return applyPackageToFieldValues(pkg, guestCount, values, fieldIdByKey);
   };
 
   const updateFieldValue = (fieldId: string, value: string) => {
@@ -142,11 +161,13 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       let next = { ...previous, [fieldId]: value };
       const changedField = activeFields.find((field) => field.id === fieldId);
 
-      if (changedField?.fieldKey === "quantidade_convidados") {
+      if (
+        changedField?.fieldKey === "quantidade_convidados" ||
+        changedField?.fieldKey === "data_evento"
+      ) {
         const pkg = resolveSelectedPackage();
         if (pkg) {
-          const guestCount = Number(value) || 0;
-          next = applyPackageToFieldValues(pkg, guestCount, next, fieldIdByKey);
+          next = refreshPackagePricing(next, pkg);
         }
       }
 
@@ -179,9 +200,9 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       const total = getAdditionalsTotal(snapshot);
 
       setFieldValues((fieldPrevious) => {
-        const withPackage = applyPackageToFieldValues(pkg, guestCount, fieldPrevious, fieldIdByKey);
-        const pacoteValue =
-          guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+        const withPackage = refreshPackagePricing(fieldPrevious, pkg);
+        const eventDate = resolveEventDateFromFieldValues(withPackage, fieldIdByKey);
+        const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate);
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
@@ -234,7 +255,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       case "adicionais":
         return applicableAdditionals.length > 0;
       case "pagamento":
-        return config.paymentMethods.length > 0 || Boolean(config.financialSettings);
+        return filterClientVisiblePaymentFields(sectionFields).length > 0;
       case "aceites":
         return activeTerms.length > 0;
       default:
@@ -262,11 +283,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       nextErrors.pacote = "Selecione um pacote para continuar.";
     }
 
-    activeTerms.forEach((term) => {
-      if (term.isRequired && !acceptedTermIds.has(term.id)) {
-        nextErrors[`term-${term.id}`] = "Este aceite é obrigatório.";
-      }
-    });
+    Object.assign(nextErrors, validateAcceptanceTermResponses(activeTerms, termResponses));
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -286,12 +303,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
 
     try {
       const result = await submitForm.mutateAsync({
-        acceptanceResponses: activeTerms
-          .filter((term) => acceptedTermIds.has(term.id))
-          .map((term) => ({
-            accepted: true,
-            termId: Number(term.id),
-          })),
+        acceptanceResponses: buildAcceptanceResponsesPayload(activeTerms, termResponses),
         adicionaisSnapshot,
         fieldValues,
         fields: activeFields.map((field) => ({
@@ -302,7 +314,11 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
         })),
         pacoteId: selectedPackageId ? Number(selectedPackageId) : null,
         packageEventoUpdates: selectedPackage
-          ? buildPackageEventoUpdates(selectedPackage, guestCount)
+          ? buildPackageEventoUpdates(
+              selectedPackage,
+              guestCount,
+              resolveEventDateFromFieldValues(fieldValues, fieldIdByKey),
+            )
           : undefined,
         tenantSlug: config.tenantSlug,
       });
@@ -330,23 +346,6 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
           </SelectTrigger>
           <SelectContent>
             {depositMethods.map((method) => (
-              <SelectItem key={method.id} value={method.name}>
-                {method.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-    }
-
-    if (field.fieldKey === "forma_pagamento_saldo") {
-      return (
-        <Select value={value || undefined} onValueChange={(next) => updateFieldValue(field.id, next)}>
-          <SelectTrigger id={`client-field-${field.id}`} className="text-sm">
-            <SelectValue placeholder="Selecione o método do saldo" />
-          </SelectTrigger>
-          <SelectContent>
-            {balanceMethods.map((method) => (
               <SelectItem key={method.id} value={method.name}>
                 {method.name}
               </SelectItem>
@@ -592,53 +591,33 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
 
                 {section === "aceites" &&
                   activeTerms.map((term) => (
-                    <label
+                    <AcceptanceTermResponseField
                       key={term.id}
-                      className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/50 p-3 cursor-pointer"
-                    >
-                      <Checkbox
-                        checked={acceptedTermIds.has(term.id)}
-                        onCheckedChange={() => {
-                          setAcceptedTermIds((previous) => {
-                            const next = new Set(previous);
-                            if (next.has(term.id)) next.delete(term.id);
-                            else next.add(term.id);
-                            return next;
-                          });
-                        }}
-                        className="mt-0.5"
-                      />
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <p className="text-sm font-medium">
-                          {term.title}
-                          {term.isRequired ? " *" : ""}
-                        </p>
-                        <p className="text-xs text-muted-foreground whitespace-pre-wrap">{term.content}</p>
-                        {errors[`term-${term.id}`] && (
-                          <p className="text-xs text-destructive">{errors[`term-${term.id}`]}</p>
-                        )}
-                      </div>
-                    </label>
+                      term={term}
+                      response={termResponses[term.id]}
+                      error={errors[`term-${term.id}`]}
+                      onResponseChange={(termId, accepted) => {
+                        setTermResponses((previous) => setTermResponse(previous, termId, accepted));
+                        setErrors((previous) => {
+                          if (!previous[`term-${termId}`]) return previous;
+                          const next = { ...previous };
+                          delete next[`term-${termId}`];
+                          return next;
+                        });
+                      }}
+                    />
                   ))}
 
                 {section !== "pacote" &&
                   section !== "adicionais" &&
                   section !== "aceites" &&
                   renderFormFields(
-                    (fieldsBySection.get(section) ?? []).filter(
-                      (field) => field.fieldKey !== PACKAGE_SELECTOR_FIELD_KEY,
+                    filterClientVisiblePaymentFields(
+                      (fieldsBySection.get(section) ?? []).filter(
+                        (field) => field.fieldKey !== PACKAGE_SELECTOR_FIELD_KEY,
+                      ),
                     ),
                   )}
-
-                {section === "pagamento" && config.financialSettings && (
-                  <div className="rounded-lg border border-border/50 bg-muted/20 p-3 text-xs text-muted-foreground space-y-1">
-                    <p className="font-medium text-foreground text-sm">Regras financeiras</p>
-                    <p>Parcelas máximas: {config.financialSettings.max_installments}</p>
-                    <p>
-                      {installmentLimitModeLabels[config.financialSettings.installment_limit_mode]}
-                    </p>
-                  </div>
-                )}
               </div>
             </section>
           ))}

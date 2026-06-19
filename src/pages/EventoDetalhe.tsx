@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
 import { MoveEventoFunnelDialog } from "@/components/eventos/MoveEventoFunnelDialog";
 import { EventoFormResponsesCard } from "@/components/eventos/EventoFormResponsesCard";
+import { EventoImageUsageAcceptanceRow } from "@/components/eventos/EventoImageUsageAcceptanceRow";
+import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import EventChecklist from "@/components/EventChecklist";
 import AppLayout from "@/components/AppLayout";
+import { useTenantPackages } from "@/features/configuracoes";
 import {
   useCreateEventoNota,
   useCreateEventoPagamento,
@@ -127,6 +130,7 @@ const EventoDetalhe = () => {
   const isValidEventoId = Number.isInteger(eventoId) && Number(eventoId) > 0;
   const validEventoId = isValidEventoId ? Number(eventoId) : null;
   const { data: event, error, isLoading } = useEvento(validEventoId);
+  const { data: packages = [] } = useTenantPackages();
   const { data: payments = [], isLoading: isPaymentsLoading } = useEventoPagamentos(validEventoId);
   const { data: tasks = [], isLoading: isTasksLoading } = useEventoTarefas(validEventoId);
   const { data: notes = [], isLoading: isNotesLoading } = useEventoNotas(validEventoId);
@@ -420,7 +424,10 @@ const EventoDetalhe = () => {
               <InfoRow label="Data da festa" value={formatDate(event.data_evento)} />
               <InfoRow label="Horario" value={formatTime(event.hora_evento)} />
               <InfoRow label="Convidados" value={`${event.quantidade_convidados ?? 0} pessoas`} />
-              <InfoRow label="Pacote" value={event.pacote_nome ?? "Pacote nao informado"} />
+              <InfoRow
+                label="Pacote"
+                value={<EventoPackageLabel evento={event} packages={packages} />}
+              />
             </CardContent>
           </Card>
 
@@ -451,6 +458,7 @@ const EventoDetalhe = () => {
               <InfoRow label="Telefone" value={event.cliente_telefone ?? "Nao informado"} />
               <InfoRow label="E-mail" value={event.cliente_email ?? "Nao informado"} />
               <InfoRow label="Nome" value={event.cliente_nome} />
+              {validEventoId ? <EventoImageUsageAcceptanceRow eventoId={validEventoId} /> : null}
             </CardContent>
           </Card>
         </div>
@@ -690,7 +698,15 @@ const EventoDetalhe = () => {
   );
 };
 
-const InfoRow = ({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) => (
+const InfoRow = ({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: ReactNode;
+  highlight?: boolean;
+}) => (
   <div className="flex items-center justify-between">
     <span className="text-xs text-muted-foreground">{label}</span>
     <span className={`text-sm ${highlight ? "font-bold text-foreground" : "font-medium text-foreground"}`}>

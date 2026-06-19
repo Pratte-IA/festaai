@@ -22,6 +22,7 @@ export interface ContractSnapshotTerm {
   accepted: boolean;
   content: string;
   termId: number;
+  termKey: string | null;
   title: string;
 }
 

@@ -1,5 +1,9 @@
 import AdditionalsConfig from "@/components/AdditionalsConfig";
 
-const ConfiguracoesAdicionais = () => <AdditionalsConfig hideHeader />;
+const ConfiguracoesAdicionais = () => (
+  <div className="max-w-6xl">
+    <AdditionalsConfig hideHeader />
+  </div>
+);
 
 export default ConfiguracoesAdicionais;

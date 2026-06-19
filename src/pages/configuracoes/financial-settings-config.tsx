@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  SettingsPageHeader,
+  SettingsStatChip,
+} from "@/components/configuracoes/SettingsPageHeader";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -26,6 +30,8 @@ import {
   useTenantFinancialSettings,
 } from "@/features/configuracoes";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
 const inputClassName =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
@@ -54,11 +60,13 @@ interface FinancialSettingsConfigProps {
     save: () => Promise<boolean>;
     isPending: boolean;
   }) => void;
+  showSettingsHeader?: boolean;
 }
 
 export const FinancialSettingsConfig = ({
   guidedMode = false,
   onRegisterActions,
+  showSettingsHeader = false,
 }: FinancialSettingsConfigProps) => {
   const { data: settings, isLoading } = useTenantFinancialSettings();
   const saveSettings = useSaveTenantFinancialSettings();
@@ -126,8 +134,48 @@ export const FinancialSettingsConfig = ({
     return <p className="text-sm text-muted-foreground">Carregando regras financeiras...</p>;
   }
 
+  const remainingMethodCount = [
+    form.remaining_pix_installments,
+    form.remaining_card_installments,
+    form.remaining_due_before_event_enabled,
+  ].filter(Boolean).length;
+
+  const downPaymentLabel =
+    form.down_payment_mode === "percentage"
+      ? `entrada de ${form.default_down_payment_percentage}%`
+      : "entrada com valor fixo";
+
+  const saveButton = (className?: string) => (
+    <Button
+      onClick={() => void handleSave()}
+      disabled={saveSettings.isPending}
+      className={cn("shrink-0", className)}
+    >
+      Salvar regras financeiras
+    </Button>
+  );
+
   return (
-    <div className="space-y-5">
+    <div className={showSettingsHeader ? "space-y-4" : "space-y-5"}>
+      {showSettingsHeader && (
+        <SettingsPageHeader
+          title={SETTINGS_PAGE_META.financeiro.title}
+          description={SETTINGS_PAGE_META.financeiro.description}
+          renderAction={(className) => saveButton(className)}
+          stats={
+            <>
+              <SettingsStatChip>{downPaymentLabel}</SettingsStatChip>
+              <SettingsStatChip>
+                até {form.max_installments} {form.max_installments === 1 ? "parcela" : "parcelas"}
+              </SettingsStatChip>
+              <SettingsStatChip>
+                {remainingMethodCount}{" "}
+                {remainingMethodCount === 1 ? "forma para o restante" : "formas para o restante"}
+              </SettingsStatChip>
+            </>
+          }
+        />
+      )}
       <SectionCard
         title="Entrada"
         description="Defina como a entrada padrao sera calculada e qual metodo de pagamento aceitar."
@@ -337,11 +385,9 @@ export const FinancialSettingsConfig = ({
         </div>
       </SectionCard>
 
-      {!guidedMode ? (
+      {!guidedMode && !showSettingsHeader ? (
         <div className="flex justify-end">
-          <Button onClick={() => void handleSave()} disabled={saveSettings.isPending}>
-            Salvar regras financeiras
-          </Button>
+          {saveButton()}
         </div>
       ) : null}
     </div>

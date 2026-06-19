@@ -30,8 +30,13 @@ import {
   useUpdateChecklistItem,
 } from "@/features/configuracoes";
 import { toast } from "@/hooks/use-toast";
+import {
+  SettingsPageHeader,
+  SettingsStatChip,
+} from "@/components/configuracoes/SettingsPageHeader";
+import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
-const ChecklistConfig = () => {
+const ChecklistConfig = ({ showSettingsHeader = false }: { showSettingsHeader?: boolean }) => {
   const { data: packages = [], isLoading: isLoadingPackages } = useTenantPackages();
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [replicateOpen, setReplicateOpen] = useState(false);
@@ -177,22 +182,60 @@ const ChecklistConfig = () => {
     return <p className="text-sm text-muted-foreground">Carregando pacotes...</p>;
   }
 
+  const categoryCount = categories.length;
+  const itemCount = categories.reduce((sum, category) => sum + category.items.length, 0);
+  const activeItemCount = categories.reduce(
+    (sum, category) => sum + category.items.filter((item) => item.active).length,
+    0,
+  );
+
+  const settingsHeader = showSettingsHeader ? (
+    <SettingsPageHeader
+      title={SETTINGS_PAGE_META.checklist.title}
+      description={SETTINGS_PAGE_META.checklist.description}
+      stats={
+        packages.length > 0 ? (
+          <>
+            <SettingsStatChip>
+              {packages.length} {packages.length === 1 ? "pacote" : "pacotes"}
+            </SettingsStatChip>
+            {selectedPackage && (
+              <>
+                <SettingsStatChip>
+                  {categoryCount} {categoryCount === 1 ? "categoria" : "categorias"}
+                </SettingsStatChip>
+                <SettingsStatChip>
+                  {activeItemCount} de {itemCount}{" "}
+                  {itemCount === 1 ? "item ativo" : "itens ativos"}
+                </SettingsStatChip>
+              </>
+            )}
+          </>
+        ) : null
+      }
+    />
+  ) : null;
+
   if (packages.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border/60 p-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          Cadastre um pacote em{" "}
-          <Link to="/configuracoes/pacotes" className="text-primary hover:underline">
-            Configurações &gt; Pacotes
-          </Link>{" "}
-          para configurar o checklist.
-        </p>
+      <div className="space-y-4">
+        {settingsHeader}
+        <div className="rounded-xl border border-dashed border-border/60 p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            Cadastre um pacote em{" "}
+            <Link to="/configuracoes/pacotes" className="text-primary hover:underline">
+              Configurações &gt; Pacotes
+            </Link>{" "}
+            para configurar o checklist.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      {settingsHeader}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2 min-w-[220px] max-w-sm">
           <label className="text-sm font-medium text-foreground" htmlFor="checklist-package">

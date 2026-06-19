@@ -8,8 +8,19 @@ import { PublicFormLinkCard } from "@/components/formulario-contratacao/PublicFo
 import { AddonsTab } from "@/components/formulario-contratacao/AddonsTab";
 import { PackagesTab } from "@/components/formulario-contratacao/PackagesTab";
 import { PaymentTab } from "@/components/formulario-contratacao/PaymentTab";
+import {
+  SettingsPageHeader,
+  SettingsStatChip,
+} from "@/components/configuracoes/SettingsPageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  isFormPhaseTerm,
+  useTenantAcceptanceTerms,
+  useTenantClosingForm,
+  useTenantPaymentMethods,
+} from "@/features/configuracoes";
 import { cn } from "@/lib/utils";
+import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
 import {
   DEFAULT_FORM_CONFIGURATION_TAB,
@@ -28,6 +39,9 @@ export const FormConfigurationPage = ({
   onRegisterStructureSaveHandler,
 }: FormConfigurationPageProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: fields = [], isLoading: isFieldsLoading } = useTenantClosingForm();
+  const { data: acceptanceTerms = [], isLoading: isTermsLoading } = useTenantAcceptanceTerms();
+  const { data: paymentMethods = [], isLoading: isPaymentMethodsLoading } = useTenantPaymentMethods();
 
   const visibleTabs = useMemo(() => getFormConfigurationTabs(guidedMode), [guidedMode]);
 
@@ -57,8 +71,37 @@ export const FormConfigurationPage = ({
     setSearchParams({ tab: value }, { replace: true });
   };
 
+  const activeFieldCount = fields.filter((field) => field.active).length;
+  const activeTermCount = acceptanceTerms.filter(
+    (term) => term.active && isFormPhaseTerm(term),
+  ).length;
+  const activePaymentMethodCount = paymentMethods.filter((method) => method.active).length;
+  const isStatsLoading = isFieldsLoading || isTermsLoading || isPaymentMethodsLoading;
+
   return (
-    <div className="max-w-6xl space-y-6">
+    <div className={cn("max-w-6xl", guidedMode ? "space-y-6" : "space-y-4")}>
+      {!guidedMode ? (
+        <SettingsPageHeader
+          title={SETTINGS_PAGE_META["formulario-contratacao"].title}
+          description={SETTINGS_PAGE_META["formulario-contratacao"].description}
+          stats={
+            !isStatsLoading ? (
+              <>
+                <SettingsStatChip>
+                  {activeFieldCount} {activeFieldCount === 1 ? "campo ativo" : "campos ativos"}
+                </SettingsStatChip>
+                <SettingsStatChip>
+                  {activeTermCount} {activeTermCount === 1 ? "aceite ativo" : "aceites ativos"}
+                </SettingsStatChip>
+                <SettingsStatChip>
+                  {activePaymentMethodCount}{" "}
+                  {activePaymentMethodCount === 1 ? "forma de pagamento" : "formas de pagamento"}
+                </SettingsStatChip>
+              </>
+            ) : null
+          }
+        />
+      ) : null}
       {!guidedMode ? <PublicFormLinkCard /> : null}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList

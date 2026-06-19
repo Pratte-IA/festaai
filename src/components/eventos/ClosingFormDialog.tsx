@@ -33,6 +33,10 @@ import {
   closingFormSectionLabels,
   installmentLimitModeLabels,
   isFormPhaseTerm,
+  buildAcceptanceResponsesPayload,
+  buildDefaultTermResponses,
+  filterBalancePaymentMethods,
+  validateAcceptanceTermResponses,
   parseFieldConfig,
   useTenantAcceptanceTerms,
   useTenantAdditionals,
@@ -47,6 +51,7 @@ import {
   useEventoClosingResponses,
   useSubmitClosingForm,
 } from "@/features/eventos";
+import { AcceptanceTermResponseField, setTermResponse } from "@/components/formulario-contratacao/AcceptanceTermResponseField";
 import {
   applyPackageToFieldValues,
   buildAdicionaisSnapshot,
@@ -55,8 +60,8 @@ import {
   CLOSING_FORM_SECTIONS,
   getAdditionalsTotal,
   getEventoFieldValueAsString,
-  getPackageFromPrice,
-  getPackagePriceForGuests,
+  resolveEventDateFromFieldValues,
+  resolvePackagePrice,
   isClosingFormFieldApplicableToPackage,
   isHiddenPackageFieldKey,
   PACKAGE_SELECTOR_FIELD_KEY,
@@ -119,7 +124,7 @@ export const ClosingFormDialog = ({
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [additionalSelections, setAdditionalSelections] = useState<Map<string, number>>(new Map());
-  const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
+  const [termResponses, setTermResponses] = useState<Record<string, boolean | undefined>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const activeFields = useMemo(
@@ -157,7 +162,7 @@ export const ClosingFormDialog = ({
   );
 
   const balanceMethods = useMemo(
-    () => paymentMethods.filter((method) => method.allowedForRemainingBalance),
+    () => filterBalancePaymentMethods(paymentMethods),
     [paymentMethods],
   );
 
@@ -189,12 +194,10 @@ export const ClosingFormDialog = ({
 
     if (initialPackage) {
       const guestCount = resolveGuestCount(evento, values, fieldIdByKey);
+      const eventDate = resolveEventDateFromFieldValues(values, fieldIdByKey, evento.data_evento);
       values = applyPackageToFieldValues(initialPackage, guestCount, values, fieldIdByKey);
       values = recalculateFinancialTotals(values, fieldIdByKey, {
-        pacoteValue:
-          guestCount > 0
-            ? getPackagePriceForGuests(initialPackage, guestCount)
-            : getPackageFromPrice(initialPackage),
+        pacoteValue: resolvePackagePrice(initialPackage, guestCount, eventDate),
       });
     } else {
       values = recalculateFinancialTotals(values, fieldIdByKey);
@@ -206,11 +209,7 @@ export const ClosingFormDialog = ({
     const snapshot = parseAdicionaisSnapshot(evento.adicionais_snapshot);
     setAdditionalSelections(new Map(snapshot.map((item) => [String(item.id), item.quantity])));
 
-    const accepted = new Set<string>();
-    activeTerms.forEach((term) => {
-      if (savedAcceptances[term.id]) accepted.add(term.id);
-    });
-    setAcceptedTermIds(accepted);
+    setTermResponses(buildDefaultTermResponses(activeTerms, savedAcceptances));
     setErrors({});
   }, [
     activeFields,
@@ -238,7 +237,16 @@ export const ClosingFormDialog = ({
   ) => {
     if (!pkg) return undefined;
     const guestCount = resolveGuestCount(evento, values, fieldIdByKey);
-    return guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+    const eventDate = resolveEventDateFromFieldValues(values, fieldIdByKey, evento.data_evento);
+    return resolvePackagePrice(pkg, guestCount, eventDate);
+  };
+
+  const refreshPackagePricing = (
+    values: Record<string, string>,
+    pkg: PackageData,
+  ): Record<string, string> => {
+    const guestCount = resolveGuestCount(evento, values, fieldIdByKey);
+    return applyPackageToFieldValues(pkg, guestCount, values, fieldIdByKey);
   };
 
   const updateFieldValue = (fieldId: string, value: string) => {
@@ -246,11 +254,13 @@ export const ClosingFormDialog = ({
       let next = { ...previous, [fieldId]: value };
       const changedField = activeFields.find((field) => field.id === fieldId);
 
-      if (changedField?.fieldKey === "quantidade_convidados") {
+      if (
+        changedField?.fieldKey === "quantidade_convidados" ||
+        changedField?.fieldKey === "data_evento"
+      ) {
         const pkg = resolveSelectedPackage();
         if (pkg) {
-          const guestCount = Number(value) || 0;
-          next = applyPackageToFieldValues(pkg, guestCount, next, fieldIdByKey);
+          next = refreshPackagePricing(next, pkg);
         }
       }
 
@@ -283,9 +293,9 @@ export const ClosingFormDialog = ({
       const total = getAdditionalsTotal(snapshot);
 
       setFieldValues((fieldPrevious) => {
-        const withPackage = applyPackageToFieldValues(pkg, guestCount, fieldPrevious, fieldIdByKey);
-        const pacoteValue =
-          guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+        const withPackage = refreshPackagePricing(fieldPrevious, pkg);
+        const eventDate = resolveEventDateFromFieldValues(withPackage, fieldIdByKey, evento.data_evento);
+        const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate);
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");
@@ -361,14 +371,8 @@ export const ClosingFormDialog = ({
     });
   };
 
-  const toggleTerm = (termId: string) => {
-    setAcceptedTermIds((previous) => {
-      const next = new Set(previous);
-      if (next.has(termId)) next.delete(termId);
-      else next.add(termId);
-      return next;
-    });
-
+  const updateTermResponse = (termId: string, accepted: boolean) => {
+    setTermResponses((previous) => setTermResponse(previous, termId, accepted));
     setErrors((previous) => {
       if (!previous[`term-${termId}`]) return previous;
       const next = { ...previous };
@@ -415,11 +419,7 @@ export const ClosingFormDialog = ({
       nextErrors.pacote = "Selecione um pacote para continuar.";
     }
 
-    activeTerms.forEach((term) => {
-      if (term.isRequired && !acceptedTermIds.has(term.id)) {
-        nextErrors[`term-${term.id}`] = "Este aceite é obrigatório.";
-      }
-    });
+    Object.assign(nextErrors, validateAcceptanceTermResponses(activeTerms, termResponses));
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -439,10 +439,7 @@ export const ClosingFormDialog = ({
 
     try {
       await submitClosingForm.mutateAsync({
-        acceptanceResponses: activeTerms.map((term) => ({
-          accepted: acceptedTermIds.has(term.id),
-          termId: Number(term.id),
-        })),
+        acceptanceResponses: buildAcceptanceResponsesPayload(activeTerms, termResponses),
         adicionaisSnapshot,
         eventoId: evento.id,
         fieldValues,
@@ -454,7 +451,11 @@ export const ClosingFormDialog = ({
         })),
         pacoteId: selectedPackageId ? Number(selectedPackageId) : evento.pacote_id,
         packageEventoUpdates: selectedPackage
-          ? buildPackageEventoUpdates(selectedPackage, guestCount)
+          ? buildPackageEventoUpdates(
+              selectedPackage,
+              guestCount,
+              resolveEventDateFromFieldValues(fieldValues, fieldIdByKey, evento.data_evento),
+            )
           : undefined,
       });
 
@@ -816,26 +817,13 @@ export const ClosingFormDialog = ({
         ))}
 
         {activeTerms.map((term) => (
-          <label
+          <AcceptanceTermResponseField
             key={term.id}
-            className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/50 p-3 cursor-pointer"
-          >
-            <Checkbox
-              checked={acceptedTermIds.has(term.id)}
-              onCheckedChange={() => toggleTerm(term.id)}
-              className="mt-0.5"
-            />
-            <div className="flex-1 min-w-0 space-y-1">
-              <p className="text-sm font-medium text-foreground">
-                {term.title}
-                {term.isRequired ? " *" : ""}
-              </p>
-              <p className="text-xs text-muted-foreground whitespace-pre-wrap">{term.content}</p>
-              {errors[`term-${term.id}`] && (
-                <p className="text-xs text-destructive">{errors[`term-${term.id}`]}</p>
-              )}
-            </div>
-          </label>
+            term={term}
+            response={termResponses[term.id]}
+            error={errors[`term-${term.id}`]}
+            onResponseChange={updateTermResponse}
+          />
         ))}
       </div>
     );

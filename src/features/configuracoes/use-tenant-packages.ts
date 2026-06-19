@@ -118,29 +118,36 @@ const invalidateAdditionals = (
   void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.additionalsAdmin(tenantId) });
 };
 
+export const fetchTenantPackages = async (
+  tenantId: number,
+  options?: { includeInactive?: boolean },
+): Promise<PackageData[]> => {
+  const includeInactive = options?.includeInactive ?? false;
+
+  let query = supabase
+    .from("tenant_packages")
+    .select("*")
+    .eq("tenant_id", tenantId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (!includeInactive) {
+    query = query.eq("active", true);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  return (data ?? []).map(mapPackageRow);
+};
+
 export const useTenantPackages = (options?: { includeInactive?: boolean }) => {
   const { currentTenantId } = useCurrentTenant();
   const includeInactive = options?.includeInactive ?? false;
 
   return useQuery({
     enabled: Boolean(currentTenantId),
-    queryFn: async () => {
-      let query = supabase
-        .from("tenant_packages")
-        .select("*")
-        .eq("tenant_id", currentTenantId as number)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: true });
-
-      if (!includeInactive) {
-        query = query.eq("active", true);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      return (data ?? []).map(mapPackageRow);
-    },
+    queryFn: () => fetchTenantPackages(currentTenantId as number, { includeInactive }),
     queryKey: includeInactive
       ? configuracoesQueryKeys.packagesAdmin(currentTenantId)
       : configuracoesQueryKeys.packages(currentTenantId),

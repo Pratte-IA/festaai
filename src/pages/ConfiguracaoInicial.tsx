@@ -1,13 +1,18 @@
-import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { CheckCircle2, ChevronRight, Loader2 } from "lucide-react";
 
 import AppLayout from "@/components/AppLayout";
 import { GuidedSetupStepper } from "@/components/guided-setup/GuidedSetupStepper";
+import {
+  SettingsPageHeader,
+  SettingsStatChip,
+} from "@/components/configuracoes/SettingsPageHeader";
 import { Button } from "@/components/ui/button";
-import { useIsGuidedSetupComplete } from "@/features/guided-setup";
+import { GUIDED_SETUP_STEPS, useIsGuidedSetupComplete } from "@/features/guided-setup";
 import { useGuidedSetup } from "@/features/guided-setup/guided-setup-provider";
 import { useTenantAdminCapability } from "@/features/tenants/use-tenant-admin-capability";
 import { getErrorMessage } from "@/lib/error-message";
+import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
 const ConfiguracaoInicial = () => {
   const navigate = useNavigate();
@@ -23,6 +28,7 @@ const ConfiguracaoInicial = () => {
 
   const isLoading = isAdminLoading || isProgressLoading || isContextLoading;
   const isAdmin = Boolean(adminCapability?.isTenantAdmin);
+  const activeStepMeta = GUIDED_SETUP_STEPS.find((step) => step.key === activeStep);
 
   const handleAllStepsCompleted = () => {
     navigate("/", { replace: true });
@@ -73,32 +79,65 @@ const ConfiguracaoInicial = () => {
 
   return (
     <AppLayout>
-      <div className="mx-auto w-full max-w-6xl space-y-8">
-        <div className="space-y-3 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden />
-            {isComplete ? "Configuração guiada — revisão" : "Configuração guiada"}
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {isComplete ? "Revisar configuração do espaço" : "Vamos configurar seu espaço de festa"}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {isComplete
-              ? "A configuração inicial já foi concluída. Clique em qualquer etapa abaixo para revisar ou ajustar as definições do seu espaço."
-              : "Clique em cada etapa para configurar. Ao salvar, a etapa fecha e a próxima é aberta automaticamente."}
-          </p>
-          {isComplete ? (
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-1.5 text-xs text-emerald-700 dark:text-emerald-300">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-                Configuração inicial concluída
-              </div>
-              <Button variant="outline" size="sm" onClick={() => navigate("/")}>
-                Ir para o painel
-              </Button>
-            </div>
-          ) : null}
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <div className="mb-3">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground"
+          >
+            <Link to="/configuracoes" className="transition-colors hover:text-primary">
+              Configurações
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-60" aria-hidden />
+            <span>{SETTINGS_PAGE_META["configuracao-inicial"].breadcrumb}</span>
+          </nav>
         </div>
+
+        <SettingsPageHeader
+          title={
+            isComplete
+              ? "Revisar configuração do espaço"
+              : SETTINGS_PAGE_META["configuracao-inicial"].title
+          }
+          description={
+            isComplete
+              ? "A configuração inicial já foi concluída. Clique em qualquer etapa abaixo para revisar ou ajustar as definições do seu espaço."
+              : "Clique em cada etapa para configurar. Ao salvar, a etapa fecha e a próxima é aberta automaticamente."
+          }
+          renderAction={
+            isComplete
+              ? (className) => (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate("/")}
+                    className={className}
+                  >
+                    Ir para o painel
+                  </Button>
+                )
+              : undefined
+          }
+          stats={
+            <>
+              <SettingsStatChip>
+                {completedSteps.length} de {GUIDED_SETUP_STEPS.length} etapas concluídas
+              </SettingsStatChip>
+              {isComplete ? (
+                <SettingsStatChip>configuração completa</SettingsStatChip>
+              ) : activeStepMeta ? (
+                <SettingsStatChip>etapa atual: {activeStepMeta.title}</SettingsStatChip>
+              ) : null}
+            </>
+          }
+        />
+
+        {isComplete ? (
+          <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-1.5 text-xs text-emerald-700 dark:text-emerald-300">
+            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+            Configuração inicial concluída
+          </div>
+        ) : null}
 
         <GuidedSetupStepper
           activeStep={activeStep}

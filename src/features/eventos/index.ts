@@ -7,14 +7,26 @@ export {
 } from "./constants";
 export { eventosQueryKeys } from "./query-keys";
 export { filterEventosBySearch, matchesEventoSearch } from "./filter-eventos-by-search";
+export { getEventoPackageDisplay } from "./evento-package-display";
+export type { EventoPackageDisplay } from "./evento-package-display";
 export { getDefaultStageForFunnel, isStageValidForFunnel } from "./stage-validation";
+export {
+  buildLeadImportCsvTemplate,
+  downloadLeadImportCsvTemplate,
+  getLeadImportCsvFilename,
+  getLeadImportFunnelLabel,
+  getLeadImportStageLabel,
+  LEAD_IMPORT_CSV_HEADERS,
+} from "./lead-import-csv-template";
 export {
   MAX_LEAD_UPLOAD_ROWS,
   parseLeadImportCsv,
   resolveEtapaCell,
   resolveFunilCell,
+  resolveTipoEventoCell,
 } from "./parse-leads-csv";
 export type { LeadCsvParseResult, LeadCsvRowParsed } from "./parse-leads-csv";
+export { normalizePackageMatchKey, resolvePackageByName } from "./resolve-package-by-name";
 export { useBulkCreateEventos } from "./use-bulk-create-eventos";
 export { useCreateEvento } from "./use-create-evento";
 export { useEvento } from "./use-evento";
@@ -31,6 +43,11 @@ export {
   useSubmitClosingForm,
 } from "./use-evento-closing-form";
 export {
+  useEventoImageUsageAcceptance,
+  type EventoImageUsageAcceptanceResult,
+  type ImageUsageAcceptanceStatus,
+} from "./use-evento-image-usage-acceptance";
+export {
   useAcceptEventoContract,
   useEventoContract,
   useEventoContractAcceptance,
@@ -43,6 +60,8 @@ export {
   useEventoContractHistory,
   useTenantContracts,
 } from "./use-tenant-contracts";
+export { useTenantFormSubmissions } from "./use-tenant-form-submissions";
+export type { TenantFormSubmissionListItem } from "./form-submission-types";
 export {
   useAcceptContractModuleTerms,
   useIsContractModuleEnabled,
@@ -110,8 +129,11 @@ export { formatContractHashShort, hashContractContent } from "./contracts/contra
 export type { ClosingFormSubmission } from "./use-evento-closing-form";
 export type { AdicionalSnapshotItem } from "./closing-form-runtime";
 export {
+  CLIENT_FORM_SECTIONS,
   CLOSING_FORM_SECTIONS,
   formatClosingFormResponseValue,
+  getEventoFieldValueAsString,
+  isClientFacingClosingFormField,
   isCustomClosingFormField,
   isClosingFormFieldApplicableToPackage,
 } from "./closing-form-runtime";

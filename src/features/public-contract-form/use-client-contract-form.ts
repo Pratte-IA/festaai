@@ -101,6 +101,7 @@ interface PublicAcceptanceTermLike {
   showAtSigning?: boolean;
   showInForm?: boolean;
   sortOrder: number;
+  termKey?: string | null;
   title: string;
 }
 
@@ -113,6 +114,7 @@ const mapAcceptanceTerm = (term: PublicAcceptanceTermLike) => ({
   showAtSigning: term.showAtSigning ?? false,
   showInForm: term.showInForm ?? true,
   sortOrder: term.sortOrder,
+  termKey: term.termKey ?? null,
   title: term.title,
 });
 

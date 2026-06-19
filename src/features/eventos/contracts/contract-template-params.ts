@@ -138,7 +138,7 @@ export const computeEventExtraGuestUnitPrice = (
 
   const totalValue =
     evento.valor_pacote ??
-    (packageData ? getPackagePriceForGuests(packageData, guestCount) : null) ??
+    (packageData ? getPackagePriceForGuests(packageData, guestCount, evento.data_evento) : null) ??
     evento.valor_total;
 
   if (totalValue == null) return null;

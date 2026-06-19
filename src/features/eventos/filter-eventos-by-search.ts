@@ -36,7 +36,8 @@ export const matchesEventoSearch = (evento: Evento, rawSearchTerm: string): bool
 
   const nameMatch =
     normalizeText(evento.cliente_nome).includes(searchTerm) ||
-    normalizeText(evento.aniversariante_nome).includes(searchTerm);
+    normalizeText(evento.aniversariante_nome).includes(searchTerm) ||
+    normalizeText(evento.pacote_nome).includes(searchTerm);
 
   const searchDigits = normalizePhoneDigits(rawSearchTerm);
   const phoneMatch =

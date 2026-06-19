@@ -87,13 +87,24 @@ const CRM = () => {
         ))}
       </div>
 
+      {activeFunnel === "executadas" && (
+        <p className="-mt-2 mb-6 max-w-2xl text-sm text-muted-foreground">
+          Festas antigas podem ter pacotes que nao existem mais no cadastro atual. O nome original e
+          preservado e marcado como legado.
+        </p>
+      )}
+
       <div className="mb-6 max-w-md">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pr-9 pl-9"
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Buscar por nome, telefone ou data da festa"
+            placeholder={
+              activeFunnel === "executadas"
+                ? "Buscar por cliente, pacote ou data da festa"
+                : "Buscar por nome, telefone ou data da festa"
+            }
             value={searchTerm}
           />
           {hasActiveSearch && (
@@ -132,7 +143,7 @@ const CRM = () => {
         <KanbanBoard events={filteredEventos} funnel={activeFunnel} stages={[...stages]} />
       )}
 
-      <LeadsUploadDialog onOpenChange={setIsUploadOpen} open={isUploadOpen} />
+      <LeadsUploadDialog initialFunnel={activeFunnel} onOpenChange={setIsUploadOpen} open={isUploadOpen} />
 
       <EventoFormDialog
         initialFunnel={activeFunnel}

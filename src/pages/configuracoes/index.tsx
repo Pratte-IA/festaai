@@ -8,10 +8,12 @@ import {
   LucideIcon,
   Package,
   PlugZap,
+  Sparkles,
   Tag,
   Wallet,
 } from "lucide-react";
 
+import { GUIDED_SETUP_ROUTE } from "@/features/guided-setup";
 import { useIsContractModuleReady } from "@/features/eventos/use-tenant-contract-module-settings";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +68,13 @@ const cards: ConfigCardProps[] = [
     title: "WhatsApp",
     description: "Conecte números WhatsApp via Evolution para disparos automáticos",
     icon: PlugZap,
+  },
+  {
+    to: GUIDED_SETUP_ROUTE,
+    title: "Configuração Inicial Guiada",
+    description:
+      "Revise ou altere qualquer etapa — empresa, pacotes, financeiro, contrato, formulário e integrações",
+    icon: Sparkles,
   },
 ];
 

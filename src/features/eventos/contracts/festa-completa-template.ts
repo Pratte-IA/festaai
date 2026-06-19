@@ -72,7 +72,7 @@ export const FESTA_COMPLETA_TEMPLATE_HTML = `<article class="contract-document">
 <p>É proibido utilizar confetes, serpentinas, produtos inflamáveis, fogos, fumaça artificial, tintas, sprays, colas permanentes ou qualquer item que possa danificar o espaço, salvo autorização expressa.</p>
 
 <h2>14. DO USO DE IMAGEM</h2>
-<p>O CONTRATANTE poderá autorizar ou não o uso de imagens do evento para fins de divulgação da CONTRATADA. Opção selecionada pelo CONTRATANTE: <strong>{{autoriza_uso_imagem}}</strong>.</p>
+<p>O CONTRATANTE poderá autorizar ou não o uso de imagens e vídeos do aniversariante e da família para fins de divulgação da CONTRATADA nas redes sociais. A divulgação do ambiente, decoração e itens da festa não depende desta autorização. Opção selecionada pelo CONTRATANTE: <strong>{{autoriza_uso_imagem}}</strong>.</p>
 
 <h2>15. DA PROTEÇÃO DE DADOS PESSOAIS</h2>
 <p>O CONTRATANTE declara ciência de que seus dados pessoais serão tratados pela CONTRATADA para fins de execução deste contrato, reserva de data, comunicação, cobrança, organização do evento e cumprimento de obrigações legais.</p>

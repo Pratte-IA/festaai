@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, GripVertical, Users, PartyPopper } from "lucide-react";
+import { Calendar, GripVertical, Package, PartyPopper, Users } from "lucide-react";
+import { useTenantPackages } from "@/features/configuracoes";
+import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import { Evento, FunnelType, Stage, StageDefinition, useUpdateEventoStage } from "@/features/eventos";
 import { toast } from "@/hooks/use-toast";
 
@@ -45,6 +47,8 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
   const navigate = useNavigate();
   const [draggedEvent, setDraggedEvent] = useState<number | null>(null);
   const updateEventoStage = useUpdateEventoStage();
+  const { data: packages = [] } = useTenantPackages();
+  const showPackageLine = funnel === "executadas" || funnel === "festa";
 
   const handleDragStart = (eventId: number) => {
     setDraggedEvent(eventId);
@@ -158,6 +162,13 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
                         <Users className="w-3 h-3 flex-shrink-0" />
                         {event.quantidade_convidados ?? 0} convidados
                       </p>
+
+                      {showPackageLine && (
+                        <p className="text-xs text-muted-foreground flex items-start gap-1">
+                          <Package className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                          <EventoPackageLabel evento={event} packages={packages} />
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,3 +1,8 @@
+import {
+  formatAceiteStatusLabel,
+  formatImageUsageContractLabel,
+  IMAGE_USAGE_TERM_KEY,
+} from "@/features/configuracoes/acceptance-term-response";
 import type { ClosingFormField } from "@/features/configuracoes/closing-form-types";
 import type { FinancialSettings } from "@/features/configuracoes/financial-settings-types";
 import type { TenantAcceptanceTerm } from "@/features/configuracoes/acceptance-term-types";
@@ -90,6 +95,7 @@ const buildAceitesSnapshot = (
       accepted: responses[term.id] ?? false,
       content: term.content,
       termId: Number(term.id),
+      termKey: term.termKey,
       title: term.title,
     }));
 
@@ -98,7 +104,7 @@ const formatAceitesBlock = (aceites: ContractSnapshotTerm[]): string => {
 
   return aceites
     .map((term) => {
-      const status = term.accepted ? "[Aceito]" : "[Pendente]";
+      const status = formatAceiteStatusLabel({ termKey: term.termKey }, term.accepted);
       return `${status} ${term.title}\n${term.content}`;
     })
     .join("\n\n");
@@ -194,6 +200,9 @@ export const buildPlaceholderMap = (
   const eventPlaceholders = {
     aceites: formatAceitesBlock(snapshot.aceites),
     adicionais_contratados: formatAdditionalsBlock(snapshot.adicionais),
+    autoriza_uso_imagem: formatImageUsageContractLabel(
+      snapshot.aceites.find((term) => term.termKey === IMAGE_USAGE_TERM_KEY)?.accepted,
+    ),
     aniversariante_data_nascimento: formatDate(evento.aniversariante_data_nascimento),
     aniversariante_nome: evento.aniversariante_nome ?? EMPTY_PLACEHOLDER,
     aniversariante_tema: evento.aniversariante_tema ?? EMPTY_PLACEHOLDER,

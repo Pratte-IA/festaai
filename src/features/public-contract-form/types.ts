@@ -1,4 +1,5 @@
 import type { ClosingFormField, ClosingFormSection } from "@/features/configuracoes/closing-form-types";
+import { CLIENT_FORM_SECTIONS } from "@/features/eventos/closing-form-runtime";
 import type { Additional, PackageData } from "@/data/packagesData";
 
 export interface PublicAcceptanceTerm {
@@ -10,6 +11,7 @@ export interface PublicAcceptanceTerm {
   showAtSigning?: boolean;
   showInForm?: boolean;
   sortOrder: number;
+  termKey: string | null;
   title: string;
 }
 
@@ -67,16 +69,7 @@ export interface ClientContractAcceptResult {
   whatsappDispatchScheduled?: boolean;
 }
 
-export const PUBLIC_FORM_SECTIONS: ClosingFormSection[] = [
-  "cliente",
-  "aniversariante",
-  "festa",
-  "pacote",
-  "adicionais",
-  "pagamento",
-  "contrato",
-  "aceites",
-];
+export const PUBLIC_FORM_SECTIONS: ClosingFormSection[] = CLIENT_FORM_SECTIONS;
 
 export const buildPublicFormUrl = (tenantSlug: string) =>
   `${typeof window !== "undefined" ? window.location.origin : ""}/formulario/${tenantSlug}`;

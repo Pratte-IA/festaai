@@ -104,6 +104,7 @@ export interface AcceptanceTermLike {
   content: string;
   id: number;
   showInForm: boolean;
+  termKey: string | null;
   title: string;
 }
 
@@ -111,15 +112,23 @@ export interface ContractSnapshotTerm {
   accepted: boolean;
   content: string;
   termId: number;
+  termKey: string | null;
   title: string;
 }
+
+const formatAceiteStatusLabel = (termKey: string | null, accepted: boolean): string => {
+  if (termKey === "uso_imagem") {
+    return accepted ? "[Autorizado]" : "[Não autorizado]";
+  }
+  return accepted ? "[Aceito]" : "[Pendente]";
+};
 
 const formatAceitesBlock = (aceites: ContractSnapshotTerm[]): string => {
   if (aceites.length === 0) return "Nenhum consentimento registrado no formulário.";
 
   return aceites
     .map((term) => {
-      const status = term.accepted ? "[Aceito]" : "[Pendente]";
+      const status = formatAceiteStatusLabel(term.termKey, term.accepted);
       return `${status} ${term.title}\n${term.content}`;
     })
     .join("\n\n");
@@ -241,6 +250,7 @@ const buildAceitesSnapshot = (
       accepted: responses[String(term.id)] ?? false,
       content: term.content,
       termId: term.id,
+      termKey: term.termKey,
       title: term.title,
     }));
 
@@ -288,6 +298,11 @@ export const buildEventoContract = async (input: BuildEventoContractInput) => {
   const placeholders: Record<string, string> = {
     aceites: formatAceitesBlock(aceites),
     adicionais_contratados: formatAdditionalsBlock(adicionais),
+    autoriza_uso_imagem: aceites.find((term) => term.termKey === "uso_imagem")
+      ? aceites.find((term) => term.termKey === "uso_imagem")!.accepted
+        ? "Autorizo"
+        : "Não autorizo"
+      : EMPTY_PLACEHOLDER,
     agencia: params.agencia.trim() || EMPTY_PLACEHOLDER,
     aniversariante_data_nascimento: formatDate(evento.aniversariante_data_nascimento as string),
     aniversariante_nome: (evento.aniversariante_nome as string) ?? EMPTY_PLACEHOLDER,

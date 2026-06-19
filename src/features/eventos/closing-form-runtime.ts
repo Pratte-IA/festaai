@@ -1,6 +1,10 @@
 import type { Additional, PackageData } from "@/data/packagesData";
 import { itemsToLines } from "@/data/packagesData";
-import { getTierBandPrice } from "@/data/pricing-schedule";
+import {
+  DEFAULT_PRICING_SCHEDULE,
+  getTierBandPrice,
+  resolvePricingBandForDate,
+} from "@/data/pricing-schedule";
 import type {
   ClosingFormField,
   ClosingFormFieldType,
@@ -86,6 +90,36 @@ export const HIDDEN_PACKAGE_FIELD_KEYS = new Set([
 export const isHiddenPackageFieldKey = (fieldKey: string | null): boolean =>
   Boolean(fieldKey && HIDDEN_PACKAGE_FIELD_KEYS.has(fieldKey));
 
+/** Campos de pagamento calculados ou internos — ocultos no formulário do cliente e no preview. */
+export const HIDDEN_CLIENT_PAYMENT_FIELD_KEYS = new Set([
+  "data_limite_pagamento",
+  "forma_pagamento_saldo",
+  "parcelas",
+]);
+
+export const isHiddenClientPaymentFieldKey = (fieldKey: string | null): boolean =>
+  Boolean(fieldKey && HIDDEN_CLIENT_PAYMENT_FIELD_KEYS.has(fieldKey));
+
+export const filterClientVisiblePaymentFields = <T extends { fieldKey: string | null }>(
+  fields: T[],
+): T[] => fields.filter((field) => !isHiddenClientPaymentFieldKey(field.fieldKey));
+
+/** Seções do formulário público e preview — sem área interna de contrato/observações. */
+export const CLIENT_FORM_SECTIONS: ClosingFormSection[] = [
+  "cliente",
+  "aniversariante",
+  "festa",
+  "pacote",
+  "adicionais",
+  "pagamento",
+  "aceites",
+];
+
+export const isClientFacingClosingFormField = (
+  field: Pick<ClosingFormField, "fieldKey" | "section">,
+): boolean =>
+  field.section !== "contrato" && !isHiddenClientPaymentFieldKey(field.fieldKey);
+
 export const CLOSING_FORM_SECTIONS: ClosingFormSection[] = [
   "cliente",
   "aniversariante",
@@ -145,10 +179,30 @@ export const parseAdicionaisSnapshot = (value: Json | null | undefined): Adicion
   });
 };
 
-export const getPackageFromPrice = (pkg: PackageData): number => {
+export const resolveEventDateFromFieldValues = (
+  fieldValues: Record<string, string>,
+  fieldIdByKey: Map<string, string>,
+  fallbackDate?: string | null,
+): string | null => {
+  const fieldId = fieldIdByKey.get("data_evento");
+  const fromField = fieldId ? fieldValues[fieldId]?.trim() : "";
+  return fromField || fallbackDate || null;
+};
+
+export const getPackageFromPrice = (pkg: PackageData, eventDate?: string | null): number => {
   const tiers = pkg.pricingTiers ?? [];
-  const bands = pkg.pricingSchedule?.bands ?? [];
+  const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
+  const bands = schedule.bands ?? [];
   if (tiers.length === 0) return 0;
+
+  if (eventDate && bands.length > 0) {
+    const band = resolvePricingBandForDate(schedule, eventDate);
+    if (band) {
+      const tierPrices = tiers.map((item) => getTierBandPrice(item.bandPrices, band.id));
+      const positiveTierPrices = tierPrices.filter((price) => price > 0);
+      if (positiveTierPrices.length > 0) return Math.min(...positiveTierPrices);
+    }
+  }
 
   const prices = tiers.flatMap((tier) =>
     bands.length > 0
@@ -160,9 +214,14 @@ export const getPackageFromPrice = (pkg: PackageData): number => {
   return positive.length > 0 ? Math.min(...positive) : 0;
 };
 
-export const getPackagePriceForGuests = (pkg: PackageData, guestCount: number): number => {
+export const getPackagePriceForGuests = (
+  pkg: PackageData,
+  guestCount: number,
+  eventDate?: string | null,
+): number => {
   const tiers = pkg.pricingTiers ?? [];
-  const bands = pkg.pricingSchedule?.bands ?? [];
+  const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
+  const bands = schedule.bands ?? [];
   if (tiers.length === 0) return 0;
 
   const tier =
@@ -171,10 +230,24 @@ export const getPackagePriceForGuests = (pkg: PackageData, guestCount: number): 
 
   if (bands.length === 0) return 0;
 
+  if (eventDate) {
+    const band = resolvePricingBandForDate(schedule, eventDate);
+    if (band) return getTierBandPrice(tier.bandPrices, band.id);
+  }
+
   const prices = bands.map((band) => getTierBandPrice(tier.bandPrices, band.id));
   const positive = prices.filter((price) => price > 0);
   return positive.length > 0 ? Math.min(...positive) : prices[0] ?? 0;
 };
+
+export const resolvePackagePrice = (
+  pkg: PackageData,
+  guestCount: number,
+  eventDate?: string | null,
+): number =>
+  guestCount > 0
+    ? getPackagePriceForGuests(pkg, guestCount, eventDate)
+    : getPackageFromPrice(pkg, eventDate);
 
 export const calculateAdditionalSubtotal = (
   additional: Pick<Additional, "price" | "type">,
@@ -227,7 +300,8 @@ export const applyPackageToFieldValues = (
   fieldIdByKey: Map<string, string>,
 ): Record<string, string> => {
   const next = { ...fieldValues };
-  const price = guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg);
+  const eventDate = resolveEventDateFromFieldValues(next, fieldIdByKey);
+  const price = resolvePackagePrice(pkg, guestCount, eventDate);
 
   const setKey = (key: string, value: string) => {
     const fieldId = fieldIdByKey.get(key);
@@ -248,10 +322,11 @@ export const applyPackageToFieldValues = (
 export const buildPackageEventoUpdates = (
   pkg: PackageData,
   guestCount: number,
+  eventDate?: string | null,
 ): Pick<EventoUpdate, "pacote_convidados_inclusos" | "pacote_nome" | "valor_pacote"> => ({
   pacote_convidados_inclusos: pkg.includedGuests ?? null,
   pacote_nome: pkg.name,
-  valor_pacote: guestCount > 0 ? getPackagePriceForGuests(pkg, guestCount) : getPackageFromPrice(pkg),
+  valor_pacote: resolvePackagePrice(pkg, guestCount, eventDate),
 });
 
 export const recalculateFinancialTotals = (

@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Users,
   FileText,
+  ClipboardList,
   BarChart3,
   Settings,
   Calendar,
@@ -14,22 +15,56 @@ import {
   Building2,
   CreditCard,
   LifeBuoy,
+  type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
 import { useTenantAdminCapability } from "@/features/tenants/use-tenant-admin-capability";
 import { toast } from "@/hooks/use-toast";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Users, label: "CRM", path: "/crm" },
-  { icon: FileText, label: "Contratos", path: "/contratos" },
-  { icon: Calendar, label: "Calendário", path: "/calendario" },
-  { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
-  { icon: CreditCard, label: "Assinatura", path: "/minha-assinatura" },
-  { icon: Settings, label: "Configurações", path: "/configuracoes" },
+interface NavItem {
+  icon: LucideIcon;
+  label: string;
+  path: string;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const dashboardItem: NavItem = { icon: LayoutDashboard, label: "Dashboard", path: "/" };
+
+const vendasSection: NavSection = {
+  title: "Vendas",
+  items: [
+    { icon: Users, label: "CRM", path: "/crm" },
+    { icon: Calendar, label: "Calendário", path: "/calendario" },
+  ],
+};
+
+const gestaoSection: NavSection = {
+  title: "Gestão",
+  items: [
+    { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
+    { icon: ClipboardList, label: "Formulários", path: "/formularios" },
+    { icon: FileText, label: "Contratos", path: "/contratos" },
+    { icon: Settings, label: "Configurações", path: "/configuracoes" },
+  ],
+};
+
+const sistemaBaseItems: NavItem[] = [
   { icon: UserCog, label: "Usuários", path: "/usuarios" },
+  { icon: CreditCard, label: "Assinatura", path: "/minha-assinatura" },
 ];
+
+const suporteItem: NavItem = { icon: LifeBuoy, label: "Suporte", path: "/suporte" };
+
+function isNavItemActive(pathname: string, path: string) {
+  return path === "/"
+    ? pathname === "/"
+    : pathname === path || pathname.startsWith(`${path}/`);
+}
 
 interface AppSidebarProps {
   open: boolean;
@@ -44,9 +79,16 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
   const { currentTenant, isLoading: isTenantLoading } = useCurrentTenant();
   const { data: tenantAdminCap } = useTenantAdminCapability();
 
-  const navItemsResolved = tenantAdminCap?.isTenantAdmin
-    ? [...navItems, { icon: LifeBuoy, label: "Suporte", path: "/suporte" } as const]
-    : navItems;
+  const sectionsResolved: NavSection[] = [
+    vendasSection,
+    gestaoSection,
+    {
+      title: "Sistema",
+      items: tenantAdminCap?.isTenantAdmin
+        ? [...sistemaBaseItems, suporteItem]
+        : sistemaBaseItems,
+    },
+  ];
 
   useEffect(() => {
     onClose();
@@ -63,6 +105,29 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
     });
 
     navigate("/login", { replace: true });
+  };
+
+  const renderNavItem = (item: NavItem) => {
+    const isActive = isNavItemActive(location.pathname, item.path);
+
+    return (
+      <Link
+        key={item.path}
+        to={item.path}
+        onClick={onClose}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
+          isActive
+            ? "bg-primary/15 text-primary"
+            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        }`}
+      >
+        <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-primary" : ""}`} />
+        <span className="text-sm font-medium">{item.label}</span>
+        {isActive && (
+          <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
+        )}
+      </Link>
+    );
   };
 
   return (
@@ -92,31 +157,17 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-2 space-y-1">
-        {navItemsResolved.map((item) => {
-          const isActive =
-            item.path === "/"
-              ? location.pathname === "/"
-              : location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
-                isActive
-                  ? "bg-primary/15 text-primary"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }`}
-            >
-              <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-primary" : ""}`} />
-              <span className="text-sm font-medium">{item.label}</span>
-              {isActive && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto py-4 px-2">
+        <div className="space-y-1">{renderNavItem(dashboardItem)}</div>
+
+        {sectionsResolved.map((section) => (
+          <div key={section.title} className="mt-4">
+            <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {section.title}
+            </p>
+            <div className="space-y-1">{section.items.map(renderNavItem)}</div>
+          </div>
+        ))}
       </nav>
 
       {/* Empresa atual + conta (um bloco) */}

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -160,6 +160,11 @@ export const AcceptanceTermsTab = () => {
     }
   };
 
+  const visibleTerms = useMemo(
+    () => terms.filter((term) => term.active).sort((a, b) => a.sortOrder - b.sortOrder),
+    [terms],
+  );
+
   const isMutating =
     createTerm.isPending ||
     updateTerm.isPending ||
@@ -190,7 +195,9 @@ export const AcceptanceTermsTab = () => {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ClipboardCheck className="h-4 w-4" aria-hidden />
           <span>
-            {isLoading ? "Carregando..." : `${terms.length} aceite${terms.length === 1 ? "" : "s"}`}
+            {isLoading
+              ? "Carregando..."
+              : `${visibleTerms.length} aceite${visibleTerms.length === 1 ? "" : "s"} ativo${visibleTerms.length === 1 ? "" : "s"}`}
           </span>
         </div>
         <Button onClick={openCreate} className="gap-2 shrink-0" disabled={isMutating}>
@@ -203,7 +210,7 @@ export const AcceptanceTermsTab = () => {
         <p className="text-sm text-muted-foreground">Carregando aceites e regras...</p>
       )}
 
-      {!isLoading && terms.length === 0 && (
+      {!isLoading && visibleTerms.length === 0 && (
         <div className="rounded-xl border border-dashed border-border/60 p-10 text-center">
           <p className="text-sm text-muted-foreground">
             Nenhum aceite configurado. Os termos padrão devem ser criados automaticamente para
@@ -214,17 +221,13 @@ export const AcceptanceTermsTab = () => {
       )}
 
       <div className="space-y-3">
-        {terms.map((term, index) => {
-          const isInactive = !term.active;
+        {visibleTerms.map((term, index) => {
           const locked = isLockedSystemTerm(term);
 
           return (
             <div
               key={term.id}
-              className={cn(
-                "rounded-xl border bg-card/40 p-4 flex flex-col sm:flex-row sm:items-start gap-4",
-                isInactive ? "border-border/40 opacity-70" : "border-border/60",
-              )}
+              className="rounded-xl border bg-card/40 p-4 flex flex-col sm:flex-row sm:items-start gap-4 border-border/60"
             >
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="flex items-start gap-2 flex-wrap">
@@ -242,7 +245,6 @@ export const AcceptanceTermsTab = () => {
                   {term.showInForm && <TermBadge variant="primary">Formulário</TermBadge>}
                   {term.showAtSigning && <TermBadge variant="warning">Assinatura</TermBadge>}
                   {term.isSystem && <TermBadge variant="warning">Sistema</TermBadge>}
-                  {isInactive && <TermBadge variant="muted">Inativo</TermBadge>}
                 </div>
 
                 <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-wrap">
@@ -276,7 +278,7 @@ export const AcceptanceTermsTab = () => {
                 <button
                   type="button"
                   title="Mover para baixo"
-                  disabled={index === terms.length - 1 || reorderTerm.isPending}
+                  disabled={index === visibleTerms.length - 1 || reorderTerm.isPending}
                   onClick={async () => {
                     try {
                       await reorderTerm.mutateAsync({ direction: "down", id: term.id });
@@ -290,17 +292,15 @@ export const AcceptanceTermsTab = () => {
                 </button>
                 <button
                   type="button"
-                  title={isInactive ? "Ativar aceite" : "Inativar aceite"}
-                  disabled={toggleTermActive.isPending || (locked && !isInactive)}
+                  title="Inativar aceite"
+                  disabled={toggleTermActive.isPending || locked}
                   onClick={async () => {
                     try {
                       await toggleTermActive.mutateAsync({
-                        active: isInactive,
+                        active: false,
                         term,
                       });
-                      toast({
-                        title: isInactive ? "Aceite ativado" : "Aceite inativado",
-                      });
+                      toast({ title: "Aceite inativado" });
                     } catch (error) {
                       toast({
                         title: "Nao foi possivel alterar o status",

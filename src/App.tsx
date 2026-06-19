@@ -15,6 +15,8 @@ const Usuarios = lazy(() => import("./pages/Usuarios.tsx"));
 const CRM = lazy(() => import("./pages/CRM.tsx"));
 const Contratos = lazy(() => import("./pages/Contratos.tsx"));
 const ContratoDetalhe = lazy(() => import("./pages/ContratoDetalhe.tsx"));
+const Formularios = lazy(() => import("./pages/Formularios.tsx"));
+const FormularioDetalhe = lazy(() => import("./pages/FormularioDetalhe.tsx"));
 const Calendario = lazy(() => import("./pages/Calendario.tsx"));
 const Relatorios = lazy(() => import("./pages/Relatorios.tsx"));
 const ConfiguracoesLayout = lazy(() => import("./pages/configuracoes/layout"));
@@ -183,6 +185,22 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <EventoDetalhe />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/formularios/:eventoId"
+                  element={
+                    <ProtectedRoute>
+                      <FormularioDetalhe />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/formularios"
+                  element={
+                    <ProtectedRoute>
+                      <Formularios />
                     </ProtectedRoute>
                   }
                 />

@@ -1,6 +1,6 @@
 import { funnelTabs, stageMap } from "./constants";
 import { getDefaultStageForFunnel, resolveFunnelStageForImport } from "./stage-validation";
-import { FunnelType, InternalStatus, Stage } from "./types";
+import { EventType, FunnelType, InternalStatus, Stage } from "./types";
 
 export interface LeadCsvRowParsed {
   aniversariante_data_nascimento: string | null;
@@ -17,7 +17,7 @@ export interface LeadCsvRowParsed {
   pacote_nome: string | null;
   quantidade_convidados: number | null;
   status_interno: InternalStatus;
-  tipo_evento: "festa";
+  tipo_evento: EventType;
   valor_adicionais: number;
   valor_entrada: number;
   valor_pacote: number;
@@ -65,6 +65,7 @@ const HEADER_ALIASES: Record<string, string[]> = {
   observacoes: ["observacoes", "obs", "notas", "mensagem"],
   etapa: ["etapa", "fase", "coluna_etapa", "quadro"],
   funil: ["funil", "pipeline", "funnel"],
+  tipo_evento: ["tipo_evento", "tipo", "type"],
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -263,6 +264,16 @@ export const resolveEtapaCell = (
 
 const deriveStatusInternoFromEtapa = (etapa: Stage): InternalStatus => (etapa === "perdido" ? "perdido" : "ativo");
 
+export const resolveTipoEventoCell = (raw: string): { tipo_evento: EventType } | { error: string } => {
+  const normalized = normalizeHeaderKey(raw);
+  if (!normalized) return { tipo_evento: "festa" };
+
+  if (normalized === "festa") return { tipo_evento: "festa" };
+  if (normalized === "visita") return { tipo_evento: "visita" };
+
+  return { error: 'Tipo de evento invalido. Use "festa" ou "visita".' };
+};
+
 /** Parseia CSV UTF-8: cada linha define funil e etapa (colunas obrigatorias no cabecalho; celula etapa vazia usa 1a etapa do funil). */
 export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
   const cleaned = stripUtf8Bom(text).trimEnd();
@@ -392,6 +403,13 @@ export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
 
     const quantidade_convidados = parseNullableInt(cellAt(fields, columnByField, "quantidade_convidados"));
 
+    const tipoEventoRaw = cellAt(fields, columnByField, "tipo_evento");
+    const tipoEventoHit = resolveTipoEventoCell(tipoEventoRaw);
+    if ("error" in tipoEventoHit) {
+      issues.push({ line: lineNumber, message: tipoEventoHit.error });
+      continue;
+    }
+
     const valor_pacote = parseMoneyFlexible(cellAt(fields, columnByField, "valor_pacote")) ?? 0;
     const valor_adicionais = parseMoneyFlexible(cellAt(fields, columnByField, "valor_adicionais")) ?? 0;
     const valor_entrada = parseMoneyFlexible(cellAt(fields, columnByField, "valor_entrada")) ?? 0;
@@ -428,7 +446,7 @@ export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
       pacote_nome: cellAt(fields, columnByField, "pacote_nome").trim() || null,
       quantidade_convidados,
       status_interno: deriveStatusInternoFromEtapa(etapa),
-      tipo_evento: "festa",
+      tipo_evento: tipoEventoHit.tipo_evento,
       valor_adicionais,
       valor_entrada,
       valor_pacote,

@@ -35,6 +35,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import {
+  SettingsPageHeader,
+  SettingsStatChip,
+} from "@/components/configuracoes/SettingsPageHeader";
+import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -265,31 +270,56 @@ const AdditionalsConfig = ({ adminMode = false, hideHeader }: Props) => {
     }
   };
 
+  const activeCount = additionals.filter((item) => item.active !== false).length;
+  const linkedPackageCount = new Set(
+    additionals.flatMap((item) => item.packageIds ?? []),
+  ).size;
+
+  const novoAdicionalButton = (className?: string) => (
+    <Button
+      onClick={() => setIsCreating((current) => !current)}
+      disabled={isPackagesLoading || packageOptions.length === 0}
+      className={cn("shrink-0", className)}
+    >
+      <Plus className="w-4 h-4" />
+      Novo Adicional
+    </Button>
+  );
+
   return (
-    <div className="space-y-5">
+    <div className={hideHeader ? "space-y-4" : "space-y-5"}>
       {!hideHeader && (
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground">Adicionais</h2>
-          <button
-            onClick={() => setIsCreating((current) => !current)}
-            disabled={isPackagesLoading || packageOptions.length === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4" /> Novo Adicional
-          </button>
+          {novoAdicionalButton()}
         </div>
       )}
 
       {hideHeader && (
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsCreating((current) => !current)}
-            disabled={isPackagesLoading || packageOptions.length === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4" /> Novo Adicional
-          </button>
-        </div>
+        <SettingsPageHeader
+          title={SETTINGS_PAGE_META.adicionais.title}
+          description={SETTINGS_PAGE_META.adicionais.description}
+          renderAction={(className) => novoAdicionalButton(className)}
+          stats={
+            !isLoading ? (
+              <>
+                <SettingsStatChip>
+                  {activeCount} {activeCount === 1 ? "adicional ativo" : "adicionais ativos"}
+                </SettingsStatChip>
+                <SettingsStatChip>
+                  {additionals.length}{" "}
+                  {additionals.length === 1 ? "item cadastrado" : "itens cadastrados"}
+                </SettingsStatChip>
+                {linkedPackageCount > 0 && (
+                  <SettingsStatChip>
+                    em {linkedPackageCount}{" "}
+                    {linkedPackageCount === 1 ? "pacote" : "pacotes"}
+                  </SettingsStatChip>
+                )}
+              </>
+            ) : null
+          }
+        />
       )}
 
       {isCreating && (
