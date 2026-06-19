@@ -1,6 +1,7 @@
 export { AuthProvider } from "./auth-provider";
 export { PlatformAdminRoute } from "./platform-admin-route";
 export { ProtectedRoute } from "./protected-route";
+export { RootEntry } from "./root-entry";
 export { useAuth } from "./use-auth";
 export {
   useAuthSession,

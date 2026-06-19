@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -19,14 +20,21 @@ import {
   STRUCTURE_FORM_SECTIONS,
   closingFormFieldTypeLabels,
   closingFormSectionLabels,
+  isClosingFormSelectFieldType,
+  parseOptionsFromLines,
   useCreateClosingFormField,
   useDeleteClosingFormField,
   useReorderClosingFormField,
   useTenantClosingForm,
+  useTenantPackages,
   useUpdateClosingFormField,
 } from "@/features/configuracoes";
 import { toast } from "@/hooks/use-toast";
 
+import {
+  ClosingFormPackageApplicabilityField,
+  formatClosingFormFieldPackageLabels,
+} from "./ClosingFormPackageApplicabilityField";
 import {
   FormFieldEditorDialog,
   FormFieldEditorValues,
@@ -36,8 +44,25 @@ import { FormFieldRow } from "./FormFieldRow";
 const ACEITES_EMPTY_MESSAGE =
   "Os termos de aceite são configurados na aba Aceites e Regras. Esta seção não usa campos do formulário.";
 
-export const FormStructureTab = () => {
+const scrollToClosingFormSection = (section: ClosingFormSection) => {
+  window.requestAnimationFrame(() => {
+    document
+      .getElementById(`closing-form-section-${section}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+};
+
+interface FormStructureTabProps {
+  onRegisterPendingSave?: (handler: () => Promise<boolean>) => void;
+}
+
+export const FormStructureTab = ({ onRegisterPendingSave }: FormStructureTabProps) => {
   const { data: fields = [], isLoading } = useTenantClosingForm();
+  const { data: packages = [] } = useTenantPackages();
+  const packageOptions = useMemo(
+    () => packages.map((pkg) => ({ id: pkg.id, name: pkg.name })),
+    [packages],
+  );
   const createField = useCreateClosingFormField();
   const updateField = useUpdateClosingFormField();
   const deleteField = useDeleteClosingFormField();
@@ -47,9 +72,77 @@ export const FormStructureTab = () => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [busyFieldId, setBusyFieldId] = useState<string | null>(null);
 
-  const [newFieldSection, setNewFieldSection] = useState<ClosingFormSection>("contrato");
+  const [newFieldSection, setNewFieldSection] = useState<ClosingFormSection>("festa");
   const [newFieldLabel, setNewFieldLabel] = useState("");
   const [newFieldType, setNewFieldType] = useState<ClosingFormFieldType>("text");
+  const [newFieldPackageIds, setNewFieldPackageIds] = useState<string[]>([]);
+  const [newFieldOptionsText, setNewFieldOptionsText] = useState("");
+
+  const showNewFieldOptions = isClosingFormSelectFieldType(newFieldType);
+  const parsedNewFieldOptions = parseOptionsFromLines(newFieldOptionsText);
+  const newFieldOptionsInsufficient =
+    showNewFieldOptions && newFieldLabel.trim() && parsedNewFieldOptions.length < 2;
+
+  const savePendingField = useCallback(async (): Promise<boolean> => {
+    const label = newFieldLabel.trim();
+    if (!label) return false;
+
+    const options = showNewFieldOptions ? parseOptionsFromLines(newFieldOptionsText) : [];
+    if (showNewFieldOptions && options.length < 2) {
+      toast({
+        title: "Complete as opções de resposta",
+        description:
+          "Para seleção única ou múltipla, liste pelo menos duas opções — uma em cada linha.",
+        variant: "destructive",
+      });
+      throw new Error("Opções de resposta incompletas.");
+    }
+
+    const createdField = await createField.mutateAsync({
+      config: showNewFieldOptions ? { options } : {},
+      fieldType: newFieldType,
+      label,
+      packageIds: newFieldPackageIds,
+      required: false,
+      section: newFieldSection,
+    });
+
+    toast({
+      title: "Pergunta salva",
+      description: `«${label}» foi adicionada na seção ${closingFormSectionLabels[newFieldSection]}.`,
+    });
+    setNewFieldLabel("");
+    setNewFieldPackageIds([]);
+    setNewFieldOptionsText("");
+    scrollToClosingFormSection(createdField.section);
+    return true;
+  }, [
+    createField,
+    newFieldLabel,
+    newFieldOptionsText,
+    newFieldPackageIds,
+    newFieldSection,
+    newFieldType,
+    showNewFieldOptions,
+  ]);
+
+  useEffect(() => {
+    if (!onRegisterPendingSave) return;
+    onRegisterPendingSave(savePendingField);
+  }, [onRegisterPendingSave, savePendingField]);
+
+  const addCustomField = async () => {
+    try {
+      await savePendingField();
+    } catch (error) {
+      if (error instanceof Error && error.message === "Opções de resposta incompletas.") return;
+      toast({
+        title: "Não foi possível salvar a pergunta",
+        description: error instanceof Error ? error.message : undefined,
+        variant: "destructive",
+      });
+    }
+  };
 
   const fieldsBySection = useMemo(() => {
     const grouped = new Map<ClosingFormSection, ClosingFormField[]>();
@@ -126,6 +219,7 @@ export const FormStructureTab = () => {
         fieldId: field.id,
         fieldType: field.isSystem ? undefined : updates.fieldType,
         label: field.isSystem ? undefined : updates.label.trim(),
+        packageIds: field.isSystem ? undefined : updates.packageIds,
         required: updates.required,
         section: field.isSystem ? undefined : updates.section,
         usage: updates.usage,
@@ -135,24 +229,6 @@ export const FormStructureTab = () => {
       setEditingField(null);
     } catch {
       toast({ title: "Não foi possível salvar o campo", variant: "destructive" });
-    }
-  };
-
-  const addCustomField = async () => {
-    const label = newFieldLabel.trim();
-    if (!label) return;
-
-    try {
-      await createField.mutateAsync({
-        fieldType: newFieldType,
-        label,
-        required: false,
-        section: newFieldSection,
-      });
-      toast({ title: "Campo adicionado" });
-      setNewFieldLabel("");
-    } catch {
-      toast({ title: "Não foi possível adicionar o campo", variant: "destructive" });
     }
   };
 
@@ -176,7 +252,11 @@ export const FormStructureTab = () => {
           const activeCount = sectionFields.filter((field) => field.active).length;
 
           return (
-            <div key={section} className="glass-card overflow-hidden">
+            <div
+              key={section}
+              id={`closing-form-section-${section}`}
+              className="glass-card overflow-hidden scroll-mt-6"
+            >
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/30 px-4 py-3">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
@@ -207,6 +287,7 @@ export const FormStructureTab = () => {
                   <FormFieldRow
                     key={field.id}
                     field={field}
+                    packageLabel={formatClosingFormFieldPackageLabels(field.packageIds, packageOptions)}
                     canMoveUp={index > 0}
                     canMoveDown={index < sectionFields.length - 1}
                     isBusy={busyFieldId === field.id || isMutating}
@@ -227,11 +308,20 @@ export const FormStructureTab = () => {
           <h3 className="text-sm font-semibold text-foreground">Adicionar campo personalizado</h3>
           <p className="mt-1 text-xs text-muted-foreground">
             Campos extras com tipo, categoria e destinos definidos. Nada de campos soltos sem
-            finalidade.
+            finalidade. O campo aparece na seção escolhida acima — role a página para conferir após
+            adicionar.
           </p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5 sm:col-span-2">
+            <ClosingFormPackageApplicabilityField
+              packages={packageOptions}
+              selectedIds={newFieldPackageIds}
+              onChange={setNewFieldPackageIds}
+            />
+          </div>
+
           <div className="space-y-1.5">
             <Label className="text-xs">Seção</Label>
             <Select
@@ -257,7 +347,11 @@ export const FormStructureTab = () => {
             <Label className="text-xs">Tipo</Label>
             <Select
               value={newFieldType}
-              onValueChange={(value) => setNewFieldType(value as ClosingFormFieldType)}
+              onValueChange={(value) => {
+                const nextType = value as ClosingFormFieldType;
+                setNewFieldType(nextType);
+                if (!isClosingFormSelectFieldType(nextType)) setNewFieldOptionsText("");
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Tipo" />
@@ -270,30 +364,69 @@ export const FormStructureTab = () => {
                 ))}
               </SelectContent>
             </Select>
+            {newFieldType === "select" && (
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                O cliente escolhe <span className="font-medium text-foreground">uma</span> opção
+                (ex.: Buffet ou Garçom serve nas mesas).
+              </p>
+            )}
+            {newFieldType === "multiselect" && (
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                O cliente pode marcar <span className="font-medium text-foreground">várias</span>{" "}
+                opções.
+              </p>
+            )}
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
-            <Label className="text-xs">Nome do campo</Label>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label className="text-xs">Pergunta</Label>
             <Input
-              placeholder="Ex.: Restrição alimentar"
+              placeholder="Ex.: Como quer servir seus convidados?"
               value={newFieldLabel}
               onChange={(event) => setNewFieldLabel(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter") void addCustomField();
+                if (event.key === "Enter" && !showNewFieldOptions) void addCustomField();
               }}
             />
           </div>
 
-          <div className="flex items-end">
+          {showNewFieldOptions && (
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-xs">Opções de resposta (uma por linha)</Label>
+              <Textarea
+                value={newFieldOptionsText}
+                rows={4}
+                placeholder={"Buffet\nGarçom serve nas mesas"}
+                onChange={(event) => setNewFieldOptionsText(event.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Liste as alternativas que o cliente pode escolher — uma opção em cada linha.
+              </p>
+              {newFieldOptionsInsufficient && (
+                <p className="text-[11px] text-destructive">
+                  Adicione pelo menos duas opções de resposta para salvar esta pergunta.
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2 sm:col-span-2">
             <Button
-              variant="outline"
               className="w-full gap-2"
               onClick={() => void addCustomField()}
-              disabled={createField.isPending || !newFieldLabel.trim()}
+              disabled={
+                createField.isPending ||
+                !newFieldLabel.trim() ||
+                (showNewFieldOptions && parsedNewFieldOptions.length < 2)
+              }
             >
               <Plus className="h-4 w-4" />
-              Adicionar
+              {createField.isPending ? "Salvando..." : "Salvar pergunta"}
             </Button>
+            <p className="text-[11px] text-muted-foreground">
+              Use este botão para salvar a pergunta na seção escolhida. «Salvar e continuar» abaixo
+              também salva a pergunta pendente antes de avançar.
+            </p>
           </div>
         </div>
       </div>
@@ -302,6 +435,7 @@ export const FormStructureTab = () => {
         field={editingField}
         open={editorOpen}
         isSaving={updateField.isPending}
+        packages={packageOptions}
         onOpenChange={(open) => {
           setEditorOpen(open);
           if (!open) setEditingField(null);

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { useTenantAcceptanceTerms } from "@/features/configuracoes";
+import { useTenantAcceptanceTerms, isSigningPhaseTerm } from "@/features/configuracoes";
 import {
   CONTRACT_ACCEPTANCE_DECLARATION,
   type EventoContract,
@@ -44,7 +44,10 @@ export const ContractAcceptanceDialog = ({
   const acceptContract = useAcceptEventoContract();
 
   const contractTerms = useMemo(
-    () => terms.filter((term) => term.active && term.appearsInContract).sort((a, b) => a.sortOrder - b.sortOrder),
+    () =>
+      terms
+        .filter((term) => isSigningPhaseTerm(term))
+        .sort((a, b) => a.sortOrder - b.sortOrder),
     [terms],
   );
 

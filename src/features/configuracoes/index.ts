@@ -61,7 +61,9 @@ export type {
 export {
   defaultAcceptanceTermInput,
   formatAcceptanceTermDate,
+  isFormPhaseTerm,
   isLockedSystemTerm,
+  isSigningPhaseTerm,
   LOCKED_SYSTEM_TERM_KEYS,
   SEEDED_ACCEPTANCE_TERM_KEYS,
 } from "./acceptance-term-types";
@@ -84,6 +86,7 @@ export type {
 } from "./financial-settings-types";
 export {
   defaultFinancialSettings,
+  downPaymentModeLabels,
   downPaymentMethodLabels,
   installmentLimitModeLabels,
 } from "./financial-settings-types";
@@ -94,8 +97,10 @@ export {
   closingFormFieldCategoryLabels,
   closingFormFieldTypeLabels,
   closingFormSectionLabels,
+  isClosingFormSelectFieldType,
   isEventoMappedField,
   parseFieldConfig,
+  parseOptionsFromLines,
 } from "./closing-form-types";
 export type {
   ClosingFormField,

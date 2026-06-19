@@ -19,6 +19,8 @@ type AcceptanceTermRow = {
   id: number;
   is_required: boolean;
   is_system: boolean;
+  show_at_signing: boolean;
+  show_in_form: boolean;
   sort_order: number;
   term_key: string | null;
   title: string;
@@ -33,6 +35,8 @@ const mapAcceptanceTermRow = (row: AcceptanceTermRow): TenantAcceptanceTerm => (
   id: String(row.id),
   isRequired: row.is_required,
   isSystem: row.is_system,
+  showAtSigning: row.show_at_signing,
+  showInForm: row.show_in_form,
   sortOrder: row.sort_order,
   termKey: row.term_key,
   title: row.title,
@@ -97,6 +101,8 @@ export const useCreateTenantAcceptanceTerm = () => {
         created_by: user.id,
         is_required: input.isRequired,
         is_system: false,
+        show_at_signing: input.showAtSigning,
+        show_in_form: input.showInForm,
         sort_order: nextSortOrder,
         tenant_id: currentTenantId,
         term_key: null,
@@ -129,6 +135,8 @@ export const useUpdateTenantAcceptanceTerm = () => {
             appears_in_contract: term.appearsInContract,
             content: term.content.trim(),
             is_required: term.isRequired,
+            show_at_signing: term.showAtSigning,
+            show_in_form: term.showInForm,
             sort_order: term.sortOrder,
             updated_by: user.id,
           }
@@ -137,6 +145,8 @@ export const useUpdateTenantAcceptanceTerm = () => {
             appears_in_contract: term.appearsInContract,
             content: term.content.trim(),
             is_required: term.isRequired,
+            show_at_signing: term.showAtSigning,
+            show_in_form: term.showInForm,
             sort_order: term.sortOrder,
             title: term.title.trim(),
             updated_by: user.id,

@@ -15,6 +15,12 @@ import {
 } from "./closing-form-types";
 import { configuracoesQueryKeys } from "./query-keys";
 
+const mapPackageIds = (packageIds: number[] | null | undefined): string[] =>
+  (packageIds ?? []).map(String);
+
+const serializePackageIds = (packageIds: string[] | undefined): number[] =>
+  (packageIds ?? []).map(Number).filter((id) => Number.isFinite(id) && id > 0);
+
 const mapFieldRow = (row: {
   active: boolean;
   category?: string;
@@ -26,6 +32,7 @@ const mapFieldRow = (row: {
   is_locked?: boolean;
   is_system: boolean;
   label: string;
+  package_ids?: number[] | null;
   required: boolean;
   section: string;
   sort_order: number;
@@ -46,6 +53,7 @@ const mapFieldRow = (row: {
   isLocked: row.is_locked ?? false,
   isSystem: row.is_system,
   label: row.label,
+  packageIds: mapPackageIds(row.package_ids),
   required: row.required,
   section: row.section as ClosingFormSection,
   sortOrder: row.sort_order,
@@ -89,17 +97,21 @@ export const useCreateClosingFormField = () => {
   return useMutation({
     mutationFn: async ({
       category = "operacional",
+      config,
       description,
       fieldType,
       label,
+      packageIds,
       required = false,
       section,
       usage,
     }: {
       category?: ClosingFormFieldCategory;
+      config?: Record<string, unknown>;
       description?: string;
       fieldType: ClosingFormFieldType;
       label: string;
+      packageIds?: string[];
       required?: boolean;
       section: ClosingFormSection;
       usage?: Partial<ClosingFormFieldUsage>;
@@ -119,30 +131,46 @@ export const useCreateClosingFormField = () => {
       const nextSortOrder = (sectionFields?.[0]?.sort_order ?? 0) + 1;
       const customKey = `custom_${crypto.randomUUID()}`;
 
-      const { error } = await supabase.from("tenant_closing_form_fields").insert({
-        category,
-        created_by: user.id,
-        description: description?.trim() || null,
-        field_key: customKey,
-        field_type: fieldType,
-        is_system: false,
-        label: label.trim(),
-        required,
-        section,
-        sort_order: nextSortOrder,
-        tenant_id: currentTenantId,
-        updated_by: user.id,
-        usage_ai: usage?.ai ?? false,
-        usage_checklist: usage?.checklist ?? false,
-        usage_contract: usage?.contract ?? false,
-        usage_internal_task: usage?.internalTask ?? false,
-        usage_party_summary: usage?.partySummary ?? false,
-        usage_reports: usage?.reports ?? false,
-      });
+      const { data, error } = await supabase
+        .from("tenant_closing_form_fields")
+        .insert({
+          category,
+          config: (config ?? {}) as Json,
+          created_by: user.id,
+          description: description?.trim() || null,
+          field_key: customKey,
+          field_type: fieldType,
+          is_system: false,
+          label: label.trim(),
+          package_ids: serializePackageIds(packageIds),
+          required,
+          section,
+          sort_order: nextSortOrder,
+          tenant_id: currentTenantId,
+          updated_by: user.id,
+          usage_ai: usage?.ai ?? false,
+          usage_checklist: usage?.checklist ?? false,
+          usage_contract: usage?.contract ?? false,
+          usage_internal_task: usage?.internalTask ?? false,
+          usage_party_summary: usage?.partySummary ?? false,
+          usage_reports: usage?.reports ?? false,
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      return mapFieldRow(data);
     },
-    onSuccess: () => {
+    onSuccess: (createdField) => {
+      queryClient.setQueryData<ClosingFormField[]>(
+        configuracoesQueryKeys.closingForm(currentTenantId),
+        (previous) => {
+          if (!previous) return [createdField];
+          if (previous.some((field) => field.id === createdField.id)) return previous;
+          return [...previous, createdField];
+        },
+      );
       void queryClient.invalidateQueries({
         queryKey: configuracoesQueryKeys.closingForm(currentTenantId),
       });
@@ -164,6 +192,7 @@ export const useUpdateClosingFormField = () => {
       fieldId,
       fieldType,
       label,
+      packageIds,
       required,
       section,
       usage,
@@ -174,6 +203,7 @@ export const useUpdateClosingFormField = () => {
       if (active !== undefined) payload.active = active;
       if (required !== undefined) payload.required = required;
       if (label !== undefined) payload.label = label;
+      if (packageIds !== undefined) payload.package_ids = serializePackageIds(packageIds);
       if (description !== undefined) payload.description = description;
       if (fieldType !== undefined) payload.field_type = fieldType;
       if (section !== undefined) payload.section = section;

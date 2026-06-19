@@ -3,6 +3,7 @@ import { downPaymentMethodLabels } from "@/features/configuracoes/financial-sett
 import type { PackageData } from "@/data/packagesData";
 import { packageHasBuffet } from "@/data/packagesData";
 import type { Evento } from "@/features/eventos/types";
+import { getPackagePriceForGuests } from "@/features/eventos/closing-form-runtime";
 import type { TenantCompanyProfile } from "@/features/guided-setup/types";
 import { formatCepDisplay, formatCnpjDisplay, formatCpfDisplay } from "@/lib/brazil-documents";
 
@@ -10,6 +11,14 @@ import { EMPTY_PLACEHOLDER } from "./contract-types";
 import { applyPlaceholders } from "./contract-builder";
 
 export const CONTRACT_PREVIEW_PLACEHOLDER = "[Preenchido na contratação]";
+
+const stripHtmlToPlainText = (html: string): string =>
+  html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 
 export interface TenantContractTemplateParams {
   banco: string;
@@ -26,7 +35,6 @@ export interface TenantContractTemplateParams {
   prazo_maximo_remarcacao: number | null;
   tolerancia_encerramento: number | null;
   titular_conta: string;
-  valor_convidado_extra: number | null;
   valor_hora_extra: number | null;
   agencia: string;
 }
@@ -47,7 +55,6 @@ export const defaultTenantContractTemplateParams = (): TenantContractTemplatePar
   prazo_maximo_remarcacao: 6,
   tolerancia_encerramento: 30,
   titular_conta: "",
-  valor_convidado_extra: null,
   valor_hora_extra: null,
 });
 
@@ -81,9 +88,62 @@ export const parseTenantContractTemplateParams = (
     prazo_maximo_remarcacao: readNumber("prazo_maximo_remarcacao"),
     tolerancia_encerramento: readNumber("tolerancia_encerramento"),
     titular_conta: readString("titular_conta"),
-    valor_convidado_extra: readNumber("valor_convidado_extra"),
     valor_hora_extra: readNumber("valor_hora_extra"),
   };
+};
+
+export const computeExtraGuestUnitPrice = (
+  totalValue: number,
+  guestCount: number,
+): number | null => {
+  if (!Number.isFinite(totalValue) || totalValue <= 0) return null;
+  if (!Number.isFinite(guestCount) || guestCount <= 0) return null;
+  return Math.round((totalValue / guestCount) * 100) / 100;
+};
+
+const resolvePackageGuestCount = (pkg: PackageData): number | null => {
+  if (pkg.includedGuests != null && pkg.includedGuests > 0) {
+    return pkg.includedGuests;
+  }
+
+  const tier = pkg.pricingTiers?.[0];
+  if (tier?.minGuests != null && tier.minGuests > 0) {
+    return tier.minGuests;
+  }
+
+  return null;
+};
+
+export const computePackageExtraGuestUnitPrice = (pkg: PackageData | null | undefined): number | null => {
+  if (!pkg) return null;
+
+  const guestCount = resolvePackageGuestCount(pkg);
+  if (guestCount == null) return null;
+
+  const totalValue = getPackagePriceForGuests(pkg, guestCount);
+  return computeExtraGuestUnitPrice(totalValue, guestCount);
+};
+
+export const computeEventExtraGuestUnitPrice = (
+  evento: Evento,
+  packageData: PackageData | null | undefined,
+): number | null => {
+  const guestCount =
+    evento.pacote_convidados_inclusos ??
+    packageData?.includedGuests ??
+    evento.quantidade_convidados ??
+    null;
+
+  if (guestCount == null || guestCount <= 0) return null;
+
+  const totalValue =
+    evento.valor_pacote ??
+    (packageData ? getPackagePriceForGuests(packageData, guestCount) : null) ??
+    evento.valor_total;
+
+  if (totalValue == null) return null;
+
+  return computeExtraGuestUnitPrice(Number(totalValue), guestCount);
 };
 
 const formatCurrency = (value: number | null | undefined) => {
@@ -230,7 +290,7 @@ export const buildContractPreviewPlaceholders = (
       params.tolerancia_encerramento != null
         ? String(params.tolerancia_encerramento)
         : EMPTY_PLACEHOLDER,
-    valor_convidado_extra: formatCurrency(params.valor_convidado_extra),
+    valor_convidado_extra: formatCurrency(computePackageExtraGuestUnitPrice(packageSample)),
     valor_hora_extra: formatCurrency(params.valor_hora_extra),
   };
 
@@ -277,10 +337,12 @@ export const buildContractPreviewPlaceholders = (
     cliente_nome: CONTRACT_PREVIEW_PLACEHOLDER,
     cliente_telefone: CONTRACT_PREVIEW_PLACEHOLDER,
     pacote_nome: pacoteNome,
-    politica_cancelamento:
-      financialSettings?.cancellation_policy?.trim() || "Conforme política comercial do espaço.",
-    politica_remarcacao:
-      financialSettings?.rescheduling_policy?.trim() || "Conforme política comercial do espaço.",
+    politica_cancelamento: financialSettings?.cancellation_policy?.trim()
+      ? stripHtmlToPlainText(financialSettings.cancellation_policy)
+      : "Conforme política comercial do espaço.",
+    politica_remarcacao: financialSettings?.rescheduling_policy?.trim()
+      ? stripHtmlToPlainText(financialSettings.rescheduling_policy)
+      : "Conforme política comercial do espaço.",
   };
 };
 
@@ -379,6 +441,9 @@ export const buildContractTenantPlaceholders = (
     valor_saldo: formatCurrency(evento.valor_saldo),
     valor_total: formatCurrency(evento.valor_total),
     valor_total_contrato: formatCurrency(evento.valor_total),
+    valor_convidado_extra: formatCurrency(
+      computeEventExtraGuestUnitPrice(evento, input.packageData),
+    ),
     cliente_cpf: clientCpf,
     cliente_email: evento.cliente_email ?? EMPTY_PLACEHOLDER,
     cliente_endereco: clientAddress,
@@ -387,24 +452,90 @@ export const buildContractTenantPlaceholders = (
   };
 };
 
+export interface ValidateContractTemplateParamsOptions {
+  requiresFestaCompletaFields?: boolean;
+}
+
 export const validateTenantContractTemplateParams = (
   params: TenantContractTemplateParams,
+  options?: ValidateContractTemplateParamsOptions,
 ): string | null => {
   if (params.capacidade_maxima_espaco == null || params.capacidade_maxima_espaco <= 0) {
     return "Informe a capacidade máxima do espaço.";
-  }
-
-  if (!params.chave_pix.trim() && !params.banco.trim()) {
-    return "Informe ao menos a chave Pix ou os dados bancários.";
-  }
-
-  if (params.valor_hora_extra == null || params.valor_hora_extra <= 0) {
-    return "Informe o valor da hora extra.";
   }
 
   if (!params.comarca_foro.trim()) {
     return "Informe a comarca do foro.";
   }
 
+  if (params.tolerancia_encerramento == null || params.tolerancia_encerramento < 0) {
+    return "Informe a tolerância de encerramento.";
+  }
+
+  if (params.valor_hora_extra == null || params.valor_hora_extra <= 0) {
+    return "Informe o valor da hora extra.";
+  }
+
+  if (!params.banco.trim()) {
+    return "Informe o banco.";
+  }
+
+  if (!params.agencia.trim()) {
+    return "Informe a agência.";
+  }
+
+  if (!params.conta.trim()) {
+    return "Informe a conta.";
+  }
+
+  if (!params.chave_pix.trim()) {
+    return "Informe a chave Pix.";
+  }
+
+  if (!params.titular_conta.trim()) {
+    return "Informe o titular da conta.";
+  }
+
+  if (
+    params.prazo_cancelamento_sem_multa_adicional == null ||
+    params.prazo_cancelamento_sem_multa_adicional < 0
+  ) {
+    return "Informe o prazo de cancelamento sem multa extra.";
+  }
+
+  if (params.prazo_cancelamento_com_multa == null || params.prazo_cancelamento_com_multa < 0) {
+    return "Informe o prazo de cancelamento com multa.";
+  }
+
+  if (params.percentual_multa_cancelamento == null || params.percentual_multa_cancelamento <= 0) {
+    return "Informe o percentual de multa.";
+  }
+
+  if (params.prazo_maximo_remarcacao == null || params.prazo_maximo_remarcacao <= 0) {
+    return "Informe o prazo máximo de remarcação.";
+  }
+
+  if (params.prazo_confirmacao_entrada == null || params.prazo_confirmacao_entrada <= 0) {
+    return "Informe o prazo para confirmação da entrada.";
+  }
+
+  if (options?.requiresFestaCompletaFields) {
+    if (
+      params.idade_cobranca_convidado_extra == null ||
+      params.idade_cobranca_convidado_extra < 0
+    ) {
+      return "Informe a idade mínima para cobrança de convidado extra.";
+    }
+
+    if (params.prazo_alteracao_convidados == null || params.prazo_alteracao_convidados < 0) {
+      return "Informe o prazo para alteração de convidados.";
+    }
+  }
+
   return null;
 };
+
+export const isTenantContractTemplateParamsComplete = (
+  params: TenantContractTemplateParams,
+  options?: ValidateContractTemplateParamsOptions,
+): boolean => validateTenantContractTemplateParams(params, options) === null;

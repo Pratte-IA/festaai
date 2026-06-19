@@ -7,6 +7,8 @@ export interface PublicAcceptanceTerm {
   content: string;
   id: string;
   isRequired: boolean;
+  showAtSigning?: boolean;
+  showInForm?: boolean;
   sortOrder: number;
   title: string;
 }
@@ -37,15 +39,30 @@ export interface ClientContractFormConfig {
   financialSettings: PublicFinancialSettings | null;
   packages: PackageData[];
   paymentMethods: PublicPaymentMethod[];
+  signingTerms: PublicAcceptanceTerm[];
   tenantName: string;
   tenantSlug: string;
 }
 
 export interface ClientContractFormSubmitResult {
-  advancedToFesta: boolean;
-  etapa: string;
+  clientCpf: string | null;
+  clientEmail: string | null;
+  clientName: string | null;
+  clientPhone: string | null;
+  contractHash: string;
+  contractHtml: string;
+  contractId: number;
+  contractNumber: string;
   eventoId: number;
-  funil: string;
+  message: string;
+  signingTerms: PublicAcceptanceTerm[];
+}
+
+export interface ClientContractAcceptResult {
+  acceptedAt: string;
+  advancedToFesta: boolean;
+  etapa?: string;
+  funil?: string;
   message: string;
   whatsappDispatchScheduled?: boolean;
 }

@@ -32,6 +32,7 @@ export type AcceptanceRow = {
   acceptance_text: string;
   contract_id: number;
   id: number;
+  ip_address: string | null;
   metadata: Json;
   user_agent: string | null;
 };
@@ -63,6 +64,7 @@ export const mapAcceptanceRow = (row: AcceptanceRow): EventoContractAcceptance =
   acceptanceText: row.acceptance_text,
   contractId: String(row.contract_id),
   id: String(row.id),
+  ipAddress: row.ip_address,
   metadata: (row.metadata ?? {}) as Record<string, unknown>,
   userAgent: row.user_agent,
 });

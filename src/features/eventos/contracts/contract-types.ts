@@ -79,6 +79,7 @@ export interface EventoContractAcceptance {
   acceptanceText: string;
   contractId: string;
   id: string;
+  ipAddress: string | null;
   metadata: Record<string, unknown>;
   userAgent: string | null;
 }
@@ -95,6 +96,6 @@ export interface AcceptEventoContractInput {
 }
 
 export const CONTRACT_ACCEPTANCE_DECLARATION =
-  "Declaro que li, compreendi e aceito as condições deste contrato, incluindo valores, forma de pagamento, data, horário, pacote contratado, política de cancelamento, política de remarcação e regras de uso do espaço.";
+  "Declaro que li integralmente o contrato acima, compreendi todas as cláusulas, valores, condições de pagamento, políticas de cancelamento e remarcação, e concordo com os termos estabelecidos.";
 
 export const EMPTY_PLACEHOLDER = "—";

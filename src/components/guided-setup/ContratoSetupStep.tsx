@@ -5,9 +5,15 @@ import { ContractModelsSetupPrompt } from "@/components/contracts/ContractModels
 import { ContractModuleTermsPrompt } from "@/components/contracts/ContractModuleTermsPrompt";
 import { GuidedSetupContinueBar } from "@/components/guided-setup/GuidedSetupContinueBar";
 import {
+  defaultTenantContractTemplateParams,
+  isTenantContractTemplateParamsComplete,
+} from "@/features/eventos/contracts/contract-template-params";
+import {
   useIsContractModuleReady,
   useNeedsContractModelsReview,
   useRestartContractModuleSetup,
+  useTenantContractModuleSettings,
+  useTenantContractTypeOptions,
 } from "@/features/eventos/use-tenant-contract-module-settings";
 import { useIsGuidedSetupComplete } from "@/features/guided-setup";
 import { useFinishGuidedSetupStep } from "@/features/guided-setup/use-finish-guided-setup-step";
@@ -23,12 +29,25 @@ export const ContratoSetupStep = ({ onCompleted }: ContratoSetupStepProps) => {
   const { error, isEnabled, isLoading, isModelsConfigured, isTermsAccepted } =
     useIsContractModuleReady();
   const { isLoading: isReviewLoading, needsReview } = useNeedsContractModelsReview();
+  const { data: moduleSettings } = useTenantContractModuleSettings();
+  const { data: typeOptions = [] } = useTenantContractTypeOptions();
   const { completedSteps } = useIsGuidedSetupComplete();
   const { finishStep, isPending } = useFinishGuidedSetupStep("contrato");
   const restartSetup = useRestartContractModuleSetup();
   const reopenStep = useReopenGuidedSetupStep();
 
   const isGuidedStepComplete = completedSteps.includes("contrato");
+
+  const requiresFestaCompletaFields = typeOptions
+    .filter((option) => option.enabled)
+    .some((option) => option.key === "aluguel_espaco_festa_completa");
+
+  const savedParams = moduleSettings?.templateParams ?? defaultTenantContractTemplateParams();
+  const areParamsComplete = isTenantContractTemplateParamsComplete(savedParams, {
+    requiresFestaCompletaFields,
+  });
+
+  const canFinishGuidedStep = isEnabled && areParamsComplete && isModelsConfigured && isTermsAccepted;
 
   const handleRestartSetup = async () => {
     try {
@@ -86,23 +105,35 @@ export const ContratoSetupStep = ({ onCompleted }: ContratoSetupStepProps) => {
 
   if (!isTermsAccepted) {
     return (
-      <div data-guided-setup-allowed>
-        <ContractModuleTermsPrompt />
+      <div data-guided-setup-allowed className="space-y-6">
+        {!areParamsComplete ? (
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-foreground">
+            Preencha e salve todos os parâmetros dos modelos de contrato antes de aceitar os termos
+            do módulo.
+          </div>
+        ) : null}
+        <ContractModelsReviewStep mode="edit" onRestartSetup={handleRestartSetup} />
+        {areParamsComplete ? (
+          <ContractModuleTermsPrompt />
+        ) : null}
       </div>
     );
   }
 
   return (
     <div data-guided-setup-allowed className="space-y-6">
-      <ContractModelsReviewStep
-        mode="edit"
-        onRestartSetup={handleRestartSetup}
-      />
+      <ContractModelsReviewStep mode="edit" onRestartSetup={handleRestartSetup} />
 
       {!isGuidedStepComplete ? (
         <GuidedSetupContinueBar
-          description="Quando terminar de revisar os parâmetros, continue para o checklist."
-          disabled={!isEnabled}
+          description={
+            !areParamsComplete
+              ? "Preencha e salve todos os parâmetros do contrato para concluir esta etapa."
+              : !isModelsConfigured
+                ? "Conclua a revisão dos modelos antes de avançar."
+                : "Parâmetros salvos. Continue para configurar o formulário de contratação."
+          }
+          disabled={!canFinishGuidedStep}
           isPending={isPending}
           onContinue={() =>
             void finishStep({

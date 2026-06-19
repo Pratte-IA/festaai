@@ -12,7 +12,11 @@ import {
 } from "@/data/packagesData";
 import { supabase } from "@/lib/supabase/client";
 
-import type { ClientContractFormConfig, ClientContractFormSubmitResult } from "./types";
+import type {
+  ClientContractAcceptResult,
+  ClientContractFormConfig,
+  ClientContractFormSubmitResult,
+} from "./types";
 
 const resolveFunctionError = async (error: unknown) => {
   if (error instanceof FunctionsHttpError) {
@@ -74,6 +78,7 @@ const mapField = (row: Record<string, unknown>): ClosingFormField => ({
   isLocked: false,
   isSystem: Boolean(row.isSystem),
   label: String(row.label),
+  packageIds: Array.isArray(row.packageIds) ? row.packageIds.map(String) : [],
   required: Boolean(row.required),
   section: row.section as ClosingFormField["section"],
   sortOrder: typeof row.sortOrder === "number" ? row.sortOrder : 0,
@@ -87,34 +92,41 @@ const mapField = (row: Record<string, unknown>): ClosingFormField => ({
   },
 });
 
-const mapConfig = (data: Record<string, unknown>): ClientContractFormConfig => ({
-  acceptanceTerms: (data.acceptanceTerms as PublicAcceptanceTermLike[]).map((term) => ({
-    active: term.active,
-    appearsInContract: term.appearsInContract,
-    content: term.content,
-    id: term.id,
-    isRequired: term.isRequired,
-    sortOrder: term.sortOrder,
-    title: term.title,
-  })),
-  additionals: ((data.additionals as Record<string, unknown>[]) ?? []).map(mapAdditional),
-  fields: ((data.fields as Record<string, unknown>[]) ?? []).map(mapField),
-  financialSettings: (data.financialSettings as ClientContractFormConfig["financialSettings"]) ?? null,
-  packages: ((data.packages as Record<string, unknown>[]) ?? []).map(mapPackage),
-  paymentMethods: (data.paymentMethods as ClientContractFormConfig["paymentMethods"]) ?? [],
-  tenantName: String(data.tenantName),
-  tenantSlug: String(data.tenantSlug),
-});
-
 interface PublicAcceptanceTermLike {
   active: boolean;
   appearsInContract: boolean;
   content: string;
   id: string;
   isRequired: boolean;
+  showAtSigning?: boolean;
+  showInForm?: boolean;
   sortOrder: number;
   title: string;
 }
+
+const mapAcceptanceTerm = (term: PublicAcceptanceTermLike) => ({
+  active: term.active,
+  appearsInContract: term.appearsInContract,
+  content: term.content,
+  id: term.id,
+  isRequired: term.isRequired,
+  showAtSigning: term.showAtSigning ?? false,
+  showInForm: term.showInForm ?? true,
+  sortOrder: term.sortOrder,
+  title: term.title,
+});
+
+const mapConfig = (data: Record<string, unknown>): ClientContractFormConfig => ({
+  acceptanceTerms: ((data.acceptanceTerms as PublicAcceptanceTermLike[]) ?? []).map(mapAcceptanceTerm),
+  additionals: ((data.additionals as Record<string, unknown>[]) ?? []).map(mapAdditional),
+  fields: ((data.fields as Record<string, unknown>[]) ?? []).map(mapField),
+  financialSettings: (data.financialSettings as ClientContractFormConfig["financialSettings"]) ?? null,
+  packages: ((data.packages as Record<string, unknown>[]) ?? []).map(mapPackage),
+  paymentMethods: (data.paymentMethods as ClientContractFormConfig["paymentMethods"]) ?? [],
+  signingTerms: ((data.signingTerms as PublicAcceptanceTermLike[]) ?? []).map(mapAcceptanceTerm),
+  tenantName: String(data.tenantName),
+  tenantSlug: String(data.tenantSlug),
+});
 
 export interface SubmitClientContractFormInput {
   acceptanceResponses: Array<{ accepted: boolean; termId: number }>;
@@ -133,6 +145,19 @@ export interface SubmitClientContractFormInput {
     valor_pacote?: number;
   };
   tenantSlug: string;
+}
+
+export interface AcceptClientContractInput {
+  acceptedByCpf?: string;
+  acceptedByEmail?: string;
+  acceptedByName: string;
+  acceptedByPhone?: string;
+  acceptanceText?: string;
+  clientPhone: string;
+  contractId: number;
+  eventoId: number;
+  tenantSlug: string;
+  termAcceptances: Array<{ accepted: boolean; termId: number }>;
 }
 
 export const useClientContractFormConfig = (tenantSlug: string | undefined) =>
@@ -175,6 +200,29 @@ export const useSubmitClientContractForm = () =>
 
       if (error) throw new Error(await resolveFunctionError(error));
       if (!data) throw new Error("Resposta vazia ao enviar o formulário.");
+      if ("error" in data && typeof (data as { error?: string }).error === "string") {
+        throw new Error((data as { error: string }).error);
+      }
+
+      return data;
+    },
+  });
+
+export const useAcceptClientContract = () =>
+  useMutation({
+    mutationFn: async (payload: AcceptClientContractInput): Promise<ClientContractAcceptResult> => {
+      const { data, error } = await supabase.functions.invoke<ClientContractAcceptResult>(
+        "client-contract-form",
+        {
+          body: {
+            action: "accept_contract",
+            ...payload,
+          },
+        },
+      );
+
+      if (error) throw new Error(await resolveFunctionError(error));
+      if (!data) throw new Error("Resposta vazia ao assinar o contrato.");
       if ("error" in data && typeof (data as { error?: string }).error === "string") {
         throw new Error((data as { error: string }).error);
       }

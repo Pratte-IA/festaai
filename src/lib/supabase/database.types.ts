@@ -1321,6 +1321,8 @@ export type Database = {
           id: number;
           is_required: boolean;
           is_system: boolean;
+          show_at_signing: boolean;
+          show_in_form: boolean;
           sort_order: number;
           tenant_id: number;
           term_key: string | null;
@@ -1337,6 +1339,8 @@ export type Database = {
           id?: number;
           is_required?: boolean;
           is_system?: boolean;
+          show_at_signing?: boolean;
+          show_in_form?: boolean;
           sort_order?: number;
           tenant_id: number;
           term_key?: string | null;
@@ -1353,6 +1357,8 @@ export type Database = {
           id?: number;
           is_required?: boolean;
           is_system?: boolean;
+          show_at_signing?: boolean;
+          show_in_form?: boolean;
           sort_order?: number;
           tenant_id?: number;
           term_key?: string | null;
@@ -1452,6 +1458,7 @@ export type Database = {
           is_locked: boolean;
           is_system: boolean;
           label: string;
+          package_ids: number[];
           required: boolean;
           section: string;
           sort_order: number;
@@ -1478,6 +1485,7 @@ export type Database = {
           is_locked?: boolean;
           is_system?: boolean;
           label: string;
+          package_ids?: number[];
           required?: boolean;
           section: string;
           sort_order?: number;
@@ -1504,6 +1512,7 @@ export type Database = {
           is_locked?: boolean;
           is_system?: boolean;
           label?: string;
+          package_ids?: number[];
           required?: boolean;
           section?: string;
           sort_order?: number;

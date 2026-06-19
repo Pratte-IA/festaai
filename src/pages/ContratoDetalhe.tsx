@@ -283,6 +283,11 @@ const ContratoDetalhe = () => {
                         User agent: {acceptance.userAgent}
                       </p>
                     )}
+                    {acceptance.ipAddress && (
+                      <p className="mt-1 text-[11px] text-muted-foreground break-all">
+                        IP: {acceptance.ipAddress}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

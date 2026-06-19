@@ -30,20 +30,28 @@ export const GUIDED_SETUP_STEPS = [
     description: "Defina entrada, parcelas e regras de pagamento padrão",
   },
   {
-    key: "contrato",
+    key: "checklist",
     order: 6,
+    title: "Checklist",
+    description:
+      "Tarefas para organizar cada festa — revise o checklist padrão gerado para seus pacotes",
+  },
+  {
+    key: "contrato",
+    order: 7,
     title: "Contrato",
     description: "Escolha os modelos de contrato e aceite os termos do módulo",
   },
   {
-    key: "checklist",
-    order: 7,
-    title: "Checklist",
-    description: "Revise o checklist padrão gerado para seus pacotes",
+    key: "formulario",
+    order: 8,
+    title: "Formulário de contratação",
+    description:
+      "Configure o formulário que o cliente preenche com os dados da festa para organização e contrato",
   },
   {
     key: "whatsapp",
-    order: 8,
+    order: 9,
     title: "Conectar o WhatsApp",
     description: "Vincule um número WhatsApp para disparos automáticos",
   },
@@ -60,8 +68,9 @@ export const GUIDED_SETUP_WIDE_STEPS: GuidedSetupStepKey[] = [
   "adicionais",
   "estrutura",
   "financeiro",
-  "contrato",
   "checklist",
+  "contrato",
+  "formulario",
   "whatsapp",
 ];
 

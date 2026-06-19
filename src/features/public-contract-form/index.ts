@@ -1,7 +1,13 @@
 export { buildPublicFormUrl, PUBLIC_FORM_SECTIONS } from "./types";
-export type { ClientContractFormConfig, ClientContractFormSubmitResult } from "./types";
+export type {
+  ClientContractAcceptResult,
+  ClientContractFormConfig,
+  ClientContractFormSubmitResult,
+} from "./types";
 export {
+  useAcceptClientContract,
   useClientContractFormConfig,
   useSubmitClientContractForm,
+  type AcceptClientContractInput,
   type SubmitClientContractFormInput,
 } from "./use-client-contract-form";

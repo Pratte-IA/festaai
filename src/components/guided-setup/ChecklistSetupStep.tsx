@@ -43,6 +43,21 @@ export const ChecklistSetupStep = ({ onCompleted }: ChecklistSetupStepProps) => 
 
   return (
     <div data-guided-setup-allowed className="space-y-6">
+      <div className="rounded-lg border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
+        <p className="text-foreground">
+          O <span className="font-medium">checklist</span> é a lista de tarefas que você precisa executar
+          para organizar cada festa. Cada evento usa este modelo — marque o que já foi feito
+          conforme a preparação avança.
+        </p>
+        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Exemplos
+        </p>
+        <ul className="mt-2 list-inside list-disc space-y-1">
+          <li>Contratar decoradora e alinhar o tema com a família</li>
+          <li>Confirmar salgados, doces, bolo e bebidas do buffet</li>
+          <li>Organizar a equipe da festa: recepcionista, copeira e monitora</li>
+        </ul>
+      </div>
       <ChecklistConfig />
       <GuidedSetupContinueBar
         description={

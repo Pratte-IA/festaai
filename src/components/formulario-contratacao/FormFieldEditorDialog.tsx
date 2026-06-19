@@ -33,7 +33,10 @@ import {
   closingFormFieldTypeLabels,
   closingFormSectionLabels,
   parseFieldConfig,
+  parseOptionsFromLines,
 } from "@/features/configuracoes";
+
+import { ClosingFormPackageApplicabilityField } from "./ClosingFormPackageApplicabilityField";
 
 interface FormFieldEditorDialogProps {
   field: ClosingFormField | null;
@@ -41,6 +44,7 @@ interface FormFieldEditorDialogProps {
   onOpenChange: (open: boolean) => void;
   onSave: (field: ClosingFormField, updates: FormFieldEditorValues) => void;
   open: boolean;
+  packages?: { id: string; name: string }[];
 }
 
 export interface FormFieldEditorValues {
@@ -50,6 +54,7 @@ export interface FormFieldEditorValues {
   description: string;
   fieldType: ClosingFormFieldType;
   label: string;
+  packageIds: string[];
   required: boolean;
   section: ClosingFormSection;
   usage: ClosingFormFieldUsage;
@@ -63,6 +68,7 @@ export const FormFieldEditorDialog = ({
   onOpenChange,
   onSave,
   open,
+  packages = [],
 }: FormFieldEditorDialogProps) => {
   const [values, setValues] = useState<FormFieldEditorValues | null>(null);
   const [optionsText, setOptionsText] = useState("");
@@ -91,6 +97,7 @@ export const FormFieldEditorDialog = ({
       description: field.description ?? "",
       fieldType: field.fieldType,
       label: field.label,
+      packageIds: [...field.packageIds],
       required: field.required,
       section: field.section,
       usage: { ...field.usage },
@@ -107,10 +114,7 @@ export const FormFieldEditorDialog = ({
     const config: Record<string, unknown> = { ...values.config };
 
     if (values.fieldType === "select" || values.fieldType === "multiselect") {
-      config.options = optionsText
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean);
+      config.options = parseOptionsFromLines(optionsText);
     } else {
       delete config.options;
     }
@@ -154,11 +158,14 @@ export const FormFieldEditorDialog = ({
         {values && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="field-label">Nome do campo</Label>
+              <Label htmlFor="field-label">
+                {isSystem ? "Nome do campo" : "Pergunta"}
+              </Label>
               <Input
                 id="field-label"
                 value={values.label}
                 disabled={isSystem}
+                placeholder={isSystem ? undefined : "Ex.: Como quer servir seus convidados?"}
                 onChange={(event) => setValues({ ...values, label: event.target.value })}
               />
             </div>
@@ -172,6 +179,25 @@ export const FormFieldEditorDialog = ({
                 onChange={(event) => setValues({ ...values, description: event.target.value })}
               />
             </div>
+
+            {showOptions && (
+              <div className="space-y-2">
+                <Label htmlFor="field-options">Opções de resposta (uma por linha)</Label>
+                <Textarea
+                  id="field-options"
+                  value={optionsText}
+                  disabled={isSystem}
+                  rows={4}
+                  placeholder={"Buffet\nGarçom serve nas mesas"}
+                  onChange={(event) => setOptionsText(event.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {values.fieldType === "select"
+                    ? "Seleção única: o cliente escolhe uma opção."
+                    : "Seleção múltipla: o cliente pode marcar várias opções."}
+                </p>
+              </div>
+            )}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -266,6 +292,14 @@ export const FormFieldEditorDialog = ({
               </label>
             </div>
 
+            {!isSystem && (
+              <ClosingFormPackageApplicabilityField
+                packages={packages}
+                selectedIds={values.packageIds}
+                onChange={(packageIds) => setValues({ ...values, packageIds })}
+              />
+            )}
+
             <div className="space-y-2">
               <Label>Destinos de uso</Label>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -286,20 +320,6 @@ export const FormFieldEditorDialog = ({
                 ))}
               </div>
             </div>
-
-            {showOptions && (
-              <div className="space-y-2">
-                <Label htmlFor="field-options">Opções (uma por linha)</Label>
-                <Textarea
-                  id="field-options"
-                  value={optionsText}
-                  disabled={isSystem}
-                  rows={4}
-                  placeholder={"Opção A\nOpção B"}
-                  onChange={(event) => setOptionsText(event.target.value)}
-                />
-              </div>
-            )}
 
             {showNumericValidation && (
               <div className="grid gap-4 sm:grid-cols-2">

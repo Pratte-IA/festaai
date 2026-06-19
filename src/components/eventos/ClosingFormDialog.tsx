@@ -32,6 +32,7 @@ import {
   ClosingFormSection,
   closingFormSectionLabels,
   installmentLimitModeLabels,
+  isFormPhaseTerm,
   parseFieldConfig,
   useTenantAcceptanceTerms,
   useTenantAdditionals,
@@ -56,6 +57,7 @@ import {
   getEventoFieldValueAsString,
   getPackageFromPrice,
   getPackagePriceForGuests,
+  isClosingFormFieldApplicableToPackage,
   isHiddenPackageFieldKey,
   PACKAGE_SELECTOR_FIELD_KEY,
   parseAdicionaisSnapshot,
@@ -114,13 +116,23 @@ export const ClosingFormDialog = ({
   const { data: financialSettings, isLoading: isFinancialLoading } = useTenantFinancialSettings();
   const submitClosingForm = useSubmitClosingForm();
 
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+  const [additionalSelections, setAdditionalSelections] = useState<Map<string, number>>(new Map());
+  const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const activeFields = useMemo(
-    () => fields.filter((field) => field.active).sort((a, b) => a.sortOrder - b.sortOrder),
-    [fields],
+    () =>
+      fields
+        .filter((field) => field.active)
+        .filter((field) => isClosingFormFieldApplicableToPackage(field, selectedPackageId))
+        .sort((a, b) => a.sortOrder - b.sortOrder),
+    [fields, selectedPackageId],
   );
 
   const activeTerms = useMemo(
-    () => acceptanceTerms.filter((term) => term.active),
+    () => acceptanceTerms.filter((term) => isFormPhaseTerm(term)),
     [acceptanceTerms],
   );
 
@@ -148,12 +160,6 @@ export const ClosingFormDialog = ({
     () => paymentMethods.filter((method) => method.allowedForRemainingBalance),
     [paymentMethods],
   );
-
-  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
-  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-  const [additionalSelections, setAdditionalSelections] = useState<Map<string, number>>(new Map());
-  const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const applicableAdditionals = useMemo(
     () =>
@@ -288,6 +294,16 @@ export const ClosingFormDialog = ({
         if (adicionaisSelecionadosId) {
           fieldNext[adicionaisSelecionadosId] = snapshot.map((item) => item.name).join(", ");
         }
+
+        fields.forEach((field) => {
+          if (
+            !field.isSystem &&
+            !isClosingFormFieldApplicableToPackage(field, pkg.id) &&
+            fieldNext[field.id]
+          ) {
+            delete fieldNext[field.id];
+          }
+        });
 
         return fieldNext;
       });

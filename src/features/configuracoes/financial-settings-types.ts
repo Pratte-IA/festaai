@@ -40,6 +40,11 @@ export const defaultFinancialSettings: FinancialSettings = {
   rescheduling_policy: null,
 };
 
+export const downPaymentModeLabels: Record<DownPaymentMode, string> = {
+  fixed: "Valor fixo de entrada",
+  percentage: "% de entrada",
+};
+
 export const downPaymentMethodLabels: Record<DownPaymentMethod, string> = {
   cartao_credito: "Cartão de crédito",
   dinheiro: "Dinheiro",

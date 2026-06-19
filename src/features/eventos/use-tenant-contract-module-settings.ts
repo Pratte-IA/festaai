@@ -11,8 +11,14 @@ import {
 } from "./contracts/contract-template-types";
 import {
   parseTenantContractTemplateParams,
+  validateTenantContractTemplateParams,
   type TenantContractTemplateParams,
 } from "./contracts/contract-template-params";
+import {
+  isLegacyContractTemplateStub,
+  isTenantContractTemplateCustomized,
+  resolveContractTemplateHtml,
+} from "./contracts/resolve-contract-template-html";
 import { eventosQueryKeys } from "./query-keys";
 import { useIsContractModuleEnabled } from "./use-tenant-contract-module-acceptance";
 
@@ -28,7 +34,9 @@ type TemplateRow = {
   id: number;
   is_active: boolean;
   is_default: boolean;
+  template_html: string;
   template_key: string;
+  version: number;
 };
 
 export interface TenantContractModuleSettings {
@@ -40,11 +48,16 @@ export interface TenantContractModuleSettings {
 }
 
 export interface TenantContractTypeOption {
+  baseTemplateHtml: string;
   definition: (typeof CONTRACT_TEMPLATE_DEFINITIONS)[ContractTemplateKey];
   enabled: boolean;
   id: string | null;
+  isCustomized: boolean;
   isDefault: boolean;
   key: ContractTemplateKey;
+  storedTemplateHtml: string | null;
+  templateHtml: string;
+  version: number;
 }
 
 const mapSettingsRow = (row: ModuleSettingsRow): TenantContractModuleSettings => ({
@@ -88,7 +101,7 @@ export const useTenantContractTypeOptions = () => {
     queryFn: async (): Promise<TenantContractTypeOption[]> => {
       const { data, error } = await supabase
         .from("tenant_contract_templates")
-        .select("id, template_key, is_active, is_default")
+        .select("id, template_key, is_active, is_default, template_html, version")
         .eq("tenant_id", currentTenantId as number)
         .in("template_key", [...CONTRACT_TEMPLATE_KEYS]);
 
@@ -98,13 +111,19 @@ export const useTenantContractTypeOptions = () => {
 
       return CONTRACT_TEMPLATE_KEYS.map((key) => {
         const row = rows.find((item) => item.template_key === key);
+        const definition = CONTRACT_TEMPLATE_DEFINITIONS[key];
 
         return {
-          definition: CONTRACT_TEMPLATE_DEFINITIONS[key],
+          baseTemplateHtml: definition.placeholderHtml,
+          definition,
           enabled: row?.is_active ?? false,
           id: row ? String(row.id) : null,
+          isCustomized: isTenantContractTemplateCustomized(row?.template_html, definition.placeholderHtml),
           isDefault: row?.is_default ?? false,
           key,
+          storedTemplateHtml: row?.template_html ?? null,
+          templateHtml: resolveContractTemplateHtml(row?.template_html, definition.placeholderHtml),
+          version: row?.version ?? 1,
         };
       }).sort((a, b) => a.definition.sortOrder - b.definition.sortOrder);
     },
@@ -188,7 +207,7 @@ export const useSaveContractModuleModels = () => {
 
         const { data: existing, error: existingError } = await supabase
           .from("tenant_contract_templates")
-          .select("id")
+          .select("id, template_html")
           .eq("tenant_id", currentTenantId)
           .eq("template_key", key)
           .maybeSingle();
@@ -196,6 +215,12 @@ export const useSaveContractModuleModels = () => {
         if (existingError) throw existingError;
 
         if (existing) {
+          const shouldSeedBaseHtml =
+            enabled &&
+            isLegacyContractTemplateStub(
+              (existing as { template_html?: string }).template_html,
+            );
+
           const { error: updateError } = await supabase
             .from("tenant_contract_templates")
             .update({
@@ -203,7 +228,7 @@ export const useSaveContractModuleModels = () => {
               is_active: enabled,
               is_default: enabled && key === defaultTemplateKey,
               name: definition.name,
-              template_html: definition.placeholderHtml,
+              ...(shouldSeedBaseHtml ? { template_html: definition.placeholderHtml } : {}),
               updated_by: user.id,
             })
             .eq("tenant_id", currentTenantId)
@@ -261,7 +286,56 @@ export const useSaveContractModuleModels = () => {
 
 interface CompleteContractModelsReviewInput {
   params: TenantContractTemplateParams;
+  requiresFestaCompletaFields?: boolean;
 }
+
+interface SaveContractTemplateParamsInput {
+  params: TenantContractTemplateParams;
+  requiresFestaCompletaFields?: boolean;
+}
+
+export const useSaveContractTemplateParams = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (input: SaveContractTemplateParamsInput) => {
+      if (!currentTenantId || !user) {
+        throw new Error("Sessão ou tenant atual indisponível.");
+      }
+
+      const validationError = validateTenantContractTemplateParams(input.params, {
+        requiresFestaCompletaFields: input.requiresFestaCompletaFields,
+      });
+      if (validationError) {
+        throw new Error(validationError);
+      }
+
+      const { data: settings, error: settingsError } = await supabase
+        .from("tenant_contract_module_settings")
+        .upsert(
+          {
+            template_params: input.params,
+            tenant_id: currentTenantId,
+            updated_by: user.id,
+          },
+          { onConflict: "tenant_id" },
+        )
+        .select("tenant_id, models_configured_at, default_template_key, template_params, updated_at")
+        .single();
+
+      if (settingsError) throw settingsError;
+
+      return mapSettingsRow(settings as ModuleSettingsRow);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId),
+      });
+    },
+  });
+};
 
 export const useCompleteContractModelsReview = () => {
   const queryClient = useQueryClient();
@@ -272,6 +346,13 @@ export const useCompleteContractModelsReview = () => {
     mutationFn: async (input: CompleteContractModelsReviewInput) => {
       if (!currentTenantId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
+      }
+
+      const validationError = validateTenantContractTemplateParams(input.params, {
+        requiresFestaCompletaFields: input.requiresFestaCompletaFields,
+      });
+      if (validationError) {
+        throw new Error(validationError);
       }
 
       const now = new Date().toISOString();
@@ -300,6 +381,156 @@ export const useCompleteContractModelsReview = () => {
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+      });
+    },
+  });
+};
+
+interface SaveContractTemplateHtmlInput {
+  templateHtml: string;
+  templateId: string;
+  templateKey: ContractTemplateKey;
+  version: number;
+}
+
+export const useSaveContractTemplateHtml = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (input: SaveContractTemplateHtmlInput) => {
+      if (!currentTenantId || !user) {
+        throw new Error("Sessão ou tenant atual indisponível.");
+      }
+
+      const trimmed = input.templateHtml.trim();
+      if (!trimmed) {
+        throw new Error("O conteúdo do contrato não pode ficar vazio.");
+      }
+
+      const { error } = await supabase
+        .from("tenant_contract_templates")
+        .update({
+          template_html: trimmed,
+          updated_by: user.id,
+          version: input.version + 1,
+        })
+        .eq("tenant_id", currentTenantId)
+        .eq("id", Number(input.templateId))
+        .eq("template_key", input.templateKey);
+
+      if (error) throw error;
+
+      return { templateHtml: trimmed, version: input.version + 1 };
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
+      });
+    },
+  });
+};
+
+interface RestoreContractTemplateHtmlInput {
+  templateId: string;
+  templateKey: ContractTemplateKey;
+  version: number;
+}
+
+export const useRestoreContractTemplateHtml = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (input: RestoreContractTemplateHtmlInput) => {
+      if (!currentTenantId || !user) {
+        throw new Error("Sessão ou tenant atual indisponível.");
+      }
+
+      const defaultHtml = CONTRACT_TEMPLATE_DEFINITIONS[input.templateKey].placeholderHtml;
+
+      const { error } = await supabase
+        .from("tenant_contract_templates")
+        .update({
+          template_html: defaultHtml,
+          updated_by: user.id,
+          version: input.version + 1,
+        })
+        .eq("tenant_id", currentTenantId)
+        .eq("id", Number(input.templateId))
+        .eq("template_key", input.templateKey);
+
+      if (error) throw error;
+
+      return { templateHtml: defaultHtml, version: input.version + 1 };
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
+      });
+    },
+  });
+};
+
+/** Substitui stubs legados no banco pelo contrato base completo do sistema. */
+export const useSyncLegacyContractTemplates = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!currentTenantId || !user) {
+        throw new Error("Sessão ou tenant atual indisponível.");
+      }
+
+      const { data, error } = await supabase
+        .from("tenant_contract_templates")
+        .select("id, template_html, template_key, version")
+        .eq("tenant_id", currentTenantId)
+        .in("template_key", [...CONTRACT_TEMPLATE_KEYS]);
+
+      if (error) throw error;
+
+      const rows = (data ?? []) as TemplateRow[];
+      let syncedCount = 0;
+
+      for (const row of rows) {
+        const key = row.template_key as ContractTemplateKey;
+        if (!CONTRACT_TEMPLATE_KEYS.includes(key)) continue;
+        if (!isLegacyContractTemplateStub(row.template_html)) continue;
+
+        const definition = CONTRACT_TEMPLATE_DEFINITIONS[key];
+        const { error: updateError } = await supabase
+          .from("tenant_contract_templates")
+          .update({
+            template_html: definition.placeholderHtml,
+            updated_by: user.id,
+            version: row.version + 1,
+          })
+          .eq("tenant_id", currentTenantId)
+          .eq("id", row.id);
+
+        if (updateError) throw updateError;
+        syncedCount += 1;
+      }
+
+      return { syncedCount };
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
       });
     },
   });

@@ -13,34 +13,53 @@ import { cn } from "@/lib/utils";
 
 import {
   DEFAULT_FORM_CONFIGURATION_TAB,
-  FORM_CONFIGURATION_TABS,
   FormConfigurationTabId,
+  getFormConfigurationTabs,
   isFormConfigurationTabId,
 } from "./form-configuration-tabs";
 
-export const FormConfigurationPage = () => {
+interface FormConfigurationPageProps {
+  guidedMode?: boolean;
+  onRegisterStructureSaveHandler?: (handler: () => Promise<boolean>) => void;
+}
+
+export const FormConfigurationPage = ({
+  guidedMode = false,
+  onRegisterStructureSaveHandler,
+}: FormConfigurationPageProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const visibleTabs = useMemo(() => getFormConfigurationTabs(guidedMode), [guidedMode]);
 
   const activeTab = useMemo((): FormConfigurationTabId => {
     const tabParam = searchParams.get("tab");
-    return isFormConfigurationTabId(tabParam) ? tabParam : DEFAULT_FORM_CONFIGURATION_TAB;
-  }, [searchParams]);
+    if (
+      isFormConfigurationTabId(tabParam) &&
+      visibleTabs.some((tab) => tab.id === tabParam)
+    ) {
+      return tabParam;
+    }
+    return visibleTabs[0]?.id ?? DEFAULT_FORM_CONFIGURATION_TAB;
+  }, [searchParams, visibleTabs]);
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (!tabParam || !isFormConfigurationTabId(tabParam)) {
+    const isValidTab =
+      isFormConfigurationTabId(tabParam) && visibleTabs.some((tab) => tab.id === tabParam);
+
+    if (!isValidTab) {
       setSearchParams({ tab: activeTab }, { replace: true });
     }
-  }, [activeTab, searchParams, setSearchParams]);
+  }, [activeTab, searchParams, setSearchParams, visibleTabs]);
 
   const handleTabChange = (value: string) => {
-    if (!isFormConfigurationTabId(value)) return;
+    if (!isFormConfigurationTabId(value) || !visibleTabs.some((tab) => tab.id === value)) return;
     setSearchParams({ tab: value }, { replace: true });
   };
 
   return (
     <div className="max-w-6xl space-y-6">
-      <PublicFormLinkCard />
+      {!guidedMode ? <PublicFormLinkCard /> : null}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList
           className={cn(
@@ -48,7 +67,7 @@ export const FormConfigurationPage = () => {
             "bg-muted/40 p-1",
           )}
         >
-          {FORM_CONFIGURATION_TABS.map(({ id, label, icon: Icon }) => (
+          {visibleTabs.map(({ id, label, icon: Icon }) => (
             <TabsTrigger
               key={id}
               value={id}
@@ -61,10 +80,10 @@ export const FormConfigurationPage = () => {
           ))}
         </TabsList>
 
-        {FORM_CONFIGURATION_TABS.map(({ id }) => (
+        {visibleTabs.map(({ id }) => (
           <TabsContent key={id} value={id} className="mt-0 focus-visible:outline-none">
             {id === "estrutura" ? (
-              <FormStructureTab />
+              <FormStructureTab onRegisterPendingSave={onRegisterStructureSaveHandler} />
             ) : id === "pacotes" ? (
               <PackagesTab />
             ) : id === "adicionais" ? (

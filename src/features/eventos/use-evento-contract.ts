@@ -28,7 +28,9 @@ import {
 } from "./contracts/contract-types";
 import {
   isContractTemplateKey,
+  CONTRACT_TEMPLATE_DEFINITIONS,
 } from "./contracts/contract-template-types";
+import { resolveContractTemplateHtml } from "./contracts/resolve-contract-template-html";
 import {
   mapAcceptanceRow,
   mapContractRow,
@@ -88,16 +90,23 @@ type TemplateRow = {
   version: number;
 };
 
-const mapTemplateRow = (row: TemplateRow): TenantContractTemplate => ({
-  description: row.description,
-  id: String(row.id),
-  isActive: row.is_active,
-  isDefault: row.is_default,
-  name: row.name,
-  templateHtml: row.template_html,
-  templateKey: row.template_key && isContractTemplateKey(row.template_key) ? row.template_key : null,
-  version: row.version,
-});
+const mapTemplateRow = (row: TemplateRow): TenantContractTemplate => {
+  const templateKey =
+    row.template_key && isContractTemplateKey(row.template_key) ? row.template_key : null;
+  const baseHtml =
+    templateKey != null ? CONTRACT_TEMPLATE_DEFINITIONS[templateKey].placeholderHtml : row.template_html;
+
+  return {
+    description: row.description,
+    id: String(row.id),
+    isActive: row.is_active,
+    isDefault: row.is_default,
+    name: row.name,
+    templateHtml: resolveContractTemplateHtml(row.template_html, baseHtml),
+    templateKey,
+    version: row.version,
+  };
+};
 
 export const useTenantDefaultContractTemplate = () => {
   const { currentTenantId } = useCurrentTenant();
@@ -314,6 +323,8 @@ export const useGenerateEventoContract = () => {
           id: String(row.id),
           isRequired: row.is_required,
           isSystem: row.is_system,
+          showAtSigning: row.show_at_signing ?? false,
+          showInForm: row.show_in_form ?? true,
           sortOrder: row.sort_order,
           termKey: row.term_key,
           title: row.title,
@@ -435,10 +446,10 @@ export const useAcceptEventoContract = () => {
 
       const { data: terms, error: termsError } = await supabase
         .from("tenant_acceptance_terms")
-        .select("id, title, content, is_required, appears_in_contract, active")
+        .select("id, title, content, is_required, appears_in_contract, active, show_at_signing")
         .eq("tenant_id", currentTenantId)
         .eq("active", true)
-        .eq("appears_in_contract", true);
+        .eq("show_at_signing", true);
 
       if (termsError) throw termsError;
 

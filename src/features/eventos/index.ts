@@ -56,8 +56,12 @@ export {
   useNeedsContractModelsReview,
   useRestartContractModuleSetup,
   useSaveContractModuleModels,
+  useSaveContractTemplateParams,
   useTenantContractModuleSettings,
   useTenantContractTypeOptions,
+  useSaveContractTemplateHtml,
+  useRestoreContractTemplateHtml,
+  useSyncLegacyContractTemplates,
 } from "./use-tenant-contract-module-settings";
 export type {
   TenantContractModuleSettings,
@@ -66,7 +70,12 @@ export type {
 export type { TenantContractTemplateParams } from "./contracts/contract-template-params";
 export {
   buildContractPreviewPlaceholders,
+  computeEventExtraGuestUnitPrice,
+  computeExtraGuestUnitPrice,
+  computePackageExtraGuestUnitPrice,
+  isTenantContractTemplateParamsComplete,
   renderContractTemplatePreview,
+  validateTenantContractTemplateParams,
 } from "./contracts/contract-template-params";
 export {
   CONTRACT_TEMPLATE_DEFINITIONS,
@@ -100,6 +109,12 @@ export type {
 export { formatContractHashShort, hashContractContent } from "./contracts/contract-hash";
 export type { ClosingFormSubmission } from "./use-evento-closing-form";
 export type { AdicionalSnapshotItem } from "./closing-form-runtime";
+export {
+  CLOSING_FORM_SECTIONS,
+  formatClosingFormResponseValue,
+  isCustomClosingFormField,
+  isClosingFormFieldApplicableToPackage,
+} from "./closing-form-runtime";
 export type {
   Evento,
   EventoInsert,

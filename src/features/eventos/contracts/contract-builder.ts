@@ -84,7 +84,7 @@ const buildAceitesSnapshot = (
   responses: Record<string, boolean>,
 ): ContractSnapshotTerm[] =>
   terms
-    .filter((term) => term.active && term.appearsInContract)
+    .filter((term) => term.active && term.appearsInContract && term.showInForm)
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((term) => ({
       accepted: responses[term.id] ?? false,
@@ -94,7 +94,7 @@ const buildAceitesSnapshot = (
     }));
 
 const formatAceitesBlock = (aceites: ContractSnapshotTerm[]): string => {
-  if (aceites.length === 0) return "Nenhum termo configurado.";
+  if (aceites.length === 0) return "Nenhum consentimento registrado no formulário.";
 
   return aceites
     .map((term) => {
@@ -224,10 +224,12 @@ export const buildPlaceholderMap = (
         : EMPTY_PLACEHOLDER,
     pacote_nome: evento.pacote_nome ?? EMPTY_PLACEHOLDER,
     parcelas: evento.parcelas != null ? String(evento.parcelas) : EMPTY_PLACEHOLDER,
-    politica_cancelamento:
-      snapshot.financial.cancellationPolicy?.trim() || "Conforme política do espaço.",
-    politica_remarcacao:
-      snapshot.financial.reschedulingPolicy?.trim() || "Conforme política do espaço.",
+    politica_cancelamento: snapshot.financial.cancellationPolicy?.trim()
+      ? stripHtmlToText(snapshot.financial.cancellationPolicy)
+      : "Conforme política do espaço.",
+    politica_remarcacao: snapshot.financial.reschedulingPolicy?.trim()
+      ? stripHtmlToText(snapshot.financial.reschedulingPolicy)
+      : "Conforme política do espaço.",
     quantidade_adultos:
       evento.quantidade_adultos != null ? String(evento.quantidade_adultos) : EMPTY_PLACEHOLDER,
     quantidade_convidados:
@@ -257,12 +259,21 @@ export const buildPlaceholderMap = (
   };
 };
 
+const escapeHtml = (value: string): string =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 export const applyPlaceholders = (
   templateHtml: string,
   placeholders: Record<string, string>,
 ): string =>
   templateHtml.replace(/\{\{\s*([a-z0-9_]+)\s*\}\}/gi, (_match, key: string) => {
-    return placeholders[key.toLowerCase()] ?? EMPTY_PLACEHOLDER;
+    const value = placeholders[key.toLowerCase()] ?? EMPTY_PLACEHOLDER;
+    return escapeHtml(value);
   });
 
 export const buildContract = async (input: ContractBuildInput): Promise<ContractBuildResult> => {

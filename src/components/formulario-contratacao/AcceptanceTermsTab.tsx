@@ -86,6 +86,8 @@ export const AcceptanceTermsTab = () => {
         appearsInContract: editingTerm.appearsInContract,
         content: editingTerm.content,
         isRequired: editingTerm.isRequired,
+        showAtSigning: editingTerm.showAtSigning,
+        showInForm: editingTerm.showInForm,
         sortOrder: editingTerm.sortOrder,
         title: editingTerm.title,
       });
@@ -171,13 +173,15 @@ export const AcceptanceTermsTab = () => {
         <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" aria-hidden />
         <div className="space-y-1 text-sm">
           <p className="font-medium text-foreground">
-            Aceites exibidos ao cliente no formulário de contratação
+            Aceites em duas etapas: formulário e assinatura do contrato
           </p>
           <p className="text-muted-foreground">
-            Configure termos, autorizações e regras que o cliente deverá confirmar ao fechar a
-            festa. Os itens marcados como{" "}
-            <span className="text-foreground font-medium">Aparece no contrato</span> poderão ser
-            reutilizados futuramente no módulo de contrato e assinatura eletrônica.
+            No <span className="text-foreground font-medium">formulário</span>, o cliente confirma
+            consentimentos leves (ex.: veracidade dos dados, uso de imagem). Na{" "}
+            <span className="text-foreground font-medium">assinatura do contrato</span>, ele lê o
+            documento gerado e registra o aceite legal com IP, data/hora e identificação. Cláusulas
+            como cancelamento e remarcação ficam no corpo do contrato — não precisam de checkbox
+            separado.
           </p>
         </div>
       </div>
@@ -231,10 +235,12 @@ export const AcceptanceTermsTab = () => {
                     <TermBadge variant="outline">Opcional</TermBadge>
                   )}
                   {term.appearsInContract ? (
-                    <TermBadge variant="default">Aparece no contrato</TermBadge>
+                    <TermBadge variant="default">No snapshot do contrato</TermBadge>
                   ) : (
-                    <TermBadge variant="muted">Não aparece no contrato</TermBadge>
+                    <TermBadge variant="muted">Fora do snapshot</TermBadge>
                   )}
+                  {term.showInForm && <TermBadge variant="primary">Formulário</TermBadge>}
+                  {term.showAtSigning && <TermBadge variant="warning">Assinatura</TermBadge>}
                   {term.isSystem && <TermBadge variant="warning">Sistema</TermBadge>}
                   {isInactive && <TermBadge variant="muted">Inativo</TermBadge>}
                 </div>

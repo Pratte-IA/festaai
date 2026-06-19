@@ -80,6 +80,8 @@ export interface ClosingFormField {
   isLocked: boolean;
   isSystem: boolean;
   label: string;
+  /** IDs dos pacotes em que o campo aparece. Vazio = todos os pacotes. */
+  packageIds: string[];
   required: boolean;
   section: ClosingFormSection;
   sortOrder: number;
@@ -208,6 +210,27 @@ export const parseFieldConfig = (config: Record<string, unknown>): ClosingFormFi
   pattern: typeof config.pattern === "string" ? config.pattern : undefined,
 });
 
+export const parseOptionsFromLines = (text: string): string[] => {
+  const normalized = text.replace(/\\n/g, "\n");
+  const byLine = normalized
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (byLine.length >= 2) return byLine;
+
+  const bySeparator = normalized
+    .split(/[;|]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return bySeparator.length >= 2 ? bySeparator : byLine;
+};
+
+export const isClosingFormSelectFieldType = (
+  fieldType: ClosingFormFieldType,
+): boolean => fieldType === "select" || fieldType === "multiselect";
+
 export interface ClosingFormFieldUpdatePayload {
   active?: boolean;
   category?: ClosingFormFieldCategory;
@@ -216,6 +239,7 @@ export interface ClosingFormFieldUpdatePayload {
   fieldId: string;
   fieldType?: ClosingFormFieldType;
   label?: string;
+  packageIds?: string[];
   required?: boolean;
   section?: ClosingFormSection;
   usage?: Partial<ClosingFormFieldUsage>;

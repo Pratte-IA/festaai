@@ -25,6 +25,7 @@ import {
   closingFormSectionLabels,
   downPaymentMethodLabels,
   installmentLimitModeLabels,
+  isFormPhaseTerm,
   parseFieldConfig,
   paymentMethodTypeLabels,
   useTenantAcceptanceTerms,
@@ -43,6 +44,7 @@ import {
   buildFieldIdByKey,
   getPackageFromPrice,
   getPackagePriceForGuests,
+  isClosingFormFieldApplicableToPackage,
   isHiddenPackageFieldKey,
   PACKAGE_SELECTOR_FIELD_KEY,
   recalculateFinancialTotals,
@@ -242,12 +244,16 @@ export const FormPreviewPanel = () => {
     isFinancialLoading;
 
   const activeFields = useMemo(
-    () => fields.filter((field) => field.active).sort((a, b) => a.sortOrder - b.sortOrder),
-    [fields],
+    () =>
+      fields
+        .filter((field) => field.active)
+        .filter((field) => isClosingFormFieldApplicableToPackage(field, selectedPackageId))
+        .sort((a, b) => a.sortOrder - b.sortOrder),
+    [fields, selectedPackageId],
   );
 
   const activeTerms = useMemo(
-    () => acceptanceTerms.filter((term) => term.active),
+    () => acceptanceTerms.filter((term) => isFormPhaseTerm(term)),
     [acceptanceTerms],
   );
 
@@ -325,6 +331,17 @@ export const FormPreviewPanel = () => {
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(selectedTotal);
+
+        fields.forEach((field) => {
+          if (
+            !field.isSystem &&
+            !isClosingFormFieldApplicableToPackage(field, pkg.id) &&
+            fieldNext[field.id]
+          ) {
+            delete fieldNext[field.id];
+          }
+        });
+
         return fieldNext;
       });
 

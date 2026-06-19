@@ -64,5 +64,17 @@ export const FORM_CONFIGURATION_TABS: FormConfigurationTab[] = [
 
 export const DEFAULT_FORM_CONFIGURATION_TAB: FormConfigurationTabId = "estrutura";
 
+/** Abas editáveis só nos passos dedicados da configuração guiada (pacotes, adicionais, financeiro). */
+export const GUIDED_FORM_CONFIGURATION_TAB_IDS: FormConfigurationTabId[] = [
+  "estrutura",
+  "aceites",
+  "preview",
+];
+
+export const getFormConfigurationTabs = (guidedMode = false) =>
+  guidedMode
+    ? FORM_CONFIGURATION_TABS.filter((tab) => GUIDED_FORM_CONFIGURATION_TAB_IDS.includes(tab.id))
+    : FORM_CONFIGURATION_TABS;
+
 export const isFormConfigurationTabId = (value: string | null): value is FormConfigurationTabId =>
   FORM_CONFIGURATION_TABS.some((tab) => tab.id === value);

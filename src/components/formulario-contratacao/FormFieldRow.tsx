@@ -15,6 +15,7 @@ interface FormFieldRowProps {
   canMoveUp: boolean;
   field: ClosingFormField;
   isBusy?: boolean;
+  packageLabel?: string;
   onDelete?: (field: ClosingFormField) => void;
   onEdit: (field: ClosingFormField) => void;
   onMove: (field: ClosingFormField, direction: "down" | "up") => void;
@@ -27,6 +28,7 @@ export const FormFieldRow = ({
   canMoveUp,
   field,
   isBusy,
+  packageLabel,
   onDelete,
   onEdit,
   onMove,
@@ -94,6 +96,12 @@ export const FormFieldRow = ({
                 <>
                   <span aria-hidden>·</span>
                   <code className="rounded bg-muted/60 px-1 py-0.5 text-[10px]">{field.fieldKey}</code>
+                </>
+              )}
+              {packageLabel && (
+                <>
+                  <span aria-hidden>·</span>
+                  <span>{packageLabel}</span>
                 </>
               )}
             </div>

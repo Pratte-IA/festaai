@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizon
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
 import { MoveEventoFunnelDialog } from "@/components/eventos/MoveEventoFunnelDialog";
-import { EventoContractCard, shouldShowEventoContractCard } from "@/components/eventos/EventoContractCard";
+import { EventoFormResponsesCard } from "@/components/eventos/EventoFormResponsesCard";
 import EventChecklist from "@/components/EventChecklist";
 import AppLayout from "@/components/AppLayout";
 import {
@@ -454,6 +454,13 @@ const EventoDetalhe = () => {
             </CardContent>
           </Card>
         </div>
+
+        {validEventoId ? (
+          <EventoFormResponsesCard
+            eventoId={validEventoId}
+            hasFormSubmission={Boolean(event.fechamento_confirmado_em)}
+          />
+        ) : null}
 
         {/* 6. SITUAÇÃO FINANCEIRA — full width */}
         <Card className="mt-4">

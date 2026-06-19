@@ -1,9 +1,78 @@
 import type { Additional, PackageData } from "@/data/packagesData";
 import { itemsToLines } from "@/data/packagesData";
 import { getTierBandPrice } from "@/data/pricing-schedule";
-import type { ClosingFormSection } from "@/features/configuracoes/closing-form-types";
+import type {
+  ClosingFormField,
+  ClosingFormFieldType,
+  ClosingFormSection,
+} from "@/features/configuracoes/closing-form-types";
 import type { Evento, EventoUpdate } from "@/features/eventos/types";
 import type { Json } from "@/lib/supabase/database.types";
+
+const EMPTY_RESPONSE_LABEL = "Não informado";
+
+const formatDateValue = (value: string): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+const formatCurrencyValue = (value: string): string => {
+  const amount = Number(value);
+  if (Number.isNaN(amount)) return value;
+  return amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+};
+
+export const formatClosingFormResponseValue = (
+  fieldType: ClosingFormFieldType,
+  value: string,
+): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return EMPTY_RESPONSE_LABEL;
+
+  switch (fieldType) {
+    case "checkbox":
+      return trimmed === "true" ? "Sim" : "Não";
+    case "currency":
+      return formatCurrencyValue(trimmed);
+    case "date":
+      return formatDateValue(trimmed);
+    case "time":
+      return trimmed.slice(0, 5);
+    case "multiselect":
+      return trimmed
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .join(", ");
+    case "file":
+      return trimmed.startsWith("http") ? trimmed : "Arquivo enviado";
+    default:
+      return trimmed;
+  }
+};
+
+export const isCustomClosingFormField = (field: {
+  fieldType: ClosingFormFieldType;
+  isSystem: boolean;
+}): boolean => !field.isSystem && field.fieldType !== "acceptance";
+
+export const isClosingFormFieldApplicableToPackage = (
+  field: Pick<ClosingFormField, "isSystem" | "packageIds">,
+  packageId: string | null | undefined,
+): boolean => {
+  if (field.isSystem) return true;
+
+  const ids = field.packageIds ?? [];
+  if (ids.length === 0) return true;
+  if (!packageId) return false;
+
+  return ids.includes(packageId);
+};
 
 export const PACKAGE_SELECTOR_FIELD_KEY = "pacote_nome";
 

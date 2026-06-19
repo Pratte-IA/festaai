@@ -71,7 +71,7 @@ export const AcceptanceTermEditorDialog = ({
               id="acceptance-term-title"
               value={draft.title}
               onChange={(e) => update({ title: e.target.value })}
-              placeholder="Ex: Aceito os termos de contratação"
+              placeholder="Ex: Autorizo o uso de imagem"
               disabled={isSystem}
               readOnly={isSystem}
             />
@@ -83,7 +83,7 @@ export const AcceptanceTermEditorDialog = ({
               id="acceptance-term-content"
               value={draft.content}
               onChange={(e) => update({ content: e.target.value })}
-              placeholder="Texto exibido ao cliente no formulário de contratação..."
+              placeholder="Texto exibido ao cliente..."
               rows={6}
             />
           </div>
@@ -98,12 +98,26 @@ export const AcceptanceTermEditorDialog = ({
             </label>
             <label className="flex items-center gap-2 text-sm">
               <Checkbox
+                checked={draft.showInForm}
+                onCheckedChange={(checked) => update({ showInForm: checked === true })}
+              />
+              Exibir no formulário de contratação
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={draft.showAtSigning}
+                onCheckedChange={(checked) => update({ showAtSigning: checked === true })}
+              />
+              Exigir na assinatura do contrato (aceite legal)
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
                 checked={draft.appearsInContract}
                 onCheckedChange={(checked) =>
                   update({ appearsInContract: checked === true })
                 }
               />
-              Aparece futuramente no contrato
+              Incluir no snapshot do contrato (bloco de consentimentos)
             </label>
             <label className="flex items-center gap-2 text-sm">
               <Checkbox
@@ -111,7 +125,7 @@ export const AcceptanceTermEditorDialog = ({
                 disabled={isLocked}
                 onCheckedChange={(checked) => update({ active: checked === true })}
               />
-              Termo ativo no formulário
+              Termo ativo
             </label>
           </div>
         </div>

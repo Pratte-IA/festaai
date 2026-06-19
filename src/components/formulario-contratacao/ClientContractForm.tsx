@@ -34,6 +34,7 @@ import {
   getAdditionalsTotal,
   getPackageFromPrice,
   getPackagePriceForGuests,
+  isClosingFormFieldApplicableToPackage,
   isHiddenPackageFieldKey,
   PACKAGE_SELECTOR_FIELD_KEY,
   recalculateFinancialTotals,
@@ -42,11 +43,16 @@ import {
 import type { Evento } from "@/features/eventos/types";
 import {
   PUBLIC_FORM_SECTIONS,
+  type ClientContractAcceptResult,
   type ClientContractFormConfig,
   type ClientContractFormSubmitResult,
   useSubmitClientContractForm,
 } from "@/features/public-contract-form";
 import { cn } from "@/lib/utils";
+
+import { ClientContractSigningStep } from "./ClientContractSigningStep";
+
+type ClientFormStep = "form" | "contract" | "done";
 
 const EMPTY_EVENTO = { quantidade_convidados: 0 } as Evento;
 
@@ -65,11 +71,17 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
   const [additionalSelections, setAdditionalSelections] = useState<Map<string, number>>(new Map());
   const [acceptedTermIds, setAcceptedTermIds] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [successResult, setSuccessResult] = useState<ClientContractFormSubmitResult | null>(null);
+  const [step, setStep] = useState<ClientFormStep>("form");
+  const [submitResult, setSubmitResult] = useState<ClientContractFormSubmitResult | null>(null);
+  const [acceptResult, setAcceptResult] = useState<ClientContractAcceptResult | null>(null);
 
   const activeFields = useMemo(
-    () => config.fields.filter((field) => field.active).sort((a, b) => a.sortOrder - b.sortOrder),
-    [config.fields],
+    () =>
+      config.fields
+        .filter((field) => field.active)
+        .filter((field) => isClosingFormFieldApplicableToPackage(field, selectedPackageId))
+        .sort((a, b) => a.sortOrder - b.sortOrder),
+    [config.fields, selectedPackageId],
   );
 
   const fieldIdByKey = useMemo(() => buildFieldIdByKey(activeFields), [activeFields]);
@@ -88,7 +100,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
   }, [activeFields]);
 
   const activeTerms = useMemo(
-    () => config.acceptanceTerms.filter((term) => term.active),
+    () => config.acceptanceTerms.filter((term) => term.active && term.showInForm !== false),
     [config.acceptanceTerms],
   );
 
@@ -173,6 +185,17 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
+
+        config.fields.forEach((field) => {
+          if (
+            !field.isSystem &&
+            !isClosingFormFieldApplicableToPackage(field, pkg.id) &&
+            fieldNext[field.id]
+          ) {
+            delete fieldNext[field.id];
+          }
+        });
+
         return fieldNext;
       });
 
@@ -263,10 +286,12 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
 
     try {
       const result = await submitForm.mutateAsync({
-        acceptanceResponses: activeTerms.map((term) => ({
-          accepted: acceptedTermIds.has(term.id),
-          termId: Number(term.id),
-        })),
+        acceptanceResponses: activeTerms
+          .filter((term) => acceptedTermIds.has(term.id))
+          .map((term) => ({
+            accepted: true,
+            termId: Number(term.id),
+          })),
         adicionaisSnapshot,
         fieldValues,
         fields: activeFields.map((field) => ({
@@ -282,7 +307,8 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
         tenantSlug: config.tenantSlug,
       });
 
-      setSuccessResult(result);
+      setSubmitResult(result);
+      setStep("contract");
       onSuccess?.(result);
     } catch (error) {
       setErrors({
@@ -356,6 +382,9 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
 
     if (field.fieldType === "select") {
       const options = fieldConfig.options ?? [];
+      if (options.length === 0) {
+        return <p className="text-xs text-muted-foreground">Nenhuma opção configurada.</p>;
+      }
       return (
         <Select value={value || undefined} onValueChange={(next) => updateFieldValue(field.id, next)}>
           <SelectTrigger id={`client-field-${field.id}`} className="text-sm">
@@ -369,6 +398,38 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
             ))}
           </SelectContent>
         </Select>
+      );
+    }
+
+    if (field.fieldType === "multiselect") {
+      const options = fieldConfig.options ?? [];
+      const selected = value
+        ? value
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
+
+      return (
+        <div className="space-y-2">
+          {options.length === 0 && (
+            <p className="text-xs text-muted-foreground">Nenhuma opção configurada.</p>
+          )}
+          {options.map((option) => (
+            <label key={option} className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={selected.includes(option)}
+                onCheckedChange={(checked) => {
+                  const next = checked
+                    ? [...selected, option]
+                    : selected.filter((item) => item !== option);
+                  updateFieldValue(field.id, next.join(", "));
+                }}
+              />
+              <span>{option}</span>
+            </label>
+          ))}
+        </div>
       );
     }
 
@@ -416,19 +477,32 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
 
   const visibleSections = PUBLIC_FORM_SECTIONS.filter(shouldShowSection);
 
-  if (successResult) {
+  if (step === "done" && acceptResult) {
     return (
       <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-8 text-center space-y-3">
         <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
-        <h2 className="text-xl font-semibold text-foreground">Formulário enviado!</h2>
-        <p className="text-sm text-muted-foreground">{successResult.message}</p>
-        {successResult.advancedToFesta && (
+        <h2 className="text-xl font-semibold text-foreground">Contrato assinado!</h2>
+        <p className="text-sm text-muted-foreground">{acceptResult.message}</p>
+        {acceptResult.advancedToFesta && (
           <p className="text-sm text-muted-foreground">
             Seu cadastro foi confirmado no funil Festa (Boas Vindas). Em breve você receberá nosso
             contato pelo WhatsApp.
           </p>
         )}
       </div>
+    );
+  }
+
+  if (step === "contract" && submitResult) {
+    return (
+      <ClientContractSigningStep
+        submitResult={submitResult}
+        tenantSlug={config.tenantSlug}
+        onSuccess={(result) => {
+          setAcceptResult(result);
+          setStep("done");
+        }}
+      />
     );
   }
 
@@ -444,7 +518,8 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
           </div>
           <p className="text-sm text-muted-foreground max-w-2xl">
             Preencha com o mesmo telefone informado ao espaço. Usamos esse número para localizar seu
-            cadastro no funil de Vendas. Ao enviar, você aceita o contrato e avança para Boas Vindas.
+            cadastro no funil de Vendas. Após enviar, você verá o contrato gerado para leitura e
+            assinatura eletrônica.
           </p>
         </div>
 
@@ -572,7 +647,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
 
           {visibleSections.length > 0 && (
             <Button type="submit" className="w-full sm:w-auto" disabled={submitForm.isPending}>
-              {submitForm.isPending ? "Enviando..." : "Enviar formulário"}
+              {submitForm.isPending ? "Enviando..." : "Continuar para o contrato"}
             </Button>
           )}
         </div>

@@ -4,7 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, PlatformAdminRoute, ProtectedRoute } from "@/features/auth";
+import { AuthProvider, PlatformAdminRoute, ProtectedRoute, RootEntry } from "@/features/auth";
 import { GuidedSetupProvider } from "@/features/guided-setup";
 import { TenantAdminRoute, TenantProvider } from "@/features/tenants";
 
@@ -165,9 +165,9 @@ const App = () => (
                 <Route
                   path="/"
                   element={
-                    <ProtectedRoute>
+                    <RootEntry>
                       <Index />
-                    </ProtectedRoute>
+                    </RootEntry>
                   }
                 />
                 <Route

@@ -71,38 +71,33 @@ const ConfiguracaoInicial = () => {
     );
   }
 
-  if (isComplete || !activeStep) {
-    return (
-      <AppLayout>
-        <div className="mx-auto max-w-2xl rounded-xl border border-border/60 bg-card/50 p-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
-            <CheckCircle2 className="h-6 w-6" aria-hidden />
-          </div>
-          <p className="text-lg font-semibold text-foreground">Configuração inicial concluída</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Sua empresa já está pronta para usar todas as funcionalidades do FestaAI.
-          </p>
-          <Button className="mt-6" onClick={() => navigate("/")}>
-            Ir para o painel
-          </Button>
-        </div>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout>
       <div className="mx-auto w-full max-w-6xl space-y-8">
         <div className="space-y-3 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             <Sparkles className="h-3.5 w-3.5" aria-hidden />
-            Configuração guiada
+            {isComplete ? "Configuração guiada — revisão" : "Configuração guiada"}
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Vamos configurar seu espaço de festa</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {isComplete ? "Revisar configuração do espaço" : "Vamos configurar seu espaço de festa"}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Clique em cada etapa para configurar. Ao salvar, a etapa fecha e a próxima é aberta
-            automaticamente.
+            {isComplete
+              ? "A configuração inicial já foi concluída. Clique em qualquer etapa abaixo para revisar ou ajustar as definições do seu espaço."
+              : "Clique em cada etapa para configurar. Ao salvar, a etapa fecha e a próxima é aberta automaticamente."}
           </p>
+          {isComplete ? (
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-1.5 text-xs text-emerald-700 dark:text-emerald-300">
+                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                Configuração inicial concluída
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+                Ir para o painel
+              </Button>
+            </div>
+          ) : null}
         </div>
 
         <GuidedSetupStepper

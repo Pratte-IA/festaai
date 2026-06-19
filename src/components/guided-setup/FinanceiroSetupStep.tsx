@@ -1,49 +1,35 @@
-import { useQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 
 import { GuidedSetupContinueBar } from "@/components/guided-setup/GuidedSetupContinueBar";
 import { FinancialSettingsConfig } from "@/pages/configuracoes/financial-settings-config";
-import { useCurrentTenant } from "@/features/tenants";
+import { useTenantFinancialSettings } from "@/features/configuracoes";
 import { useFinishGuidedSetupStep } from "@/features/guided-setup/use-finish-guided-setup-step";
-import { supabase } from "@/lib/supabase/client";
-import { toast } from "@/hooks/use-toast";
 
 interface FinanceiroSetupStepProps {
   onCompleted?: () => void;
 }
 
 export const FinanceiroSetupStep = ({ onCompleted }: FinanceiroSetupStepProps) => {
-  const { currentTenantId } = useCurrentTenant();
-  const { finishStep, isPending } = useFinishGuidedSetupStep("financeiro");
-
-  const { data: hasPersistedSettings, isLoading, refetch } = useQuery({
-    enabled: Boolean(currentTenantId),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tenant_financial_settings")
-        .select("tenant_id")
-        .eq("tenant_id", currentTenantId as number)
-        .maybeSingle();
-
-      if (error) throw error;
-      return Boolean(data);
-    },
-    queryKey: ["guided-setup", "financeiro-persisted", currentTenantId],
-  });
+  const { isLoading } = useTenantFinancialSettings();
+  const { finishStep, isPending: isFinishingStep } = useFinishGuidedSetupStep("financeiro");
+  const saveActionsRef = useRef<{
+    save: () => Promise<boolean>;
+    isPending: boolean;
+  } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleContinue = async () => {
-    const { data: persisted } = await refetch();
+    const actions = saveActionsRef.current;
+    if (!actions) return;
 
-    if (!persisted) {
-      toast({
-        title: "Salve as regras financeiras",
-        description: "Configure e clique em Salvar regras financeiras antes de continuar.",
-        variant: "destructive",
-      });
-      return;
-    }
+    const saved = await actions.save();
+    if (!saved) return;
 
-    void finishStep({ onSuccess: onCompleted, successMessage: "Regras financeiras configuradas." });
+    void finishStep({
+      onSuccess: onCompleted,
+      successMessage: "Regras financeiras configuradas.",
+    });
   };
 
   if (isLoading) {
@@ -57,16 +43,17 @@ export const FinanceiroSetupStep = ({ onCompleted }: FinanceiroSetupStepProps) =
 
   return (
     <div data-guided-setup-allowed className="max-w-6xl space-y-6">
-      <FinancialSettingsConfig />
+      <FinancialSettingsConfig
+        guidedMode
+        onRegisterActions={(actions) => {
+          saveActionsRef.current = actions;
+          setIsSaving(actions.isPending);
+        }}
+      />
       <GuidedSetupContinueBar
-        description={
-          hasPersistedSettings
-            ? "Regras salvas. Você pode ajustar depois em Configurações → Financeiro."
-            : "Defina as regras padrão e salve antes de avançar."
-        }
-        disabled={!hasPersistedSettings}
-        isPending={isPending}
-        onContinue={handleContinue}
+        description="Defina as regras padrão de entrada, restante e parcelamento. Ao continuar, elas serão salvas."
+        isPending={isSaving || isFinishingStep}
+        onContinue={() => void handleContinue()}
       />
     </div>
   );

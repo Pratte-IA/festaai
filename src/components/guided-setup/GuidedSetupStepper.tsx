@@ -7,6 +7,7 @@ import { CompanyProfileStepForm } from "@/components/guided-setup/CompanyProfile
 import { ContratoSetupStep } from "@/components/guided-setup/ContratoSetupStep";
 import { EstruturaSetupStep } from "@/components/guided-setup/EstruturaSetupStep";
 import { FinanceiroSetupStep } from "@/components/guided-setup/FinanceiroSetupStep";
+import { FormularioSetupStep } from "@/components/guided-setup/FormularioSetupStep";
 import { PackagesSetupStep } from "@/components/guided-setup/PackagesSetupStep";
 import { WhatsappSetupStep } from "@/components/guided-setup/WhatsappSetupStep";
 import {
@@ -26,7 +27,7 @@ const isStepAccessible = (
   stepKey: GuidedSetupStepKey,
   activeStep: GuidedSetupStepKey | null,
   completedSteps: GuidedSetupStepKey[],
-) => completedSteps.includes(stepKey) || stepKey === activeStep;
+) => completedSteps.includes(stepKey) || stepKey === activeStep || activeStep === null;
 
 const renderStepContent = (
   stepKey: GuidedSetupStepKey,
@@ -44,10 +45,12 @@ const renderStepContent = (
       return <EstruturaSetupStep onCompleted={onCompleted} />;
     case "financeiro":
       return <FinanceiroSetupStep onCompleted={onCompleted} />;
-    case "contrato":
-      return <ContratoSetupStep onCompleted={onCompleted} />;
     case "checklist":
       return <ChecklistSetupStep onCompleted={onCompleted} />;
+    case "contrato":
+      return <ContratoSetupStep onCompleted={onCompleted} />;
+    case "formulario":
+      return <FormularioSetupStep onCompleted={onCompleted} />;
     case "whatsapp":
       return <WhatsappSetupStep onCompleted={onAllCompleted ?? onCompleted} />;
     default:
@@ -91,7 +94,8 @@ export const GuidedSetupStepper = ({
           <li
             key={step.key}
             className={cn(
-              "w-full overflow-hidden rounded-xl border transition-colors",
+              "w-full rounded-xl border transition-colors",
+              isExpanded ? "overflow-visible" : "overflow-hidden",
               isExpanded
                 ? "border-primary/40 bg-card/60 shadow-sm"
                 : isCompleted

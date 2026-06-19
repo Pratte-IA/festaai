@@ -1,10 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Building2, ChevronLeft, ChevronRight, Loader2, PartyPopper } from "lucide-react";
 
-import {
-  ContractDocumentView,
-  contractDocumentClassName,
-} from "@/components/contracts/ContractDocumentView";
+import { ContractTemplateEditorPanel } from "@/components/contracts/ContractTemplateEditorPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -14,20 +11,27 @@ import { useTenantFinancialSettings } from "@/features/configuracoes";
 import { useTenantPackages } from "@/features/configuracoes/use-tenant-packages";
 import {
   CONTRACT_PREVIEW_PLACEHOLDER,
+  computePackageExtraGuestUnitPrice,
   defaultTenantContractTemplateParams,
+  isTenantContractTemplateParamsComplete,
   renderContractTemplatePreview,
   validateTenantContractTemplateParams,
   type TenantContractTemplateParams,
 } from "@/features/eventos/contracts/contract-template-params";
+import { getPackagePriceForGuests } from "@/features/eventos/closing-form-runtime";
 import type { ContractTemplateKey } from "@/features/eventos/contracts/contract-template-types";
+import { isLegacyContractTemplateStub } from "@/features/eventos/contracts/resolve-contract-template-html";
 import {
   useCompleteContractModelsReview,
+  useRestoreContractTemplateHtml,
+  useSaveContractTemplateHtml,
+  useSaveContractTemplateParams,
+  useSyncLegacyContractTemplates,
   useTenantContractModuleSettings,
   useTenantContractTypeOptions,
 } from "@/features/eventos/use-tenant-contract-module-settings";
 import { useTenantCompanyProfile } from "@/features/guided-setup/use-tenant-company-profile";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 const templateIcons: Record<ContractTemplateKey, typeof Building2> = {
   aluguel_espaco: Building2,
@@ -39,24 +43,50 @@ const inputClassName =
 
 interface ContractModelsReviewStepProps {
   mode?: "setup" | "edit";
+  onParamsSaved?: () => void;
   onRestartSetup?: () => void | Promise<void>;
   onReviewCompleted?: () => void;
 }
 
 export const ContractModelsReviewStep = ({
   mode = "setup",
+  onParamsSaved,
   onRestartSetup,
   onReviewCompleted,
 }: ContractModelsReviewStepProps) => {
   const { data: options = [], error, isLoading } = useTenantContractTypeOptions();
   const enabledOptions = useMemo(() => options.filter((option) => option.enabled), [options]);
+  const requiresFestaCompletaFields = useMemo(
+    () => enabledOptions.some((option) => option.key === "aluguel_espaco_festa_completa"),
+    [enabledOptions],
+  );
+  const validationOptions = useMemo(
+    () => ({ requiresFestaCompletaFields }),
+    [requiresFestaCompletaFields],
+  );
   const { data: moduleSettings } = useTenantContractModuleSettings();
   const { data: companyProfile } = useTenantCompanyProfile();
   const { data: financialSettings } = useTenantFinancialSettings();
   const { data: packages = [] } = useTenantPackages();
   const completeReview = useCompleteContractModelsReview();
+  const saveParams = useSaveContractTemplateParams();
+  const saveTemplateHtml = useSaveContractTemplateHtml();
+  const restoreTemplateHtml = useRestoreContractTemplateHtml();
+  const syncLegacyTemplates = useSyncLegacyContractTemplates();
+  const legacySyncStarted = useRef(false);
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [paramsSaved, setParamsSaved] = useState(false);
+  const [isEditingTemplate, setIsEditingTemplate] = useState(false);
+  const [templateDrafts, setTemplateDrafts] = useState<Partial<Record<ContractTemplateKey, string>>>(
+    {},
+  );
+  const [templateDirty, setTemplateDirty] = useState<Partial<Record<ContractTemplateKey, boolean>>>(
+    {},
+  );
+  const [templateSaved, setTemplateSaved] = useState<Partial<Record<ContractTemplateKey, boolean>>>(
+    {},
+  );
   const [params, setParams] = useState<TenantContractTemplateParams>(() =>
     defaultTenantContractTemplateParams(),
   );
@@ -64,34 +94,123 @@ export const ContractModelsReviewStep = ({
   useEffect(() => {
     const stored = moduleSettings?.templateParams;
     const defaults = defaultTenantContractTemplateParams();
-    setParams({
+    const nextParams = {
       ...defaults,
       ...stored,
       comarca_foro: stored?.comarca_foro || companyProfile?.addressCity || defaults.comarca_foro,
       titular_conta:
         stored?.titular_conta || companyProfile?.companyName?.trim() || defaults.titular_conta,
-    });
-  }, [companyProfile?.addressCity, companyProfile?.companyName, moduleSettings?.templateParams]);
+    };
+    setParams(nextParams);
+    setParamsSaved(isTenantContractTemplateParamsComplete(nextParams, validationOptions));
+  }, [
+    companyProfile?.addressCity,
+    companyProfile?.companyName,
+    moduleSettings?.templateParams,
+    validationOptions,
+  ]);
 
   const packageSample = useMemo(
     () => packages.find((pkg) => pkg.active) ?? packages[0] ?? null,
     [packages],
   );
 
+  const extraGuestPricePreview = useMemo(
+    () => computePackageExtraGuestUnitPrice(packageSample),
+    [packageSample],
+  );
+
+  const extraGuestPriceSummary = useMemo(() => {
+    if (!packageSample || extraGuestPricePreview == null) return null;
+
+    const guestCount =
+      packageSample.includedGuests ?? packageSample.pricingTiers?.[0]?.minGuests ?? null;
+    if (guestCount == null || guestCount <= 0) return null;
+
+    const totalValue = getPackagePriceForGuests(packageSample, guestCount);
+    const formattedTotal = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(totalValue);
+    const formattedUnit = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(extraGuestPricePreview);
+
+    return `${formattedTotal} ÷ ${guestCount} convidados = ${formattedUnit} (pacote ${packageSample.name})`;
+  }, [extraGuestPricePreview, packageSample]);
+
   const currentOption = enabledOptions[currentIndex];
   const totalModels = enabledOptions.length;
   const isLastModel = currentIndex >= totalModels - 1;
 
-  const previewHtml = useMemo(() => {
-    if (!currentOption) return "";
+  useEffect(() => {
+    setIsEditingTemplate(false);
+  }, [currentIndex]);
 
-    return renderContractTemplatePreview(currentOption.definition.placeholderHtml, {
+  useEffect(() => {
+    if (!enabledOptions.length || legacySyncStarted.current || syncLegacyTemplates.isPending) {
+      return;
+    }
+
+    const hasLegacyStub = enabledOptions.some((option) =>
+      isLegacyContractTemplateStub(option.storedTemplateHtml),
+    );
+
+    if (!hasLegacyStub) return;
+
+    legacySyncStarted.current = true;
+
+    void syncLegacyTemplates.mutateAsync().then((result) => {
+      if (result.syncedCount > 0) {
+        setTemplateDrafts({});
+        setTemplateDirty({});
+        setTemplateSaved({});
+      }
+    });
+  }, [enabledOptions, syncLegacyTemplates]);
+
+  useEffect(() => {
+    if (!currentOption) return;
+
+    setTemplateDrafts((current) => {
+      if (current[currentOption.key] != null) return current;
+      return {
+        ...current,
+        [currentOption.key]: currentOption.templateHtml,
+      };
+    });
+
+    setTemplateSaved((current) => {
+      if (current[currentOption.key] != null) return current;
+      return {
+        ...current,
+        [currentOption.key]: currentOption.isCustomized,
+      };
+    });
+  }, [currentOption]);
+
+  const currentTemplateDraft = currentOption
+    ? (templateDrafts[currentOption.key] ?? currentOption.templateHtml)
+    : "";
+
+  const previewHtml = useMemo(() => {
+    if (!currentOption || !currentTemplateDraft) return "";
+
+    return renderContractTemplatePreview(currentTemplateDraft, {
       companyProfile,
       financialSettings: financialSettings ?? null,
       packageSample,
       params,
     });
-  }, [companyProfile, currentOption, financialSettings, packageSample, params]);
+  }, [
+    companyProfile,
+    currentOption,
+    currentTemplateDraft,
+    financialSettings,
+    packageSample,
+    params,
+  ]);
 
   const prefilledSummary = useMemo(
     () =>
@@ -112,27 +231,189 @@ export const ContractModelsReviewStep = ({
     value: TenantContractTemplateParams[K],
   ) => {
     setParams((current) => ({ ...current, [key]: value }));
+    setParamsSaved(false);
   };
 
-  const handleConfirm = async () => {
-    if (!isLastModel) {
-      setCurrentIndex((index) => index + 1);
+  const handleTemplateDraftChange = (html: string) => {
+    if (!currentOption) return;
+
+    setTemplateDrafts((current) => ({
+      ...current,
+      [currentOption.key]: html,
+    }));
+    setTemplateDirty((current) => ({
+      ...current,
+      [currentOption.key]: true,
+    }));
+    setTemplateSaved((current) => ({
+      ...current,
+      [currentOption.key]: false,
+    }));
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!currentOption?.id) {
+      toast({
+        title: "Modelo indisponível",
+        description: "Salve a seleção de modelos antes de personalizar as cláusulas.",
+        variant: "destructive",
+      });
       return;
     }
 
-    const validationError = validateTenantContractTemplateParams(params);
+    try {
+      const result = await saveTemplateHtml.mutateAsync({
+        templateHtml: currentTemplateDraft,
+        templateId: currentOption.id,
+        templateKey: currentOption.key,
+        version: currentOption.version,
+      });
+
+      setTemplateDrafts((current) => ({
+        ...current,
+        [currentOption.key]: result.templateHtml,
+      }));
+      setTemplateDirty((current) => ({
+        ...current,
+        [currentOption.key]: false,
+      }));
+      setTemplateSaved((current) => ({
+        ...current,
+        [currentOption.key]: true,
+      }));
+      setIsEditingTemplate(false);
+      toast({
+        title: "Cláusulas salvas",
+        description: "A versão personalizada deste modelo foi salva para o seu espaço.",
+      });
+    } catch (mutationError) {
+      toast({
+        title: "Não foi possível salvar as cláusulas",
+        description:
+          mutationError instanceof Error ? mutationError.message : "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRestoreTemplate = async () => {
+    if (!currentOption?.id) return;
+
+    try {
+      const result = await restoreTemplateHtml.mutateAsync({
+        templateId: currentOption.id,
+        templateKey: currentOption.key,
+        version: currentOption.version,
+      });
+
+      setTemplateDrafts((current) => ({
+        ...current,
+        [currentOption.key]: result.templateHtml,
+      }));
+      setTemplateDirty((current) => ({
+        ...current,
+        [currentOption.key]: false,
+      }));
+      setTemplateSaved((current) => ({
+        ...current,
+        [currentOption.key]: false,
+      }));
+      toast({
+        title: "Modelo padrão restaurado",
+        description: "As cláusulas voltaram ao texto original do sistema.",
+      });
+    } catch (mutationError) {
+      toast({
+        title: "Não foi possível restaurar o modelo",
+        description:
+          mutationError instanceof Error ? mutationError.message : "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveParams = async () => {
+    const validationError = validateTenantContractTemplateParams(params, validationOptions);
     if (validationError) {
       toast({ title: validationError, variant: "destructive" });
       return;
     }
 
     try {
-      await completeReview.mutateAsync({ params });
+      await saveParams.mutateAsync({
+        params,
+        requiresFestaCompletaFields,
+      });
+      setParamsSaved(true);
       toast({
-        title: mode === "edit" ? "Parâmetros salvos" : "Modelos revisados",
+        title: "Parâmetros salvos",
+        description: "As informações de parametrização foram salvas no banco de dados.",
+      });
+      onParamsSaved?.();
+    } catch (mutationError) {
+      toast({
+        title: "Não foi possível salvar os parâmetros",
+        description:
+          mutationError instanceof Error ? mutationError.message : "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const hasUnsavedTemplateChanges = useMemo(
+    () => enabledOptions.some((option) => templateDirty[option.key]),
+    [enabledOptions, templateDirty],
+  );
+
+  const handleConfirm = async () => {
+    if (!isLastModel) {
+      if (hasUnsavedTemplateChanges) {
+        toast({
+          title: "Salve as cláusulas antes de continuar",
+          description: "Há alterações no texto do contrato que ainda não foram salvas.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setCurrentIndex((index) => index + 1);
+      return;
+    }
+
+    if (!paramsSaved) {
+      toast({
+        title: "Salve os parâmetros antes de concluir",
+        description: "Preencha todos os campos e clique em Salvar parâmetros.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (hasUnsavedTemplateChanges) {
+      toast({
+        title: "Salve as cláusulas antes de concluir",
+        description: "Há alterações no texto do contrato que ainda não foram salvas.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const validationError = validateTenantContractTemplateParams(params, validationOptions);
+    if (validationError) {
+      toast({ title: validationError, variant: "destructive" });
+      return;
+    }
+
+    try {
+      await completeReview.mutateAsync({
+        params,
+        requiresFestaCompletaFields,
+      });
+      toast({
+        title: mode === "edit" ? "Revisão concluída" : "Modelos revisados",
         description:
           mode === "edit"
-            ? "As alterações foram aplicadas aos modelos de contrato."
+            ? "A parametrização está completa."
             : "Confirme os termos do módulo para concluir a habilitação.",
       });
       onReviewCompleted?.();
@@ -167,7 +448,7 @@ export const ContractModelsReviewStep = ({
   const Icon = templateIcons[currentOption.key];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6" data-guided-setup-allowed>
       <Card>
         <CardHeader>
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -217,8 +498,17 @@ export const ContractModelsReviewStep = ({
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Parâmetros do contrato</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Complete os dados do espaço que entram em todos os modelos selecionados.
+                  Preencha todos os campos e salve antes de concluir a revisão dos modelos.
                 </p>
+                {paramsSaved ? (
+                  <p className="mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    Parâmetros salvos no banco de dados.
+                  </p>
+                ) : (
+                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                    Há alterações não salvas ou campos pendentes.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -270,20 +560,37 @@ export const ContractModelsReviewStep = ({
                   <Label htmlFor="hora-extra">Valor da hora extra</Label>
                   <CurrencyInput
                     id="hora-extra"
-                    value={params.valor_hora_extra}
-                    onValueChange={(value) => updateParam("valor_hora_extra", value)}
+                    value={params.valor_hora_extra ?? 0}
+                    onChange={(value) => updateParam("valor_hora_extra", value)}
+                    className={inputClassName}
                   />
                 </div>
 
-                {currentOption.key === "aluguel_espaco_festa_completa" && (
+                {requiresFestaCompletaFields ? (
                   <>
                     <div>
                       <Label htmlFor="convidado-extra">Valor por convidado extra</Label>
-                      <CurrencyInput
+                      <div
                         id="convidado-extra"
-                        value={params.valor_convidado_extra}
-                        onValueChange={(value) => updateParam("valor_convidado_extra", value)}
-                      />
+                        className={`${inputClassName} bg-muted/40 text-muted-foreground`}
+                      >
+                        {extraGuestPricePreview != null
+                          ? new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            }).format(extraGuestPricePreview)
+                          : "—"}
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Calculado automaticamente na contratação: valor total do pacote ÷ número de
+                        convidados inclusos.
+                        {extraGuestPriceSummary ? (
+                          <>
+                            {" "}
+                            Exemplo com seu pacote: {extraGuestPriceSummary}.
+                          </>
+                        ) : null}
+                      </p>
                     </div>
                     <div>
                       <Label htmlFor="idade-extra">Idade mínima para cobrança de extra</Label>
@@ -301,8 +608,26 @@ export const ContractModelsReviewStep = ({
                         className={inputClassName}
                       />
                     </div>
+                    <div>
+                      <Label htmlFor="prazo-alteracao-convidados">
+                        Prazo para alteração de convidados (dias)
+                      </Label>
+                      <Input
+                        id="prazo-alteracao-convidados"
+                        type="number"
+                        min={0}
+                        value={params.prazo_alteracao_convidados ?? ""}
+                        onChange={(event) =>
+                          updateParam(
+                            "prazo_alteracao_convidados",
+                            event.target.value ? Number(event.target.value) : null,
+                          )
+                        }
+                        className={inputClassName}
+                      />
+                    </div>
                   </>
-                )}
+                ) : null}
               </div>
 
               <div className="space-y-3 border-t border-border/50 pt-4">
@@ -431,19 +756,57 @@ export const ContractModelsReviewStep = ({
                     />
                   </div>
                 </div>
+                <div>
+                  <Label htmlFor="prazo-confirmacao-entrada">
+                    Prazo para confirmação da entrada (dias)
+                  </Label>
+                  <Input
+                    id="prazo-confirmacao-entrada"
+                    type="number"
+                    min={1}
+                    value={params.prazo_confirmacao_entrada ?? ""}
+                    onChange={(event) =>
+                      updateParam(
+                        "prazo_confirmacao_entrada",
+                        event.target.value ? Number(event.target.value) : null,
+                      )
+                    }
+                    className={inputClassName}
+                  />
+                </div>
               </div>
+
+              <Button
+                type="button"
+                className="w-full"
+                disabled={saveParams.isPending || completeReview.isPending}
+                onClick={() => void handleSaveParams()}
+              >
+                {saveParams.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando parâmetros...
+                  </>
+                ) : (
+                  "Salvar parâmetros"
+                )}
+              </Button>
             </div>
 
-            <div className="min-h-[480px] rounded-xl border border-border/60 bg-background/60 p-4 sm:p-6">
-              <div
-                className={cn(
-                  contractDocumentClassName,
-                  "max-h-[70vh] overflow-y-auto pr-2",
-                )}
-              >
-                <ContractDocumentView html={previewHtml} />
-              </div>
-            </div>
+            <ContractTemplateEditorPanel
+              isEditing={isEditingTemplate}
+              isRestoring={restoreTemplateHtml.isPending}
+              isSaving={saveTemplateHtml.isPending}
+              onCancelEdit={() => setIsEditingTemplate(false)}
+              onDraftChange={handleTemplateDraftChange}
+              onRestoreDefault={() => void handleRestoreTemplate()}
+              onSave={() => void handleSaveTemplate()}
+              onStartEdit={() => setIsEditingTemplate(true)}
+              previewHtml={previewHtml}
+              templateDraft={currentTemplateDraft}
+              templateDirty={Boolean(currentOption && templateDirty[currentOption.key])}
+              templateSaved={Boolean(currentOption && templateSaved[currentOption.key])}
+            />
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-4">
@@ -457,14 +820,18 @@ export const ContractModelsReviewStep = ({
               Modelo anterior
             </Button>
 
-            <Button type="button" disabled={completeReview.isPending} onClick={() => void handleConfirm()}>
+            <Button
+              type="button"
+              disabled={completeReview.isPending || saveParams.isPending}
+              onClick={() => void handleConfirm()}
+            >
               {completeReview.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Salvando...
+                  Concluindo...
                 </>
               ) : isLastModel ? (
-                isEditMode ? "Salvar parâmetros" : "Confirmar modelos e continuar"
+                isEditMode ? "Concluir revisão dos modelos" : "Concluir revisão e continuar"
               ) : (
                 <>
                   Próximo modelo
