@@ -12,10 +12,24 @@ const checkoutSchema = z.object({
   email: z.string().email(),
   message: z.string().max(1000).optional().nullable(),
   name: z.string().min(2).max(120),
+  offerToken: z.string().min(8).max(120).optional().nullable(),
   phone: z.string().min(8).max(30),
   planSlug: z.string().min(2).max(60),
   tenantId: z.number().int().positive().optional().nullable(),
 });
+
+type CommercialOfferRow = {
+  base_plan_slug: string;
+  expires_at: string;
+  id: number;
+  loyalty_months: number | null;
+  monthly_price: number;
+  name: string;
+  setup_installments: number | null;
+  setup_price: number;
+  status: string;
+  token: string;
+};
 
 /** Condições comerciais na página /contratar (valores alinhados ao frontend). Se não houver linha no DB com o mesmo slug, usamos um plano ativo como FK e estes valores no Asaas. */
 const COMMERCIAL_CONDITIONS: Record<
@@ -151,12 +165,48 @@ Deno.serve(async (req) => {
 
     const input = checkoutSchema.parse(await req.json());
 
-    const condition = COMMERCIAL_CONDITIONS[input.planSlug];
+    let commercialOffer: CommercialOfferRow | null = null;
+
+    if (input.offerToken) {
+      const { data: offer, error: offerError } = await supabase
+        .from("commercial_offers")
+        .select("*")
+        .eq("token", input.offerToken)
+        .maybeSingle();
+
+      if (offerError) throw offerError;
+
+      if (!offer || offer.status !== "active") {
+        return jsonResponse({ error: "Esta proposta não está mais disponível." }, 404);
+      }
+
+      if (new Date(offer.expires_at).getTime() <= Date.now()) {
+        await supabase.from("commercial_offers").update({ status: "expired" }).eq("id", offer.id);
+        return jsonResponse({ error: "Esta proposta expirou." }, 410);
+      }
+
+      commercialOffer = offer as CommercialOfferRow;
+
+      if (input.planSlug !== commercialOffer.base_plan_slug) {
+        return jsonResponse({ error: "Plano incompatível com a proposta." }, 400);
+      }
+    }
+
+    const planSlug = commercialOffer?.base_plan_slug ?? input.planSlug;
+    const condition = commercialOffer
+      ? {
+          monthly_price: Number(commercialOffer.monthly_price),
+          setup_price: Number(commercialOffer.setup_price),
+          setup_installments: commercialOffer.setup_installments,
+          loyalty_months: commercialOffer.loyalty_months,
+          name: commercialOffer.name,
+        }
+      : COMMERCIAL_CONDITIONS[planSlug];
 
     const { data: planInitial, error: planError } = await supabase
       .from("subscription_plans")
       .select("*")
-      .eq("slug", input.planSlug)
+      .eq("slug", planSlug)
       .eq("active", true)
       .maybeSingle();
 
@@ -180,7 +230,7 @@ Deno.serve(async (req) => {
       plan = {
         ...fallback,
         ...condition,
-        slug: input.planSlug,
+        slug: planSlug,
         id: fallback.id,
       };
     } else if (condition) {
@@ -249,7 +299,10 @@ Deno.serve(async (req) => {
         metadata: {
           asaas_customer_id: customer.id,
           setup_price: plan.setup_price,
-          condition_slug: input.planSlug,
+          condition_slug: planSlug,
+          ...(commercialOffer
+            ? { commercial_offer_id: commercialOffer.id, commercial_offer_token: commercialOffer.token }
+            : {}),
         },
         next_due_date: nextDueDateISO,
         plan_id: plan.id,
@@ -262,6 +315,19 @@ Deno.serve(async (req) => {
       .single();
 
     if (subscriptionError) throw subscriptionError;
+
+    if (commercialOffer) {
+      const { error: offerUpdateError } = await supabase
+        .from("commercial_offers")
+        .update({
+          billing_subscription_id: billingSubscription.id,
+          status: "accepted",
+        })
+        .eq("id", commercialOffer.id)
+        .eq("status", "active");
+
+      if (offerUpdateError) throw offerUpdateError;
+    }
 
     await sendBillingEmail(supabaseUrl, serviceRoleKey, {
       email: input.email,

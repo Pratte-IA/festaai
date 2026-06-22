@@ -33,7 +33,6 @@ const MiniCalendar = ({ onSelectDay, selectedDate }: MiniCalendarProps) => {
     if (isToday) return "bg-primary text-primary-foreground font-bold";
     if (day.status === "reservado") return "bg-rosa/20 text-rosa font-medium hover:bg-rosa/30";
     if (day.status === "bloqueado") return "bg-destructive/15 text-destructive font-medium hover:bg-destructive/25";
-    // Has only visitas (available but with visits)
     if (day.visitas.length > 0) return "bg-accent text-accent-foreground font-medium hover:bg-accent/80";
     return "text-muted-foreground hover:bg-muted";
   };
@@ -104,10 +103,13 @@ const MiniCalendar = ({ onSelectDay, selectedDate }: MiniCalendarProps) => {
 
       <div className="mt-3 flex items-center gap-4 text-[10px] text-muted-foreground flex-wrap">
         <span className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-primary" /> Hoje / Visita
+          <div className="w-2 h-2 rounded-full bg-primary" /> Hoje
         </span>
         <span className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-rosa" /> Festa
+          <div className="w-2 h-2 rounded-full bg-rosa" /> Festa fechada
+        </span>
+        <span className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-primary" /> Visita
         </span>
         <span className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-destructive" /> Bloqueado

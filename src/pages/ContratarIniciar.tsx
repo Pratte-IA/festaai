@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateCheckout } from "@/features/billing";
+import { usePublicCommercialOffer } from "@/features/comercial";
 import { toast } from "@/hooks/use-toast";
 import {
+  buildConditionFromOffer,
   ContratarCommercialCondition,
   contratarCtaGradientClass,
   findCommercialConditionBySlug,
@@ -37,13 +39,46 @@ const PlanSummaryBlocks = ({ plan }: PlanSummaryBlocksProps) => (
 
 const ContratarIniciar = () => {
   const { planSlug } = useParams<{ planSlug: string }>();
-  const plan = findCommercialConditionBySlug(planSlug);
+  const [searchParams] = useSearchParams();
+  const offerToken = searchParams.get("oferta") ?? undefined;
+  const standardPlan = findCommercialConditionBySlug(planSlug);
+  const { data: offer, isLoading: isOfferLoading } = usePublicCommercialOffer(offerToken);
   const createCheckout = useCreateCheckout();
   const [form, setForm] = useState({ nome: "", email: "", telefone: "", empresa: "" });
+
+  const plan = useMemo<ContratarCommercialCondition | undefined>(() => {
+    if (offerToken && offer) {
+      return buildConditionFromOffer(offer);
+    }
+    return standardPlan;
+  }, [offer, offerToken, standardPlan]);
+
+  useEffect(() => {
+    if (!offer) return;
+    setForm((current) => ({
+      ...current,
+      email: current.email || offer.recipient_email || "",
+      empresa: current.empresa || offer.recipient_company || "",
+    }));
+  }, [offer]);
+
+  if (offerToken && isOfferLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#07070c] text-sm text-zinc-400">
+        Carregando proposta...
+      </main>
+    );
+  }
+
+  if (offerToken && !isOfferLoading && !offer) {
+    return <Navigate to="/contratar" replace />;
+  }
 
   if (!plan) {
     return <Navigate to="/contratar" replace />;
   }
+
+  const backHref = offerToken ? `/contratar/oferta/${offerToken}` : "/contratar#planos";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +88,7 @@ const ContratarIniciar = () => {
         companyName: form.empresa,
         email: form.email,
         name: form.nome,
+        offerToken: offerToken ?? null,
         phone: form.telefone,
         planSlug: plan.slug,
       });
@@ -98,9 +134,9 @@ const ContratarIniciar = () => {
               size="sm"
               className="gap-2 text-zinc-300 hover:bg-white/5 hover:text-white"
             >
-              <Link to="/contratar#planos">
+              <Link to={backHref}>
                 <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
-                Voltar aos planos
+                {offerToken ? "Voltar à proposta" : "Voltar aos planos"}
               </Link>
             </Button>
             <Link to="/contratar#top" className="flex min-h-[44px] items-center gap-3">
@@ -128,7 +164,7 @@ const ContratarIniciar = () => {
               ) : null}
 
               <h1 id="contratar-resumo-titulo" className={`text-2xl font-bold text-white sm:text-3xl ${plan.highlight && plan.badgeLabel ? "mt-4" : ""}`}>
-                Contratar: {plan.name}
+                {offerToken ? plan.name : `Contratar: ${plan.name}`}
               </h1>
               <p className="mt-3 text-pretty text-sm leading-relaxed text-zinc-400">{plan.description}</p>
 
@@ -258,7 +294,11 @@ const ContratarIniciar = () => {
                       disabled={createCheckout.isPending}
                       className={`min-h-[44px] border-0 ${contratarCtaGradientClass}`}
                     >
-                      {createCheckout.isPending ? "Criando checkout..." : "Ir para pagamento"}
+                      {createCheckout.isPending
+                        ? "Criando checkout..."
+                        : offerToken
+                          ? "Aceitar proposta e pagar"
+                          : "Ir para pagamento"}
                     </Button>
                   </div>
                 </form>

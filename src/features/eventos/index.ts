@@ -8,6 +8,13 @@ export {
 export { eventosQueryKeys } from "./query-keys";
 export { filterEventosBySearch, matchesEventoSearch } from "./filter-eventos-by-search";
 export { getEventoPackageDisplay } from "./evento-package-display";
+export {
+  isCalendarOrcamentoEvento,
+  isCalendarVisitaEvento,
+  isClosedPartyEvento,
+  isInactiveEvento,
+  isScheduledPartyEvento,
+} from "./is-closed-party-event";
 export type { EventoPackageDisplay } from "./evento-package-display";
 export { getDefaultStageForFunnel, isStageValidForFunnel } from "./stage-validation";
 export {

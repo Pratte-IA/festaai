@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays, CreditCard, LifeBuoy, ListChecks, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, CreditCard, ExternalLink, LifeBuoy, ListChecks, ShieldCheck, Users } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAdminTenantBilling } from "@/features/comercial";
 import { Tables } from "@/lib/supabase/database.types";
 import { supabase } from "@/lib/supabase/client";
 
@@ -240,6 +241,8 @@ const AdminTenantDetail = () => {
     staleTime: 1000 * 60,
   });
 
+  const { data: billingSubscription } = useAdminTenantBilling(hasValidTenantId ? tenantId : null);
+
   if (!hasValidTenantId) {
     return (
       <main className="min-h-screen bg-background px-4 py-8">
@@ -353,6 +356,52 @@ const AdminTenantDetail = () => {
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Atualizado em</p>
                   <p className="mt-1 font-medium">{formatDateTime(tenant.updated_at)}</p>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-3xl border-white/80 bg-white/90 shadow-sm">
+              <CardHeader>
+                <CardTitle>Contrato FestaAI</CardTitle>
+                <CardDescription>Assinatura da plataforma vinculada a este cliente.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!billingSubscription ? (
+                  <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
+                    Nenhuma assinatura FestaAI vinculada a este tenant.
+                  </div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Plano</p>
+                      <p className="mt-1 font-medium">
+                        {(Array.isArray(billingSubscription.subscription_plans)
+                          ? billingSubscription.subscription_plans[0]
+                          : billingSubscription.subscription_plans
+                        )?.name ?? "—"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+                      <Badge className="mt-1" variant={getStatusVariant(billingSubscription.status)}>
+                        {billingSubscription.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Criado em</p>
+                      <p className="mt-1 font-medium">{formatDateTime(billingSubscription.created_at)}</p>
+                    </div>
+                    {billingSubscription.checkout_url ? (
+                      <div className="flex items-end">
+                        <Button asChild size="sm" variant="outline">
+                          <a href={billingSubscription.checkout_url} rel="noopener noreferrer" target="_blank">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Abrir checkout
+                          </a>
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

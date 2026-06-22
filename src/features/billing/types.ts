@@ -9,6 +9,7 @@ export interface CheckoutRequest {
   email: string;
   message?: string;
   name: string;
+  offerToken?: string | null;
   phone: string;
   planSlug: string;
   tenantId?: number | null;

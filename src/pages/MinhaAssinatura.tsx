@@ -3,9 +3,8 @@ import { ExternalLink } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBillingSubscription } from "@/features/billing";
-import { useEmailEvents } from "@/features/emails";
 
 const statusLabel: Record<string, string> = {
   active: "Ativa",
@@ -32,7 +31,6 @@ const formatDate = (value?: string | null) => {
 
 const MinhaAssinatura = () => {
   const { data: subscription, error, isLoading } = useBillingSubscription();
-  const { data: emailEvents = [], isLoading: isLoadingEmailEvents } = useEmailEvents();
   const plan = subscription?.subscription_plans;
 
   return (
@@ -41,16 +39,13 @@ const MinhaAssinatura = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Minha Assinatura</h1>
           <p className="mt-2 text-muted-foreground">
-            Acompanhe o plano contratado e o status de billing do seu tenant.
+            Acompanhe o plano contratado e o status de pagamento para sua casa de festa.
           </p>
         </div>
 
         <Card className="border-border/60 bg-card/95">
           <CardHeader>
             <CardTitle>Status da assinatura</CardTitle>
-            <CardDescription>
-              Os dados abaixo sao sincronizados pelos webhooks do Asaas.
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading && <p className="text-sm text-muted-foreground">Carregando assinatura...</p>}
@@ -63,7 +58,7 @@ const MinhaAssinatura = () => {
 
             {!isLoading && !error && !subscription && (
               <div className="rounded-lg border border-dashed border-border p-6 text-center">
-                <p className="font-medium">Nenhuma assinatura vinculada a este tenant.</p>
+                <p className="font-medium">Nenhuma assinatura vinculada a sua casa de festa.</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Quando uma contratação for concluida, o status aparecerá aqui.
                 </p>
@@ -107,40 +102,6 @@ const MinhaAssinatura = () => {
                     </Button>
                   </div>
                 )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/60 bg-card/95">
-          <CardHeader>
-            <CardTitle>E-mails transacionais</CardTitle>
-            <CardDescription>
-              Ultimos registros enviados pelo FestaAI para este tenant.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoadingEmailEvents && <p className="text-sm text-muted-foreground">Carregando logs...</p>}
-
-            {!isLoadingEmailEvents && emailEvents.length === 0 && (
-              <p className="text-sm text-muted-foreground">Nenhum e-mail transacional registrado ainda.</p>
-            )}
-
-            {emailEvents.length > 0 && (
-              <div className="space-y-3">
-                {emailEvents.map((event) => (
-                  <div key={event.id} className="flex flex-col gap-2 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="font-medium">{event.subject}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {event.recipient_email} · {new Date(event.created_at).toLocaleString("pt-BR")}
-                      </p>
-                    </div>
-                    <Badge variant={event.status === "failed" ? "destructive" : "secondary"}>
-                      {event.status}
-                    </Badge>
-                  </div>
-                ))}
               </div>
             )}
           </CardContent>

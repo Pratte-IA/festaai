@@ -33,10 +33,16 @@ const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
 const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
+const ContratarOferta = lazy(() => import("./pages/ContratarOferta.tsx"));
 const FormularioCliente = lazy(() => import("./pages/FormularioCliente.tsx"));
 const MinhaAssinatura = lazy(() => import("./pages/MinhaAssinatura.tsx"));
 const AdminAgentRequests = lazy(() => import("./pages/AdminAgentRequests.tsx"));
 const AdminAgentRequestDetail = lazy(() => import("./pages/AdminAgentRequestDetail.tsx"));
+const AdminComercial = lazy(() => import("./pages/AdminComercial.tsx"));
+const AdminComercialLeads = lazy(() => import("./pages/AdminComercialLeads.tsx"));
+const AdminComercialOfertas = lazy(() => import("./pages/AdminComercialOfertas.tsx"));
+const AdminComercialOfertaForm = lazy(() => import("./pages/AdminComercialOfertaForm.tsx"));
+const AdminComercialContratos = lazy(() => import("./pages/AdminComercialContratos.tsx"));
 const Suporte = lazy(() => import("./pages/Suporte.tsx"));
 const SuporteAgente = lazy(() => import("./pages/SuporteAgente.tsx"));
 const SuporteErros = lazy(() => import("./pages/SuporteErros.tsx"));
@@ -66,6 +72,54 @@ const App = () => (
             <GuidedSetupProvider>
               <Suspense fallback={<RouteLoader />}>
                 <Routes>
+                <Route
+                  path="/admin/comercial/leads"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminComercialLeads />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/comercial/ofertas/nova"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminComercialOfertaForm />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/comercial/ofertas/:id"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminComercialOfertaForm />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/comercial/ofertas"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminComercialOfertas />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/comercial/contratos"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminComercialContratos />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/comercial"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminComercial />
+                    </PlatformAdminRoute>
+                  }
+                />
                 <Route
                   path="/admin/agent-requests/:id"
                   element={
@@ -284,6 +338,7 @@ const App = () => (
                   }
                 />
                 <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
+                <Route path="/contratar/oferta/:token" element={<ContratarOferta />} />
                 <Route path="/contratar" element={<Contratar />} />
                 <Route path="/formulario/:tenantSlug" element={<FormularioCliente />} />
                 <Route path="/login" element={<Login />} />

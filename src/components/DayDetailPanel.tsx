@@ -65,7 +65,7 @@ const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
       {day.festas.length > 0 && (
         <div className="mb-4 space-y-2">
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <PartyPopper className="w-3.5 h-3.5 text-rosa" /> Festas
+            <PartyPopper className="w-3.5 h-3.5 text-rosa" /> Festa fechada
           </h4>
           {day.festas.map((event) => (
             <button
@@ -114,11 +114,13 @@ const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
               </div>
             </button>
           ))}
-          <p className="text-[10px] text-muted-foreground italic">Visitas não bloqueiam a disponibilidade</p>
+          <p className="text-[10px] text-muted-foreground italic">
+            Visitas não bloqueiam a disponibilidade
+          </p>
         </div>
       )}
 
-      {day.events.length === 0 && day.status === "disponivel" && (
+      {day.festas.length === 0 && day.status === "disponivel" && (
         <div className="mb-4 p-4 rounded-lg bg-success/5 border border-success/20 text-center">
           <p className="text-sm text-success font-medium">Data disponível para festas</p>
         </div>

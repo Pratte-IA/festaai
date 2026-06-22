@@ -332,6 +332,124 @@ export type Database = {
           },
         ];
       };
+      commercial_leads: {
+        Row: {
+          company_name: string;
+          created_at: string;
+          email: string;
+          id: number;
+          message: string;
+          name: string;
+          phone: string;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          company_name: string;
+          created_at?: string;
+          email: string;
+          id?: number;
+          message?: string;
+          name: string;
+          phone: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          company_name?: string;
+          created_at?: string;
+          email?: string;
+          id?: number;
+          message?: string;
+          name?: string;
+          phone?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      commercial_offers: {
+        Row: {
+          base_plan_slug: string;
+          billing_subscription_id: number | null;
+          created_at: string;
+          created_by: string | null;
+          expires_at: string;
+          id: number;
+          lead_id: number | null;
+          loyalty_months: number | null;
+          monthly_price: number;
+          name: string;
+          recipient_company: string | null;
+          recipient_email: string | null;
+          setup_installments: number | null;
+          setup_price: number;
+          status: string;
+          token: string;
+          updated_at: string;
+        };
+        Insert: {
+          base_plan_slug: string;
+          billing_subscription_id?: number | null;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at: string;
+          id?: number;
+          lead_id?: number | null;
+          loyalty_months?: number | null;
+          monthly_price: number;
+          name: string;
+          recipient_company?: string | null;
+          recipient_email?: string | null;
+          setup_installments?: number | null;
+          setup_price?: number;
+          status?: string;
+          token: string;
+          updated_at?: string;
+        };
+        Update: {
+          base_plan_slug?: string;
+          billing_subscription_id?: number | null;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string;
+          id?: number;
+          lead_id?: number | null;
+          loyalty_months?: number | null;
+          monthly_price?: number;
+          name?: string;
+          recipient_company?: string | null;
+          recipient_email?: string | null;
+          setup_installments?: number | null;
+          setup_price?: number;
+          status?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "commercial_offers_billing_subscription_id_fkey";
+            columns: ["billing_subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_subscriptions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "commercial_offers_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "commercial_offers_lead_id_fkey";
+            columns: ["lead_id"];
+            isOneToOne: false;
+            referencedRelation: "commercial_leads";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       calendar_blocks: {
         Row: {
           created_at: string;
@@ -2404,6 +2522,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      get_public_commercial_offer: {
+        Args: { p_token: string };
+        Returns: {
+          base_plan_slug: string;
+          expires_at: string;
+          id: number;
+          loyalty_months: number | null;
+          monthly_price: number;
+          name: string;
+          recipient_company: string | null;
+          recipient_email: string | null;
+          setup_installments: number | null;
+          setup_price: number;
+          token: string;
+        }[];
+      };
       has_tenant_role: {
         Args: { allowed_roles: string[]; target_tenant_id: number };
         Returns: boolean;

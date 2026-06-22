@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Check, Clock, Layers, Sparkles, TrendingUp } from "lucide-react";
+import { BarChart3, Check, Clock, Layers, MessageSquare, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CustomPlanLeadDialog } from "@/components/contratar/CustomPlanLeadDialog";
 import {
   COMMERCIAL_CONDITIONS,
   contratarCtaGradientClass,
@@ -33,6 +34,7 @@ const quickBenefits = [
 
 const Contratar = () => {
   const { hash } = useLocation();
+  const [leadDialogOpen, setLeadDialogOpen] = useState(false);
 
   useEffect(() => {
     const id = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -278,6 +280,28 @@ const Contratar = () => {
               );
             })}
           </div>
+
+          <div className="mx-auto mt-10 max-w-2xl">
+            <div className="relative flex flex-col rounded-2xl border border-dashed border-white/[0.18] bg-white/[0.02] p-8 text-center backdrop-blur-sm transition-all duration-300 hover:border-[#5158e7]/35 hover:bg-white/[0.04]">
+              <div className="mx-auto mb-4 inline-flex rounded-xl border border-white/10 bg-white/5 p-2.5 text-[#e6bce9]">
+                <MessageSquare className="h-5 w-5" aria-hidden />
+              </div>
+              <h3 className="text-xl font-bold text-white">Plano sob medida</h3>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                Precisa de condições especiais ou uma implantação personalizada? Fale com nosso time comercial.
+              </p>
+              <Button
+                className={`mt-8 min-h-[48px] border border-white/[0.2] bg-white/[0.06] font-semibold text-white hover:bg-white/12`}
+                onClick={() => setLeadDialogOpen(true)}
+                size="lg"
+                type="button"
+              >
+                Falar com o time comercial
+              </Button>
+            </div>
+          </div>
+
+          <CustomPlanLeadDialog onOpenChange={setLeadDialogOpen} open={leadDialogOpen} />
         </section>
 
         {/* Fechamento */}

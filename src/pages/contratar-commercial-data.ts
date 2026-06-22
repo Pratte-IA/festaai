@@ -89,3 +89,43 @@ export function findCommercialConditionBySlug(
   if (!slug) return undefined;
   return COMMERCIAL_CONDITIONS.find((p) => p.slug === slug);
 }
+
+export function formatSetupDisplay(setupPrice: number, setupInstallments: number | null): string {
+  const formatted = formatContratarBRL(setupPrice);
+  if (!setupInstallments || setupInstallments <= 1) {
+    return `${formatted} à vista`;
+  }
+  return `${formatted} em até ${setupInstallments}x`;
+}
+
+export function formatLoyaltyLabel(loyaltyMonths: number | null): string {
+  if (!loyaltyMonths || loyaltyMonths <= 0) {
+    return "Não";
+  }
+  return `${loyaltyMonths} meses`;
+}
+
+export interface CommercialOfferPricing {
+  base_plan_slug: ContratarCommercialCondition["slug"];
+  loyalty_months: number | null;
+  monthly_price: number;
+  name: string;
+  setup_installments: number | null;
+  setup_price: number;
+}
+
+export function buildConditionFromOffer(offer: CommercialOfferPricing): ContratarCommercialCondition {
+  const base = findCommercialConditionBySlug(offer.base_plan_slug);
+  return {
+    slug: offer.base_plan_slug,
+    name: offer.name,
+    description: base?.description ?? "Proposta comercial exclusiva FestaAI.",
+    monthly_price: Number(offer.monthly_price),
+    setupDisplay: formatSetupDisplay(Number(offer.setup_price), offer.setup_installments),
+    benefits: base?.benefits ?? COMMERCIAL_CONDITIONS[0].benefits,
+    cta: "Aceitar proposta",
+    highlight: true,
+    badgeLabel: "Proposta exclusiva",
+    loyaltyLabel: formatLoyaltyLabel(offer.loyalty_months),
+  };
+}

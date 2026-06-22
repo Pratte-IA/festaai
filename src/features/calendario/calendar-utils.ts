@@ -1,4 +1,8 @@
-import { Evento } from "@/features/eventos";
+import {
+  Evento,
+  isCalendarVisitaEvento,
+  isScheduledPartyEvento,
+} from "@/features/eventos";
 
 import { CalendarBlock, DateStatus, DayInfo } from "./types";
 
@@ -34,9 +38,9 @@ export const buildMonthDays = (
   return Array.from({ length: daysInMonth }, (_, index) => {
     const date = formatDateKey(new Date(year, month, index + 1));
     const dateObj = new Date(`${date}T12:00:00`);
-    const dayEvents = events.filter((event) => event.data_evento === date);
-    const festas = dayEvents.filter((event) => event.tipo_evento === "festa");
-    const visitas = dayEvents.filter((event) => event.tipo_evento === "visita");
+    const eventsOnDate = events.filter((event) => event.data_evento === date);
+    const festas = eventsOnDate.filter(isScheduledPartyEvento);
+    const visitas = eventsOnDate.filter(isCalendarVisitaEvento);
     const block = blocksByDate.get(date);
 
     let status: DateStatus = "disponivel";
@@ -52,7 +56,7 @@ export const buildMonthDays = (
       date,
       dayOfWeek: DAY_NAMES[dateObj.getDay()],
       dayOfWeekIndex: dateObj.getDay(),
-      events: dayEvents,
+      events: [...festas, ...visitas],
       festas,
       status,
       visitas,

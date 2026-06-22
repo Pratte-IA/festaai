@@ -21,11 +21,24 @@ const fetchCalendarMonth = async (
 ): Promise<CalendarMonthData> => {
   const { start, end } = getMonthRange(year, month);
 
-  const [eventosResult, blocksResult] = await Promise.all([
+  const [festaResult, vendasResult, blocksResult] = await Promise.all([
     supabase
       .from("eventos")
       .select("*")
       .eq("tenant_id", tenantId)
+      .eq("funil", "festa")
+      .eq("tipo_evento", "festa")
+      .gte("data_evento", start)
+      .lte("data_evento", end)
+      .order("data_evento", { ascending: true })
+      .order("hora_evento", { ascending: true })
+      .returns<Evento[]>(),
+    supabase
+      .from("eventos")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .eq("funil", "vendas")
+      .eq("tipo_evento", "visita")
       .gte("data_evento", start)
       .lte("data_evento", end)
       .order("data_evento", { ascending: true })
@@ -41,15 +54,19 @@ const fetchCalendarMonth = async (
       .returns<CalendarBlock[]>(),
   ]);
 
-  if (eventosResult.error) {
-    throw eventosResult.error;
+  if (festaResult.error) {
+    throw festaResult.error;
+  }
+
+  if (vendasResult.error) {
+    throw vendasResult.error;
   }
 
   if (blocksResult.error) {
     throw blocksResult.error;
   }
 
-  const events = eventosResult.data ?? [];
+  const events = [...(festaResult.data ?? []), ...(vendasResult.data ?? [])];
   const blocks = blocksResult.data ?? [];
 
   return {
