@@ -99,6 +99,27 @@ export const useRegenerateWhatsappConnectionQr = () => {
   });
 };
 
+export const useSwitchWhatsappConnectionNumber = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+
+  return useMutation({
+    mutationFn: async (connectionId: number) => {
+      const result = await invokeWhatsappFunction<WhatsappConnectionResponse>(
+        "switch-whatsapp-connection-number",
+        {
+          connectionId,
+          tenantId: currentTenantId as number,
+        },
+      );
+      return result.connection;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKey(currentTenantId) });
+    },
+  });
+};
+
 export const useDeleteWhatsappConnection = () => {
   const queryClient = useQueryClient();
   const { currentTenantId } = useCurrentTenant();

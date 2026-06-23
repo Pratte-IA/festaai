@@ -313,6 +313,15 @@ const Contratar = () => {
             <p className="mx-auto mt-5 max-w-2xl text-zinc-300">
               Escolha a condição que faz sentido para a sua operação e avance para a próxima etapa com segurança.
             </p>
+            <p className="mx-auto mt-4 text-sm text-zinc-400">
+              Dúvidas? Escreva para{" "}
+              <a
+                className="font-medium text-[#e6bce9] transition-colors hover:text-white"
+                href="mailto:contato@festaai.com.br"
+              >
+                contato@festaai.com.br
+              </a>
+            </p>
             <Button
               asChild
               size="lg"

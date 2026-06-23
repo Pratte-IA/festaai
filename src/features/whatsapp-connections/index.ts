@@ -3,6 +3,7 @@ export {
   useCreateWhatsappConnection,
   useDeleteWhatsappConnection,
   useRegenerateWhatsappConnectionQr,
+  useSwitchWhatsappConnectionNumber,
   useWhatsappConnectionAdmin,
   useWhatsappConnections,
   type WhatsappConnection,

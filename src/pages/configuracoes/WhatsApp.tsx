@@ -14,6 +14,7 @@ import {
   useCreateWhatsappConnection,
   useDeleteWhatsappConnection,
   useRegenerateWhatsappConnectionQr,
+  useSwitchWhatsappConnectionNumber,
   useWhatsappConnections,
   type WhatsappConnection,
   type WhatsappConnectionStatus,
@@ -39,15 +40,19 @@ const statusVariant: Record<WhatsappConnectionStatus, "default" | "secondary" | 
 interface ConnectionCardProps {
   connection: WhatsappConnection;
   isFetching: boolean;
+  isSwitchingNumber: boolean;
   onDelete: (connectionId: number) => Promise<void>;
   onRegenerateQr: (connectionId: number) => Promise<void>;
+  onSwitchNumber: (connectionId: number) => Promise<void>;
 }
 
 const ConnectionCard = ({
   connection,
   isFetching,
+  isSwitchingNumber,
   onDelete,
   onRegenerateQr,
+  onSwitchNumber,
 }: ConnectionCardProps) => {
   const qrSource = qrImageSrc(connection.qr_code);
 
@@ -99,6 +104,23 @@ const ConnectionCard = ({
         )}
 
         <div className="flex flex-wrap gap-2">
+          {connection.status === "connected" && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={isSwitchingNumber}
+              onClick={() => void onSwitchNumber(connection.id)}
+            >
+              {isSwitchingNumber ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Smartphone className="h-4 w-4" />
+              )}
+              Trocar número
+            </Button>
+          )}
           {connection.status !== "connected" && (
             <Button
               type="button"
@@ -129,9 +151,11 @@ const ConnectionCard = ({
 
 const ConfiguracoesWhatsApp = () => {
   const [connectionName, setConnectionName] = useState("WhatsApp Principal");
+  const [switchingConnectionId, setSwitchingConnectionId] = useState<number | null>(null);
   const { data: connections = [], error, isFetching, isLoading, refetch } = useWhatsappConnections();
   const createConnection = useCreateWhatsappConnection();
   const regenerateQr = useRegenerateWhatsappConnectionQr();
+  const switchNumber = useSwitchWhatsappConnectionNumber();
   const deleteConnection = useDeleteWhatsappConnection();
 
   const connectedCount = connections.filter((connection) => connection.status === "connected").length;
@@ -192,6 +216,33 @@ const ConfiguracoesWhatsApp = () => {
         description: regenerateError instanceof Error ? regenerateError.message : "Tente novamente.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleSwitchNumber = async (connectionId: number) => {
+    const connection = connections.find((item) => item.id === connectionId);
+    const confirmed = window.confirm(
+      `Trocar o número da conexão "${connection?.name ?? ""}"?\n\n` +
+        "O WhatsApp atual será desconectado, mas a instância e o workflow n8n permanecem os mesmos. " +
+        "Em seguida, escaneie o QR Code com o novo celular.",
+    );
+    if (!confirmed) return;
+
+    setSwitchingConnectionId(connectionId);
+    try {
+      await switchNumber.mutateAsync(connectionId);
+      toast({
+        title: "Pronto para trocar o número",
+        description: "Escaneie o QR Code com o novo celular.",
+      });
+    } catch (switchError) {
+      toast({
+        title: "Não foi possível trocar o número",
+        description: switchError instanceof Error ? switchError.message : "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setSwitchingConnectionId(null);
     }
   };
 
@@ -308,8 +359,10 @@ const ConfiguracoesWhatsApp = () => {
               key={connection.id}
               connection={connection}
               isFetching={isFetching}
+              isSwitchingNumber={switchingConnectionId === connection.id}
               onDelete={handleDelete}
               onRegenerateQr={handleRegenerateQr}
+              onSwitchNumber={handleSwitchNumber}
             />
           ))}
         </CardContent>

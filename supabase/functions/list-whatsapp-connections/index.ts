@@ -7,8 +7,10 @@ import {
   extractConnectionPhone,
   extractQrCode,
   mapEvolutionStateToStatus,
+  syncConnectionWebhook,
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
+import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
 
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
@@ -65,6 +67,23 @@ Deno.serve(async (req) => {
             phone = extractConnectionPhone(stateResult.body) ?? phone;
             lastSeenAt = new Date().toISOString();
             lastError = null;
+            try {
+              await syncConnectionWebhook(service, connection);
+            } catch {
+              // best-effort — reativa webhookBase64 em instâncias antigas
+            }
+            try {
+              const { data: tenant } = await service
+                .from("tenants")
+                .select("id, name, slug")
+                .eq("id", tenantId)
+                .maybeSingle();
+              if (tenant) {
+                await syncTenantN8nEvolutionAutomation(service, tenant, connection);
+              }
+            } catch {
+              // best-effort — sincroniza apikey da instância na credencial n8n
+            }
           }
 
           if (status === "connecting" && !qrCode) {

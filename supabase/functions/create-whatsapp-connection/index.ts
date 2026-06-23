@@ -8,9 +8,13 @@ import {
   evolutionFetch,
   extractQrCode,
   generateWebhookToken,
+  resolveInstanceApiKey,
   setEvolutionWebhook,
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
+import {
+  syncTenantN8nEvolutionAutomation,
+} from "../_shared/evolution-n8n-sync.ts";
 import { provisionTenantN8nWorkflow } from "../_shared/n8n-provision.ts";
 
 const bodySchema = z.object({
@@ -53,12 +57,15 @@ Deno.serve(async (req) => {
     const integration = Deno.env.get("EVOLUTION_INSTANCE_INTEGRATION") ?? "WHATSAPP-BAILEYS";
     const webhookConfig = buildWebhookConfig(webhookUrl, webhookToken, anonKey);
 
+    const instanceToken = crypto.randomUUID().replace(/-/g, "");
+
     const createResult = await evolutionFetch("/instance/create", {
       method: "POST",
       body: JSON.stringify({
         instanceName,
         integration,
         qrcode: true,
+        token: instanceToken,
         webhook: webhookConfig ?? undefined,
       }),
     });
@@ -104,13 +111,36 @@ Deno.serve(async (req) => {
 
     if (insertError) throw insertError;
 
+    const instanceApiKey =
+      (await resolveInstanceApiKey(instanceName, createResult.body)) ?? instanceToken;
+
     const { error: secretError } = await service.from("whatsapp_connection_webhook_secrets").insert({
       connection_id: connection.id,
+      instance_api_key: instanceApiKey,
       instance_name: instanceName,
       webhook_token: webhookToken,
     });
 
     if (secretError) throw secretError;
+
+    try {
+      await provisionTenantN8nWorkflow(service, {
+        id: tenant.id,
+        name: tenant.name,
+        slug: tenant.slug,
+      });
+    } catch {
+      // best-effort: admin pode reprovisionar manualmente
+    }
+
+    try {
+      await syncTenantN8nEvolutionAutomation(service, tenant, connection, {
+        createPayload: createResult.body,
+        fallbackApiKey: instanceApiKey,
+      });
+    } catch {
+      // best-effort — patch Enviar texto + credencial Evolution no n8n
+    }
 
     if (webhookConfig) {
       try {
@@ -126,16 +156,6 @@ Deno.serve(async (req) => {
         await service.from("whatsapp_connections").update({ qr_code: qrCode }).eq("id", connection.id);
         connection.qr_code = qrCode;
       }
-    }
-
-    try {
-      await provisionTenantN8nWorkflow(service, {
-        id: tenant.id,
-        name: tenant.name,
-        slug: tenant.slug,
-      });
-    } catch {
-      // best-effort: admin pode reprovisionar manualmente
     }
 
     return jsonResponse({ ok: true, connection });

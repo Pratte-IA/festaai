@@ -1,13 +1,16 @@
 import { createServiceClient } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
-import { extractConnectionPhone } from "../_shared/evolution-client.ts";
+import { extractConnectionPhone, fetchMessageMediaBase64, syncConnectionWebhook } from "../_shared/evolution-client.ts";
+import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
 import {
   isConnectionUpdateEvent,
+  isMediaMessageType,
   isMessagesUpsertEvent,
   parseEvolutionMessages,
   shouldSkipMessage,
 } from "../_shared/evolution-message.ts";
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
+import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
 
 type AuthStatus = "valid" | "invalid" | "missing" | "disabled";
@@ -120,6 +123,23 @@ const handleConnectionUpdate = async (ctx: WebhookContext) => {
     updates.status = "connected";
     updates.qr_code = null;
     updates.phone = extractConnectionPhone(ctx.payload) ?? undefined;
+    try {
+      await syncConnectionWebhook(ctx.service, ctx.connection);
+    } catch {
+      // best-effort — garante webhookBase64 nas instâncias existentes
+    }
+    try {
+      const { data: tenant } = await ctx.service
+        .from("tenants")
+        .select("id, name, slug")
+        .eq("id", ctx.connection.tenant_id)
+        .maybeSingle();
+      if (tenant) {
+        await syncTenantN8nEvolutionAutomation(ctx.service, tenant, ctx.connection);
+      }
+    } catch {
+      // best-effort
+    }
   } else if (state === "close") {
     updates.status = "disconnected";
     updates.qr_code = null;
@@ -248,6 +268,25 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       continue;
     }
 
+    let mediaBase64 = message.mediaBase64;
+    let mediaMimetype = message.mediaMimetype;
+
+    if (
+      isMediaMessageType(message.type) &&
+      !mediaBase64 &&
+      message.id &&
+      ctx.instanceName
+    ) {
+      const fetched = await fetchMessageMediaBase64(
+        ctx.instanceName,
+        message.id,
+        message.remoteJid,
+        message.type === "video",
+      );
+      mediaBase64 = fetched.base64;
+      mediaMimetype = mediaMimetype ?? fetched.mimetype;
+    }
+
     const n8nPayload = buildN8nInboundPayload({
       connection: ctx.connection,
       event: ctx.eventName,
@@ -256,6 +295,8 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
         customerPhone: message.customerPhone as string,
         fromMe: message.fromMe,
         id: message.id,
+        mediaBase64,
+        mediaMimetype,
         text: message.text as string,
         timestamp: message.timestamp,
         type: message.type,
@@ -287,6 +328,28 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
     }
 
     if (dedupeError) throw dedupeError;
+
+    try {
+      await persistAgentConversationMessage(ctx.service, {
+        connectionId: ctx.connection.id,
+        content: message.text as string,
+        customerPhone: message.customerPhone as string,
+        messageId: message.id,
+        metadata: {
+          customerName: message.customerName,
+          direction: "inbound",
+          messageType: message.type,
+          source: "whatsapp",
+        },
+        role: "human",
+        tenantId: tenant.id,
+      });
+    } catch (memoryError) {
+      console.error(
+        "agent_conversation_messages insert failed:",
+        memoryError instanceof Error ? memoryError.message : memoryError,
+      );
+    }
 
     const forwardResult = await forwardToN8n(n8nPayload, tenantWebhookUrl as string);
 

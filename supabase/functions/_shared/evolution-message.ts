@@ -3,6 +3,8 @@ export interface ParsedEvolutionMessage {
   customerPhone: string | null;
   fromMe: boolean;
   id: string | null;
+  mediaBase64: string | null;
+  mediaMimetype: string | null;
   remoteJid: string | null;
   text: string | null;
   timestamp: string | null;
@@ -70,6 +72,43 @@ const extractMessageText = (message: Record<string, unknown> | null | undefined)
   return null;
 };
 
+const MEDIA_MESSAGE_KEYS = [
+  "audioMessage",
+  "imageMessage",
+  "videoMessage",
+  "documentMessage",
+  "stickerMessage",
+] as const;
+
+const extractMediaMimetype = (message: Record<string, unknown> | null | undefined): string | null => {
+  if (!message) return null;
+
+  for (const key of MEDIA_MESSAGE_KEYS) {
+    const media = message[key];
+    if (typeof media === "object" && media) {
+      const mimetype = (media as { mimetype?: unknown }).mimetype;
+      if (typeof mimetype === "string" && mimetype.trim()) return mimetype.trim();
+    }
+  }
+
+  return null;
+};
+
+const extractMediaBase64 = (entry: Record<string, unknown>): string | null => {
+  const candidates: unknown[] = [entry.base64, entry.mediaBase64];
+
+  const message = entry.message;
+  if (typeof message === "object" && message) {
+    candidates.push((message as Record<string, unknown>).base64);
+  }
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.length > 0) return candidate;
+  }
+
+  return null;
+};
+
 const resolveMessageType = (message: Record<string, unknown> | null | undefined): string => {
   if (!message) return "unknown";
   if (message.conversation || message.extendedTextMessage) return "text";
@@ -121,6 +160,8 @@ const parseSingleMessage = (entry: Record<string, unknown>): ParsedEvolutionMess
 
   const text = extractMessageText(messageContent);
   const type = resolveMessageType(messageContent);
+  const mediaBase64 = extractMediaBase64(entry);
+  const mediaMimetype = extractMediaMimetype(messageContent) ?? extractMediaMimetype(entry);
   const customerPhone = normalizeBrazilPhone(remoteJid);
 
   const pushName = entry.pushName ?? entry.notifyName;
@@ -140,12 +181,21 @@ const parseSingleMessage = (entry: Record<string, unknown>): ParsedEvolutionMess
     customerPhone,
     fromMe,
     id,
+    mediaBase64,
+    mediaMimetype,
     remoteJid,
     text,
     timestamp,
     type,
   };
 };
+
+export const isMediaMessageType = (type: string): boolean =>
+  type === "audio" ||
+  type === "image" ||
+  type === "video" ||
+  type === "document" ||
+  type === "sticker";
 
 export const extractMessageEntries = (payload: Record<string, unknown>): Record<string, unknown>[] => {
   const data = payload.data;

@@ -2,7 +2,11 @@ import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 import { resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
-import { tryFetchQrCode, syncConnectionWebhook } from "../_shared/evolution-client.ts";
+import {
+  logoutEvolutionInstance,
+  syncConnectionWebhook,
+  tryFetchQrCode,
+} from "../_shared/evolution-client.ts";
 import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
 
 const bodySchema = z.object({
@@ -41,7 +45,13 @@ Deno.serve(async (req) => {
     try {
       await syncConnectionWebhook(service, connection);
     } catch {
-      // best-effort — corrige token Evolution ↔ banco antes de novo QR
+      // best-effort — mantém webhook antes de trocar o número
+    }
+
+    try {
+      await logoutEvolutionInstance(connection.instance_name);
+    } catch {
+      // best-effort — instância pode já estar desconectada
     }
 
     const qrCode = await tryFetchQrCode(connection.instance_name);
@@ -50,7 +60,7 @@ Deno.serve(async (req) => {
       return jsonResponse(
         {
           ok: false,
-          error: "Não foi possível gerar o QR Code.",
+          error: "Não foi possível gerar o QR Code após desconectar.",
           provider_status: 502,
         },
         502,
@@ -61,6 +71,7 @@ Deno.serve(async (req) => {
       .from("whatsapp_connections")
       .update({
         last_error: null,
+        phone: null,
         qr_code: qrCode,
         status: "connecting",
       })
@@ -82,7 +93,7 @@ Deno.serve(async (req) => {
         await syncTenantN8nEvolutionAutomation(service, tenant, updated);
       }
     } catch {
-      // best-effort
+      // best-effort — mesma instância Evolution, workflow inalterado
     }
 
     return jsonResponse({ ok: true, connection: updated });

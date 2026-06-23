@@ -57,7 +57,12 @@ export const evolutionFetch = async (
 
     if (raw) {
       try {
-        body = JSON.parse(raw) as Record<string, unknown>;
+        const parsed: unknown = JSON.parse(raw);
+        if (typeof parsed === "object" && parsed !== null) {
+          body = parsed as Record<string, unknown>;
+        } else {
+          body = { value: parsed };
+        }
       } catch {
         body = { raw };
       }
@@ -228,6 +233,20 @@ export const syncConnectionWebhook = async (
   return webhookToken;
 };
 
+export const logoutEvolutionInstance = async (instanceName: string): Promise<void> => {
+  const attempts: Array<{ method: string; path: string }> = [
+    { method: "DELETE", path: `/instance/logout/${instanceName}` },
+    { method: "POST", path: `/instance/logout/${instanceName}` },
+  ];
+
+  for (const attempt of attempts) {
+    const result = await evolutionFetch(attempt.path, { method: attempt.method });
+    if (result.ok || result.status === 404) return;
+    const message = result.body?.message ?? result.raw ?? "";
+    if (typeof message === "string" && message.toLowerCase().includes("not found")) return;
+  }
+};
+
 export const deleteEvolutionInstance = async (instanceName: string): Promise<void> => {
   const attempts: Array<{ method: string; path: string }> = [
     { method: "DELETE", path: `/instance/delete/${instanceName}` },
@@ -249,4 +268,116 @@ export const buildInstanceName = (tenantSlug: string) => {
   return `festaai-${safeSlug}-${Date.now()}-${suffix}`;
 };
 
-export const generateWebhookToken = () => crypto.randomUUID().replace(/-/g, "");
+export const extractInstanceApiKey = (payload: Record<string, unknown> | null): string | null => {
+  if (!payload) return null;
+
+  const readToken = (value: unknown): string | null => {
+    if (typeof value !== "object" || !value) return null;
+    const record = value as Record<string, unknown>;
+    const token = record.token ?? record.hash ?? record.apikey ?? record.apiKey;
+    return typeof token === "string" && token.trim().length > 0 ? token.trim() : null;
+  };
+
+  const instanceToken = readToken(payload.instance);
+  if (instanceToken) return instanceToken;
+
+  const direct = payload.token ?? payload.hash ?? payload.apikey ?? payload.apiKey;
+  if (typeof direct === "string" && direct.trim().length > 0) return direct.trim();
+
+  return null;
+};
+
+const parseFetchInstancesEntries = (body: Record<string, unknown> | null): Record<string, unknown>[] => {
+  if (!body) return [];
+
+  if (Array.isArray(body)) {
+    return body.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null);
+  }
+
+  const data = body.data;
+  if (Array.isArray(data)) {
+    return data.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null);
+  }
+
+  if (typeof data === "object" && data) {
+    return [data as Record<string, unknown>];
+  }
+
+  return [body];
+};
+
+export const fetchInstanceApiKey = async (instanceName: string): Promise<string | null> => {
+  const result = await evolutionFetch(
+    `/instance/fetchInstances?instanceName=${encodeURIComponent(instanceName)}`,
+  );
+
+  if (!result.ok) return null;
+
+  for (const entry of parseFetchInstancesEntries(result.body)) {
+    const token =
+      (typeof entry.token === "string" && entry.token.trim() ? entry.token.trim() : null) ??
+      (typeof entry.hash === "string" && entry.hash.trim() ? entry.hash.trim() : null) ??
+      (typeof entry.apikey === "string" && entry.apikey.trim() ? entry.apikey.trim() : null) ??
+      extractInstanceApiKey(entry);
+
+    if (token) return token;
+  }
+
+  return null;
+};
+
+export const resolveInstanceApiKey = async (
+  instanceName: string,
+  createPayload: Record<string, unknown> | null,
+): Promise<string | null> => {
+  const fromCreate = extractInstanceApiKey(createPayload);
+  if (fromCreate) return fromCreate;
+  return await fetchInstanceApiKey(instanceName);
+};
+
+export const extractMediaBase64FromResponse = (payload: Record<string, unknown> | null): string | null => {
+  if (!payload) return null;
+
+  const direct = payload.base64;
+  if (typeof direct === "string" && direct.length > 0) return direct;
+
+  const data = payload.data;
+  if (typeof data === "object" && data) {
+    const nested = (data as { base64?: unknown }).base64;
+    if (typeof nested === "string" && nested.length > 0) return nested;
+  }
+
+  return null;
+};
+
+export const fetchMessageMediaBase64 = async (
+  instanceName: string,
+  messageId: string,
+  remoteJid: string | null,
+  convertToMp4 = false,
+): Promise<{ base64: string | null; mimetype: string | null }> => {
+  const key: Record<string, string> = { id: messageId };
+  if (remoteJid) key.remoteJid = remoteJid;
+
+  const result = await evolutionFetch(
+    `/chat/getBase64FromMediaMessage/${instanceName}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        message: { key },
+        convertToMp4,
+      }),
+    },
+    30000,
+  );
+
+  if (!result.ok) return { base64: null, mimetype: null };
+
+  const base64 = extractMediaBase64FromResponse(result.body);
+  const mimetype =
+    typeof result.body?.mimetype === "string" && result.body.mimetype.trim()
+      ? result.body.mimetype.trim()
+      : null;
+
+  return { base64, mimetype };
+};

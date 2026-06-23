@@ -1,3 +1,10 @@
+import type { N8nWorkflowNode, N8nWorkflowResponse } from "./n8n-provision-types.ts";
+import {
+  attachPostgresCredentialToMemoryNodes,
+  syncFestAiPostgresCredential,
+} from "./n8n-postgres-credential-sync.ts";
+import { findWebhookNodeName, patchTenantWorkflowNodes } from "./n8n-workflow-patch.ts";
+
 type ServiceClient = {
   from: (table: string) => {
     select: (columns: string) => {
@@ -14,27 +21,10 @@ type ServiceClient = {
 
 export type N8nProvisionStatus = "draft" | "active" | "error";
 
-interface N8nWorkflowNode {
-  id?: string;
-  name?: string;
-  parameters?: Record<string, unknown>;
-  type?: string;
-  webhookId?: string;
-}
-
 interface N8nWorkflowSummary {
   id: string;
   name?: string;
   parentFolder?: { id: string; name?: string } | null;
-}
-
-interface N8nWorkflowResponse {
-  active?: boolean;
-  connections?: Record<string, unknown>;
-  id?: string;
-  name?: string;
-  nodes?: N8nWorkflowNode[];
-  settings?: Record<string, unknown>;
 }
 
 interface N8nFolderResponse {
@@ -67,6 +57,9 @@ const EXECUTE_WORKFLOW_NODE_TYPES = new Set([
 ]);
 
 const ORCHESTRATOR_NAME_HINTS = ["orquestrador", "orchestrator"];
+
+const getOrchestratorTemplateId = () =>
+  Deno.env.get("N8N_ORCHESTRATOR_TEMPLATE_ID")?.trim() || "QoECZQ6Ri65bh8ZQ";
 
 const requiredEnv = (key: string) => {
   const value = Deno.env.get(key);
@@ -300,6 +293,8 @@ const findOrchestratorWorkflow = (
 ) => {
   const explicitName = Deno.env.get("N8N_ORCHESTRATOR_WORKFLOW_NAME")?.trim().toLowerCase();
 
+  const orchestratorTemplateId = getOrchestratorTemplateId();
+
   const ranked = clones
     .map((item) => {
       const normalizedName = item.created.name?.toLowerCase() ?? item.templateName.toLowerCase();
@@ -311,8 +306,9 @@ const findOrchestratorWorkflow = (
         : ORCHESTRATOR_NAME_HINTS.some((hint) => normalizedName.includes(hint))
           ? 2
           : 0;
+      const templateScore = item.templateId === orchestratorTemplateId ? 5 : 0;
 
-      return { item, score: nameScore + (hasWebhook ? 1 : 0) };
+      return { item, score: templateScore + nameScore + (hasWebhook ? 1 : 0) };
     })
     .sort((a, b) => b.score - a.score);
 
@@ -391,11 +387,15 @@ export const provisionTenantN8nWorkflow = async (
     if (!clone.created.id) continue;
 
     const remappedNodes = remapWorkflowReferences(clone.created.nodes ?? [], idMap);
+    const webhookNodeName = findWebhookNodeName(remappedNodes);
+    const postgresCredential = await syncFestAiPostgresCredential();
+    let patchedNodes = patchTenantWorkflowNodes(remappedNodes, webhookNodeName);
+    patchedNodes = attachPostgresCredentialToMemoryNodes(patchedNodes, postgresCredential);
     const updated = await n8nApiFetch<N8nWorkflowResponse>(`/workflows/${clone.created.id}`, {
       body: JSON.stringify({
         connections: clone.created.connections ?? {},
         name: clone.created.name ?? clone.templateName,
-        nodes: remappedNodes,
+        nodes: patchedNodes,
         settings: sanitizeSettings(clone.created.settings),
       }),
       method: "PUT",
@@ -447,4 +447,75 @@ export const provisionTenantN8nWorkflow = async (
     webhookUrl,
     workflowId: orchestratorId,
   };
+};
+
+export const fetchN8nWorkflow = async (workflowId: string): Promise<N8nWorkflowResponse> => {
+  const workflow = await n8nApiFetch<N8nWorkflowResponse>(`/workflows/${workflowId}`);
+  if (!workflow.id) {
+    throw new Error(`Workflow "${workflowId}" não encontrado no N8N.`);
+  }
+  return workflow;
+};
+
+export const patchN8nWorkflowEvolutionSendText = async (
+  workflowId: string,
+): Promise<{ postgresCredential: { credentialId: string; credentialName: string }; workflow: N8nWorkflowResponse }> => {
+  const workflow = await fetchN8nWorkflow(workflowId);
+  const webhookNodeName = findWebhookNodeName(workflow.nodes ?? []);
+  const postgresCredential = await syncFestAiPostgresCredential();
+  let patchedNodes = patchTenantWorkflowNodes(workflow.nodes ?? [], webhookNodeName);
+  patchedNodes = attachPostgresCredentialToMemoryNodes(patchedNodes, postgresCredential);
+
+  // Remove campo number órfão de patches anteriores (Evolution node usa remoteJid).
+  const cleanedNodes = patchedNodes.map((node) => {
+    if (!isEvolutionSendTextNode(node)) return node;
+    const parameters = { ...(node.parameters ?? {}) };
+    if (parameters.number !== undefined && parameters.remoteJid !== undefined) {
+      delete parameters.number;
+    }
+    return { ...node, parameters };
+  });
+
+  return {
+    postgresCredential,
+    workflow: await n8nApiFetch<N8nWorkflowResponse>(`/workflows/${workflowId}`, {
+      body: JSON.stringify({
+        connections: workflow.connections ?? {},
+        name: workflow.name,
+        nodes: cleanedNodes,
+        settings: sanitizeSettings(workflow.settings),
+      }),
+      method: "PUT",
+    }),
+  };
+};
+
+const isEvolutionSendTextNode = (node: N8nWorkflowNode) => {
+  if (!(node.type ?? "").toLowerCase().includes("evolution")) return false;
+  const parameters = node.parameters ?? {};
+  return typeof parameters.messageText === "string";
+};
+
+export const findN8nWorkflowIdByWebhookRef = async (webhookRef: string): Promise<string | null> => {
+  const projectId = requiredEnv("N8N_PROJECT_ID");
+  const workflows = await listProjectWorkflows(projectId);
+
+  for (const summary of workflows) {
+    const workflow = await n8nApiFetch<N8nWorkflowResponse>(`/workflows/${summary.id}`);
+    for (const node of workflow.nodes ?? []) {
+      if (node.type !== "n8n-nodes-base.webhook") continue;
+
+      const webhookId = node.webhookId;
+      if (typeof webhookId === "string" && webhookId === webhookRef) {
+        return summary.id;
+      }
+
+      const path = node.parameters?.path;
+      if (typeof path === "string" && path === webhookRef) {
+        return summary.id;
+      }
+    }
+  }
+
+  return null;
 };

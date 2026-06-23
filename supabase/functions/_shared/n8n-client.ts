@@ -13,6 +13,8 @@ export interface N8nInboundPayload {
     customerPhone: string;
     fromMe: boolean;
     id: string | null;
+    mediaBase64: string | null;
+    mediaMimetype: string | null;
     text: string;
     timestamp: string | null;
     type: string;
@@ -60,7 +62,10 @@ export const forwardToN8n = async (
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), parseTimeoutMs());
+  const timeoutMs = payload.message.mediaBase64
+    ? Math.max(parseTimeoutMs(), 30000)
+    : parseTimeoutMs();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(webhookUrl, {
@@ -118,6 +123,8 @@ export const buildN8nInboundPayload = (input: {
     customerPhone: string;
     fromMe: boolean;
     id: string | null;
+    mediaBase64: string | null;
+    mediaMimetype: string | null;
     text: string;
     timestamp: string | null;
     type: string;
@@ -149,7 +156,9 @@ export const buildLogPayload = (payload: N8nInboundPayload) => ({
   event: payload.event,
   message: {
     customerPhone: payload.message.customerPhone,
+    hasMediaBase64: Boolean(payload.message.mediaBase64),
     id: payload.message.id,
+    mediaMimetype: payload.message.mediaMimetype,
     type: payload.message.type,
   },
   tenant: payload.tenant,
