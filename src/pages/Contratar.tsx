@@ -1,12 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Check, Clock, Layers, MessageSquare, Sparkles, TrendingUp } from "lucide-react";
+import {
+  BarChart3,
+  Check,
+  Clock,
+  Layers,
+  Mail,
+  MessageSquare,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CustomPlanLeadDialog } from "@/components/contratar/CustomPlanLeadDialog";
+import { WhatsappFloatingButton } from "@/components/contratar/WhatsappFloatingButton";
+import { WhatsappIcon } from "@/components/contratar/WhatsappIcon";
 import {
   COMMERCIAL_CONDITIONS,
+  CONTRATAR_CONTACT,
+  CONTRATAR_LEGAL,
   contratarCtaGradientClass,
   formatContratarBRL,
+  getContratarWhatsappUrl,
 } from "./contratar-commercial-data";
 
 const quickBenefits = [
@@ -34,7 +47,6 @@ const quickBenefits = [
 
 const Contratar = () => {
   const { hash } = useLocation();
-  const [leadDialogOpen, setLeadDialogOpen] = useState(false);
 
   useEffect(() => {
     const id = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -87,7 +99,15 @@ const Contratar = () => {
                 Plataforma
               </a>
               <a href="#planos" className="text-sm font-medium text-zinc-400 transition-colors hover:text-white">
-                Recursos
+                Planos
+              </a>
+              <a
+                className="text-sm font-medium text-zinc-400 transition-colors hover:text-white"
+                href={getContratarWhatsappUrl(CONTRATAR_CONTACT.whatsapp.demoMessage)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Agendar demonstração
               </a>
               <a
                 href="#fechamento"
@@ -100,25 +120,12 @@ const Contratar = () => {
             <div className="flex shrink-0 items-center gap-2">
               <Button
                 asChild
-                variant="ghost"
-                className="hidden min-h-[44px] text-zinc-300 hover:bg-white/5 hover:text-white sm:inline-flex"
-              >
-                <Link to="/login">Já tenho conta</Link>
-              </Button>
-              <Button
-                asChild
                 size="sm"
                 className={`min-h-[44px] border-0 ${contratarCtaGradientClass} px-4`}
               >
                 <Link to="/login">Entrar</Link>
               </Button>
             </div>
-          </div>
-
-          <div className="border-t border-white/[0.06] px-4 py-3 sm:hidden">
-            <Button asChild variant="ghost" size="sm" className="w-full text-zinc-300 hover:bg-white/5">
-              <Link to="/login">Já tenho conta</Link>
-            </Button>
           </div>
         </header>
 
@@ -155,7 +162,13 @@ const Contratar = () => {
               size="lg"
               className="min-h-[48px] w-full border-white/25 bg-transparent text-white backdrop-blur-sm hover:bg-white/10 sm:w-auto"
             >
-              <a href="#planos">Começar contratação</a>
+              <a
+                href={getContratarWhatsappUrl(CONTRATAR_CONTACT.whatsapp.demoMessage)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Agendar demonstração
+              </a>
             </Button>
           </div>
         </section>
@@ -291,51 +304,89 @@ const Contratar = () => {
                 Precisa de condições especiais ou uma implantação personalizada? Fale com nosso time comercial.
               </p>
               <Button
+                asChild
                 className={`mt-8 min-h-[48px] border border-white/[0.2] bg-white/[0.06] font-semibold text-white hover:bg-white/12`}
-                onClick={() => setLeadDialogOpen(true)}
                 size="lg"
-                type="button"
               >
-                Falar com o time comercial
+                <a
+                  href={getContratarWhatsappUrl(CONTRATAR_CONTACT.whatsapp.customPlanMessage)}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Falar com o time comercial
+                </a>
               </Button>
             </div>
           </div>
-
-          <CustomPlanLeadDialog onOpenChange={setLeadDialogOpen} open={leadDialogOpen} />
         </section>
 
-        {/* Fechamento */}
+        {/* Contato */}
         <section id="fechamento" className="border-t border-white/[0.08] px-4 py-16 sm:px-6 sm:py-24">
-          <div className="mx-auto max-w-4xl rounded-3xl border border-white/[0.08] bg-[linear-gradient(145deg,rgba(81,88,231,0.12)_0%,rgba(217,86,147,0.08)_48%,rgba(14,14,22,0.95)_100%)] p-8 text-center shadow-[0_0_60px_-20px_rgba(81,88,231,0.4)] backdrop-blur-sm sm:p-12 md:p-16">
-            <h2 className="text-balance text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-[2.5rem]">
-              Pare de perder oportunidades e comece a organizar seu salão para vender mais.
+          <div className="mx-auto max-w-3xl rounded-3xl border border-white/[0.08] bg-[linear-gradient(145deg,rgba(81,88,231,0.12)_0%,rgba(217,86,147,0.08)_48%,rgba(14,14,22,0.95)_100%)] p-8 text-center shadow-[0_0_60px_-20px_rgba(81,88,231,0.4)] backdrop-blur-sm sm:p-12">
+            <h2 className="text-balance text-3xl font-extrabold leading-tight text-white sm:text-4xl">
+              Fale conosco
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-zinc-300">
-              Escolha a condição que faz sentido para a sua operação e avance para a próxima etapa com segurança.
+            <p className="mx-auto mt-4 max-w-lg text-sm text-zinc-400">
+              Dúvidas sobre planos ou implantação? Entre em contato direto com nosso time.
             </p>
-            <p className="mx-auto mt-4 text-sm text-zinc-400">
-              Dúvidas? Escreva para{" "}
+
+            <div className="mx-auto mt-10 grid max-w-xl gap-4 sm:grid-cols-2">
               <a
-                className="font-medium text-[#e6bce9] transition-colors hover:text-white"
-                href="mailto:contato@festaai.com.br"
+                className="group flex flex-col items-center gap-3 rounded-2xl border border-white/[0.1] bg-white/[0.04] p-6 transition-colors hover:border-white/[0.18] hover:bg-white/[0.07]"
+                href={`mailto:${CONTRATAR_CONTACT.email}`}
               >
-                contato@festaai.com.br
+                <span className="inline-flex rounded-xl border border-white/10 bg-white/5 p-2.5 text-[#e6bce9]">
+                  <Mail aria-hidden className="h-5 w-5" />
+                </span>
+                <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">E-mail</span>
+                <span className="text-sm font-semibold text-white transition-colors group-hover:text-[#e6bce9]">
+                  {CONTRATAR_CONTACT.email}
+                </span>
               </a>
-            </p>
+
+              <a
+                className="group flex flex-col items-center gap-3 rounded-2xl border border-[#25D366]/30 bg-[#25D366]/[0.08] p-6 transition-colors hover:border-[#25D366]/50 hover:bg-[#25D366]/[0.14]"
+                href={getContratarWhatsappUrl()}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <span className="inline-flex rounded-xl border border-[#25D366]/30 bg-[#25D366]/15 p-2.5 text-[#25D366]">
+                  <WhatsappIcon className="h-5 w-5" />
+                </span>
+                <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">WhatsApp</span>
+                <span className="text-sm font-semibold text-white transition-colors group-hover:text-[#25D366]">
+                  {CONTRATAR_CONTACT.whatsapp.display}
+                </span>
+                <span className="text-xs text-zinc-400">Toque para chamar no WhatsApp</span>
+              </a>
+            </div>
+
             <Button
               asChild
               size="lg"
-              className={`mt-10 min-h-[52px] px-10 ${contratarCtaGradientClass}`}
+              className={`mt-10 min-h-[48px] px-8 ${contratarCtaGradientClass}`}
             >
-              <a href="#planos">Quero implementar no meu negócio</a>
+              <a
+                href={getContratarWhatsappUrl(CONTRATAR_CONTACT.whatsapp.demoMessage)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Agendar demonstração
+              </a>
             </Button>
           </div>
         </section>
 
+        <WhatsappFloatingButton />
+
         {/* Footer */}
         <footer className="border-t border-white/[0.06]">
-          <div className="mx-auto max-w-6xl px-4 py-8 text-center text-sm text-zinc-500 sm:px-6">
-            © {new Date().getFullYear()} FestaAI. Todos os direitos reservados.
+          <div className="mx-auto max-w-6xl space-y-2 px-4 py-8 text-center text-sm text-zinc-500 sm:px-6">
+            <p>© {new Date().getFullYear()} FestaAI. Todos os direitos reservados.</p>
+            <p className="text-xs text-zinc-600">
+              A plataforma FestaAI pertence à {CONTRATAR_LEGAL.companyName} · CNPJ{" "}
+              {CONTRATAR_LEGAL.cnpj}
+            </p>
           </div>
         </footer>
       </div>

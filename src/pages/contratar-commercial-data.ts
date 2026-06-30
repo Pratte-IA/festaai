@@ -129,3 +129,24 @@ export function buildConditionFromOffer(offer: CommercialOfferPricing): Contrata
     loyaltyLabel: formatLoyaltyLabel(offer.loyalty_months),
   };
 }
+
+export const CONTRATAR_CONTACT = {
+  email: "contato@festaai.com.br",
+  whatsapp: {
+    display: "(45) 99943-8936",
+    e164: "5545999438936",
+    defaultMessage: "Olá! Gostaria de saber mais sobre o FestaAI.",
+    customPlanMessage: "Olá! Gostaria de ver um plano personalizado do FestaAI.",
+    demoMessage: "Olá! Gostaria de agendar uma demonstração do FestaAI.",
+  },
+} as const;
+
+export const CONTRATAR_LEGAL = {
+  companyName: "Agência Roda Gigante Ltda",
+  cnpj: "11.568.297/0001-02",
+} as const;
+
+export const getContratarWhatsappUrl = (
+  message = CONTRATAR_CONTACT.whatsapp.defaultMessage,
+) =>
+  `https://wa.me/${CONTRATAR_CONTACT.whatsapp.e164}?text=${encodeURIComponent(message)}`;

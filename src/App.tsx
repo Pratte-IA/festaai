@@ -33,6 +33,7 @@ const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
 const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
+const ContratarPagamento = lazy(() => import("./pages/ContratarPagamento.tsx"));
 const ContratarOferta = lazy(() => import("./pages/ContratarOferta.tsx"));
 const FormularioCliente = lazy(() => import("./pages/FormularioCliente.tsx"));
 const MinhaAssinatura = lazy(() => import("./pages/MinhaAssinatura.tsx"));
@@ -337,6 +338,7 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/contratar/pagamento" element={<ContratarPagamento />} />
                 <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
                 <Route path="/contratar/oferta/:token" element={<ContratarOferta />} />
                 <Route path="/contratar" element={<Contratar />} />

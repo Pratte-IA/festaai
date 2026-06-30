@@ -1,6 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
+import { resolveCommercialBillingRule } from "../_shared/commercial-billing-rules.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +11,7 @@ const corsHeaders = {
 
 const checkoutSchema = z.object({
   companyName: z.string().min(2).max(120),
+  cpfCnpj: z.string().min(11).max(18),
   email: z.string().email(),
   message: z.string().max(1000).optional().nullable(),
   name: z.string().min(2).max(120),
@@ -31,42 +34,33 @@ type CommercialOfferRow = {
   token: string;
 };
 
-/** Condições comerciais na página /contratar (valores alinhados ao frontend). Se não houver linha no DB com o mesmo slug, usamos um plano ativo como FK e estes valores no Asaas. */
-const COMMERCIAL_CONDITIONS: Record<
-  string,
-  {
-    monthly_price: number;
-    setup_price: number;
-    setup_installments: number | null;
-    loyalty_months: number | null;
-    name: string;
-  }
-> = {
-  avista: {
-    monthly_price: 750,
-    setup_price: 2200,
-    setup_installments: 1,
-    loyalty_months: null,
-    name: "À vista",
-  },
-  parcelado: {
-    monthly_price: 750,
-    setup_price: 2500,
-    setup_installments: 6,
-    loyalty_months: null,
-    name: "Parcelado",
-  },
-  fidelidade: {
-    monthly_price: 650,
-    setup_price: 2000,
-    setup_installments: 6,
-    loyalty_months: 12,
-    name: "Fidelidade",
-  },
+/** Condições comerciais alinhadas ao frontend e às regras de cobrança Asaas. */
+const buildCommercialCondition = (
+  planSlug: string,
+  offer?: CommercialOfferRow | null,
+) => {
+  const rule = resolveCommercialBillingRule(planSlug);
+  if (!rule) return null;
+
+  if (!offer) return rule;
+
+  return resolveCommercialBillingRule(planSlug, {
+    loyalty_months: offer.loyalty_months,
+    monthly_price: Number(offer.monthly_price),
+    name: offer.name,
+    setup_installments: offer.setup_installments,
+    setup_price: Number(offer.setup_price),
+  });
 };
 
 type AsaasCustomer = {
   id: string;
+};
+
+type AsaasPayment = {
+  id: string;
+  bankSlipUrl?: string | null;
+  invoiceUrl?: string | null;
 };
 
 type AsaasSubscription = {
@@ -75,7 +69,16 @@ type AsaasSubscription = {
 };
 
 type AsaasPaymentList = {
-  data?: Array<{ invoiceUrl?: string | null; bankSlipUrl?: string | null }>;
+  data?: Array<{ bankSlipUrl?: string | null; invoiceUrl?: string | null }>;
+};
+
+const resolvePaymentCheckoutUrl = (payment: AsaasPayment | null | undefined) =>
+  payment?.invoiceUrl ?? payment?.bankSlipUrl ?? null;
+
+const addMonths = (date: Date, months: number) => {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next.toISOString().slice(0, 10);
 };
 
 const jsonResponse = (body: unknown, status = 200) =>
@@ -193,15 +196,11 @@ Deno.serve(async (req) => {
     }
 
     const planSlug = commercialOffer?.base_plan_slug ?? input.planSlug;
-    const condition = commercialOffer
-      ? {
-          monthly_price: Number(commercialOffer.monthly_price),
-          setup_price: Number(commercialOffer.setup_price),
-          setup_installments: commercialOffer.setup_installments,
-          loyalty_months: commercialOffer.loyalty_months,
-          name: commercialOffer.name,
-        }
-      : COMMERCIAL_CONDITIONS[planSlug];
+    const condition = buildCommercialCondition(planSlug, commercialOffer);
+
+    if (!condition) {
+      return jsonResponse({ error: "Plano indisponível." }, 404);
+    }
 
     const { data: planInitial, error: planError } = await supabase
       .from("subscription_plans")
@@ -215,9 +214,6 @@ Deno.serve(async (req) => {
     let plan = planInitial;
 
     if (!plan) {
-      if (!condition) {
-        return jsonResponse({ error: "Plano indisponível." }, 404);
-      }
       const { data: fallback, error: fbErr } = await supabase
         .from("subscription_plans")
         .select("*")
@@ -227,18 +223,12 @@ Deno.serve(async (req) => {
         .maybeSingle();
       if (fbErr) throw fbErr;
       if (!fallback) return jsonResponse({ error: "Plano indisponível." }, 404);
-      plan = {
-        ...fallback,
-        ...condition,
-        slug: planSlug,
-        id: fallback.id,
-      };
-    } else if (condition) {
-      plan = { ...plan, ...condition, id: plan.id };
+      plan = { ...fallback, slug: planSlug, id: fallback.id };
     }
 
     const customer = await asaasRequest<AsaasCustomer>("/customers", {
       body: JSON.stringify({
+        cpfCnpj: input.cpfCnpj.replace(/\D/g, ""),
         email: input.email,
         externalReference: input.tenantId ? `tenant:${input.tenantId}` : undefined,
         name: input.companyName,
@@ -253,7 +243,11 @@ Deno.serve(async (req) => {
       .insert({
         company_name: input.companyName,
         email: input.email,
-        metadata: { message: input.message, requester_name: input.name },
+        metadata: {
+          cpf_cnpj: input.cpfCnpj.replace(/\D/g, ""),
+          message: input.message,
+          requester_name: input.name,
+        },
         name: input.name,
         phone: input.phone,
         provider: "asaas",
@@ -268,27 +262,33 @@ Deno.serve(async (req) => {
     const nextDueDate = new Date();
     nextDueDate.setDate(nextDueDate.getDate() + 1);
     const nextDueDateISO = nextDueDate.toISOString().slice(0, 10);
+    const firstMonthlyDueDateISO = addMonths(nextDueDate, 1);
     const externalReference = `festaai:${crypto.randomUUID()}`;
+    const maxSetupInstallments = Math.max(1, Number(condition.setup_installments ?? 1));
+    const setupPrice = Number(condition.setup_price);
+    const monthlyPrice = Number(condition.monthly_price);
+    const subscriptionMaxPayments = condition.subscription_max_payments;
+    const loyaltyMonths = condition.loyalty_months;
+    const subscriptionCommitmentTotal =
+      subscriptionMaxPayments != null ? monthlyPrice * subscriptionMaxPayments : null;
 
     const subscription = await asaasRequest<AsaasSubscription>("/subscriptions", {
       body: JSON.stringify({
-        billingType: "UNDEFINED",
+        billingType: condition.subscription_billing_type,
         customer: customer.id,
         cycle: "MONTHLY",
-        description: `FestaAI - Plano ${plan.name}`,
+        description: subscriptionMaxPayments
+          ? `FestaAI - Mensalidade - Plano ${condition.name} (${subscriptionMaxPayments}x de R$ ${monthlyPrice})`
+          : `FestaAI - Mensalidade - Plano ${condition.name}`,
         externalReference,
-        nextDueDate: nextDueDateISO,
-        value: plan.monthly_price,
+        nextDueDate: firstMonthlyDueDateISO,
+        value: monthlyPrice,
+        ...(subscriptionMaxPayments ? { maxPayments: subscriptionMaxPayments } : {}),
       }),
       method: "POST",
     });
 
-    const payments = await asaasRequest<AsaasPaymentList>(`/subscriptions/${subscription.id}/payments`).catch(() => null);
-    const checkoutUrl =
-      subscription.invoiceUrl ??
-      payments?.data?.[0]?.invoiceUrl ??
-      payments?.data?.[0]?.bankSlipUrl ??
-      null;
+    const checkoutUrl = null;
 
     const { data: billingSubscription, error: subscriptionError } = await supabase
       .from("billing_subscriptions")
@@ -298,20 +298,32 @@ Deno.serve(async (req) => {
         external_reference: externalReference,
         metadata: {
           asaas_customer_id: customer.id,
-          setup_price: plan.setup_price,
           condition_slug: planSlug,
+          loyalty_months: loyaltyMonths,
+          max_setup_installments: maxSetupInstallments,
+          monthly_price: monthlyPrice,
+          plan_name: condition.name,
+          setup_billing_type: condition.setup_billing_type,
+          setup_external_reference: `${externalReference}:setup`,
+          setup_installments: null,
+          setup_payment_methods: condition.setup_payment_methods,
+          setup_price: setupPrice,
+          setup_provider_payment_id: null,
+          subscription_commitment_total: subscriptionCommitmentTotal,
+          subscription_max_payments: subscriptionMaxPayments,
+          subscription_payment_methods: condition.subscription_payment_methods,
           ...(commercialOffer
             ? { commercial_offer_id: commercialOffer.id, commercial_offer_token: commercialOffer.token }
             : {}),
         },
-        next_due_date: nextDueDateISO,
+        next_due_date: firstMonthlyDueDateISO,
         plan_id: plan.id,
         provider: "asaas",
         provider_subscription_id: subscription.id,
         status: "pending",
         tenant_id: input.tenantId ?? null,
       })
-      .select("id, status, checkout_url")
+      .select("id, status, checkout_url, external_reference")
       .single();
 
     if (subscriptionError) throw subscriptionError;
@@ -338,8 +350,15 @@ Deno.serve(async (req) => {
 
     return jsonResponse({
       checkoutUrl: billingSubscription.checkout_url,
+      externalReference: billingSubscription.external_reference,
+      maxSetupInstallments,
+      monthlyPrice,
+      planName: condition.name,
+      setupPrice,
       status: billingSubscription.status,
       subscriptionId: billingSubscription.id,
+      subscriptionMaxPayments,
+      subscriptionCommitmentTotal,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro inesperado ao criar checkout.";

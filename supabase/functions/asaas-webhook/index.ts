@@ -126,7 +126,9 @@ Deno.serve(async (req) => {
     const eventType = payload.event ?? "UNKNOWN";
     const externalEventId = payload.id ?? payload.payment?.id ?? crypto.randomUUID();
     const providerSubscriptionId = payload.subscription?.id ?? payload.payment?.subscription ?? null;
-    const externalReference = payload.subscription?.externalReference ?? payload.payment?.externalReference ?? null;
+    const rawExternalReference =
+      payload.subscription?.externalReference ?? payload.payment?.externalReference ?? null;
+    const externalReference = rawExternalReference?.replace(/:setup$/, "") ?? null;
 
     const supabaseUrl = requiredEnv("SUPABASE_URL");
     const serviceRoleKey = requiredEnv("SUPABASE_SERVICE_ROLE_KEY");

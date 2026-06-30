@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,12 +39,13 @@ const PlanSummaryBlocks = ({ plan }: PlanSummaryBlocksProps) => (
 
 const ContratarIniciar = () => {
   const { planSlug } = useParams<{ planSlug: string }>();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const offerToken = searchParams.get("oferta") ?? undefined;
   const standardPlan = findCommercialConditionBySlug(planSlug);
   const { data: offer, isLoading: isOfferLoading } = usePublicCommercialOffer(offerToken);
   const createCheckout = useCreateCheckout();
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", empresa: "" });
+  const [form, setForm] = useState({ cpfCnpj: "", nome: "", email: "", telefone: "", empresa: "" });
 
   const plan = useMemo<ContratarCommercialCondition | undefined>(() => {
     if (offerToken && offer) {
@@ -86,6 +87,7 @@ const ContratarIniciar = () => {
     try {
       const checkout = await createCheckout.mutateAsync({
         companyName: form.empresa,
+        cpfCnpj: form.cpfCnpj,
         email: form.email,
         name: form.nome,
         offerToken: offerToken ?? null,
@@ -96,15 +98,23 @@ const ContratarIniciar = () => {
       toast({
         title: "Contratação iniciada",
         description: checkout.checkoutUrl
-          ? "Abrimos a página segura de pagamento do Asaas."
+          ? "Redirecionando para concluir o pagamento da mensalidade FestaAI."
           : "Recebemos sua solicitação. A equipe comercial continuará o atendimento.",
       });
+
+      if (checkout.externalReference) {
+        navigate(
+          `/contratar/pagamento?ref=${encodeURIComponent(checkout.externalReference)}`,
+          { replace: true },
+        );
+        return;
+      }
 
       if (checkout.checkoutUrl) {
         window.open(checkout.checkoutUrl, "_blank", "noopener,noreferrer");
       }
 
-      setForm({ nome: "", email: "", telefone: "", empresa: "" });
+      setForm({ cpfCnpj: "", nome: "", email: "", telefone: "", empresa: "" });
     } catch (error) {
       toast({
         title: "Não foi possível iniciar a contratação",
@@ -234,6 +244,19 @@ const ContratarIniciar = () => {
                       value={form.nome}
                       onChange={(e) => setForm({ ...form, nome: e.target.value })}
                       placeholder="Seu nome"
+                      className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpfCnpj" className="text-zinc-200">
+                      CPF ou CNPJ
+                    </Label>
+                    <Input
+                      id="cpfCnpj"
+                      required
+                      value={form.cpfCnpj}
+                      onChange={(e) => setForm({ ...form, cpfCnpj: e.target.value })}
+                      placeholder="000.000.000-00 ou 00.000.000/0000-00"
                       className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
                     />
                   </div>
