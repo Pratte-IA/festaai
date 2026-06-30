@@ -4,9 +4,9 @@ import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 
 import { billingQueryKeys } from "./query-keys";
-import { CreateSetupPaymentRequest, CreateSetupPaymentResponse } from "./types";
+import { ActivateSubscriptionCheckoutResponse } from "./types";
 
-const resolveSetupPaymentErrorMessage = async (error: unknown) => {
+const resolveErrorMessage = async (error: unknown) => {
   if (error instanceof FunctionsHttpError) {
     try {
       const body = (await error.context.json()) as { error?: string };
@@ -20,35 +20,35 @@ const resolveSetupPaymentErrorMessage = async (error: unknown) => {
     return error.message;
   }
 
-  return "Não foi possível gerar a cobrança.";
+  return "Não foi possível iniciar o checkout da mensalidade.";
 };
 
-export const useCreateSetupPayment = () => {
+export const useActivateSubscriptionCheckout = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: CreateSetupPaymentRequest) => {
-      const { data, error } = await supabase.functions.invoke<CreateSetupPaymentResponse>(
-        "create-setup-payment",
-        { body: payload },
+    mutationFn: async (externalReference: string) => {
+      const { data, error } = await supabase.functions.invoke<ActivateSubscriptionCheckoutResponse>(
+        "activate-subscription-checkout",
+        { body: { externalReference } },
       );
 
       if (error) {
-        throw new Error(await resolveSetupPaymentErrorMessage(error));
+        throw new Error(await resolveErrorMessage(error));
       }
 
       if (!data) {
-        throw new Error("A função de cobrança não retornou dados.");
+        throw new Error("A função de mensalidade não retornou dados.");
       }
 
       return data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data, externalReference) => {
       void queryClient.invalidateQueries({
-        queryKey: billingQueryKeys.publicCheckout(variables.externalReference),
+        queryKey: billingQueryKeys.publicCheckout(externalReference),
       });
       void queryClient.invalidateQueries({
-        queryKey: billingQueryKeys.paymentDetails(variables.externalReference, "setup"),
+        queryKey: billingQueryKeys.paymentDetails(externalReference, "subscription"),
       });
     },
   });

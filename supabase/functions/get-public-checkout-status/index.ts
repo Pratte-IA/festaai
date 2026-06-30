@@ -25,6 +25,13 @@ const requiredEnv = (key: string) => {
   return value;
 };
 
+const resolveCheckoutPhase = (metadata: Record<string, unknown>, status: string) => {
+  const phase = String(metadata.checkout_phase ?? "");
+  if (phase) return phase;
+  if (status === "active" || status === "trialing") return "completed";
+  return "setup_pending";
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -45,7 +52,9 @@ Deno.serve(async (req) => {
 
     const { data, error } = await supabase
       .from("billing_subscriptions")
-      .select("status, checkout_url, external_reference, metadata, subscription_plans(name, monthly_price, setup_price)")
+      .select(
+        "status, checkout_url, external_reference, metadata, tenant_id, subscription_plans(name, monthly_price, setup_price)",
+      )
       .eq("external_reference", input.externalReference)
       .maybeSingle();
 
@@ -62,7 +71,10 @@ Deno.serve(async (req) => {
       setup_price?: number;
     } | null;
 
+    const checkoutPhase = resolveCheckoutPhase(metadata, data.status);
+
     return jsonResponse({
+      checkoutPhase,
       checkoutUrl: data.checkout_url,
       externalReference: data.external_reference,
       maxSetupInstallments: Number(metadata.max_setup_installments ?? 1) || 1,
@@ -74,6 +86,9 @@ Deno.serve(async (req) => {
           ? Number(metadata.setup_price) / Number(metadata.setup_installments)
           : null,
       setupPaymentMethods: String(metadata.setup_payment_methods ?? "") || null,
+      setupPaymentId: metadata.setup_provider_payment_id
+        ? String(metadata.setup_provider_payment_id)
+        : null,
       setupPrice: Number(metadata.setup_price ?? plan?.setup_price ?? 0) || null,
       status: data.status,
       subscriptionCommitmentTotal: metadata.subscription_commitment_total
@@ -82,7 +97,11 @@ Deno.serve(async (req) => {
       subscriptionMaxPayments: metadata.subscription_max_payments
         ? Number(metadata.subscription_max_payments)
         : null,
+      subscriptionPaymentId: metadata.subscription_provider_payment_id
+        ? String(metadata.subscription_provider_payment_id)
+        : null,
       subscriptionPaymentMethods: String(metadata.subscription_payment_methods ?? "") || null,
+      tenantId: data.tenant_id,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro inesperado ao consultar checkout.";

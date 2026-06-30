@@ -1,7 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
+import { provisionBillingTenant } from "../_shared/provision-billing-tenant.ts";
+import { sendTransactionalEmail } from "../_shared/send-transactional-email.ts";
+
 const corsHeaders = {
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, asaas-access-token, x-asaas-webhook-token",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, asaas-access-token, x-asaas-webhook-token",
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
@@ -37,19 +41,21 @@ const requiredEnv = (key: string) => {
   return value;
 };
 
-const mapAsaasStatus = (eventType: string, providerStatus?: string) => {
-  if (eventType.includes("PAYMENT_RECEIVED") || eventType.includes("PAYMENT_CONFIRMED")) return "active";
+const isPaymentSuccess = (eventType: string) =>
+  eventType.includes("PAYMENT_RECEIVED") || eventType.includes("PAYMENT_CONFIRMED");
+
+const mapSubscriptionStatus = (eventType: string, providerStatus?: string) => {
   if (eventType.includes("PAYMENT_OVERDUE")) return "past_due";
-  if (eventType.includes("PAYMENT_DELETED") || eventType.includes("SUBSCRIPTION_DELETED")) return "canceled";
-  if (providerStatus === "ACTIVE") return "active";
+  if (eventType.includes("PAYMENT_DELETED") || eventType.includes("SUBSCRIPTION_DELETED")) {
+    return "canceled";
+  }
   if (providerStatus === "OVERDUE") return "past_due";
   if (providerStatus === "INACTIVE" || providerStatus === "CANCELED") return "canceled";
-  return "pending";
+  return null;
 };
 
 const emailTemplateForStatus = (status: string) => {
   if (status === "active") return "billing_payment_confirmed";
-  if (status === "past_due") return "billing_payment_overdue";
   return null;
 };
 
@@ -78,31 +84,27 @@ const sendBillingStatusEmail = async (
     : query.eq("external_reference", externalReference);
 
   const { data } = await query;
-  const customer = Array.isArray(data?.billing_customers) ? data?.billing_customers[0] : data?.billing_customers;
-  const plan = Array.isArray(data?.subscription_plans) ? data?.subscription_plans[0] : data?.subscription_plans;
+  const customer = Array.isArray(data?.billing_customers)
+    ? data?.billing_customers[0]
+    : data?.billing_customers;
+  const plan = Array.isArray(data?.subscription_plans)
+    ? data?.subscription_plans[0]
+    : data?.subscription_plans;
 
   if (!customer?.email) return;
 
-  await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-    body: JSON.stringify({
-      params: {
-        name: customer.name,
-        planName: plan?.name ?? "FestaAI",
-      },
-      recipient: {
-        email: customer.email,
-        name: customer.name,
-      },
-      templateKey,
-      tenantId: data?.tenant_id ?? null,
-    }),
-    headers: {
-      Authorization: `Bearer ${serviceRoleKey}`,
-      "Content-Type": "application/json",
-      apikey: serviceRoleKey,
+  await sendTransactionalEmail(supabaseUrl, serviceRoleKey, {
+    params: {
+      name: customer.name,
+      planName: plan?.name ?? "FestaAI",
     },
-    method: "POST",
-  }).catch(() => null);
+    recipient: {
+      email: customer.email,
+      name: customer.name,
+    },
+    templateKey,
+    tenantId: data?.tenant_id ?? null,
+  });
 };
 
 Deno.serve(async (req) => {
@@ -116,7 +118,8 @@ Deno.serve(async (req) => {
 
   try {
     const expectedToken = requiredEnv("ASAAS_WEBHOOK_TOKEN");
-    const receivedToken = req.headers.get("asaas-access-token") ?? req.headers.get("x-asaas-webhook-token");
+    const receivedToken =
+      req.headers.get("asaas-access-token") ?? req.headers.get("x-asaas-webhook-token");
 
     if (receivedToken !== expectedToken) {
       return jsonResponse({ error: "Unauthorized" }, 401);
@@ -127,7 +130,8 @@ Deno.serve(async (req) => {
     const externalEventId = payload.id ?? payload.payment?.id ?? crypto.randomUUID();
     const providerSubscriptionId = payload.subscription?.id ?? payload.payment?.subscription ?? null;
     const rawExternalReference =
-      payload.subscription?.externalReference ?? payload.payment?.externalReference ?? null;
+      payload.payment?.externalReference ?? payload.subscription?.externalReference ?? null;
+    const isSetupPayment = Boolean(rawExternalReference?.endsWith(":setup"));
     const externalReference = rawExternalReference?.replace(/:setup$/, "") ?? null;
 
     const supabaseUrl = requiredEnv("SUPABASE_URL");
@@ -150,20 +154,86 @@ Deno.serve(async (req) => {
     if (eventError) throw eventError;
 
     if (providerSubscriptionId || externalReference) {
-      const status = mapAsaasStatus(eventType, payload.subscription?.status ?? payload.payment?.status);
-      let query = supabase.from("billing_subscriptions").update({
-        checkout_url: payload.payment?.invoiceUrl ?? undefined,
-        status,
-      });
+      let query = supabase
+        .from("billing_subscriptions")
+        .select("id, metadata, status, tenant_id")
+        .limit(1);
 
-      query = providerSubscriptionId
+      query = providerSubscriptionId && !isSetupPayment
         ? query.eq("provider", "asaas").eq("provider_subscription_id", providerSubscriptionId)
         : query.eq("external_reference", externalReference);
 
-      const { error: updateError } = await query;
-      if (updateError) throw updateError;
+      const { data: billingSubscription, error: fetchError } = await query.maybeSingle();
+      if (fetchError) throw fetchError;
 
-      await sendBillingStatusEmail(supabaseUrl, serviceRoleKey, providerSubscriptionId, externalReference, status);
+      if (billingSubscription) {
+        const metadata = (billingSubscription.metadata ?? {}) as Record<string, unknown>;
+        const negativeStatus = mapSubscriptionStatus(
+          eventType,
+          payload.subscription?.status ?? payload.payment?.status,
+        );
+
+        if (negativeStatus) {
+          const pastDueMetadata =
+            negativeStatus === "past_due"
+              ? { ...metadata, past_due_at: metadata.past_due_at ?? new Date().toISOString() }
+              : metadata;
+
+          const { error: updateError } = await supabase
+            .from("billing_subscriptions")
+            .update({
+              checkout_url: payload.payment?.invoiceUrl ?? undefined,
+              metadata: pastDueMetadata,
+              status: negativeStatus,
+            })
+            .eq("id", billingSubscription.id);
+
+          if (updateError) throw updateError;
+        } else if (isPaymentSuccess(eventType)) {
+          if (isSetupPayment) {
+            const { error: updateError } = await supabase
+              .from("billing_subscriptions")
+              .update({
+                checkout_url: payload.payment?.invoiceUrl ?? undefined,
+                metadata: {
+                  ...metadata,
+                  checkout_phase: "setup_paid",
+                  setup_paid_at: new Date().toISOString(),
+                },
+                status: "pending",
+              })
+              .eq("id", billingSubscription.id);
+
+            if (updateError) throw updateError;
+
+            await provisionBillingTenant(supabase, billingSubscription.id);
+          } else {
+            const { error: updateError } = await supabase
+              .from("billing_subscriptions")
+              .update({
+                checkout_url: payload.payment?.invoiceUrl ?? undefined,
+                metadata: {
+                  ...metadata,
+                  checkout_phase: "completed",
+                  past_due_at: null,
+                  subscription_paid_at: new Date().toISOString(),
+                },
+                status: "active",
+              })
+              .eq("id", billingSubscription.id);
+
+            if (updateError) throw updateError;
+
+            await sendBillingStatusEmail(
+              supabaseUrl,
+              serviceRoleKey,
+              providerSubscriptionId,
+              externalReference,
+              "active",
+            );
+          }
+        }
+      }
     }
 
     await supabase

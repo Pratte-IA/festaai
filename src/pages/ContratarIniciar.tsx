@@ -97,9 +97,7 @@ const ContratarIniciar = () => {
 
       toast({
         title: "Contratação iniciada",
-        description: checkout.checkoutUrl
-          ? "Redirecionando para concluir o pagamento da mensalidade FestaAI."
-          : "Recebemos sua solicitação. A equipe comercial continuará o atendimento.",
+        description: "Continue na próxima tela para pagar a implementação e ativar sua mensalidade.",
       });
 
       if (checkout.externalReference) {

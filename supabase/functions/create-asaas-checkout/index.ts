@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
+import { addMonths } from "../_shared/asaas-client.ts";
 import { resolveCommercialBillingRule } from "../_shared/commercial-billing-rules.ts";
 
 const corsHeaders = {
@@ -55,30 +56,6 @@ const buildCommercialCondition = (
 
 type AsaasCustomer = {
   id: string;
-};
-
-type AsaasPayment = {
-  id: string;
-  bankSlipUrl?: string | null;
-  invoiceUrl?: string | null;
-};
-
-type AsaasSubscription = {
-  id: string;
-  invoiceUrl?: string | null;
-};
-
-type AsaasPaymentList = {
-  data?: Array<{ bankSlipUrl?: string | null; invoiceUrl?: string | null }>;
-};
-
-const resolvePaymentCheckoutUrl = (payment: AsaasPayment | null | undefined) =>
-  payment?.invoiceUrl ?? payment?.bankSlipUrl ?? null;
-
-const addMonths = (date: Date, months: number) => {
-  const next = new Date(date);
-  next.setMonth(next.getMonth() + months);
-  return next.toISOString().slice(0, 10);
 };
 
 const jsonResponse = (body: unknown, status = 200) =>
@@ -138,7 +115,7 @@ const sendBillingEmail = async (
         email: payload.email,
         name: payload.name,
       },
-      templateKey: "billing_checkout_started",
+      templateKey: "welcome",
       tenantId: payload.tenantId ?? null,
     }),
     headers: {
@@ -272,22 +249,6 @@ Deno.serve(async (req) => {
     const subscriptionCommitmentTotal =
       subscriptionMaxPayments != null ? monthlyPrice * subscriptionMaxPayments : null;
 
-    const subscription = await asaasRequest<AsaasSubscription>("/subscriptions", {
-      body: JSON.stringify({
-        billingType: condition.subscription_billing_type,
-        customer: customer.id,
-        cycle: "MONTHLY",
-        description: subscriptionMaxPayments
-          ? `FestaAI - Mensalidade - Plano ${condition.name} (${subscriptionMaxPayments}x de R$ ${monthlyPrice})`
-          : `FestaAI - Mensalidade - Plano ${condition.name}`,
-        externalReference,
-        nextDueDate: firstMonthlyDueDateISO,
-        value: monthlyPrice,
-        ...(subscriptionMaxPayments ? { maxPayments: subscriptionMaxPayments } : {}),
-      }),
-      method: "POST",
-    });
-
     const checkoutUrl = null;
 
     const { data: billingSubscription, error: subscriptionError } = await supabase
@@ -298,6 +259,7 @@ Deno.serve(async (req) => {
         external_reference: externalReference,
         metadata: {
           asaas_customer_id: customer.id,
+          checkout_phase: "setup_pending",
           condition_slug: planSlug,
           loyalty_months: loyaltyMonths,
           max_setup_installments: maxSetupInstallments,
@@ -309,9 +271,12 @@ Deno.serve(async (req) => {
           setup_payment_methods: condition.setup_payment_methods,
           setup_price: setupPrice,
           setup_provider_payment_id: null,
+          subscription_billing_type: condition.subscription_billing_type,
           subscription_commitment_total: subscriptionCommitmentTotal,
+          subscription_first_due_date: firstMonthlyDueDateISO,
           subscription_max_payments: subscriptionMaxPayments,
           subscription_payment_methods: condition.subscription_payment_methods,
+          subscription_provider_payment_id: null,
           ...(commercialOffer
             ? { commercial_offer_id: commercialOffer.id, commercial_offer_token: commercialOffer.token }
             : {}),
@@ -319,7 +284,7 @@ Deno.serve(async (req) => {
         next_due_date: firstMonthlyDueDateISO,
         plan_id: plan.id,
         provider: "asaas",
-        provider_subscription_id: subscription.id,
+        provider_subscription_id: null,
         status: "pending",
         tenant_id: input.tenantId ?? null,
       })

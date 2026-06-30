@@ -1,7 +1,7 @@
 import { Link, Navigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AsaasCheckoutPanel } from "@/components/contratar/AsaasCheckoutPanel";
+import { CommercialCheckoutWizard } from "@/components/contratar/CommercialCheckoutWizard";
 import { usePublicCheckoutStatus } from "@/features/billing";
 import { contratarCtaGradientClass } from "./contratar-commercial-data";
 
@@ -14,7 +14,7 @@ const ContratarPagamento = () => {
     return <Navigate to="/contratar#planos" replace />;
   }
 
-  const isPaid = checkout?.status === "active" || checkout?.status === "trialing";
+  const isCompleted = checkout?.checkoutPhase === "completed";
 
   return (
     <div
@@ -56,28 +56,15 @@ const ContratarPagamento = () => {
         <main className="flex-1 px-4 py-10 sm:px-6 sm:py-14">
           <div className="mx-auto w-full max-w-2xl">
             <div className="rounded-2xl border border-white/[0.1] bg-[#12121a]/95 p-6 shadow-2xl shadow-[#5158e7]/10 backdrop-blur-md sm:p-8">
-              {isPaid ? (
-                <div className="mb-8 text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15">
-                    <CheckCircle2 className="h-8 w-8 text-emerald-400" aria-hidden />
-                  </div>
-                  <h1 className="mt-4 text-2xl font-bold text-white">Pagamento confirmado!</h1>
-                  <p className="mt-2 text-sm text-zinc-400">
-                    Recebemos a confirmação do Asaas. Nossa equipe entrará em contato para concluir o
-                    onboarding da sua casa de festas.
-                  </p>
-                  <Button asChild className={`mt-6 border-0 ${contratarCtaGradientClass}`}>
-                    <Link to="/login">Acessar o FestaAI</Link>
-                  </Button>
-                </div>
-              ) : (
+              {!isCompleted ? (
                 <>
-                  <h1 className="text-2xl font-bold text-white sm:text-3xl">Concluir pagamento</h1>
+                  <h1 className="text-2xl font-bold text-white sm:text-3xl">Concluir contratação</h1>
                   <p className="mt-2 text-sm text-zinc-400">
-                    Escolha o parcelamento da implementação e conclua o pagamento no Asaas.
+                    Siga os passos abaixo para pagar a implementação, efetivar seu cadastro e ativar a
+                    mensalidade FestaAI.
                   </p>
                 </>
-              )}
+              ) : null}
 
               {isLoading && (
                 <p className="mt-8 text-sm text-zinc-400">Carregando informações do checkout...</p>
@@ -90,24 +77,17 @@ const ContratarPagamento = () => {
               )}
 
               {checkout && (
-                <div className="mt-8">
-                  <AsaasCheckoutPanel
-                    checkoutUrl={checkout.checkoutUrl}
+                <div className={isCompleted ? "" : "mt-8"}>
+                  <CommercialCheckoutWizard
+                    checkout={checkout}
                     externalReference={externalReference}
-                    isLoading={isLoading}
-                    isPolling={isFetching && !isPaid}
-                    maxSetupInstallments={checkout.maxSetupInstallments}
-                    monthlyPrice={checkout.monthlyPrice}
-                    planName={checkout.planName}
-                    selectedSetupInstallments={checkout.selectedSetupInstallments}
-                    setupInstallmentValue={checkout.setupInstallmentValue}
-                    setupPaymentMethods={checkout.setupPaymentMethods}
-                    setupPrice={checkout.setupPrice}
-                    status={checkout.status}
-                    subscriptionCommitmentTotal={checkout.subscriptionCommitmentTotal}
-                    subscriptionMaxPayments={checkout.subscriptionMaxPayments}
-                    subscriptionPaymentMethods={checkout.subscriptionPaymentMethods}
+                    isPolling={isFetching && !isCompleted}
                   />
+                  {isCompleted ? (
+                    <Button asChild className={`mt-6 w-full border-0 ${contratarCtaGradientClass}`}>
+                      <Link to="/login">Acessar o FestaAI</Link>
+                    </Button>
+                  ) : null}
                 </div>
               )}
             </div>

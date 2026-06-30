@@ -93,6 +93,12 @@ Deno.serve(async (req) => {
     }
 
     const metadata = (subscription.metadata ?? {}) as Record<string, unknown>;
+    const checkoutPhase = String(metadata.checkout_phase ?? "setup_pending");
+
+    if (checkoutPhase !== "setup_pending") {
+      return jsonResponse({ error: "A implementação já foi paga ou o checkout avançou de etapa." }, 409);
+    }
+
     const setupPrice = Number(metadata.setup_price ?? 0);
     const maxSetupInstallments = Math.max(1, Number(metadata.max_setup_installments ?? 1));
     const asaasCustomerId = String(metadata.asaas_customer_id ?? "");
@@ -165,6 +171,7 @@ Deno.serve(async (req) => {
         checkout_url: checkoutUrl,
         metadata: {
           ...metadata,
+          checkout_phase: metadata.checkout_phase ?? "setup_pending",
           setup_external_reference: setupExternalReference,
           setup_installments: input.setupInstallments,
           setup_provider_payment_id: setupPayment.id,

@@ -4,9 +4,9 @@ import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 
 import { billingQueryKeys } from "./query-keys";
-import { CreateSetupPaymentRequest, CreateSetupPaymentResponse } from "./types";
+import { PayWithCreditCardRequest, PayWithCreditCardResponse } from "./types";
 
-const resolveSetupPaymentErrorMessage = async (error: unknown) => {
+const resolveErrorMessage = async (error: unknown) => {
   if (error instanceof FunctionsHttpError) {
     try {
       const body = (await error.context.json()) as { error?: string };
@@ -20,25 +20,25 @@ const resolveSetupPaymentErrorMessage = async (error: unknown) => {
     return error.message;
   }
 
-  return "Não foi possível gerar a cobrança.";
+  return "Não foi possível processar o pagamento com cartão.";
 };
 
-export const useCreateSetupPayment = () => {
+export const usePayWithCreditCard = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: CreateSetupPaymentRequest) => {
-      const { data, error } = await supabase.functions.invoke<CreateSetupPaymentResponse>(
-        "create-setup-payment",
+    mutationFn: async (payload: PayWithCreditCardRequest) => {
+      const { data, error } = await supabase.functions.invoke<PayWithCreditCardResponse>(
+        "pay-with-credit-card",
         { body: payload },
       );
 
       if (error) {
-        throw new Error(await resolveSetupPaymentErrorMessage(error));
+        throw new Error(await resolveErrorMessage(error));
       }
 
       if (!data) {
-        throw new Error("A função de cobrança não retornou dados.");
+        throw new Error("A função de cartão não retornou dados.");
       }
 
       return data;
@@ -48,7 +48,7 @@ export const useCreateSetupPayment = () => {
         queryKey: billingQueryKeys.publicCheckout(variables.externalReference),
       });
       void queryClient.invalidateQueries({
-        queryKey: billingQueryKeys.paymentDetails(variables.externalReference, "setup"),
+        queryKey: billingQueryKeys.paymentDetails(variables.externalReference, variables.paymentKind),
       });
     },
   });
