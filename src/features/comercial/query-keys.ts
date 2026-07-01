@@ -1,4 +1,6 @@
 export const comercialQueryKeys = {
+  adminContractAcceptance: (id: number) => ["admin", "comercial", "contract-acceptance", id] as const,
+  adminContractAcceptances: () => ["admin", "comercial", "contract-acceptances"] as const,
   adminContracts: () => ["admin", "comercial", "contracts"] as const,
   adminLead: (id: number | null) => ["admin", "comercial", "leads", id] as const,
   adminLeads: (status?: string) => ["admin", "comercial", "leads", status ?? "all"] as const,

@@ -1,6 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 import type { EmailTemplateKey } from "../_shared/email-templates.ts";
+import {
+  BILLING_ACCESS_BLOCK_OVERDUE_HOURS,
+  syncBillingTenantAccessForSubscription,
+} from "../_shared/billing-tenant-access.ts";
+import { buildBoletoEmailParams } from "../_shared/billing-boleto-email.ts";
 import { sendTransactionalEmail } from "../_shared/send-transactional-email.ts";
 
 const corsHeaders = {
@@ -25,11 +30,6 @@ const optionalEnv = (key: string) => Deno.env.get(key) ?? "";
 
 const hoursBetween = (from: string, to = new Date()) =>
   (to.getTime() - new Date(from).getTime()) / (1000 * 60 * 60);
-
-const formatDueDate = (value: string) => {
-  const date = new Date(`${value}T12:00:00`);
-  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
-};
 
 const tomorrowISO = () => {
   const date = new Date();
@@ -119,11 +119,11 @@ Deno.serve(async (req) => {
         if (!(await wasEmailAlreadySent(supabase, templateKey, subscription.id))) {
           await sendTransactionalEmail(supabaseUrl, serviceRoleKey, {
             metadata: { billing_subscription_id: subscription.id, trigger: "boleto_due_reminder" },
-            params: {
-              checkoutUrl: basePayload.checkoutUrl,
-              dueDate: formatDueDate(subscription.next_due_date),
-              name: basePayload.name,
-            },
+            params: buildBoletoEmailParams(
+              basePayload.checkoutUrl,
+              basePayload.name ?? "Cliente FestaAI",
+              subscription.next_due_date,
+            ),
             recipient: { email: basePayload.email, name: basePayload.name },
             templateKey,
             tenantId: basePayload.tenantId,
@@ -138,9 +138,14 @@ Deno.serve(async (req) => {
       if (!pastDueAt) continue;
 
       const overdueHours = hoursBetween(pastDueAt);
+
+      if (subscription.tenant_id) {
+        await syncBillingTenantAccessForSubscription(supabase, subscription, overdueHours);
+      }
+
       let templateKey: EmailTemplateKey | null = null;
 
-      if (overdueHours >= 49) {
+      if (overdueHours >= BILLING_ACCESS_BLOCK_OVERDUE_HOURS) {
         templateKey = "billing_overdue_blocked";
       } else if (overdueHours >= 36) {
         templateKey = "billing_overdue_36h";
@@ -155,10 +160,7 @@ Deno.serve(async (req) => {
 
       await sendTransactionalEmail(supabaseUrl, serviceRoleKey, {
         metadata: { billing_subscription_id: subscription.id, overdue_hours: Math.floor(overdueHours), trigger: "overdue_reminder" },
-        params: {
-          checkoutUrl: basePayload.checkoutUrl,
-          name: basePayload.name,
-        },
+        params: buildBoletoEmailParams(basePayload.checkoutUrl, basePayload.name ?? "Cliente FestaAI"),
         recipient: { email: basePayload.email, name: basePayload.name },
         templateKey,
         tenantId: basePayload.tenantId,

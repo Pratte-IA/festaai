@@ -6,6 +6,8 @@ export type BillingSubscription = Tables<"billing_subscriptions">;
 
 export interface CheckoutRequest {
   companyName: string;
+  contractAccepted: true;
+  contractVersion: string;
   cpfCnpj: string;
   email: string;
   message?: string;

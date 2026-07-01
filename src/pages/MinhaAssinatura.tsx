@@ -97,7 +97,7 @@ const MinhaAssinatura = () => {
                   <div className="md:col-span-2">
                     <Button asChild variant="outline">
                       <a href={subscription.checkout_url} target="_blank" rel="noreferrer">
-                        Abrir cobrança <ExternalLink className="ml-2 h-4 w-4" />
+                        Abrir boleto e pagar <ExternalLink className="ml-2 h-4 w-4" />
                       </a>
                     </Button>
                   </div>

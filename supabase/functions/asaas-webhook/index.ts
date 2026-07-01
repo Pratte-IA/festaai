@@ -1,7 +1,20 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
+import { computeAnnualAdjustmentNoticeAt, computeNextAnnualAdjustmentAt } from "../_shared/annual-billing-adjustment.ts";
+import { sendBoletoIssuedEmailIfNeeded } from "../_shared/billing-boleto-email.ts";
+import { reactivateTenantAfterBillingPayment } from "../_shared/billing-tenant-access.ts";
+import { completeBillingFirstAccess } from "../_shared/billing-first-access.ts";
 import { provisionBillingTenant } from "../_shared/provision-billing-tenant.ts";
-import { sendTransactionalEmail } from "../_shared/send-transactional-email.ts";
+import {
+  AsaasPayment,
+  fetchPayment,
+  isBoletoPayment,
+  resolvePaymentCheckoutUrl,
+} from "../_shared/asaas-client.ts";
+import {
+  loadBillingSubscriptionCustomer,
+  syncBillingSubscriptionPayment,
+} from "../_shared/sync-billing-payment.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -14,15 +27,19 @@ interface AsaasWebhookPayload {
   event?: string;
   id?: string;
   payment?: {
-    id?: string;
+    bankSlipUrl?: string;
+    billingType?: string;
+    dueDate?: string;
     externalReference?: string;
+    id?: string;
     invoiceUrl?: string;
     status?: string;
     subscription?: string;
+    value?: number;
   };
   subscription?: {
-    id?: string;
     externalReference?: string;
+    id?: string;
     status?: string;
   };
 }
@@ -44,6 +61,8 @@ const requiredEnv = (key: string) => {
 const isPaymentSuccess = (eventType: string) =>
   eventType.includes("PAYMENT_RECEIVED") || eventType.includes("PAYMENT_CONFIRMED");
 
+const isPaymentCreated = (eventType: string) => eventType.includes("PAYMENT_CREATED");
+
 const mapSubscriptionStatus = (eventType: string, providerStatus?: string) => {
   if (eventType.includes("PAYMENT_OVERDUE")) return "past_due";
   if (eventType.includes("PAYMENT_DELETED") || eventType.includes("SUBSCRIPTION_DELETED")) {
@@ -54,57 +73,70 @@ const mapSubscriptionStatus = (eventType: string, providerStatus?: string) => {
   return null;
 };
 
-const emailTemplateForStatus = (status: string) => {
-  if (status === "active") return "billing_payment_confirmed";
-  return null;
+const paymentFromPayload = (payload: AsaasWebhookPayload["payment"]): AsaasPayment | null => {
+  if (!payload?.id) return null;
+
+  return {
+    bankSlipUrl: payload.bankSlipUrl ?? null,
+    billingType: payload.billingType,
+    dueDate: payload.dueDate ?? null,
+    id: payload.id,
+    invoiceUrl: payload.invoiceUrl ?? null,
+    status: payload.status,
+    value: payload.value ?? null,
+  };
 };
 
-const sendBillingStatusEmail = async (
+const resolveCheckoutUrlFromWebhook = async (payload: AsaasWebhookPayload["payment"]) => {
+  const inlinePayment = paymentFromPayload(payload);
+  if (inlinePayment?.bankSlipUrl || inlinePayment?.invoiceUrl) {
+    return resolvePaymentCheckoutUrl(inlinePayment);
+  }
+
+  if (!payload?.id) return null;
+
+  try {
+    const payment = await fetchPayment(payload.id);
+    return resolvePaymentCheckoutUrl(payment);
+  } catch {
+    return payload.invoiceUrl ?? payload.bankSlipUrl ?? null;
+  }
+};
+
+const handleBoletoIssued = async (
+  supabase: ReturnType<typeof createClient>,
   supabaseUrl: string,
   serviceRoleKey: string,
-  subscriptionId: string | null,
-  externalReference: string | null,
-  status: string,
+  subscriptionId: number,
+  payment: AsaasPayment,
+  options: { chargeLabel: string; paymentKind: "setup" | "subscription" },
 ) => {
-  const templateKey = emailTemplateForStatus(status);
-  if (!templateKey) return;
+  if (!isBoletoPayment(payment)) return;
+  if (payment.status && payment.status !== "PENDING" && payment.status !== "OVERDUE") return;
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
+  const subscriptionData = await loadBillingSubscriptionCustomer(supabase, subscriptionId);
+  if (!subscriptionData) return;
 
-  let query = supabase
-    .from("billing_subscriptions")
-    .select("tenant_id, billing_customers(email, name), subscription_plans(name)")
-    .limit(1)
-    .maybeSingle();
+  await syncBillingSubscriptionPayment(
+    supabase,
+    subscriptionId,
+    subscriptionData.metadata,
+    { payment, paymentKind: options.paymentKind },
+  );
 
-  query = subscriptionId
-    ? query.eq("provider", "asaas").eq("provider_subscription_id", subscriptionId)
-    : query.eq("external_reference", externalReference);
-
-  const { data } = await query;
-  const customer = Array.isArray(data?.billing_customers)
-    ? data?.billing_customers[0]
-    : data?.billing_customers;
-  const plan = Array.isArray(data?.subscription_plans)
-    ? data?.subscription_plans[0]
-    : data?.subscription_plans;
-
-  if (!customer?.email) return;
-
-  await sendTransactionalEmail(supabaseUrl, serviceRoleKey, {
-    params: {
-      name: customer.name,
-      planName: plan?.name ?? "FestaAI",
+  await sendBoletoIssuedEmailIfNeeded(
+    supabase,
+    supabaseUrl,
+    serviceRoleKey,
+    subscriptionData.customer,
+    {
+      chargeLabel: options.chargeLabel,
+      dueDate: payment.dueDate,
+      payment,
+      subscriptionId,
+      tenantId: subscriptionData.tenantId,
     },
-    recipient: {
-      email: customer.email,
-      name: customer.name,
-    },
-    templateKey,
-    tenantId: data?.tenant_id ?? null,
-  });
+  );
 };
 
 Deno.serve(async (req) => {
@@ -168,10 +200,27 @@ Deno.serve(async (req) => {
 
       if (billingSubscription) {
         const metadata = (billingSubscription.metadata ?? {}) as Record<string, unknown>;
+        const checkoutUrl = await resolveCheckoutUrlFromWebhook(payload.payment);
         const negativeStatus = mapSubscriptionStatus(
           eventType,
           payload.subscription?.status ?? payload.payment?.status,
         );
+
+        if (isPaymentCreated(eventType) && payload.payment?.id) {
+          const payment = await fetchPayment(payload.payment.id);
+          const planName = String(metadata.plan_name ?? "FestaAI");
+          await handleBoletoIssued(
+            supabase,
+            supabaseUrl,
+            serviceRoleKey,
+            billingSubscription.id,
+            payment,
+            {
+              chargeLabel: isSetupPayment ? "implementação FestaAI" : `mensalidade FestaAI - Plano ${planName}`,
+              paymentKind: isSetupPayment ? "setup" : "subscription",
+            },
+          );
+        }
 
         if (negativeStatus) {
           const pastDueMetadata =
@@ -182,7 +231,7 @@ Deno.serve(async (req) => {
           const { error: updateError } = await supabase
             .from("billing_subscriptions")
             .update({
-              checkout_url: payload.payment?.invoiceUrl ?? undefined,
+              checkout_url: checkoutUrl ?? undefined,
               metadata: pastDueMetadata,
               status: negativeStatus,
             })
@@ -194,7 +243,7 @@ Deno.serve(async (req) => {
             const { error: updateError } = await supabase
               .from("billing_subscriptions")
               .update({
-                checkout_url: payload.payment?.invoiceUrl ?? undefined,
+                checkout_url: checkoutUrl ?? undefined,
                 metadata: {
                   ...metadata,
                   checkout_phase: "setup_paid",
@@ -207,16 +256,30 @@ Deno.serve(async (req) => {
             if (updateError) throw updateError;
 
             await provisionBillingTenant(supabase, billingSubscription.id);
+            await completeBillingFirstAccess(
+              supabase,
+              supabaseUrl,
+              serviceRoleKey,
+              billingSubscription.id,
+            );
           } else {
+            const subscriptionPaidAt = new Date().toISOString();
+            const monthlyPrice = Number(metadata.monthly_price ?? 0);
             const { error: updateError } = await supabase
               .from("billing_subscriptions")
               .update({
-                checkout_url: payload.payment?.invoiceUrl ?? undefined,
+                checkout_url: checkoutUrl ?? undefined,
                 metadata: {
                   ...metadata,
                   checkout_phase: "completed",
+                  contract_anniversary_at: subscriptionPaidAt,
+                  current_monthly_price: monthlyPrice,
+                  next_annual_adjustment_at: computeNextAnnualAdjustmentAt(subscriptionPaidAt),
+                  next_annual_adjustment_notice_at: computeAnnualAdjustmentNoticeAt(
+                    computeNextAnnualAdjustmentAt(subscriptionPaidAt),
+                  ),
                   past_due_at: null,
-                  subscription_paid_at: new Date().toISOString(),
+                  subscription_paid_at: subscriptionPaidAt,
                 },
                 status: "active",
               })
@@ -224,12 +287,15 @@ Deno.serve(async (req) => {
 
             if (updateError) throw updateError;
 
-            await sendBillingStatusEmail(
+            if (billingSubscription.tenant_id) {
+              await reactivateTenantAfterBillingPayment(supabase, billingSubscription.tenant_id);
+            }
+
+            await completeBillingFirstAccess(
+              supabase,
               supabaseUrl,
               serviceRoleKey,
-              providerSubscriptionId,
-              externalReference,
-              "active",
+              billingSubscription.id,
             );
           }
         }

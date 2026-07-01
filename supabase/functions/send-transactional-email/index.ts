@@ -50,9 +50,11 @@ Deno.serve(async (req) => {
   const input = emailSchema.parse(await req.json());
   const template = emailTemplates[input.templateKey];
   const appBaseUrl = optionalEnv("APP_BASE_URL");
+  const emailLogoUrl = optionalEnv("EMAIL_LOGO_URL");
   const params = {
     ...(input.params ?? {}),
     ...(appBaseUrl ? { appUrl: appBaseUrl } : {}),
+    ...(emailLogoUrl ? { logoUrl: emailLogoUrl } : {}),
   };
   const subject = template.subject(params);
   const htmlContent = template.html(params);

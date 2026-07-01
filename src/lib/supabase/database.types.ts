@@ -232,6 +232,127 @@ export type Database = {
           },
         ]
       }
+      billing_contract_acceptances: {
+        Row: {
+          acceptance_declaration: string
+          accepted_at: string
+          accepted_by_company: string | null
+          accepted_by_cpf_cnpj: string | null
+          accepted_by_email: string
+          accepted_by_name: string
+          billing_subscription_id: number
+          commercial_annex_snapshot: string
+          commercial_snapshot: Json
+          contract_body_snapshot: string
+          contract_version: string
+          created_at: string
+          external_reference: string | null
+          id: number
+          ip_address: unknown
+          metadata: Json
+          user_agent: string | null
+        }
+        Insert: {
+          acceptance_declaration: string
+          accepted_at?: string
+          accepted_by_company?: string | null
+          accepted_by_cpf_cnpj?: string | null
+          accepted_by_email: string
+          accepted_by_name: string
+          billing_subscription_id: number
+          commercial_annex_snapshot: string
+          commercial_snapshot?: Json
+          contract_body_snapshot: string
+          contract_version: string
+          created_at?: string
+          external_reference?: string | null
+          id?: number
+          ip_address?: unknown
+          metadata?: Json
+          user_agent?: string | null
+        }
+        Update: {
+          acceptance_declaration?: string
+          accepted_at?: string
+          accepted_by_company?: string | null
+          accepted_by_cpf_cnpj?: string | null
+          accepted_by_email?: string
+          accepted_by_name?: string
+          billing_subscription_id?: number
+          commercial_annex_snapshot?: string
+          commercial_snapshot?: Json
+          contract_body_snapshot?: string
+          contract_version?: string
+          created_at?: string
+          external_reference?: string | null
+          id?: number
+          ip_address?: unknown
+          metadata?: Json
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_contract_acceptances_billing_subscription_id_fkey"
+            columns: ["billing_subscription_id"]
+            isOneToOne: true
+            referencedRelation: "billing_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_subscription_adjustments: {
+        Row: {
+          adjustment_index: string
+          adjustment_rate: number
+          asaas_updated: boolean
+          billing_subscription_id: number
+          created_at: string
+          effective_at: string
+          id: number
+          metadata: Json
+          new_monthly_price: number
+          notified_at: string | null
+          previous_monthly_price: number
+          provider_subscription_id: string | null
+        }
+        Insert: {
+          adjustment_index?: string
+          adjustment_rate: number
+          asaas_updated?: boolean
+          billing_subscription_id: number
+          created_at?: string
+          effective_at?: string
+          id?: number
+          metadata?: Json
+          new_monthly_price: number
+          notified_at?: string | null
+          previous_monthly_price: number
+          provider_subscription_id?: string | null
+        }
+        Update: {
+          adjustment_index?: string
+          adjustment_rate?: number
+          asaas_updated?: boolean
+          billing_subscription_id?: number
+          created_at?: string
+          effective_at?: string
+          id?: number
+          metadata?: Json
+          new_monthly_price?: number
+          notified_at?: string | null
+          previous_monthly_price?: number
+          provider_subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_subscription_adjustments_billing_subscription_id_fkey"
+            columns: ["billing_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "billing_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_customers: {
         Row: {
           company_name: string | null

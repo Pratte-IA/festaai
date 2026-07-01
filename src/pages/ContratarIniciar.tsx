@@ -4,7 +4,9 @@ import { ArrowLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CommercialContractAcceptance } from "@/components/contratar/CommercialContractAcceptance";
 import { useCreateCheckout } from "@/features/billing";
+import { COMMERCIAL_CONTRACT_VERSION } from "@/features/comercial/legal";
 import { usePublicCommercialOffer } from "@/features/comercial";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -46,6 +48,7 @@ const ContratarIniciar = () => {
   const { data: offer, isLoading: isOfferLoading } = usePublicCommercialOffer(offerToken);
   const createCheckout = useCreateCheckout();
   const [form, setForm] = useState({ cpfCnpj: "", nome: "", email: "", telefone: "", empresa: "" });
+  const [contractAccepted, setContractAccepted] = useState(false);
 
   const plan = useMemo<ContratarCommercialCondition | undefined>(() => {
     if (offerToken && offer) {
@@ -87,6 +90,8 @@ const ContratarIniciar = () => {
     try {
       const checkout = await createCheckout.mutateAsync({
         companyName: form.empresa,
+        contractAccepted: true,
+        contractVersion: COMMERCIAL_CONTRACT_VERSION,
         cpfCnpj: form.cpfCnpj,
         email: form.email,
         name: form.nome,
@@ -301,6 +306,12 @@ const ContratarIniciar = () => {
                     />
                   </div>
 
+                  <CommercialContractAcceptance
+                    accepted={contractAccepted}
+                    className="pt-2"
+                    onAcceptedChange={setContractAccepted}
+                  />
+
                   <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
                     <Button
                       asChild
@@ -312,7 +323,7 @@ const ContratarIniciar = () => {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={createCheckout.isPending}
+                      disabled={createCheckout.isPending || !contractAccepted}
                       className={`min-h-[44px] border-0 ${contratarCtaGradientClass}`}
                     >
                       {createCheckout.isPending

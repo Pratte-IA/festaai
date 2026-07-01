@@ -1,10 +1,12 @@
 export type AsaasPayment = {
   bankSlipUrl?: string | null;
   billingType?: string;
+  dueDate?: string | null;
   id: string;
   invoiceUrl?: string | null;
   status?: string;
   subscription?: string | null;
+  value?: number | null;
 };
 
 export type AsaasPixQrCode = {
@@ -59,8 +61,19 @@ export const asaasRequest = async <T>(path: string, options: RequestInit = {}) =
   return payload as T;
 };
 
-export const resolvePaymentCheckoutUrl = (payment: AsaasPayment | null | undefined) =>
-  payment?.invoiceUrl ?? payment?.bankSlipUrl ?? null;
+export const resolveBoletoUrl = (payment: AsaasPayment | null | undefined) =>
+  payment?.bankSlipUrl ?? payment?.invoiceUrl ?? null;
+
+export const resolvePaymentCheckoutUrl = (payment: AsaasPayment | null | undefined) => {
+  if (!payment) return null;
+  if (payment.billingType === "BOLETO") {
+    return resolveBoletoUrl(payment);
+  }
+  return payment.invoiceUrl ?? payment.bankSlipUrl ?? null;
+};
+
+export const isBoletoPayment = (payment: AsaasPayment | null | undefined) =>
+  payment?.billingType === "BOLETO";
 
 export const fetchPaymentPixQrCode = (paymentId: string) =>
   asaasRequest<AsaasPixQrCode>(`/payments/${paymentId}/pixQrCode`, { method: "GET" });

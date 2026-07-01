@@ -5,8 +5,11 @@ import {
   AsaasSubscription,
   asaasRequest,
   fetchSubscriptionPayments,
+  isBoletoPayment,
   resolvePaymentCheckoutUrl,
 } from "../_shared/asaas-client.ts";
+import { sendBoletoIssuedEmailIfNeeded } from "../_shared/billing-boleto-email.ts";
+import { loadBillingSubscriptionCustomer } from "../_shared/sync-billing-payment.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -136,6 +139,7 @@ Deno.serve(async (req) => {
       .from("billing_subscriptions")
       .update({
         checkout_url: checkoutUrl,
+        ...(pendingPayment?.dueDate ? { next_due_date: pendingPayment.dueDate } : {}),
         metadata: {
           ...metadata,
           checkout_phase: "subscription_pending",
@@ -146,6 +150,25 @@ Deno.serve(async (req) => {
       .eq("id", subscription.id);
 
     if (updateError) throw updateError;
+
+    if (pendingPayment && isBoletoPayment(pendingPayment)) {
+      const subscriptionData = await loadBillingSubscriptionCustomer(supabase, subscription.id);
+      if (subscriptionData) {
+        await sendBoletoIssuedEmailIfNeeded(
+          supabase,
+          supabaseUrl,
+          serviceRoleKey,
+          subscriptionData.customer,
+          {
+            chargeLabel: `mensalidade FestaAI - Plano ${planName}`,
+            dueDate: pendingPayment.dueDate,
+            payment: pendingPayment,
+            subscriptionId: subscription.id,
+            tenantId: subscriptionData.tenantId,
+          },
+        );
+      }
+    }
 
     return jsonResponse({
       checkoutPhase: "subscription_pending",

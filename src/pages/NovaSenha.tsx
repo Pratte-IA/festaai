@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, ShieldCheck, Sparkles } from "lucide-react";
 import { z } from "zod";
@@ -28,13 +28,36 @@ const updatePasswordSchema = z
   });
 
 const NovaSenha = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, refreshSession } = useAuth();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isWaitingSession, setIsWaitingSession] = useState(true);
+
+  const isFirstAccess = useMemo(
+    () => new URLSearchParams(window.location.search).get("origem") === "primeiro-acesso",
+    [],
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const bootstrapSession = async () => {
+      await refreshSession();
+      if (isMounted) {
+        setIsWaitingSession(false);
+      }
+    };
+
+    void bootstrapSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [refreshSession]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -61,9 +84,18 @@ const NovaSenha = () => {
     }
 
     toast({
-      title: "Senha atualizada",
-      description: "Entre novamente usando sua nova senha.",
+      title: isFirstAccess ? "Senha criada com sucesso" : "Senha atualizada",
+      description: isFirstAccess
+        ? "Entrando na sua central FestaAI..."
+        : "Sua senha foi atualizada.",
     });
+
+    await refreshSession();
+
+    if (isFirstAccess) {
+      navigate("/", { replace: true });
+      return;
+    }
 
     await supabase.auth.signOut();
     navigate("/login", { replace: true });
@@ -84,10 +116,12 @@ const NovaSenha = () => {
               Recuperação segura de acesso
             </div>
             <h1 className="max-w-xl text-5xl font-bold leading-tight tracking-tight">
-              Crie uma nova senha para voltar ao painel.
+              {isFirstAccess ? "Crie sua senha e acesse o painel." : "Crie uma nova senha para voltar ao painel."}
             </h1>
             <p className="mt-4 max-w-lg text-base leading-7 text-white/80">
-              Use uma senha forte para manter sua central FestaAI protegida.
+              {isFirstAccess
+                ? "Este é o seu primeiro acesso ao FestaAI. Defina uma senha segura para entrar na central."
+                : "Use uma senha forte para manter sua central FestaAI protegida."}
             </p>
           </div>
         </section>
@@ -109,15 +143,19 @@ const NovaSenha = () => {
                     />
                   </div>
                   <div className="space-y-1 pt-1">
-                    <CardTitle className="text-2xl tracking-tight">Definir nova senha</CardTitle>
+                    <CardTitle className="text-2xl tracking-tight">
+                      {isFirstAccess ? "Criar senha de acesso" : "Definir nova senha"}
+                    </CardTitle>
                     <CardDescription className="text-sm leading-6">
-                      Escolha uma nova senha para acessar sua central FestaAI.
+                      {isFirstAccess
+                        ? "Escolha a senha que você usará para entrar no FestaAI."
+                        : "Escolha uma nova senha para acessar sua central FestaAI."}
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="px-7 pb-7 sm:px-9 sm:pb-9">
-                {!isLoading && !isAuthenticated ? (
+                {!isLoading && !isWaitingSession && !isAuthenticated ? (
                   <div className="space-y-5">
                     <p className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
                       Link inválido ou expirado. Solicite uma nova recuperação de senha.
@@ -180,10 +218,14 @@ const NovaSenha = () => {
 
                     <Button
                       className="h-12 w-full rounded-xl bg-[linear-gradient(135deg,#5158e7_0%,#d95693_58%,#e6bce9_100%)] text-base font-semibold text-white shadow-lg shadow-[#5158e7]/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#d95693]/25 focus-visible:ring-[#5158e7]/30 disabled:translate-y-0 disabled:shadow-none"
-                      disabled={isSubmitting || isLoading}
+                      disabled={isSubmitting || isLoading || isWaitingSession}
                       type="submit"
                     >
-                      {isSubmitting ? "Atualizando..." : "Atualizar senha"}
+                      {isSubmitting
+                        ? "Salvando..."
+                        : isFirstAccess
+                          ? "Criar senha e entrar"
+                          : "Atualizar senha"}
                     </Button>
 
                     <p className="flex items-center justify-center gap-2 text-center text-xs text-muted-foreground">

@@ -1,6 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
+import { asaasRequest, isBoletoPayment, resolvePaymentCheckoutUrl } from "../_shared/asaas-client.ts";
+import type { AsaasPayment } from "../_shared/asaas-client.ts";
+import { sendBoletoIssuedEmailIfNeeded } from "../_shared/billing-boleto-email.ts";
+import { loadBillingSubscriptionCustomer } from "../_shared/sync-billing-payment.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Origin": "*",
@@ -11,12 +16,6 @@ const setupPaymentSchema = z.object({
   externalReference: z.string().min(10).max(120),
   setupInstallments: z.number().int().min(1).max(24),
 });
-
-type AsaasPayment = {
-  bankSlipUrl?: string | null;
-  id: string;
-  invoiceUrl?: string | null;
-};
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -31,32 +30,6 @@ const requiredEnv = (key: string) => {
   }
   return value;
 };
-
-const asaasRequest = async <T>(path: string, options: RequestInit = {}) => {
-  const apiUrl = Deno.env.get("ASAAS_API_URL") ?? "https://sandbox.asaas.com/api/v3";
-  const apiKey = requiredEnv("ASAAS_API_KEY");
-
-  const response = await fetch(`${apiUrl}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      access_token: apiKey,
-      ...(options.headers ?? {}),
-    },
-  });
-
-  const payload = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message = payload?.errors?.[0]?.description ?? "Erro ao comunicar com o Asaas.";
-    throw new Error(message);
-  }
-
-  return payload as T;
-};
-
-const resolvePaymentCheckoutUrl = (payment: AsaasPayment | null | undefined) =>
-  payment?.invoiceUrl ?? payment?.bankSlipUrl ?? null;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -169,6 +142,7 @@ Deno.serve(async (req) => {
       .from("billing_subscriptions")
       .update({
         checkout_url: checkoutUrl,
+        next_due_date: nextDueDateISO,
         metadata: {
           ...metadata,
           checkout_phase: metadata.checkout_phase ?? "setup_pending",
@@ -180,6 +154,25 @@ Deno.serve(async (req) => {
       .eq("id", subscription.id);
 
     if (updateError) throw updateError;
+
+    if (isBoletoPayment(setupPayment)) {
+      const subscriptionData = await loadBillingSubscriptionCustomer(supabase, subscription.id);
+      if (subscriptionData) {
+        await sendBoletoIssuedEmailIfNeeded(
+          supabase,
+          supabaseUrl,
+          serviceRoleKey,
+          subscriptionData.customer,
+          {
+            chargeLabel: `implementação FestaAI - Plano ${planName}`,
+            dueDate: nextDueDateISO,
+            payment: setupPayment,
+            subscriptionId: subscription.id,
+            tenantId: subscriptionData.tenantId,
+          },
+        );
+      }
+    }
 
     return jsonResponse({
       checkoutUrl,

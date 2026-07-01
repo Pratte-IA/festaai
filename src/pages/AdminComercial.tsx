@@ -25,7 +25,7 @@ const AdminComercial = () => {
       title: "Ofertas privadas",
     },
     {
-      description: "Assinaturas FestaAI criadas via checkout (Asaas).",
+      description: "Aceites eletrônicos com IP e assinaturas de billing.",
       href: "/admin/comercial/contratos",
       icon: FileText,
       stat: "Ver todos",

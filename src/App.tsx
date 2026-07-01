@@ -43,7 +43,11 @@ const AdminComercial = lazy(() => import("./pages/AdminComercial.tsx"));
 const AdminComercialLeads = lazy(() => import("./pages/AdminComercialLeads.tsx"));
 const AdminComercialOfertas = lazy(() => import("./pages/AdminComercialOfertas.tsx"));
 const AdminComercialOfertaForm = lazy(() => import("./pages/AdminComercialOfertaForm.tsx"));
+const AdminComercialContratoAceiteDetalhe = lazy(
+  () => import("./pages/AdminComercialContratoAceiteDetalhe.tsx"),
+);
 const AdminComercialContratos = lazy(() => import("./pages/AdminComercialContratos.tsx"));
+const Privacidade = lazy(() => import("./pages/Privacidade.tsx"));
 const Suporte = lazy(() => import("./pages/Suporte.tsx"));
 const SuporteAgente = lazy(() => import("./pages/SuporteAgente.tsx"));
 const SuporteErros = lazy(() => import("./pages/SuporteErros.tsx"));
@@ -102,6 +106,14 @@ const App = () => (
                   element={
                     <PlatformAdminRoute>
                       <AdminComercialOfertas />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/comercial/contratos/aceite/:id"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminComercialContratoAceiteDetalhe />
                     </PlatformAdminRoute>
                   }
                 />
@@ -338,6 +350,7 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/contratar/pagamento" element={<ContratarPagamento />} />
                 <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
                 <Route path="/contratar/oferta/:token" element={<ContratarOferta />} />

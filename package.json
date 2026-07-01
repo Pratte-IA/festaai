@@ -14,7 +14,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "typecheck:node": "tsc -p tsconfig.node.json --noEmit"
+    "typecheck:node": "tsc -p tsconfig.node.json --noEmit",
+    "validate:billing": "node scripts/validate-asaas-billing.mjs",
+    "billing:annual-adjustment": "node scripts/run-annual-billing-adjustment.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

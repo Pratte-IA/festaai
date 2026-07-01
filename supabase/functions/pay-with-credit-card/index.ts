@@ -2,6 +2,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 import { asaasRequest } from "../_shared/asaas-client.ts";
+import { computeAnnualAdjustmentNoticeAt, computeNextAnnualAdjustmentAt } from "../_shared/annual-billing-adjustment.ts";
+import { completeBillingFirstAccess } from "../_shared/billing-first-access.ts";
+import { reactivateTenantAfterBillingPayment } from "../_shared/billing-tenant-access.ts";
 import { provisionBillingTenant } from "../_shared/provision-billing-tenant.ts";
 
 const corsHeaders = {
@@ -73,7 +76,7 @@ Deno.serve(async (req) => {
     const { data: subscription, error } = await supabase
       .from("billing_subscriptions")
       .select(
-        "id, metadata, billing_customers(name, email, phone, metadata)",
+        "id, tenant_id, metadata, billing_customers(name, email, phone, metadata)",
       )
       .eq("external_reference", input.externalReference)
       .maybeSingle();
@@ -152,18 +155,34 @@ Deno.serve(async (req) => {
           .eq("id", subscription.id);
 
         await provisionBillingTenant(supabase, subscription.id);
+        await completeBillingFirstAccess(supabase, supabaseUrl, serviceRoleKey, subscription.id);
       } else {
+        const subscriptionPaidAt = new Date().toISOString();
+        const monthlyPrice = Number(metadata.monthly_price ?? 0);
         await supabase
           .from("billing_subscriptions")
           .update({
             metadata: {
               ...metadata,
               checkout_phase: "completed",
-              subscription_paid_at: new Date().toISOString(),
+              contract_anniversary_at: subscriptionPaidAt,
+              current_monthly_price: monthlyPrice,
+              next_annual_adjustment_at: computeNextAnnualAdjustmentAt(subscriptionPaidAt),
+              next_annual_adjustment_notice_at: computeAnnualAdjustmentNoticeAt(
+                computeNextAnnualAdjustmentAt(subscriptionPaidAt),
+              ),
+              past_due_at: null,
+              subscription_paid_at: subscriptionPaidAt,
             },
             status: "active",
           })
           .eq("id", subscription.id);
+
+        if (subscription.tenant_id) {
+          await reactivateTenantAfterBillingPayment(supabase, subscription.tenant_id);
+        }
+
+        await completeBillingFirstAccess(supabase, supabaseUrl, serviceRoleKey, subscription.id);
       }
     }
 

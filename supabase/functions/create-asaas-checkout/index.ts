@@ -2,7 +2,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 import { addMonths } from "../_shared/asaas-client.ts";
+import {
+  buildCommercialContractPackage,
+  COMMERCIAL_CONTRACT_VERSION,
+} from "../_shared/commercial-contract-v1.ts";
 import { resolveCommercialBillingRule } from "../_shared/commercial-billing-rules.ts";
+import { resolveClientIp, resolveUserAgent } from "../_shared/resolve-client-ip.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -12,6 +17,8 @@ const corsHeaders = {
 
 const checkoutSchema = z.object({
   companyName: z.string().min(2).max(120),
+  contractAccepted: z.literal(true),
+  contractVersion: z.string().min(4).max(40),
   cpfCnpj: z.string().min(11).max(18),
   email: z.string().email(),
   message: z.string().max(1000).optional().nullable(),
@@ -144,6 +151,13 @@ Deno.serve(async (req) => {
     });
 
     const input = checkoutSchema.parse(await req.json());
+
+    if (input.contractVersion !== COMMERCIAL_CONTRACT_VERSION) {
+      return jsonResponse(
+        { error: "Versão do contrato desatualizada. Recarregue a página e tente novamente." },
+        409,
+      );
+    }
 
     let commercialOffer: CommercialOfferRow | null = null;
 
@@ -292,6 +306,46 @@ Deno.serve(async (req) => {
       .single();
 
     if (subscriptionError) throw subscriptionError;
+
+    const appUrl = (Deno.env.get("APP_URL") ?? "https://festaai.com.br").replace(/\/$/, "");
+    const contractPackage = buildCommercialContractPackage(
+      {
+        basePlanSlug: planSlug,
+        commercialOfferId: commercialOffer?.id ?? null,
+        commercialOfferToken: commercialOffer?.token ?? null,
+        conditionName: condition.name,
+        contractReferenceId: externalReference,
+        loyaltyMonths: loyaltyMonths,
+        maxSetupInstallments,
+        monthlyPrice,
+        setupInstallments: maxSetupInstallments > 1 ? null : 1,
+        setupPrice,
+        subscriptionMaxPayments: subscriptionMaxPayments,
+      },
+      `${appUrl}/privacidade`,
+    );
+
+    const { error: acceptanceError } = await supabase.from("billing_contract_acceptances").insert({
+      acceptance_declaration: contractPackage.acceptanceDeclaration,
+      accepted_by_company: input.companyName,
+      accepted_by_cpf_cnpj: input.cpfCnpj.replace(/\D/g, ""),
+      accepted_by_email: input.email,
+      accepted_by_name: input.name,
+      billing_subscription_id: billingSubscription.id,
+      commercial_annex_snapshot: contractPackage.commercialAnnex,
+      commercial_snapshot: contractPackage.commercialSnapshot,
+      contract_body_snapshot: contractPackage.contractBody,
+      contract_version: contractPackage.contractVersion,
+      external_reference: externalReference,
+      ip_address: resolveClientIp(req),
+      metadata: {
+        checkout_phase: "setup_pending",
+        user_agent: resolveUserAgent(req),
+      },
+      user_agent: resolveUserAgent(req),
+    });
+
+    if (acceptanceError) throw acceptanceError;
 
     if (commercialOffer) {
       const { error: offerUpdateError } = await supabase

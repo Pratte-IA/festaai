@@ -38,3 +38,20 @@ export interface AdminBillingSubscriptionRow {
   tenant_id: number | null;
   tenant_name: string | null;
 }
+
+export interface AdminContractAcceptanceRow {
+  accepted_at: string;
+  accepted_by_company: string | null;
+  accepted_by_cpf_cnpj: string | null;
+  accepted_by_email: string;
+  accepted_by_name: string;
+  billing_subscription_id: number;
+  contract_version: string;
+  external_reference: string | null;
+  id: number;
+  ip_address: string | null;
+  subscription_status: string | null;
+  tenant_id: number | null;
+  tenant_name: string | null;
+  user_agent: string | null;
+}

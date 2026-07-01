@@ -107,8 +107,8 @@ const Login = () => {
 
     setIsSendingPasswordReset(true);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(parsedEmail.data.email, {
-      redirectTo: `${window.location.origin}/nova-senha`,
+    const { error } = await supabase.functions.invoke("request-password-reset", {
+      body: { email: parsedEmail.data.email },
     });
 
     setIsSendingPasswordReset(false);

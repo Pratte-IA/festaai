@@ -204,9 +204,6 @@ const Contratar = () => {
               Em todas as condições, você recebe a mesma plataforma FestaAI. A diferença está apenas no setup,
               mensalidade e fidelidade.
             </p>
-            <p className="mx-auto mt-3 max-w-2xl text-pretty text-sm text-zinc-500">
-              Todas as opções incluem a plataforma completa FestaAI. O que muda é apenas a forma de contratação.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:gap-8">
@@ -386,6 +383,10 @@ const Contratar = () => {
             <p className="text-xs text-zinc-600">
               A plataforma FestaAI pertence à {CONTRATAR_LEGAL.companyName} · CNPJ{" "}
               {CONTRATAR_LEGAL.cnpj}
+              {" · "}
+              <Link className="text-zinc-500 underline-offset-2 hover:text-zinc-400 hover:underline" to="/privacidade">
+                Política de Privacidade
+              </Link>
             </p>
           </div>
         </footer>
