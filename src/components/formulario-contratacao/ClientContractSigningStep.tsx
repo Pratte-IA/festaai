@@ -1,9 +1,10 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { FileSignature, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,9 +12,9 @@ import {
   useAcceptClientContract,
   type ClientContractAcceptResult,
   type ClientContractFormSubmitResult,
-  type PublicAcceptanceTerm,
 } from "@/features/public-contract-form";
 import { CONTRACT_ACCEPTANCE_DECLARATION } from "@/features/eventos/contracts/contract-types";
+import { toBrazilPhoneInputValue } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 
 interface ClientContractSigningStepProps {
@@ -29,35 +30,15 @@ export const ClientContractSigningStep = ({
 }: ClientContractSigningStepProps) => {
   const acceptContract = useAcceptClientContract();
 
-  const signingTerms = useMemo(
-    () => submitResult.signingTerms.filter((term) => term.active),
-    [submitResult.signingTerms],
-  );
-
   const [acceptedByName, setAcceptedByName] = useState(submitResult.clientName ?? "");
   const [acceptedByCpf, setAcceptedByCpf] = useState(submitResult.clientCpf ?? "");
   const [acceptedByEmail, setAcceptedByEmail] = useState(submitResult.clientEmail ?? "");
-  const [acceptedByPhone, setAcceptedByPhone] = useState(submitResult.clientPhone ?? "");
+  const [acceptedByPhone, setAcceptedByPhone] = useState(
+    toBrazilPhoneInputValue(submitResult.clientPhone),
+  );
   const [acceptanceText, setAcceptanceText] = useState(CONTRACT_ACCEPTANCE_DECLARATION);
-  const [termAcceptances, setTermAcceptances] = useState<Record<string, boolean>>({});
   const [declarationAccepted, setDeclarationAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const initial: Record<string, boolean> = {};
-    signingTerms.forEach((term) => {
-      initial[term.id] = false;
-    });
-    setTermAcceptances(initial);
-  }, [signingTerms]);
-
-  const toggleTerm = (termId: string, checked: boolean) => {
-    setTermAcceptances((current) => ({ ...current, [termId]: checked }));
-  };
-
-  const requiredTermsMissing = signingTerms.some(
-    (term) => term.isRequired && !termAcceptances[term.id],
-  );
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -70,11 +51,6 @@ export const ClientContractSigningStep = ({
 
     if (!declarationAccepted) {
       setError("Confirme a declaração de aceite para continuar.");
-      return;
-    }
-
-    if (requiredTermsMissing) {
-      setError("Aceite todos os termos obrigatórios antes de assinar.");
       return;
     }
 
@@ -95,10 +71,12 @@ export const ClientContractSigningStep = ({
         contractId: submitResult.contractId,
         eventoId: submitResult.eventoId,
         tenantSlug,
-        termAcceptances: signingTerms.map((term) => ({
-          accepted: termAcceptances[term.id] ?? false,
-          termId: Number(term.id),
-        })),
+        termAcceptances: submitResult.signingTerms
+          .filter((term) => term.active)
+          .map((term) => ({
+            accepted: true,
+            termId: Number(term.id),
+          })),
       });
 
       onSuccess?.(result);
@@ -159,10 +137,11 @@ export const ClientContractSigningStep = ({
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="signing-phone">Telefone</Label>
-                <Input
+                <PhoneInput
                   id="signing-phone"
                   value={acceptedByPhone}
-                  onChange={(event) => setAcceptedByPhone(event.target.value)}
+                  onChange={setAcceptedByPhone}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
               <div className="space-y-1.5 sm:col-span-2">
@@ -176,33 +155,6 @@ export const ClientContractSigningStep = ({
               </div>
             </div>
           </div>
-
-          {signingTerms.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-sm font-medium">Aceite do contrato</p>
-              {signingTerms.map((term: PublicAcceptanceTerm) => (
-                <label
-                  key={term.id}
-                  className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/50 p-3 cursor-pointer"
-                >
-                  <Checkbox
-                    checked={termAcceptances[term.id] ?? false}
-                    onCheckedChange={(checked) => toggleTerm(term.id, checked === true)}
-                    className="mt-0.5"
-                  />
-                  <span className="space-y-1">
-                    <span className="text-sm font-medium block">
-                      {term.title}
-                      {term.isRequired && <span className="text-destructive ml-1">*</span>}
-                    </span>
-                    <span className="text-xs text-muted-foreground block whitespace-pre-wrap">
-                      {term.content}
-                    </span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
 
           <div className="space-y-3">
             <Label htmlFor="signing-declaration">Declaração de aceite</Label>

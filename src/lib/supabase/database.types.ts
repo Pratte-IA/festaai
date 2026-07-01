@@ -1124,6 +1124,7 @@ export type Database = {
       }
       evento_tarefas: {
         Row: {
+          assigned_to: string | null
           concluida: boolean
           created_at: string
           created_by: string | null
@@ -1137,6 +1138,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          assigned_to?: string | null
           concluida?: boolean
           created_at?: string
           created_by?: string | null
@@ -1150,6 +1152,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          assigned_to?: string | null
           concluida?: boolean
           created_at?: string
           created_by?: string | null
@@ -1666,6 +1669,7 @@ export type Database = {
       }
       tenant_automation_settings: {
         Row: {
+          automation_template_bindings: Json
           created_at: string
           inbound_automation_enabled: boolean
           n8n_editor_url: string | null
@@ -1681,6 +1685,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          automation_template_bindings?: Json
           created_at?: string
           inbound_automation_enabled?: boolean
           n8n_editor_url?: string | null
@@ -1696,6 +1701,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          automation_template_bindings?: Json
           created_at?: string
           inbound_automation_enabled?: boolean
           n8n_editor_url?: string | null

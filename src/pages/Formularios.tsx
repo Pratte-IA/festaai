@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import AppLayout from "@/components/AppLayout";
+import { PublicFormLinkCard } from "@/components/formulario-contratacao/PublicFormLinkCard";
 import { ContractStatusBadge } from "@/features/eventos/contracts/contract-status";
 import type { TenantFormSubmissionListItem } from "@/features/eventos/form-submission-types";
 import { useTenantFormSubmissions } from "@/features/eventos/use-tenant-form-submissions";
@@ -92,6 +93,10 @@ const Formularios = () => {
             Formulários de contratação preenchidos pelos clientes pelo link público.
           </p>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <PublicFormLinkCard />
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

@@ -9,8 +9,34 @@ import { formatCepDisplay, formatCnpjDisplay, formatCpfDisplay } from "@/lib/bra
 
 import { EMPTY_PLACEHOLDER } from "./contract-types";
 import { applyPlaceholders } from "./contract-builder";
+import type { ContractTemplateKey } from "./contract-template-types";
+import {
+  DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO,
+  isAluguelEspacoTemplateKey,
+} from "./contract-template-types";
+import { parsePackageTemplateMap, type PackageTemplateMap } from "./resolve-package-contract-template-key";
 
 export const CONTRACT_PREVIEW_PLACEHOLDER = "[Preenchido na contratação]";
+
+export const resolveEventoHoraTermino = (
+  horaTermino: string | null | undefined,
+  options?: {
+    packageData?: PackageData | null;
+    templateKey?: ContractTemplateKey | null;
+  },
+): string | null => {
+  if (horaTermino?.trim()) return horaTermino.trim();
+
+  if (options?.templateKey && isAluguelEspacoTemplateKey(options.templateKey)) {
+    return DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO;
+  }
+
+  if (options?.packageData && !packageHasBuffet(options.packageData.buffet)) {
+    return DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO;
+  }
+
+  return null;
+};
 
 const stripHtmlToPlainText = (html: string): string =>
   html
@@ -21,12 +47,14 @@ const stripHtmlToPlainText = (html: string): string =>
     .trim();
 
 export interface TenantContractTemplateParams {
+  agencia: string;
   banco: string;
   capacidade_maxima_espaco: number | null;
   chave_pix: string;
   comarca_foro: string;
   conta: string;
   idade_cobranca_convidado_extra: number | null;
+  package_template_map: PackageTemplateMap;
   percentual_multa_cancelamento: number | null;
   prazo_alteracao_convidados: number | null;
   prazo_cancelamento_com_multa: number | null;
@@ -36,7 +64,6 @@ export interface TenantContractTemplateParams {
   tolerancia_encerramento: number | null;
   titular_conta: string;
   valor_hora_extra: number | null;
-  agencia: string;
 }
 
 export const defaultTenantContractTemplateParams = (): TenantContractTemplateParams => ({
@@ -47,6 +74,7 @@ export const defaultTenantContractTemplateParams = (): TenantContractTemplatePar
   comarca_foro: "",
   conta: "",
   idade_cobranca_convidado_extra: 3,
+  package_template_map: {},
   percentual_multa_cancelamento: 50,
   prazo_alteracao_convidados: 7,
   prazo_cancelamento_com_multa: 15,
@@ -80,6 +108,7 @@ export const parseTenantContractTemplateParams = (
     comarca_foro: readString("comarca_foro"),
     conta: readString("conta"),
     idade_cobranca_convidado_extra: readNumber("idade_cobranca_convidado_extra"),
+    package_template_map: parsePackageTemplateMap(raw.package_template_map),
     percentual_multa_cancelamento: readNumber("percentual_multa_cancelamento"),
     prazo_alteracao_convidados: readNumber("prazo_alteracao_convidados"),
     prazo_cancelamento_com_multa: readNumber("prazo_cancelamento_com_multa"),
@@ -167,6 +196,20 @@ const formatCompanyAddress = (profile: TenantCompanyProfile | null | undefined):
   return parts.length > 0 ? parts.join(", ") : EMPTY_PLACEHOLDER;
 };
 
+export const buildContratadaClause = (
+  companyProfile: TenantCompanyProfile | null | undefined,
+): string => {
+  const companyName = companyProfile?.companyName?.trim() || EMPTY_PLACEHOLDER;
+  const cnpj = formatCnpjDisplay(companyProfile?.cnpj) || EMPTY_PLACEHOLDER;
+  const address = formatCompanyAddress(companyProfile);
+  const representativeName =
+    companyProfile?.legalRepresentativeName?.trim() || EMPTY_PLACEHOLDER;
+  const representativeCpf =
+    formatCpfDisplay(companyProfile?.legalRepresentativeCpf) || EMPTY_PLACEHOLDER;
+
+  return `${companyName}, pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${cnpj}, com sede na ${address}, neste ato representada por ${representativeName}, CPF nº ${representativeCpf}, doravante denominada CONTRATADA`;
+};
+
 const formatBuffetBlock = (pkg: PackageData): string => {
   if (!packageHasBuffet(pkg.buffet)) {
     return "Sem buffet incluso.";
@@ -247,6 +290,7 @@ export const buildContractPreviewPlaceholders = (
     cnpj_espaco: formatCnpjDisplay(companyProfile?.cnpj) || EMPTY_PLACEHOLDER,
     comarca_foro: params.comarca_foro.trim() || companyProfile?.addressCity || EMPTY_PLACEHOLDER,
     conta: params.conta.trim() || EMPTY_PLACEHOLDER,
+    contratada: buildContratadaClause(companyProfile),
     cpf_representante_espaco:
       formatCpfDisplay(companyProfile?.legalRepresentativeCpf) || EMPTY_PLACEHOLDER,
     data_contrato: new Date().toLocaleDateString("pt-BR"),
@@ -310,7 +354,10 @@ export const buildContractPreviewPlaceholders = (
     endereco_completo_locatario: CONTRACT_PREVIEW_PLACEHOLDER,
     hora_evento: CONTRACT_PREVIEW_PLACEHOLDER,
     horario_inicio: CONTRACT_PREVIEW_PLACEHOLDER,
-    horario_termino: CONTRACT_PREVIEW_PLACEHOLDER,
+    horario_termino:
+      packageSample && !packageHasBuffet(packageSample.buffet)
+        ? DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO
+        : CONTRACT_PREVIEW_PLACEHOLDER,
     nome_aniversariante_ou_evento: CONTRACT_PREVIEW_PLACEHOLDER,
     nome_contratante: CONTRACT_PREVIEW_PLACEHOLDER,
     nome_locatario: CONTRACT_PREVIEW_PLACEHOLDER,
@@ -382,6 +429,7 @@ export interface BuildContractTenantPlaceholdersInput {
   financialSettings: FinancialSettings | null | undefined;
   packageData: PackageData | null | undefined;
   params: TenantContractTemplateParams;
+  templateKey?: ContractTemplateKey | null;
 }
 
 export const buildContractTenantPlaceholders = (
@@ -398,6 +446,10 @@ export const buildContractTenantPlaceholders = (
   const clientAddress = formatEventAddress(evento);
   const clientName = evento.cliente_nome ?? EMPTY_PLACEHOLDER;
   const clientCpf = evento.cliente_cpf ?? EMPTY_PLACEHOLDER;
+  const horaTermino = resolveEventoHoraTermino(evento.hora_termino, {
+    packageData: input.packageData,
+    templateKey: input.templateKey,
+  });
 
   return {
     ...preview,
@@ -406,8 +458,8 @@ export const buildContractTenantPlaceholders = (
     cpf_locatario: clientCpf,
     data_evento: formatDate(evento.data_evento),
     duracao_evento:
-      evento.hora_evento && evento.hora_termino
-        ? `${formatTime(evento.hora_evento)} às ${formatTime(evento.hora_termino)}`
+      evento.hora_evento && horaTermino
+        ? `${formatTime(evento.hora_evento)} às ${formatTime(horaTermino)}`
         : EMPTY_PLACEHOLDER,
     email_contratante: evento.cliente_email ?? EMPTY_PLACEHOLDER,
     email_locatario: evento.cliente_email ?? EMPTY_PLACEHOLDER,
@@ -415,7 +467,8 @@ export const buildContractTenantPlaceholders = (
     endereco_completo_locatario: clientAddress,
     hora_evento: formatTime(evento.hora_evento),
     horario_inicio: formatTime(evento.hora_evento),
-    horario_termino: formatTime(evento.hora_termino),
+    horario_termino: formatTime(horaTermino),
+    hora_termino: formatTime(horaTermino),
     nome_aniversariante_ou_evento: evento.aniversariante_nome ?? EMPTY_PLACEHOLDER,
     nome_contratante: clientName,
     nome_locatario: clientName,
@@ -453,6 +506,8 @@ export const buildContractTenantPlaceholders = (
 };
 
 export interface ValidateContractTemplateParamsOptions {
+  activePackages?: Array<{ id: string; name: string }>;
+  enabledTemplateKeys?: ContractTemplateKey[];
   requiresFestaCompletaFields?: boolean;
 }
 
@@ -529,6 +584,17 @@ export const validateTenantContractTemplateParams = (
 
     if (params.prazo_alteracao_convidados == null || params.prazo_alteracao_convidados < 0) {
       return "Informe o prazo para alteração de convidados.";
+    }
+  }
+
+  const enabledTemplateKeys = options?.enabledTemplateKeys ?? [];
+  if (enabledTemplateKeys.length > 1) {
+    const activePackages = options?.activePackages ?? [];
+    for (const pkg of activePackages) {
+      const mapped = params.package_template_map[pkg.id];
+      if (!mapped || !enabledTemplateKeys.includes(mapped)) {
+        return `Selecione o modelo de contrato para o pacote "${pkg.name}".`;
+      }
     }
   }
 

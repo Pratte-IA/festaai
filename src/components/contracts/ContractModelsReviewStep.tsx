@@ -7,6 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useTenantFinancialSettings } from "@/features/configuracoes";
 import { useTenantPackages } from "@/features/configuracoes/use-tenant-packages";
 import {
@@ -55,19 +62,27 @@ export const ContractModelsReviewStep = ({
   onReviewCompleted,
 }: ContractModelsReviewStepProps) => {
   const { data: options = [], error, isLoading } = useTenantContractTypeOptions();
+  const { data: packages = [] } = useTenantPackages();
   const enabledOptions = useMemo(() => options.filter((option) => option.enabled), [options]);
   const requiresFestaCompletaFields = useMemo(
     () => enabledOptions.some((option) => option.key === "aluguel_espaco_festa_completa"),
     [enabledOptions],
   );
   const validationOptions = useMemo(
-    () => ({ requiresFestaCompletaFields }),
-    [requiresFestaCompletaFields],
+    () => ({
+      activePackages: packages
+        .filter((pkg) => pkg.active)
+        .map((pkg) => ({ id: pkg.id, name: pkg.name })),
+      enabledTemplateKeys: enabledOptions.map((option) => option.key),
+      requiresFestaCompletaFields,
+    }),
+    [enabledOptions, packages, requiresFestaCompletaFields],
   );
+  const activePackages = useMemo(() => packages.filter((pkg) => pkg.active), [packages]);
+  const requiresPackageTemplateMapping = enabledOptions.length > 1 && activePackages.length > 0;
   const { data: moduleSettings } = useTenantContractModuleSettings();
   const { data: companyProfile } = useTenantCompanyProfile();
   const { data: financialSettings } = useTenantFinancialSettings();
-  const { data: packages = [] } = useTenantPackages();
   const completeReview = useCompleteContractModelsReview();
   const saveParams = useSaveContractTemplateParams();
   const saveTemplateHtml = useSaveContractTemplateHtml();
@@ -98,6 +113,10 @@ export const ContractModelsReviewStep = ({
       ...defaults,
       ...stored,
       comarca_foro: stored?.comarca_foro || companyProfile?.addressCity || defaults.comarca_foro,
+      package_template_map: {
+        ...defaults.package_template_map,
+        ...(stored?.package_template_map ?? {}),
+      },
       titular_conta:
         stored?.titular_conta || companyProfile?.companyName?.trim() || defaults.titular_conta,
     };
@@ -330,6 +349,17 @@ export const ContractModelsReviewStep = ({
         variant: "destructive",
       });
     }
+  };
+
+  const updatePackageTemplateMap = (packageId: string, templateKey: ContractTemplateKey) => {
+    setParams((current) => ({
+      ...current,
+      package_template_map: {
+        ...current.package_template_map,
+        [packageId]: templateKey,
+      },
+    }));
+    setParamsSaved(false);
   };
 
   const handleSaveParams = async () => {
@@ -775,6 +805,40 @@ export const ContractModelsReviewStep = ({
                   />
                 </div>
               </div>
+
+              {requiresPackageTemplateMapping ? (
+                <div className="space-y-3 border-t border-border/50 pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Contrato por pacote
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Vincule cada pacote ao modelo de contrato usado quando o cliente escolher esse
+                    pacote no formulário público.
+                  </p>
+                  {activePackages.map((pkg) => (
+                    <div key={pkg.id}>
+                      <Label htmlFor={`package-contract-${pkg.id}`}>{pkg.name}</Label>
+                      <Select
+                        value={params.package_template_map[pkg.id] ?? ""}
+                        onValueChange={(value) =>
+                          updatePackageTemplateMap(pkg.id, value as ContractTemplateKey)
+                        }
+                      >
+                        <SelectTrigger id={`package-contract-${pkg.id}`} className={inputClassName}>
+                          <SelectValue placeholder="Selecione o contrato" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {enabledOptions.map((option) => (
+                            <SelectItem key={option.key} value={option.key}>
+                              {option.definition.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
 
               <Button
                 type="button"

@@ -37,11 +37,14 @@ import { cn } from "@/lib/utils";
 import { resolvePricingBandForDate } from "@/data/pricing-schedule";
 import { isBrazilianNationalHoliday } from "@/data/brazilian-holidays";
 import { AcceptanceTermResponseField, setTermResponse } from "./AcceptanceTermResponseField";
+import { ClientPaymentValueSummary } from "./ClientPaymentValueSummary";
 import {
   applyPackageToFieldValues,
   buildFieldIdByKey,
   filterClientVisiblePaymentFields,
   isClientFacingClosingFormField,
+  isClientPaymentSummaryFieldKey,
+  computeClosingFormPaymentSummary,
   resolveEventDateFromFieldValues,
   resolvePackagePrice,
   isClosingFormFieldApplicableToPackage,
@@ -286,6 +289,25 @@ export const FormPreviewPanel = () => {
   );
 
   const fieldIdByKey = useMemo(() => buildFieldIdByKey(activeFields), [activeFields]);
+
+  const allFieldIdByKey = useMemo(
+    () => buildFieldIdByKey(fields.filter((field) => field.active)),
+    [fields],
+  );
+
+  const paymentSummaryValues = useMemo(
+    () =>
+      computeClosingFormPaymentSummary({
+        additionalSelections: [...selectedAdditionalIds].map((id) => [id, 1] as [string, number]),
+        additionals,
+        fieldIdByKey: allFieldIdByKey,
+        fieldValues,
+        guestCountSource: PREVIEW_EVENTO,
+        packages,
+        selectedPackageId,
+      }),
+    [additionals, allFieldIdByKey, fieldValues, packages, selectedAdditionalIds, selectedPackageId],
+  );
 
   const fieldsBySection = useMemo(() => {
     const grouped = new Map<ClosingFormSection, ClosingFormField[]>();
@@ -581,10 +603,19 @@ export const FormPreviewPanel = () => {
   };
 
   const renderPaymentSection = () => {
-    const sectionFields = filterClientVisiblePaymentFields(fieldsBySection.get("pagamento") ?? []);
+    const sectionFields = filterClientVisiblePaymentFields(
+      (fieldsBySection.get("pagamento") ?? []).filter(
+        (field) => !isClientPaymentSummaryFieldKey(field.fieldKey),
+      ),
+    );
 
     return (
       <div className="space-y-4">
+        <ClientPaymentValueSummary
+          additionalSelectionCount={selectedAdditionalIds.size}
+          fieldIdByKey={allFieldIdByKey}
+          values={paymentSummaryValues}
+        />
         {sectionFields.length > 0 && renderFormFields(sectionFields)}
       </div>
     );

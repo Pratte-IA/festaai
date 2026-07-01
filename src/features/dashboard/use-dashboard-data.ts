@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { countNewLeadsToday } from "./count-new-leads-today";
+import { sumFestaOpenBalance, sumFestaOverdueOpenBalance } from "./festa-open-balance";
+import { buildMonthRevenueBreakdown } from "./month-revenue";
 import { Evento, EventoPagamento } from "@/features/eventos";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
@@ -29,7 +32,10 @@ interface DashboardData {
     conversionRate: number;
     feedbackPending: number;
     leadsInPeriod: number;
+    newLeadsToday: number;
     monthRevenue: number;
+    monthFestaEntradas: number;
+    monthPaymentsReceived: number;
     pendingBalance: number;
     socialMediaClients: number;
     soldValue: number;
@@ -193,18 +199,14 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
     paidByEvent.set(payment.evento_id, (paidByEvent.get(payment.evento_id) ?? 0) + payment.valor);
   });
 
-  const paymentsInMonth = payments.filter(
-    (payment) => payment.data_pagamento >= startDate && payment.data_pagamento <= endDate,
+  const monthRange = { startIso, endIso, startDate, endDate };
+  const { monthFestaEntradas, monthPaymentsReceived, monthRevenue } = buildMonthRevenueBreakdown(
+    events,
+    payments,
+    monthRange,
   );
-  const monthRevenue =
-    events
-      .filter((event) => event.created_at >= startIso && event.created_at <= endIso)
-      .reduce((sum, event) => sum + event.valor_entrada, 0) +
-    paymentsInMonth.reduce((sum, payment) => sum + payment.valor, 0);
-  const toReceive = events.reduce(
-    (sum, event) => sum + Math.max(event.valor_total - event.valor_entrada - (paidByEvent.get(event.id) ?? 0), 0),
-    0,
-  );
+  const toReceive = sumFestaOpenBalance(events, paidByEvent);
+  const pendingBalance = sumFestaOverdueOpenBalance(events, paidByEvent);
   const upcomingParties = events
     .filter((event) => event.tipo_evento === "festa" && event.data_evento && event.data_evento >= startDate)
     .sort((left, right) => String(left.data_evento).localeCompare(String(right.data_evento)))
@@ -231,8 +233,11 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       feedbackPending: events.filter((event) => event.etapa === "aguardando_feedback").length,
       futureOpportunities: events.filter((event) => event.etapa === "oportunidade_futura").length,
       leadsInPeriod: monthEvents.length,
+      newLeadsToday: countNewLeadsToday(events),
       monthRevenue,
-      pendingBalance: toReceive,
+      monthFestaEntradas,
+      monthPaymentsReceived,
+      pendingBalance,
       socialMediaClients: events.filter((event) => event.etapa === "redes_sociais").length,
       soldValue: closedEvents.reduce((sum, event) => sum + event.valor_total, 0),
       toReceive,

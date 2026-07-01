@@ -354,6 +354,32 @@ export const additionalBillingTypeLabels: Record<AdditionalBillingType, string> 
   por_unidade: "Por unidade",
 };
 
+const STAFF_ADDITIONAL_NAME_PATTERN =
+  /garcom|copeir|monitor|recepcionist|seguranc|profissional/;
+
+export const supportsAdditionalQuantitySelection = (
+  additional: Pick<Additional, "category" | "name" | "type">,
+): boolean => {
+  if (additional.type !== "fixo") return true;
+  if (additional.category === "equipe") return true;
+
+  const normalized = additional.name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  return STAFF_ADDITIONAL_NAME_PATTERN.test(normalized);
+};
+
+export const buildAdditionalQuantityLabel = (
+  additional: Pick<Additional, "category" | "name" | "type">,
+): string => {
+  if (additional.type === "por_hora") return "Quantidade (horas)";
+  if (additional.type === "por_pessoa") return "Quantidade (pessoas)";
+  if (supportsAdditionalQuantitySelection(additional)) return "Número de profissionais";
+  return "Quantidade";
+};
+
 export const parsePackageItems = (value: unknown): string[] => {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);

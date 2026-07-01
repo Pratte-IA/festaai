@@ -31,6 +31,7 @@ import {
   CONTRACT_TEMPLATE_DEFINITIONS,
 } from "./contracts/contract-template-types";
 import { resolveContractTemplateHtml } from "./contracts/resolve-contract-template-html";
+import { fetchTenantContractTemplateRow } from "./contracts/fetch-tenant-contract-template";
 import {
   mapAcceptanceRow,
   mapContractRow,
@@ -114,16 +115,8 @@ export const useTenantDefaultContractTemplate = () => {
   return useQuery({
     enabled: Boolean(currentTenantId),
     queryFn: async (): Promise<TenantContractTemplate | null> => {
-      const { data, error } = await supabase
-        .from("tenant_contract_templates")
-        .select("*")
-        .eq("tenant_id", currentTenantId as number)
-        .eq("is_default", true)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data ? mapTemplateRow(data as TemplateRow) : null;
+      const data = await fetchTenantContractTemplateRow(currentTenantId as number);
+      return data ? mapTemplateRow(data) : null;
     },
     queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
   });
@@ -182,7 +175,7 @@ export const useGenerateEventoContract = () => {
       if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
       const [
-        templateResult,
+        templateRow,
         closingFieldsResult,
         closingResponsesResult,
         acceptanceTermsResult,
@@ -193,13 +186,7 @@ export const useGenerateEventoContract = () => {
         companyProfileResult,
         moduleSettingsResult,
       ] = await Promise.all([
-        supabase
-          .from("tenant_contract_templates")
-          .select("*")
-          .eq("tenant_id", currentTenantId)
-          .eq("is_default", true)
-          .eq("is_active", true)
-          .maybeSingle(),
+        fetchTenantContractTemplateRow(currentTenantId, { packageId: evento.pacote_id }),
         supabase
           .from("tenant_closing_form_fields")
           .select("*")
@@ -251,8 +238,7 @@ export const useGenerateEventoContract = () => {
           .maybeSingle(),
       ]);
 
-      if (templateResult.error) throw templateResult.error;
-      if (!templateResult.data) {
+      if (!templateRow) {
         throw new Error("Nenhum modelo de contrato padrao encontrado para este espaco.");
       }
 
@@ -311,7 +297,7 @@ export const useGenerateEventoContract = () => {
 
       const sequence = (existingContractsResult.count ?? 0) + 1;
       const contractNumber = buildContractNumber(currentTenantId, evento.id, sequence);
-      const template = mapTemplateRow(templateResult.data as TemplateRow);
+      const template = mapTemplateRow(templateRow);
 
       const built = await buildContract({
         acceptanceResponses,
@@ -376,6 +362,7 @@ export const useGenerateEventoContract = () => {
         financialSettings,
         packageData,
         templateHtml: template.templateHtml,
+        templateKey: template.templateKey,
         templateParams: parseTenantContractTemplateParams(
           moduleSettingsResult.data?.template_params,
         ),

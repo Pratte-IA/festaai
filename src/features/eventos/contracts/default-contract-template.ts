@@ -3,7 +3,7 @@ export const DEFAULT_CONTRACT_TEMPLATE_HTML = `<article class="contract-document
 <p><strong>Nº:</strong> {{contract_number}}</p>
 
 <h2>1. Partes</h2>
-<p><strong>CONTRATADA:</strong> Espaço de festas (conforme cadastro do estabelecimento).</p>
+<p><strong>CONTRATADA:</strong> {{nome_espaco}}, pessoa jurídica de direito privado, inscrita no CNPJ sob nº {{cnpj_espaco}}, com sede na {{endereco_completo_espaco}}, neste ato representada por {{nome_representante_espaco}}, CPF nº {{cpf_representante_espaco}}, doravante denominada CONTRATADA.</p>
 <p><strong>CONTRATANTE:</strong> {{cliente_nome}}, CPF {{cliente_cpf}}, residente em {{cliente_endereco}}.</p>
 <p><strong>Contato:</strong> {{cliente_telefone}} · {{cliente_email}}</p>
 

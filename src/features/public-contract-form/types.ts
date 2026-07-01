@@ -39,6 +39,7 @@ export interface ClientContractFormConfig {
   additionals: Additional[];
   fields: ClosingFormField[];
   financialSettings: PublicFinancialSettings | null;
+  maxVenueGuestCapacity: number | null;
   packages: PackageData[];
   paymentMethods: PublicPaymentMethod[];
   signingTerms: PublicAcceptanceTerm[];

@@ -1,10 +1,18 @@
 export const LEGACY_CONTRACT_STUB_MARKER = "Modelo base FestaAI";
 
+/** Modelo legado anterior ao sistema de tipos de contrato (festa infantil). */
+export const LEGACY_PRE_MIGRATION_CONTRACT_MARKER =
+  "CONTRATO DE PRESTAÇÃO DE SERVIÇOS PARA FESTA INFANTIL";
+
 const normalizeTemplateHtml = (html: string): string => html.replace(/\s+/g, " ").trim();
 
 /** Stub temporário criado antes dos modelos completos estarem disponíveis. */
 export const isLegacyContractTemplateStub = (html: string | null | undefined): boolean =>
   Boolean(html?.includes(LEGACY_CONTRACT_STUB_MARKER));
+
+/** Contrato antigo gerado antes da migração para os modelos atuais. */
+export const isLegacyPreMigrationContractTemplate = (html: string | null | undefined): boolean =>
+  Boolean(html?.includes(LEGACY_PRE_MIGRATION_CONTRACT_MARKER));
 
 /** Tenant editou e salvou uma versão diferente do contrato base do sistema. */
 export const isTenantContractTemplateCustomized = (
@@ -12,7 +20,13 @@ export const isTenantContractTemplateCustomized = (
   defaultHtml: string,
 ): boolean => {
   const trimmed = storedHtml?.trim();
-  if (!trimmed || isLegacyContractTemplateStub(trimmed)) return false;
+  if (
+    !trimmed ||
+    isLegacyContractTemplateStub(trimmed) ||
+    isLegacyPreMigrationContractTemplate(trimmed)
+  ) {
+    return false;
+  }
 
   return normalizeTemplateHtml(trimmed) !== normalizeTemplateHtml(defaultHtml);
 };

@@ -7,6 +7,7 @@ import { MessageCircle, Filter, ChevronDown, ChevronUp, DollarSign } from "lucid
 import {
   formatCurrency,
   formatDate,
+  getEventOutstandingBalance,
   getEventTotalPaid,
   isDateInPeriod,
   openWhatsApp,
@@ -36,12 +37,13 @@ const FinanceiroReport = ({ period }: ReportComponentProps) => {
 
     return data.eventos
       .filter((e) => {
-        const paid = getEventTotalPaid(e, data.paidByEventoId);
-        return isDateInPeriod(e.data_evento, period) && e.valor_total - paid > 0;
+        if (e.funil === "executadas") return false;
+        const balance = getEventOutstandingBalance(e, data.paidByEventoId);
+        return isDateInPeriod(e.data_evento, period) && balance > 0;
       })
       .map((event) => {
         const totalPaid = getEventTotalPaid(event, data.paidByEventoId);
-        const balance = event.valor_total - totalPaid;
+        const balance = getEventOutstandingBalance(event, data.paidByEventoId);
         const ratio = event.valor_total > 0 ? balance / event.valor_total : 0;
 
         let priority: Priority = "baixa";

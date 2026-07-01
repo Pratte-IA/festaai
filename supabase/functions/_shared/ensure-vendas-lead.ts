@@ -1,22 +1,10 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
-export const normalizePhoneDigits = (phone: string | null | undefined): string =>
-  (phone ?? "").replace(/\D/g, "");
-
-export const phonesMatch = (left: string | null | undefined, right: string | null | undefined): boolean => {
-  const a = normalizePhoneDigits(left);
-  const b = normalizePhoneDigits(right);
-  if (!a || !b) return false;
-  if (a === b) return true;
-
-  const suffixA = a.length > 11 && a.startsWith("55") ? a.slice(2) : a;
-  const suffixB = b.length > 11 && b.startsWith("55") ? b.slice(2) : b;
-  if (suffixA === suffixB) return true;
-
-  const coreA = suffixA.length >= 10 ? suffixA.slice(-10) : suffixA;
-  const coreB = suffixB.length >= 10 ? suffixB.slice(-10) : suffixB;
-  return coreA.length >= 10 && coreA === coreB;
-};
+import {
+  isValidBrazilMobilePhone,
+  normalizeBrazilPhoneForStorage,
+  phonesMatch,
+} from "./phone.ts";
 
 export interface EnsureVendasLeadInput {
   customerName: string | null;
@@ -35,8 +23,8 @@ export const ensureVendasLeadFromWhatsapp = async (
   service: SupabaseClient,
   input: EnsureVendasLeadInput,
 ): Promise<EnsureVendasLeadResult> => {
-  const phoneDigits = normalizePhoneDigits(input.customerPhone);
-  if (phoneDigits.length < 10) {
+  const storedPhone = normalizeBrazilPhoneForStorage(input.customerPhone);
+  if (!storedPhone || !isValidBrazilMobilePhone(storedPhone)) {
     return { created: false, eventoId: null, skippedReason: "invalid_phone" };
   }
 
@@ -50,7 +38,7 @@ export const ensureVendasLeadFromWhatsapp = async (
   if (queryError) throw queryError;
 
   const existingLead = (vendasEventos ?? []).find((evento) =>
-    phonesMatch(evento.cliente_telefone, input.customerPhone),
+    phonesMatch(evento.cliente_telefone, storedPhone),
   );
 
   if (existingLead) {
@@ -86,7 +74,7 @@ export const ensureVendasLeadFromWhatsapp = async (
     .from("eventos")
     .insert({
       cliente_nome: clienteNome,
-      cliente_telefone: input.customerPhone,
+      cliente_telefone: storedPhone,
       etapa: "contato_inicial",
       funil: "vendas",
       origem: "whatsapp",

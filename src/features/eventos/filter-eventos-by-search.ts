@@ -1,4 +1,4 @@
-import { normalizePhoneDigits } from "@/lib/phone";
+import { formatBrazilPhone, normalizeBrazilPhoneDigits, normalizePhoneDigits } from "@/lib/phone";
 import { Evento } from "./types";
 
 const normalizeText = (value: string | null | undefined) =>
@@ -40,9 +40,13 @@ export const matchesEventoSearch = (evento: Evento, rawSearchTerm: string): bool
     normalizeText(evento.pacote_nome).includes(searchTerm);
 
   const searchDigits = normalizePhoneDigits(rawSearchTerm);
+  const normalizedSearchDigits = normalizeBrazilPhoneDigits(rawSearchTerm) ?? searchDigits;
+  const storedPhoneDigits =
+    normalizeBrazilPhoneDigits(evento.cliente_telefone) ??
+    normalizePhoneDigits(evento.cliente_telefone);
   const phoneMatch =
     searchDigits.length >= 3 &&
-    normalizePhoneDigits(evento.cliente_telefone).includes(searchDigits);
+    (storedPhoneDigits.includes(normalizedSearchDigits) || storedPhoneDigits.includes(searchDigits));
 
   const normalizedDateSearch = searchTerm.replace(/[.-]/g, "/");
   const dateMatch = getEventDateSearchValues(evento.data_evento).some(

@@ -3,7 +3,7 @@ import MetricCard from "@/components/MetricCard";
 import MiniCalendar from "@/components/MiniCalendar";
 import PartyList from "@/components/PartyList";
 import AlertItem from "@/components/AlertItem";
-import { Users, PartyPopper, TrendingUp, DollarSign, CreditCard, Clock, MessageSquare } from "lucide-react";
+import { Users, PartyPopper, TrendingUp, DollarSign, CreditCard, Clock, MessageSquare, Wallet, Receipt } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDashboardData } from "@/features/dashboard";
 
@@ -38,7 +38,7 @@ const Dashboard = () => {
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vendas</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MetricCard icon={Users} title="Leads no período" value={isLoading ? "..." : String(metrics?.leadsInPeriod ?? 0)} accent="primary" />
+        <MetricCard icon={Users} title="Leads Novos - Hoje" value={isLoading ? "..." : String(metrics?.newLeadsToday ?? 0)} accent="primary" />
         <MetricCard icon={PartyPopper} title="Festas fechadas" value={isLoading ? "..." : String(metrics?.closedParties ?? 0)} accent="rosa" />
         <MetricCard icon={TrendingUp} title="Taxa de conversão" value={isLoading ? "..." : `${metrics?.conversionRate ?? 0}%`} accent="lilas" />
         <MetricCard icon={DollarSign} title="Valor vendido" value={isLoading ? "..." : currencyFormatter.format(metrics?.soldValue ?? 0)} accent="success" />
@@ -48,10 +48,12 @@ const Dashboard = () => {
       <div className="mb-2">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Financeiro</span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
         <MetricCard icon={DollarSign} title="Faturamento do mês" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthRevenue ?? 0)} accent="success" />
+        <MetricCard icon={Wallet} title="Faturamento Entradas" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthFestaEntradas ?? 0)} accent="primary" />
+        <MetricCard icon={Receipt} title="Pagamentos recebidos no mês" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthPaymentsReceived ?? 0)} accent="lilas" />
         <MetricCard icon={CreditCard} title="Valor a receber" value={isLoading ? "..." : currencyFormatter.format(metrics?.toReceive ?? 0)} accent="warning" />
-        <MetricCard icon={Clock} title="Saldo pendente" value={isLoading ? "..." : currencyFormatter.format(metrics?.pendingBalance ?? 0)} accent="coral" />
+        <MetricCard icon={Clock} title="Saldo Pendente - Em Atraso" value={isLoading ? "..." : currencyFormatter.format(metrics?.pendingBalance ?? 0)} accent="coral" />
       </div>
 
       {/* Main grid */}

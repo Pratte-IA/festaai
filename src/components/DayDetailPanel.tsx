@@ -25,7 +25,7 @@ const DayDetailPanel = ({ day, onUpdate }: DayDetailPanelProps) => {
       <div className="glass-card p-5 animate-fade-in flex items-center justify-center min-h-[300px]">
         <div className="text-center text-muted-foreground">
           <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">Selecione um dia no calendário</p>
+          <p className="text-sm">Selecione um dia na agenda</p>
         </div>
       </div>
     );

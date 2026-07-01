@@ -16,8 +16,10 @@ import { hashContractContent } from "./contract-hash";
 import {
   buildContractTenantPlaceholders,
   defaultTenantContractTemplateParams,
+  resolveEventoHoraTermino,
   type TenantContractTemplateParams,
 } from "./contract-template-params";
+import type { ContractTemplateKey } from "./contract-template-types";
 import {
   EMPTY_PLACEHOLDER,
   type ContractSnapshot,
@@ -74,6 +76,7 @@ export interface ContractBuildInput {
   financialSettings: FinancialSettings;
   packageData: PackageData | null;
   templateHtml: string;
+  templateKey?: ContractTemplateKey | null;
   templateParams?: TenantContractTemplateParams;
 }
 
@@ -196,6 +199,10 @@ export const buildPlaceholderMap = (
   snapshot: ContractSnapshot,
 ): Record<string, string> => {
   const { evento } = input;
+  const horaTermino = resolveEventoHoraTermino(evento.hora_termino, {
+    packageData: input.packageData,
+    templateKey: input.templateKey,
+  });
 
   const eventPlaceholders = {
     aceites: formatAceitesBlock(snapshot.aceites),
@@ -216,7 +223,7 @@ export const buildPlaceholderMap = (
     forma_pagamento_entrada: evento.forma_pagamento_entrada ?? EMPTY_PLACEHOLDER,
     forma_pagamento_saldo: evento.forma_pagamento_saldo ?? EMPTY_PLACEHOLDER,
     hora_evento: formatTime(evento.hora_evento),
-    hora_termino: formatTime(evento.hora_termino),
+    hora_termino: formatTime(horaTermino),
     itens_inclusos:
       snapshot.package?.includedItems?.length
         ? snapshot.package.includedItems.join("\n")
@@ -260,6 +267,7 @@ export const buildPlaceholderMap = (
     financialSettings: input.financialSettings,
     packageData: input.packageData,
     params: input.templateParams ?? defaultTenantContractTemplateParams(),
+    templateKey: input.templateKey,
   });
 
   return {

@@ -40,7 +40,7 @@ const MiniCalendar = ({ onSelectDay, selectedDate }: MiniCalendarProps) => {
   return (
     <div className="glass-card p-5 animate-fade-in">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-foreground">Calendário de Festas</h3>
+        <h3 className="text-sm font-semibold text-foreground">Agenda de Festas</h3>
         <div className="flex items-center gap-2">
           <button onClick={prevMonth} className="p-1 rounded hover:bg-muted transition-colors">
             <ChevronLeft className="w-4 h-4 text-muted-foreground" />
@@ -72,7 +72,7 @@ const MiniCalendar = ({ onSelectDay, selectedDate }: MiniCalendarProps) => {
           ))}
         {error && (
           <div className="col-span-7 rounded-md bg-destructive/10 p-3 text-center text-xs text-destructive">
-            Nao foi possivel carregar o calendario.
+            Não foi possível carregar a agenda.
           </div>
         )}
         {monthDays.map((day) => {

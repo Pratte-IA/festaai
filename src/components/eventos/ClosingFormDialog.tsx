@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  additionalBillingTypeLabels,
-  additionalCategoryLabels,
   isAdditionalApplicableToPackage,
 } from "@/data/packagesData";
 import type { PackageData } from "@/data/packagesData";
@@ -52,6 +50,7 @@ import {
   useSubmitClosingForm,
 } from "@/features/eventos";
 import { AcceptanceTermResponseField, setTermResponse } from "@/components/formulario-contratacao/AcceptanceTermResponseField";
+import { AdditionalSelectionList } from "@/components/formulario-contratacao/AdditionalSelectionList";
 import {
   applyPackageToFieldValues,
   buildAdicionaisSnapshot,
@@ -686,56 +685,12 @@ export const ClosingFormDialog = ({
     return (
       <div className="space-y-4">
         {applicableAdditionals.length > 0 && (
-          <div className="space-y-2">
-            {applicableAdditionals.map((item) => {
-              const isSelected = additionalSelections.has(item.id);
-              const quantity = additionalSelections.get(item.id) ?? 1;
-
-              return (
-                <div
-                  key={item.id}
-                  className={cn(
-                    "rounded-xl border p-3 space-y-2",
-                    isSelected ? "border-primary bg-primary/5" : "border-border/60 bg-background/50",
-                  )}
-                >
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={() => toggleAdditional(item.id)}
-                      className="mt-0.5"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{item.name}</p>
-                      {item.description && (
-                        <p className="text-xs text-muted-foreground">{item.description}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {additionalCategoryLabels[item.category]} ·{" "}
-                        {additionalBillingTypeLabels[item.type]} · {formatCurrency(item.price)}
-                      </p>
-                    </div>
-                  </label>
-                  {isSelected && item.type !== "fixo" && (
-                    <div className="pl-7">
-                      <Label className="text-xs text-muted-foreground">
-                        Quantidade{item.type === "por_hora" ? " (horas)" : ""}
-                      </Label>
-                      <Input
-                        min="1"
-                        type="number"
-                        value={quantity}
-                        onChange={(event) =>
-                          updateAdditionalQuantity(item.id, Number(event.target.value))
-                        }
-                        className="mt-1 max-w-[120px] text-sm"
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <AdditionalSelectionList
+            items={applicableAdditionals}
+            selections={additionalSelections}
+            onToggle={toggleAdditional}
+            onQuantityChange={updateAdditionalQuantity}
+          />
         )}
 
         {sectionFields.map((field) => (

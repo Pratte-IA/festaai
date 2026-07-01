@@ -20,7 +20,6 @@ import {
   type WhatsappConnectionStatus,
 } from "@/features/whatsapp-connections";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
 const statusLabels: Record<WhatsappConnectionStatus, string> = {
@@ -161,12 +160,12 @@ const ConfiguracoesWhatsApp = () => {
   const connectedCount = connections.filter((connection) => connection.status === "connected").length;
   const connectingCount = connections.filter((connection) => connection.status === "connecting").length;
 
-  const novaConexaoButton = (className?: string) => (
+  const novaConexaoButton = (
     <Button
       type="button"
       onClick={() => void handleCreate()}
       disabled={createConnection.isPending}
-      className={cn("shrink-0 gap-2", className)}
+      className="shrink-0 gap-2"
     >
       {createConnection.isPending ? (
         <Loader2 className="h-4 w-4 animate-spin" />
@@ -273,7 +272,6 @@ const ConfiguracoesWhatsApp = () => {
       <SettingsPageHeader
         title={SETTINGS_PAGE_META["integracoes/whatsapp"].title}
         description={SETTINGS_PAGE_META["integracoes/whatsapp"].description}
-        renderAction={(className) => novaConexaoButton(className)}
         stats={
           !isLoading ? (
             <>
@@ -322,7 +320,7 @@ const ConfiguracoesWhatsApp = () => {
               <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
               Atualizar
             </Button>
-            {novaConexaoButton("hidden sm:inline-flex")}
+            {novaConexaoButton}
           </div>
         </CardContent>
       </Card>

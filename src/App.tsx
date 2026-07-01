@@ -17,12 +17,14 @@ const Contratos = lazy(() => import("./pages/Contratos.tsx"));
 const ContratoDetalhe = lazy(() => import("./pages/ContratoDetalhe.tsx"));
 const Formularios = lazy(() => import("./pages/Formularios.tsx"));
 const FormularioDetalhe = lazy(() => import("./pages/FormularioDetalhe.tsx"));
-const Calendario = lazy(() => import("./pages/Calendario.tsx"));
+const Agenda = lazy(() => import("./pages/Agenda.tsx"));
 const Relatorios = lazy(() => import("./pages/Relatorios.tsx"));
+const Tarefas = lazy(() => import("./pages/Tarefas.tsx"));
 const ConfiguracoesLayout = lazy(() => import("./pages/configuracoes/layout"));
 const ConfiguracoesHome = lazy(() => import("./pages/configuracoes/index"));
 const ConfiguracoesPacotes = lazy(() => import("./pages/configuracoes/Pacotes"));
 const ConfiguracoesChecklist = lazy(() => import("./pages/configuracoes/Checklist"));
+const ConfiguracoesContrato = lazy(() => import("./pages/configuracoes/Contrato"));
 const ConfiguracoesFormularioContratacao = lazy(
   () => import("./pages/configuracoes/FormularioContratacao"),
 );
@@ -30,6 +32,7 @@ const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Finance
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
 const ConfiguracoesAdicionais = lazy(() => import("./pages/configuracoes/Adicionais"));
 const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"));
+const ConfiguracoesAutomacoes = lazy(() => import("./pages/configuracoes/Automacoes"));
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
 const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
@@ -288,10 +291,19 @@ const App = () => (
                   }
                 />
                 <Route
-                  path="/calendario"
+                  path="/agenda"
                   element={
                     <ProtectedRoute>
-                      <Calendario />
+                      <Agenda />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/calendario" element={<Navigate to="/agenda" replace />} />
+                <Route
+                  path="/tarefas"
+                  element={
+                    <ProtectedRoute>
+                      <Tarefas />
                     </ProtectedRoute>
                   }
                 />
@@ -324,6 +336,7 @@ const App = () => (
                   <Route path="adicionais" element={<ConfiguracoesAdicionais />} />
                   <Route path="estrutura" element={<ConfiguracoesEstrutura />} />
                   <Route path="checklist" element={<ConfiguracoesChecklist />} />
+                  <Route path="contrato" element={<ConfiguracoesContrato />} />
                   <Route
                     path="formulario-contratacao"
                     element={<ConfiguracoesFormularioContratacao />}
@@ -338,6 +351,14 @@ const App = () => (
                     element={
                       <TenantAdminRoute>
                         <ConfiguracoesWhatsApp />
+                      </TenantAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="automacoes"
+                    element={
+                      <TenantAdminRoute>
+                        <ConfiguracoesAutomacoes />
                       </TenantAdminRoute>
                     }
                   />

@@ -17,6 +17,7 @@ import type {
   ClientContractFormConfig,
   ClientContractFormSubmitResult,
 } from "./types";
+import type { BalancePaymentOption } from "./balance-payment-option";
 
 const resolveFunctionError = async (error: unknown) => {
   if (error instanceof FunctionsHttpError) {
@@ -41,7 +42,7 @@ const mapPackage = (row: Record<string, unknown>): PackageData => {
     description: String(row.description ?? ""),
     durationMinutes: typeof row.durationMinutes === "number" ? row.durationMinutes : null,
     equipe: normalizeEquipe(row.equipe, tiers.map((tier) => tier.id)),
-    estrutura: parsePackageItems(row.estrutura),
+    estrutura: row.estrutura as PackageData["estrutura"],
     excludedItems: parsePackageItems(row.excludedItems),
     id: String(row.id),
     includedGuests: typeof row.includedGuests === "number" ? row.includedGuests : null,
@@ -123,6 +124,10 @@ const mapConfig = (data: Record<string, unknown>): ClientContractFormConfig => (
   additionals: ((data.additionals as Record<string, unknown>[]) ?? []).map(mapAdditional),
   fields: ((data.fields as Record<string, unknown>[]) ?? []).map(mapField),
   financialSettings: (data.financialSettings as ClientContractFormConfig["financialSettings"]) ?? null,
+  maxVenueGuestCapacity:
+    typeof data.maxVenueGuestCapacity === "number" && Number.isFinite(data.maxVenueGuestCapacity)
+      ? data.maxVenueGuestCapacity
+      : null,
   packages: ((data.packages as Record<string, unknown>[]) ?? []).map(mapPackage),
   paymentMethods: (data.paymentMethods as ClientContractFormConfig["paymentMethods"]) ?? [],
   signingTerms: ((data.signingTerms as PublicAcceptanceTermLike[]) ?? []).map(mapAcceptanceTerm),
@@ -133,6 +138,7 @@ const mapConfig = (data: Record<string, unknown>): ClientContractFormConfig => (
 export interface SubmitClientContractFormInput {
   acceptanceResponses: Array<{ accepted: boolean; termId: number }>;
   adicionaisSnapshot?: unknown;
+  balancePaymentSchedule?: BalancePaymentOption | null;
   fieldValues: Record<string, string>;
   fields: Array<{
     fieldKey: string | null;
@@ -185,6 +191,8 @@ export const useClientContractFormConfig = (tenantSlug: string | undefined) =>
     },
     queryKey: ["public-contract-form", tenantSlug],
     retry: false,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
 export const useSubmitClientContractForm = () =>

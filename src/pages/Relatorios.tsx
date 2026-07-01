@@ -3,9 +3,11 @@ import AppLayout from "@/components/AppLayout";
 import RecompraReport from "@/components/RecompraReport";
 import LeadsPerdidosReport from "@/components/LeadsPerdidosReport";
 import FinanceiroReport from "@/components/FinanceiroReport";
+import FestasExecutadasReport from "@/components/FestasExecutadasReport";
+import HistoricoFinanceiroReport from "@/components/HistoricoFinanceiroReport";
 import OcupacaoReport from "@/components/OcupacaoReport";
 import PosVendaReport from "@/components/PosVendaReport";
-import { Users, UserX, DollarSign, CalendarDays, Star, ChevronRight } from "lucide-react";
+import { Users, UserX, DollarSign, CalendarDays, Star, ChevronRight, History, PartyPopper } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ReportComponentProps, ReportPeriod } from "@/features/reports";
 
@@ -32,6 +34,20 @@ const reports = [
     accent: "bg-warning/15 text-warning",
   },
   {
+    id: "historico-financeiro",
+    title: "Financeiro — Histórico",
+    description: "Todo o histórico de entradas e pagamentos recebidos",
+    icon: History,
+    accent: "bg-success/15 text-success",
+  },
+  {
+    id: "festas-executadas",
+    title: "Festas Executadas",
+    description: "Lista completa de festas realizadas no período",
+    icon: PartyPopper,
+    accent: "bg-festa-blue/15 text-festa-blue",
+  },
+  {
     id: "ocupacao",
     title: "Agenda / Ocupação",
     description: "Analise o uso do espaço e taxa de ocupação",
@@ -51,6 +67,16 @@ const reportComponents: Record<string, { component: React.FC<ReportComponentProp
   recompra: { component: RecompraReport, title: "Clientes para Recompra", subtitle: "Clientes que já realizaram festas e têm potencial de retorno" },
   "leads-perdidos": { component: LeadsPerdidosReport, title: "Leads Perdidos", subtitle: "Leads sem contato há mais de 7 dias que podem ser reativados" },
   financeiro: { component: FinanceiroReport, title: "Financeiro — Valores em Aberto", subtitle: "Clientes com saldo devedor pendente" },
+  "historico-financeiro": {
+    component: HistoricoFinanceiroReport,
+    title: "Financeiro — Histórico",
+    subtitle: "Entradas, pagamentos e quitações de festas executadas (filtradas pela data da festa)",
+  },
+  "festas-executadas": {
+    component: FestasExecutadasReport,
+    title: "Festas Executadas",
+    subtitle: "Festas do funil executadas, filtradas pela data da festa",
+  },
   ocupacao: { component: OcupacaoReport, title: "Agenda / Ocupação", subtitle: "Análise de uso do espaço por período e dia da semana" },
   "pos-venda": { component: PosVendaReport, title: "Pós-Venda", subtitle: "Acompanhamento de feedback e relacionamento pós-festa" },
 };

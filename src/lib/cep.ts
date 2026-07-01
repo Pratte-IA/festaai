@@ -25,7 +25,7 @@ export const fetchAddressByCep = async (cep: string): Promise<CepAddress | null>
   if (!response.ok) return null;
 
   const data = (await response.json()) as ViaCepResponse;
-  if (data.erro || !data.logradouro || !data.localidade || !data.uf) {
+  if (data.erro || !data.localidade || !data.uf) {
     return null;
   }
 
@@ -34,6 +34,6 @@ export const fetchAddressByCep = async (cep: string): Promise<CepAddress | null>
     cep: digits,
     cidade: data.localidade,
     estado: data.uf,
-    rua: data.logradouro,
+    rua: data.logradouro ?? "",
   };
 };

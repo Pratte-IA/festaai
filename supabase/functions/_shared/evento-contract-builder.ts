@@ -1,4 +1,25 @@
+import {
+  DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO,
+  isAluguelEspacoTemplateKey,
+  type ContractTemplateKey,
+} from "./contract-template-types.ts";
+
 const EMPTY_PLACEHOLDER = "—";
+
+const packageRowHasBuffet = (row: Record<string, unknown> | null): boolean => {
+  if (!row?.buffet || typeof row.buffet !== "object") return true;
+  return (row.buffet as { hasBuffet?: boolean }).hasBuffet !== false;
+};
+
+const resolveEventoHoraTerminoValue = (
+  horaTermino: unknown,
+  options: { packageRow: Record<string, unknown> | null; templateKey: ContractTemplateKey | null },
+): string | null => {
+  if (typeof horaTermino === "string" && horaTermino.trim()) return horaTermino.trim();
+  if (isAluguelEspacoTemplateKey(options.templateKey)) return DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO;
+  if (!packageRowHasBuffet(options.packageRow)) return DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO;
+  return null;
+};
 
 export const hashContractContent = async (content: string): Promise<string> => {
   const data = new TextEncoder().encode(content);
@@ -212,6 +233,12 @@ export const parseTenantContractTemplateParams = (value: unknown) => {
 const formatCompanyAddress = (profile: Record<string, unknown> | null): string => {
   if (!profile) return EMPTY_PLACEHOLDER;
 
+  const formatCep = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (digits.length !== 8) return value;
+    return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+  };
+
   const parts = [
     profile.address_street,
     profile.address_number,
@@ -219,10 +246,33 @@ const formatCompanyAddress = (profile: Record<string, unknown> | null): string =
     profile.address_neighborhood,
     profile.address_city,
     profile.address_state,
-    profile.address_cep,
+    typeof profile.address_cep === "string" ? formatCep(profile.address_cep) : null,
   ].filter((part) => typeof part === "string" && part.trim());
 
   return parts.length > 0 ? parts.join(", ") : EMPTY_PLACEHOLDER;
+};
+
+const formatCnpj = (value: string | null | undefined): string => {
+  const digits = (value ?? "").replace(/\D/g, "");
+  if (digits.length !== 14) return value?.trim() || EMPTY_PLACEHOLDER;
+  return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+};
+
+const formatCpf = (value: string | null | undefined): string => {
+  const digits = (value ?? "").replace(/\D/g, "");
+  if (digits.length !== 11) return value?.trim() || EMPTY_PLACEHOLDER;
+  return digits.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+};
+
+const buildContratadaClause = (profile: Record<string, unknown> | null): string => {
+  const companyName = (profile?.company_name as string | undefined)?.trim() || EMPTY_PLACEHOLDER;
+  const cnpj = formatCnpj(profile?.cnpj as string | undefined);
+  const address = formatCompanyAddress(profile);
+  const representativeName =
+    (profile?.legal_representative_name as string | undefined)?.trim() || EMPTY_PLACEHOLDER;
+  const representativeCpf = formatCpf(profile?.legal_representative_cpf as string | undefined);
+
+  return `${companyName}, pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${cnpj}, com sede na ${address}, neste ato representada por ${representativeName}, CPF nº ${representativeCpf}, doravante denominada CONTRATADA`;
 };
 
 export interface BuildEventoContractInput {
@@ -236,6 +286,7 @@ export interface BuildEventoContractInput {
   financialSettings: Record<string, unknown> | null;
   packageRow: Record<string, unknown> | null;
   templateHtml: string;
+  templateKey?: ContractTemplateKey | null;
   templateParams: ReturnType<typeof parseTenantContractTemplateParams>;
 }
 
@@ -284,9 +335,53 @@ export const buildEventoContract = async (input: BuildEventoContractInput) => {
 
   const clientAddress = formatAddress(evento);
   const clientName = (evento.cliente_nome as string | null) ?? EMPTY_PLACEHOLDER;
-  const clientCpf = (evento.cliente_cpf as string | null) ?? EMPTY_PLACEHOLDER;
+  const clientCpf = formatCpf(evento.cliente_cpf as string | null);
+  const clientPhone = (evento.cliente_telefone as string | null) ?? EMPTY_PLACEHOLDER;
+  const clientEmail = (evento.cliente_email as string | null) ?? EMPTY_PLACEHOLDER;
   const profile = input.companyProfile;
   const params = input.templateParams;
+  const pacoteNome = (evento.pacote_nome as string | null) ?? EMPTY_PLACEHOLDER;
+  const convidadosInclusos =
+    evento.pacote_convidados_inclusos != null
+      ? String(evento.pacote_convidados_inclusos)
+      : evento.quantidade_convidados != null
+        ? String(evento.quantidade_convidados)
+        : EMPTY_PLACEHOLDER;
+  const duracaoServicosEquipe =
+    input.packageRow?.duration_minutes != null
+      ? String(Math.round(Number(input.packageRow.duration_minutes) / 60))
+      : EMPTY_PLACEHOLDER;
+  const guestCountForExtraPrice =
+    evento.pacote_convidados_inclusos != null
+      ? Number(evento.pacote_convidados_inclusos)
+      : input.packageRow?.included_guests != null
+        ? Number(input.packageRow.included_guests)
+        : evento.quantidade_convidados != null
+          ? Number(evento.quantidade_convidados)
+          : null;
+  const pacoteValue = evento.valor_pacote != null ? Number(evento.valor_pacote) : null;
+  const valorConvidadoExtra =
+    pacoteValue != null &&
+    guestCountForExtraPrice != null &&
+    guestCountForExtraPrice > 0 &&
+    Number.isFinite(pacoteValue)
+      ? formatCurrency(Math.round((pacoteValue / guestCountForExtraPrice) * 100) / 100)
+      : EMPTY_PLACEHOLDER;
+  const horarioInicio = formatTime(evento.hora_evento as string);
+  const horaTerminoResolvida = resolveEventoHoraTerminoValue(evento.hora_termino, {
+    packageRow: input.packageRow,
+    templateKey: input.templateKey ?? null,
+  });
+  const horarioTermino = formatTime(horaTerminoResolvida);
+  const duracaoEvento =
+    horarioInicio !== EMPTY_PLACEHOLDER && horarioTermino !== EMPTY_PLACEHOLDER
+      ? `${horarioInicio} às ${horarioTermino}`
+      : EMPTY_PLACEHOLDER;
+  const itensPacoteAnexo = includedItems.length
+    ? includedItems.map((item) => `- ${item}`).join("\n")
+    : pacoteNome !== EMPTY_PLACEHOLDER
+      ? `Pacote: ${pacoteNome}`
+      : EMPTY_PLACEHOLDER;
 
   const prazoSaldo =
     input.financialSettings?.remaining_due_days_before_event != null
@@ -312,63 +407,110 @@ export const buildEventoContract = async (input: BuildEventoContractInput) => {
       params.capacidade_maxima_espaco != null
         ? String(params.capacidade_maxima_espaco)
         : EMPTY_PLACEHOLDER,
-    celular_locatario: (evento.cliente_telefone as string) ?? EMPTY_PLACEHOLDER,
+    celular_locatario: clientPhone,
     chave_pix: params.chave_pix.trim() || EMPTY_PLACEHOLDER,
+    cidade_contrato: params.comarca_foro.trim() || (profile?.address_city as string) || EMPTY_PLACEHOLDER,
     cliente_cpf: clientCpf,
-    cliente_email: (evento.cliente_email as string) ?? EMPTY_PLACEHOLDER,
+    cliente_email: clientEmail,
     cliente_endereco: clientAddress,
     cliente_nome: clientName,
-    cliente_telefone: (evento.cliente_telefone as string) ?? EMPTY_PLACEHOLDER,
-    cnpj_espaco: (profile?.cnpj as string) ?? EMPTY_PLACEHOLDER,
+    cliente_telefone: clientPhone,
+    cnpj_espaco: formatCnpj(profile?.cnpj as string | undefined),
     comarca_foro: params.comarca_foro.trim() || (profile?.address_city as string) || EMPTY_PLACEHOLDER,
     conta: params.conta.trim() || EMPTY_PLACEHOLDER,
     contract_number: input.contractNumber,
+    contratada: buildContratadaClause(profile),
+    cpf_contratante: clientCpf,
     cpf_locatario: clientCpf,
-    cpf_representante_espaco: (profile?.legal_representative_cpf as string) ?? EMPTY_PLACEHOLDER,
+    cpf_representante_espaco: formatCpf(profile?.legal_representative_cpf as string | undefined),
+    data_contrato: new Date().toLocaleDateString("pt-BR"),
     data_evento: formatDate(evento.data_evento as string),
-    email_locatario: (evento.cliente_email as string) ?? EMPTY_PLACEHOLDER,
+    data_limite_pagamento: formatDate(evento.data_limite_pagamento as string),
+    duracao_evento: duracaoEvento,
+    duracao_servicos_equipe: duracaoServicosEquipe,
+    email_contratante: clientEmail,
+    email_locatario: clientEmail,
+    endereco_completo_contratante: clientAddress,
     endereco_completo_espaco: formatCompanyAddress(profile),
     endereco_completo_locatario: clientAddress,
+    forma_pagamento:
+      (evento.forma_pagamento_saldo as string) ??
+      (evento.forma_pagamento_entrada as string) ??
+      EMPTY_PLACEHOLDER,
     forma_pagamento_entrada: (evento.forma_pagamento_entrada as string) ?? EMPTY_PLACEHOLDER,
     forma_pagamento_saldo: (evento.forma_pagamento_saldo as string) ?? EMPTY_PLACEHOLDER,
-    hora_evento: formatTime(evento.hora_evento as string),
-    horario_inicio: formatTime(evento.hora_evento as string),
-    horario_termino: formatTime(evento.hora_termino as string),
+    hora_evento: horarioInicio,
+    horario_inicio: horarioInicio,
+    horario_termino: horarioTermino,
+    idade_cobranca_convidado_extra:
+      params.idade_cobranca_convidado_extra != null
+        ? String(params.idade_cobranca_convidado_extra)
+        : EMPTY_PLACEHOLDER,
     itens_inclusos: includedItems.length ? includedItems.join("\n") : EMPTY_PLACEHOLDER,
     itens_nao_inclusos: excludedItems.length ? excludedItems.join("\n") : EMPTY_PLACEHOLDER,
+    itens_pacote_anexo: itensPacoteAnexo,
+    nome_aniversariante_ou_evento: (evento.aniversariante_nome as string) ?? EMPTY_PLACEHOLDER,
+    nome_contratante: clientName,
     nome_espaco: (profile?.company_name as string)?.trim() || EMPTY_PLACEHOLDER,
     nome_locatario: clientName,
+    nome_pacote: pacoteNome,
     nome_representante_espaco: (profile?.legal_representative_name as string)?.trim() || EMPTY_PLACEHOLDER,
     numero_pessoas:
       evento.quantidade_convidados != null ? String(evento.quantidade_convidados) : EMPTY_PLACEHOLDER,
     observacoes: (evento.observacoes as string) ?? EMPTY_PLACEHOLDER,
     observacoes_festa: (evento.observacoes_festa as string) ?? EMPTY_PLACEHOLDER,
-    pacote_convidados_inclusos:
-      evento.pacote_convidados_inclusos != null
-        ? String(evento.pacote_convidados_inclusos)
-        : EMPTY_PLACEHOLDER,
-    pacote_escolhido: (evento.pacote_nome as string) ?? EMPTY_PLACEHOLDER,
-    pacote_nome: (evento.pacote_nome as string) ?? EMPTY_PLACEHOLDER,
+    pacote_convidados_inclusos: convidadosInclusos,
+    pacote_escolhido: pacoteNome,
+    pacote_nome: pacoteNome,
     parcelas: evento.parcelas != null ? String(evento.parcelas) : EMPTY_PLACEHOLDER,
+    percentual_multa_cancelamento:
+      params.percentual_multa_cancelamento != null
+        ? String(params.percentual_multa_cancelamento)
+        : EMPTY_PLACEHOLDER,
     politica_cancelamento: cancellationPolicy?.trim()
       ? stripHtmlToText(cancellationPolicy)
       : "Conforme política do espaço.",
     politica_remarcacao: reschedulingPolicy?.trim()
       ? stripHtmlToText(reschedulingPolicy)
       : "Conforme política do espaço.",
+    prazo_alteracao_convidados:
+      params.prazo_alteracao_convidados != null
+        ? String(params.prazo_alteracao_convidados)
+        : EMPTY_PLACEHOLDER,
+    prazo_cancelamento_com_multa:
+      params.prazo_cancelamento_com_multa != null
+        ? String(params.prazo_cancelamento_com_multa)
+        : EMPTY_PLACEHOLDER,
+    prazo_cancelamento_sem_multa_adicional:
+      params.prazo_cancelamento_sem_multa_adicional != null
+        ? String(params.prazo_cancelamento_sem_multa_adicional)
+        : EMPTY_PLACEHOLDER,
+    prazo_confirmacao_entrada:
+      params.prazo_confirmacao_entrada != null
+        ? String(params.prazo_confirmacao_entrada)
+        : EMPTY_PLACEHOLDER,
+    prazo_maximo_remarcacao:
+      params.prazo_maximo_remarcacao != null
+        ? String(params.prazo_maximo_remarcacao)
+        : EMPTY_PLACEHOLDER,
     prazo_pagamento_saldo: prazoSaldo,
     quantidade_adultos:
       evento.quantidade_adultos != null ? String(evento.quantidade_adultos) : EMPTY_PLACEHOLDER,
     quantidade_convidados:
       evento.quantidade_convidados != null ? String(evento.quantidade_convidados) : EMPTY_PLACEHOLDER,
+    quantidade_convidados_inclusa: convidadosInclusos,
     quantidade_crianas:
       evento.quantidade_crianas != null ? String(evento.quantidade_crianas) : EMPTY_PLACEHOLDER,
+    telefone_contratante: clientPhone,
+    tema_decoracao: (evento.aniversariante_tema as string) ?? EMPTY_PLACEHOLDER,
+    tipo_evento: (evento.tipo_evento as string) ?? EMPTY_PLACEHOLDER,
     titular_conta: params.titular_conta.trim() || (profile?.company_name as string) || EMPTY_PLACEHOLDER,
     tolerancia_encerramento:
       params.tolerancia_encerramento != null
         ? String(params.tolerancia_encerramento)
         : EMPTY_PLACEHOLDER,
     valor_adicionais: formatCurrency(evento.valor_adicionais as number),
+    valor_convidado_extra: valorConvidadoExtra,
     valor_entrada: formatCurrency(evento.valor_entrada as number),
     valor_hora_extra: formatCurrency(params.valor_hora_extra),
     valor_pacote: formatCurrency(evento.valor_pacote as number),

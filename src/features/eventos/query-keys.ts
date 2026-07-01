@@ -12,6 +12,8 @@ export const eventosQueryKeys = {
     ["eventos", tenantId, "detail", eventoId, "pagamentos"] as const,
   tasks: (tenantId: number | null, eventoId: number | null) =>
     ["eventos", tenantId, "detail", eventoId, "tarefas"] as const,
+  tenantTasks: (tenantId: number | null) =>
+    ["eventos", tenantId, "tarefas", "list"] as const,
   closingResponses: (tenantId: number | null, eventoId: number | null) =>
     ["eventos", tenantId, "detail", eventoId, "closing-responses"] as const,
   acceptanceResponses: (tenantId: number | null, eventoId: number | null) =>

@@ -8,6 +8,13 @@ export const CONTRACT_TEMPLATE_KEYS = [
 
 export type ContractTemplateKey = (typeof CONTRACT_TEMPLATE_KEYS)[number];
 
+/** Horário de término padrão para locação diária do espaço (meia-noite). */
+export const DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO = "00:00";
+
+export const isAluguelEspacoTemplateKey = (
+  value: ContractTemplateKey | null | undefined,
+): value is "aluguel_espaco" => value === "aluguel_espaco";
+
 export interface ContractTemplateDefinition {
   description: string;
   name: string;

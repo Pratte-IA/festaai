@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import {
+  Bot,
   ChevronRight,
   ClipboardList,
   FileCheck2,
+  FileSignature,
   Layers,
   Lock,
   LucideIcon,
@@ -51,6 +53,12 @@ const cards: ConfigCardProps[] = [
     icon: ClipboardList,
   },
   {
+    to: "/configuracoes/contrato",
+    title: "Contrato",
+    description: "Modelos, parâmetros do espaço e termos do módulo de contratos",
+    icon: FileSignature,
+  },
+  {
     to: "/configuracoes/formulario-contratacao",
     title: "Formulário de Contratação",
     description: "Configure campos, pacotes, adicionais, pagamento e aceites do formulário da festa",
@@ -70,10 +78,16 @@ const cards: ConfigCardProps[] = [
     icon: PlugZap,
   },
   {
+    to: "/configuracoes/automacoes",
+    title: "Automações",
+    description: "Vincule templates de automação aos números WhatsApp de envio e recebimento",
+    icon: Bot,
+  },
+  {
     to: GUIDED_SETUP_ROUTE,
     title: "Configuração Inicial Guiada",
     description:
-      "Revise ou altere qualquer etapa — empresa, pacotes, financeiro, contrato, formulário e integrações",
+      "Revise ou altere qualquer etapa — empresa, pacotes, financeiro, formulário e integrações",
     icon: Sparkles,
   },
 ];

@@ -1,6 +1,7 @@
 import { funnelTabs, stageMap } from "./constants";
 import { getDefaultStageForFunnel, resolveFunnelStageForImport } from "./stage-validation";
 import { EventType, FunnelType, InternalStatus, Stage } from "./types";
+import { normalizeBrazilPhoneForStorage } from "@/lib/phone";
 
 export interface LeadCsvRowParsed {
   aniversariante_data_nascimento: string | null;
@@ -356,8 +357,10 @@ export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
     }
     let rowFunil = funilHit.funil;
 
-    const cliente_telefone = cellAt(fields, columnByField, "cliente_telefone").trim() || null;
-    const telefone_digits = cliente_telefone?.replace(/\D/g, "") ?? "";
+    const cliente_telefone_raw = cellAt(fields, columnByField, "cliente_telefone").trim() || null;
+    const cliente_telefone = cliente_telefone_raw
+      ? normalizeBrazilPhoneForStorage(cliente_telefone_raw)
+      : null;
 
     let cliente_email: string | null = null;
     const emailRaw = cellAt(fields, columnByField, "cliente_email");
@@ -436,7 +439,7 @@ export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
       aniversariante_nome: cellAt(fields, columnByField, "aniversariante_nome").trim() || null,
       cliente_email,
       cliente_nome: nome,
-      cliente_telefone: telefone_digits.length > 0 ? cliente_telefone : null,
+      cliente_telefone,
       data_evento,
       etapa,
       funil: rowFunil,

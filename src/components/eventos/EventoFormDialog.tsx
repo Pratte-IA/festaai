@@ -11,6 +11,7 @@ import {
   stageMap,
   Stage,
 } from "@/features/eventos";
+import { normalizeBrazilMobilePhoneForStorage, toBrazilPhoneInputValue } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -131,7 +133,7 @@ const getInitialFormState = (
     aniversariante_nome: initialEvento?.aniversariante_nome ?? "",
     cliente_email: initialEvento?.cliente_email ?? "",
     cliente_nome: initialEvento?.cliente_nome ?? "",
-    cliente_telefone: initialEvento?.cliente_telefone ?? "",
+    cliente_telefone: toBrazilPhoneInputValue(initialEvento?.cliente_telefone),
     data_evento: initialEvento?.data_evento ?? "",
     etapa: initialEvento?.etapa ?? getDefaultStageForFunnel(funil),
     funil,
@@ -206,7 +208,7 @@ export const EventoFormDialog = ({
       aniversariante_nome: optionalString(values.aniversariante_nome),
       cliente_email: optionalString(values.cliente_email),
       cliente_nome: values.cliente_nome.trim(),
-      cliente_telefone: optionalString(values.cliente_telefone),
+      cliente_telefone: normalizeBrazilMobilePhoneForStorage(values.cliente_telefone),
       data_evento: optionalString(values.data_evento),
       etapa: values.etapa as Stage,
       funil: values.funil,
@@ -246,10 +248,10 @@ export const EventoFormDialog = ({
             </Field>
 
             <Field label="Telefone">
-              <Input
+              <PhoneInput
                 value={form.cliente_telefone}
-                onChange={(event) => updateForm({ cliente_telefone: event.target.value })}
-                placeholder="(11) 99999-9999"
+                onChange={(value) => updateForm({ cliente_telefone: value })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </Field>
 

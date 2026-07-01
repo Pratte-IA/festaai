@@ -29,6 +29,12 @@ export const SETTINGS_PAGE_META = {
     description:
       "Monte categorias e itens de preparação para cada pacote — replique entre pacotes quando fizer sentido.",
   },
+  contrato: {
+    breadcrumb: "Contrato",
+    title: "Modelos e parâmetros do contrato",
+    description:
+      "Revise os modelos, parâmetros do espaço e termos do módulo. Alterações passam a valer para novos contratos gerados.",
+  },
   "formulario-contratacao": {
     breadcrumb: "Formulário de Contratação",
     title: "Formulário de contratação",
@@ -46,6 +52,12 @@ export const SETTINGS_PAGE_META = {
     title: "Conexões WhatsApp",
     description:
       "Conecte números da casa via Evolution API para disparos automáticos e comunicação com clientes.",
+  },
+  automacoes: {
+    breadcrumb: "Automações",
+    title: "Automações WhatsApp",
+    description:
+      "Vincule cada template de automação ao número WhatsApp que envia ou recebe as mensagens da sua casa.",
   },
   "configuracao-inicial": {
     breadcrumb: "Configuração inicial",

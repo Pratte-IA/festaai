@@ -4,6 +4,7 @@ import { ContractModelsReviewStep } from "@/components/contracts/ContractModelsR
 import { ContractModelsSetupPrompt } from "@/components/contracts/ContractModelsSetupPrompt";
 import { ContractModuleTermsPrompt } from "@/components/contracts/ContractModuleTermsPrompt";
 import { GuidedSetupContinueBar } from "@/components/guided-setup/GuidedSetupContinueBar";
+import { useTenantPackages } from "@/features/configuracoes/use-tenant-packages";
 import {
   defaultTenantContractTemplateParams,
   isTenantContractTemplateParamsComplete,
@@ -22,15 +23,18 @@ import { toast } from "@/hooks/use-toast";
 import { getErrorMessage } from "@/lib/error-message";
 
 interface ContratoSetupStepProps {
+  mode?: "guided" | "settings";
   onCompleted?: () => void;
 }
 
-export const ContratoSetupStep = ({ onCompleted }: ContratoSetupStepProps) => {
+export const ContratoSetupStep = ({ mode = "guided", onCompleted }: ContratoSetupStepProps) => {
+  const isSettingsMode = mode === "settings";
   const { error, isEnabled, isLoading, isModelsConfigured, isTermsAccepted } =
     useIsContractModuleReady();
   const { isLoading: isReviewLoading, needsReview } = useNeedsContractModelsReview();
   const { data: moduleSettings } = useTenantContractModuleSettings();
   const { data: typeOptions = [] } = useTenantContractTypeOptions();
+  const { data: packages = [] } = useTenantPackages();
   const { completedSteps } = useIsGuidedSetupComplete();
   const { finishStep, isPending } = useFinishGuidedSetupStep("contrato");
   const restartSetup = useRestartContractModuleSetup();
@@ -38,12 +42,18 @@ export const ContratoSetupStep = ({ onCompleted }: ContratoSetupStepProps) => {
 
   const isGuidedStepComplete = completedSteps.includes("contrato");
 
-  const requiresFestaCompletaFields = typeOptions
-    .filter((option) => option.enabled)
-    .some((option) => option.key === "aluguel_espaco_festa_completa");
+  const enabledTypeOptions = typeOptions.filter((option) => option.enabled);
+
+  const requiresFestaCompletaFields = enabledTypeOptions.some(
+    (option) => option.key === "aluguel_espaco_festa_completa",
+  );
 
   const savedParams = moduleSettings?.templateParams ?? defaultTenantContractTemplateParams();
   const areParamsComplete = isTenantContractTemplateParamsComplete(savedParams, {
+    activePackages: packages
+      .filter((pkg) => pkg.active)
+      .map((pkg) => ({ id: pkg.id, name: pkg.name })),
+    enabledTemplateKeys: enabledTypeOptions.map((option) => option.key),
     requiresFestaCompletaFields,
   });
 
@@ -124,7 +134,7 @@ export const ContratoSetupStep = ({ onCompleted }: ContratoSetupStepProps) => {
     <div data-guided-setup-allowed className="space-y-6">
       <ContractModelsReviewStep mode="edit" onRestartSetup={handleRestartSetup} />
 
-      {!isGuidedStepComplete ? (
+      {!isSettingsMode && !isGuidedStepComplete ? (
         <GuidedSetupContinueBar
           description={
             !areParamsComplete

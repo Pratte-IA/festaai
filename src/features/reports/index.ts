@@ -1,7 +1,10 @@
+export { buildHistoricoFinanceiroEntries } from "./build-historico-financeiro-entries";
+export type { FinancialEntry, FinancialEntryType } from "./build-historico-financeiro-entries";
 export {
   daysBetween,
   formatCurrency,
   formatDate,
+  getEventOutstandingBalance,
   getEventTotalPaid,
   isDateInPeriod,
   openWhatsApp,

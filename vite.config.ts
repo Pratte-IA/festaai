@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     port: 3000,
     strictPort: true,
     hmr: {
-      overlay: false,
+      overlay: true,
       clientPort: 3000,
     },
     watch: {

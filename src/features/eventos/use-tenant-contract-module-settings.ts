@@ -16,9 +16,11 @@ import {
 } from "./contracts/contract-template-params";
 import {
   isLegacyContractTemplateStub,
+  isLegacyPreMigrationContractTemplate,
   isTenantContractTemplateCustomized,
   resolveContractTemplateHtml,
 } from "./contracts/resolve-contract-template-html";
+import { shouldSeedContractTemplateBaseHtml } from "./contracts/fetch-tenant-contract-template";
 import { eventosQueryKeys } from "./query-keys";
 import { useIsContractModuleEnabled } from "./use-tenant-contract-module-acceptance";
 
@@ -216,10 +218,7 @@ export const useSaveContractModuleModels = () => {
 
         if (existing) {
           const shouldSeedBaseHtml =
-            enabled &&
-            isLegacyContractTemplateStub(
-              (existing as { template_html?: string }).template_html,
-            );
+            enabled && shouldSeedContractTemplateBaseHtml(existing.template_html);
 
           const { error: updateError } = await supabase
             .from("tenant_contract_templates")
@@ -506,7 +505,10 @@ export const useSyncLegacyContractTemplates = () => {
       for (const row of rows) {
         const key = row.template_key as ContractTemplateKey;
         if (!CONTRACT_TEMPLATE_KEYS.includes(key)) continue;
-        if (!isLegacyContractTemplateStub(row.template_html)) continue;
+        if (!isLegacyContractTemplateStub(row.template_html) &&
+            !isLegacyPreMigrationContractTemplate(row.template_html)) {
+          continue;
+        }
 
         const definition = CONTRACT_TEMPLATE_DEFINITIONS[key];
         const { error: updateError } = await supabase

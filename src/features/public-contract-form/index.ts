@@ -3,6 +3,7 @@ export type {
   ClientContractAcceptResult,
   ClientContractFormConfig,
   ClientContractFormSubmitResult,
+  PublicAcceptanceTerm,
 } from "./types";
 export {
   useAcceptClientContract,

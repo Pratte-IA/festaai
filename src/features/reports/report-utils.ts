@@ -1,4 +1,4 @@
-import { Evento } from "@/features/eventos";
+import { Evento, getEventBalance, getEventDisplayTotalPaid } from "@/features/eventos";
 
 import { ReportPeriod } from "./types";
 
@@ -19,12 +19,17 @@ export const isDateInPeriod = (date: string | null, period: ReportPeriod) => {
 };
 
 export const getEventTotalPaid = (event: Evento, paidByEventoId: Map<number, number>) =>
-  event.valor_entrada + (paidByEventoId.get(event.id) ?? 0);
+  getEventDisplayTotalPaid(event, paidByEventoId.get(event.id) ?? 0);
+
+export const getEventOutstandingBalance = (event: Evento, paidByEventoId: Map<number, number>) =>
+  getEventBalance(event, paidByEventoId.get(event.id) ?? 0);
+
+import { toWhatsAppPhoneKey } from "@/lib/phone";
 
 export const openWhatsApp = (phone: string | null, name: string, message: string) => {
-  const cleaned = phone?.replace(/\D/g, "") ?? "";
+  const cleaned = toWhatsAppPhoneKey(phone);
 
   if (!cleaned) return;
 
-  window.open(`https://wa.me/55${cleaned}?text=${encodeURIComponent(message.replace("{{nome}}", name))}`, "_blank");
+  window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(message.replace("{{nome}}", name))}`, "_blank");
 };

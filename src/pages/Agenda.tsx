@@ -4,7 +4,7 @@ import MiniCalendar from "@/components/MiniCalendar";
 import DayDetailPanel from "@/components/DayDetailPanel";
 import { DayInfo } from "@/features/calendario";
 
-const Calendario = () => {
+const Agenda = () => {
   const [selectedDay, setSelectedDay] = useState<DayInfo | null>(null);
 
   const handleSelectDay = useCallback((day: DayInfo) => {
@@ -18,7 +18,7 @@ const Calendario = () => {
   return (
     <AppLayout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Calendário</h1>
+        <h1 className="text-2xl font-bold text-foreground">Agenda</h1>
         <p className="text-sm text-muted-foreground mt-1">Disponibilidade e organização de festas</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -29,4 +29,4 @@ const Calendario = () => {
   );
 };
 
-export default Calendario;
+export default Agenda;

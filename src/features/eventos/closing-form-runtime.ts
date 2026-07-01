@@ -1,5 +1,6 @@
 import type { Additional, PackageData } from "@/data/packagesData";
-import { itemsToLines } from "@/data/packagesData";
+import { itemsToLines, packageHasBuffet } from "@/data/packagesData";
+import { DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO } from "@/features/eventos/contracts/contract-template-types";
 import {
   DEFAULT_PRICING_SCHEDULE,
   getTierBandPrice,
@@ -89,6 +90,16 @@ export const HIDDEN_PACKAGE_FIELD_KEYS = new Set([
 
 export const isHiddenPackageFieldKey = (fieldKey: string | null): boolean =>
   Boolean(fieldKey && HIDDEN_PACKAGE_FIELD_KEYS.has(fieldKey));
+
+/** Campos de pagamento exibidos pelo resumo customizado no formulário do cliente. */
+export const CLIENT_PAYMENT_SUMMARY_FIELD_KEYS = new Set([
+  "valor_adicionais",
+  "valor_pacote",
+  "valor_total",
+]);
+
+export const isClientPaymentSummaryFieldKey = (fieldKey: string | null): boolean =>
+  Boolean(fieldKey && CLIENT_PAYMENT_SUMMARY_FIELD_KEYS.has(fieldKey));
 
 /** Campos de pagamento calculados ou internos — ocultos no formulário do cliente e no preview. */
 export const HIDDEN_CLIENT_PAYMENT_FIELD_KEYS = new Set([
@@ -316,6 +327,10 @@ export const applyPackageToFieldValues = (
   setKey("pacote_itens_inclusos", itemsToLines(pkg.includedItems));
   setKey("pacote_itens_nao_inclusos", itemsToLines(pkg.excludedItems));
 
+  if (!packageHasBuffet(pkg.buffet)) {
+    setKey("hora_termino", DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO);
+  }
+
   return next;
 };
 
@@ -355,6 +370,122 @@ export const recalculateFinancialTotals = (
   return next;
 };
 
+/** Campos derivados de pacote/preço — não devem ser restaurados de rascunho. */
+export const CALCULATED_CLOSING_FORM_FIELD_KEYS = new Set([
+  "pacote_convidados_inclusos",
+  "pacote_itens_inclusos",
+  "pacote_itens_nao_inclusos",
+  "pacote_nome",
+  "valor_adicionais",
+  "valor_pacote",
+  "valor_saldo",
+  "valor_total",
+]);
+
+export const omitCalculatedClosingFormFieldValues = (
+  fieldValues: Record<string, string>,
+  fields: Array<{ fieldKey: string | null; id: string }>,
+): Record<string, string> => {
+  const calculatedFieldIds = new Set(
+    fields
+      .filter((field) => field.fieldKey && CALCULATED_CLOSING_FORM_FIELD_KEYS.has(field.fieldKey))
+      .map((field) => field.id),
+  );
+
+  return Object.fromEntries(
+    Object.entries(fieldValues).filter(([fieldId]) => !calculatedFieldIds.has(fieldId)),
+  );
+};
+
+export const computeClosingFormPaymentSummary = ({
+  additionalSelections,
+  additionals,
+  fieldIdByKey,
+  fieldValues,
+  guestCountSource,
+  packages,
+  selectedPackageId,
+}: {
+  additionalSelections: Map<string, number> | Iterable<[string, number]>;
+  additionals: Additional[];
+  fieldIdByKey: Map<string, string>;
+  fieldValues: Record<string, string>;
+  guestCountSource: Pick<Evento, "quantidade_convidados">;
+  packages: PackageData[];
+  selectedPackageId: string | null;
+}): { adicionaisValue: number; pacoteValue: number; totalValue: number } => {
+  const guestCount = resolveGuestCount(guestCountSource, fieldValues, fieldIdByKey);
+  const eventDate = resolveEventDateFromFieldValues(fieldValues, fieldIdByKey);
+  const selectedPackage = selectedPackageId
+    ? (packages.find((pkg) => pkg.id === selectedPackageId) ?? null)
+    : null;
+  const pacoteValue = selectedPackage
+    ? resolvePackagePrice(selectedPackage, guestCount, eventDate)
+    : 0;
+
+  const selections =
+    additionalSelections instanceof Map
+      ? additionalSelections
+      : new Map<string, number>(additionalSelections);
+
+  const adicionaisSnapshot = buildAdicionaisSnapshot(additionals, selections, guestCount);
+  const adicionaisValue = getAdditionalsTotal(adicionaisSnapshot);
+
+  return {
+    adicionaisValue,
+    pacoteValue,
+    totalValue: pacoteValue + adicionaisValue,
+  };
+};
+
+export const recalculateClosingFormFinancials = ({
+  additionalSelections,
+  additionals,
+  fieldIdByKey,
+  fieldValues,
+  guestCountSource,
+  packages,
+  selectedPackageId,
+}: {
+  additionalSelections: Map<string, number>;
+  additionals: Additional[];
+  fieldIdByKey: Map<string, string>;
+  fieldValues: Record<string, string>;
+  guestCountSource: Pick<Evento, "quantidade_convidados">;
+  packages: PackageData[];
+  selectedPackageId: string | null;
+}): Record<string, string> => {
+  const summary = computeClosingFormPaymentSummary({
+    additionalSelections,
+    additionals,
+    fieldIdByKey,
+    fieldValues,
+    guestCountSource,
+    packages,
+    selectedPackageId,
+  });
+
+  let next = { ...fieldValues };
+  const guestCount = resolveGuestCount(guestCountSource, fieldValues, fieldIdByKey);
+  const selectedPackage = selectedPackageId
+    ? (packages.find((pkg) => pkg.id === selectedPackageId) ?? null)
+    : null;
+
+  if (selectedPackage) {
+    next = applyPackageToFieldValues(selectedPackage, guestCount, next, fieldIdByKey);
+  }
+
+  const setKey = (key: string, value: number) => {
+    const fieldId = fieldIdByKey.get(key);
+    if (fieldId) next[fieldId] = String(value);
+  };
+
+  setKey("valor_adicionais", summary.adicionaisValue);
+  setKey("valor_pacote", summary.pacoteValue);
+
+  return recalculateFinancialTotals(next, fieldIdByKey, { pacoteValue: summary.pacoteValue });
+};
+
 export const buildFieldIdByKey = (
   fields: Array<{ fieldKey: string | null; id: string }>,
 ): Map<string, string> => {
@@ -366,7 +497,7 @@ export const buildFieldIdByKey = (
 };
 
 export const resolveGuestCount = (
-  evento: Evento,
+  evento: Pick<Evento, "quantidade_convidados">,
   fieldValues: Record<string, string>,
   fieldIdByKey: Map<string, string>,
 ): number => {

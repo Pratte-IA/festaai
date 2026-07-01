@@ -1,3 +1,5 @@
+import { toWhatsAppPhoneKey } from "./phone.ts";
+
 export interface ParsedEvolutionMessage {
   customerName: string | null;
   customerPhone: string | null;
@@ -13,16 +15,8 @@ export interface ParsedEvolutionMessage {
 
 const GROUP_JID_SUFFIX = "@g.us";
 
-export const normalizeBrazilPhone = (jidOrPhone: string | null | undefined): string | null => {
-  if (!jidOrPhone) return null;
-
-  const raw = jidOrPhone.split("@")[0] ?? jidOrPhone;
-  const digits = raw.replace(/\D/g, "");
-
-  if (digits.length < 10) return null;
-  if (digits.length <= 11) return `55${digits}`;
-  return digits;
-};
+/** @deprecated Use toWhatsAppPhoneKey from phone.ts */
+export const normalizeBrazilPhone = toWhatsAppPhoneKey;
 
 const extractMessageText = (message: Record<string, unknown> | null | undefined): string | null => {
   if (!message) return null;
@@ -162,7 +156,7 @@ const parseSingleMessage = (entry: Record<string, unknown>): ParsedEvolutionMess
   const type = resolveMessageType(messageContent);
   const mediaBase64 = extractMediaBase64(entry);
   const mediaMimetype = extractMediaMimetype(messageContent) ?? extractMediaMimetype(entry);
-  const customerPhone = normalizeBrazilPhone(remoteJid);
+  const customerPhone = toWhatsAppPhoneKey(remoteJid);
 
   const pushName = entry.pushName ?? entry.notifyName;
   const customerName = typeof pushName === "string" && pushName.trim() ? pushName.trim() : null;

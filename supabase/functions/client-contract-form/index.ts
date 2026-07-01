@@ -7,6 +7,12 @@ import {
   CONTRACT_ACCEPTANCE_DECLARATION,
   parseTenantContractTemplateParams,
 } from "../_shared/evento-contract-builder.ts";
+import { loadTenantContractTemplateForGeneration } from "../_shared/load-tenant-contract-template.ts";
+import {
+  getBrazilMobilePhoneValidationError,
+  normalizeBrazilMobilePhoneForStorage,
+  phonesMatch,
+} from "../_shared/phone.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -69,6 +75,7 @@ const submitSchema = z.object({
     .default([]),
   action: z.literal("submit"),
   adicionaisSnapshot: z.unknown().optional().nullable(),
+  balancePaymentSchedule: z.enum(["7_dias_antes", "mensal"]).nullable().optional(),
   fieldValues: z.record(z.string()),
   fields: z.array(submitFieldSchema).min(1),
   pacoteId: z.number().int().positive().nullable().optional(),
@@ -100,7 +107,7 @@ const acceptContractSchema = z.object({
         termId: z.number().int().positive(),
       }),
     )
-    .min(1),
+    .default([]),
 });
 
 const requestSchema = z.discriminatedUnion("action", [
@@ -115,27 +122,18 @@ const jsonResponse = (body: unknown, status = 200) =>
     status,
   });
 
+const resolveRuntimeErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return "Erro interno ao processar o formulário.";
+};
+
 const requiredEnv = (key: string) => {
   const value = Deno.env.get(key);
   if (!value) throw new Error(`Missing required environment variable: ${key}`);
   return value;
-};
-
-const normalizePhoneDigits = (phone: string | null | undefined): string => (phone ?? "").replace(/\D/g, "");
-
-const phonesMatch = (left: string | null | undefined, right: string | null | undefined): boolean => {
-  const a = normalizePhoneDigits(left);
-  const b = normalizePhoneDigits(right);
-  if (!a || !b) return false;
-  if (a === b) return true;
-
-  const suffixA = a.length > 11 && a.startsWith("55") ? a.slice(2) : a;
-  const suffixB = b.length > 11 && b.startsWith("55") ? b.slice(2) : b;
-  if (suffixA === suffixB) return true;
-
-  const coreA = suffixA.length >= 10 ? suffixA.slice(-10) : suffixA;
-  const coreB = suffixB.length >= 10 ? suffixB.slice(-10) : suffixB;
-  return coreA.length >= 10 && coreA === coreB;
 };
 
 const resolveClientIp = (request: Request): string | null => {
@@ -181,6 +179,42 @@ const resolveFunnelStageAfterContractAcceptance = (funil: string) => {
   };
 };
 
+type EventoPhoneCandidate = {
+  cliente_telefone: string | null;
+  etapa: string;
+  funil: string;
+  id: number;
+  status_interno: string;
+  updated_at: string;
+};
+
+/** Prioriza lead em Vendas; senão reutiliza cadastro existente em Festa pelo telefone. */
+const resolveEventoMatchByPhone = (
+  eventos: EventoPhoneCandidate[],
+  phoneValue: string,
+): { evento: EventoPhoneCandidate; source: "festa" | "vendas" } | null => {
+  const vendasMatch = eventos.find(
+    (evento) => evento.funil === "vendas" && phonesMatch(evento.cliente_telefone, phoneValue),
+  );
+  if (vendasMatch) return { evento: vendasMatch, source: "vendas" };
+
+  const festaMatch = eventos.find(
+    (evento) => evento.funil === "festa" && phonesMatch(evento.cliente_telefone, phoneValue),
+  );
+  if (festaMatch) return { evento: festaMatch, source: "festa" };
+
+  return null;
+};
+
+const applyVendasToFestaMigration = (eventoUpdates: Record<string, unknown>) => {
+  const migration = resolveFunnelStageAfterContractAcceptance("vendas");
+  if (!migration) return;
+
+  Object.assign(eventoUpdates, migration);
+  eventoUpdates.motivo_perda = null;
+  eventoUpdates.tipo_evento = "festa";
+};
+
 const resolveTenant = async (
   admin: ReturnType<typeof createClient>,
   tenantSlug: string,
@@ -215,7 +249,6 @@ const generateEventoContractForPublicFlow = async (
   eventoId: number,
 ) => {
   const [
-    templateResult,
     eventoResult,
     closingFieldsResult,
     closingResponsesResult,
@@ -227,13 +260,6 @@ const generateEventoContractForPublicFlow = async (
     companyProfileResult,
     moduleSettingsResult,
   ] = await Promise.all([
-    admin
-      .from("tenant_contract_templates")
-      .select("*")
-      .eq("tenant_id", tenantId)
-      .eq("is_default", true)
-      .eq("is_active", true)
-      .maybeSingle(),
     admin.from("eventos").select("*").eq("tenant_id", tenantId).eq("id", eventoId).maybeSingle(),
     admin.from("tenant_closing_form_fields").select("*").eq("tenant_id", tenantId),
     admin
@@ -273,12 +299,12 @@ const generateEventoContractForPublicFlow = async (
       .maybeSingle(),
   ]);
 
-  if (templateResult.error) throw templateResult.error;
-  if (!templateResult.data) {
-    throw new Error("Nenhum modelo de contrato padrão encontrado para este espaço.");
-  }
   if (eventoResult.error) throw eventoResult.error;
   if (!eventoResult.data) throw new Error("Evento não encontrado.");
+
+  const resolvedTemplate = await loadTenantContractTemplateForGeneration(admin, tenantId, {
+    packageId: eventoResult.data.pacote_id as number | null,
+  });
 
   const acceptedContract = await admin
     .from("evento_contracts")
@@ -293,8 +319,15 @@ const generateEventoContractForPublicFlow = async (
     throw new Error("Já existe um contrato aceito para esta festa.");
   }
 
+  if (pendingGeneratedResult.error) throw pendingGeneratedResult.error;
   if (pendingGeneratedResult.data) {
-    return pendingGeneratedResult.data;
+    const { error: cancelError } = await admin
+      .from("evento_contracts")
+      .update({ status: "cancelled" })
+      .eq("tenant_id", tenantId)
+      .eq("id", pendingGeneratedResult.data.id);
+
+    if (cancelError) throw cancelError;
   }
 
   let packageRow: Record<string, unknown> | null = null;
@@ -345,7 +378,8 @@ const generateEventoContractForPublicFlow = async (
     evento: eventoResult.data,
     financialSettings: financialResult.data,
     packageRow,
-    templateHtml: templateResult.data.template_html,
+    templateHtml: resolvedTemplate.templateHtml,
+    templateKey: resolvedTemplate.templateKey,
     templateParams: parseTenantContractTemplateParams(moduleSettingsResult.data?.template_params),
   });
 
@@ -360,8 +394,8 @@ const generateEventoContractForPublicFlow = async (
       evento_id: eventoId,
       generated_at: new Date().toISOString(),
       status: "generated",
-      template_id: templateResult.data.id,
-      template_version: templateResult.data.version,
+      template_id: resolvedTemplate.id,
+      template_version: resolvedTemplate.version,
       tenant_id: tenantId,
     })
     .select("id, contract_number, contract_html, contract_hash, status")
@@ -377,7 +411,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
     return jsonResponse({ error: "Espaço não encontrado." }, 404);
   }
 
-  const [fieldsResult, termsResult, packagesResult, additionalsResult, paymentMethodsResult, financialResult] =
+  const [fieldsResult, termsResult, packagesResult, additionalsResult, paymentMethodsResult, financialResult, moduleSettingsResult] =
     await Promise.all([
       admin
         .from("tenant_closing_form_fields")
@@ -413,13 +447,18 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
         .order("sort_order", { ascending: true }),
       admin
         .from("tenant_payment_methods")
-        .select("id, name, type, active, allowed_for_deposit, allowed_for_remaining_balance, sort_order")
+        .select("id, name, payment_type, active, allowed_for_deposit, allowed_for_remaining_balance, sort_order")
         .eq("tenant_id", tenant.id)
         .eq("active", true)
         .order("sort_order", { ascending: true }),
       admin
         .from("tenant_financial_settings")
         .select("*")
+        .eq("tenant_id", tenant.id)
+        .maybeSingle(),
+      admin
+        .from("tenant_contract_module_settings")
+        .select("template_params")
         .eq("tenant_id", tenant.id)
         .maybeSingle(),
     ]);
@@ -430,6 +469,11 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
   if (additionalsResult.error) throw additionalsResult.error;
   if (paymentMethodsResult.error) throw paymentMethodsResult.error;
   if (financialResult.error) throw financialResult.error;
+  if (moduleSettingsResult.error) throw moduleSettingsResult.error;
+
+  const templateParams = parseTenantContractTemplateParams(
+    moduleSettingsResult.data?.template_params,
+  );
 
   const signingTermsResult = await admin
     .from("tenant_acceptance_terms")
@@ -473,6 +517,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
       sortOrder: field.sort_order,
     })),
     financialSettings: financialResult.data,
+    maxVenueGuestCapacity: templateParams.capacidade_maxima_espaco,
     packages: (packagesResult.data ?? []).map((pkg) => ({
       active: pkg.active,
       buffet: pkg.buffet,
@@ -495,7 +540,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
       id: String(method.id),
       name: method.name,
       sortOrder: method.sort_order,
-      type: method.type,
+      type: method.payment_type,
     })),
     signingTerms: (signingTermsResult.data ?? []).map(mapPublicTerm),
     tenantName: tenant.name,
@@ -503,43 +548,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
   });
 };
 
-const handleSubmit = async (
-  admin: ReturnType<typeof createClient>,
-  payload: z.infer<typeof submitSchema>,
-) => {
-  const tenant = await resolveTenant(admin, payload.tenantSlug);
-  if (!tenant) {
-    return jsonResponse({ error: "Espaço não encontrado." }, 404);
-  }
-
-  const phoneField = payload.fields.find((field) => field.fieldKey === "cliente_telefone");
-  const phoneValue = phoneField ? (payload.fieldValues[phoneField.id] ?? "").trim() : "";
-
-  if (!phoneValue || normalizePhoneDigits(phoneValue).length < 10) {
-    return jsonResponse({ error: "Informe um telefone válido para identificar seu cadastro." }, 400);
-  }
-
-  const { data: vendasEventos, error: eventosError } = await admin
-    .from("eventos")
-    .select("id, funil, etapa, cliente_telefone, updated_at, status_interno")
-    .eq("tenant_id", tenant.id)
-    .eq("funil", "vendas")
-    .order("updated_at", { ascending: false });
-
-  if (eventosError) throw eventosError;
-
-  const matchedEvento = (vendasEventos ?? []).find((evento) => phonesMatch(evento.cliente_telefone, phoneValue));
-
-  if (!matchedEvento) {
-    return jsonResponse(
-      {
-        error:
-          "Não encontramos um lead em Vendas com este telefone. Confira o número ou fale com a equipe do espaço.",
-      },
-      404,
-    );
-  }
-
+const buildEventoUpdatesFromSubmit = (payload: z.infer<typeof submitSchema>) => {
   const eventoUpdates: Record<string, unknown> = {};
   const customResponses: Array<{ field_id: number; value: string }> = [];
 
@@ -599,22 +608,142 @@ const handleSubmit = async (
     eventoUpdates.adicionais_snapshot = payload.adicionaisSnapshot;
   }
 
+  return { customResponses, eventoUpdates };
+};
+
+const subtractDaysFromDateString = (dateValue: string, days: number): string | null => {
+  const date = new Date(`${dateValue}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setDate(date.getDate() - days);
+  return date.toISOString().slice(0, 10);
+};
+
+const applyBalancePaymentSchedule = (
+  eventoUpdates: Record<string, unknown>,
+  schedule: "7_dias_antes" | "mensal" | null | undefined,
+  financialSettings: { max_installments?: number | null } | null,
+) => {
+  if (!schedule) return;
+
+  if (schedule === "7_dias_antes") {
+    const eventDate = typeof eventoUpdates.data_evento === "string" ? eventoUpdates.data_evento : null;
+    const dueDate = eventDate ? subtractDaysFromDateString(eventDate, 7) : null;
+    if (dueDate) eventoUpdates.data_limite_pagamento = dueDate;
+    eventoUpdates.parcelas = 1;
+    eventoUpdates.forma_pagamento_saldo = "7 dias antes da festa";
+    return;
+  }
+
+  eventoUpdates.parcelas = financialSettings?.max_installments ?? 3;
+  eventoUpdates.forma_pagamento_saldo = "Mensal";
+};
+
+const handleSubmit = async (
+  admin: ReturnType<typeof createClient>,
+  payload: z.infer<typeof submitSchema>,
+) => {
+  const tenant = await resolveTenant(admin, payload.tenantSlug);
+  if (!tenant) {
+    return jsonResponse({ error: "Espaço não encontrado." }, 404);
+  }
+
+  const phoneField = payload.fields.find((field) => field.fieldKey === "cliente_telefone");
+  const phoneValue = phoneField ? (payload.fieldValues[phoneField.id] ?? "").trim() : "";
+
+  const normalizedPhone = normalizeBrazilMobilePhoneForStorage(phoneValue);
+  const phoneValidationError = getBrazilMobilePhoneValidationError(phoneValue);
+  if (!normalizedPhone || phoneValidationError) {
+    return jsonResponse(
+      {
+        error:
+          phoneValidationError ??
+          "Informe o celular completo com DDD e 9 dígitos (ex: (45) 99978-5617).",
+      },
+      400,
+    );
+  }
+
+  const { data: funnelEventos, error: eventosError } = await admin
+    .from("eventos")
+    .select("id, funil, etapa, cliente_telefone, updated_at, status_interno")
+    .eq("tenant_id", tenant.id)
+    .in("funil", ["vendas", "festa"])
+    .order("updated_at", { ascending: false });
+
+  if (eventosError) throw eventosError;
+
+  const phoneMatch = resolveEventoMatchByPhone(funnelEventos ?? [], normalizedPhone);
+  const { customResponses, eventoUpdates } = buildEventoUpdatesFromSubmit(payload);
+  eventoUpdates.cliente_telefone = normalizedPhone;
+
+  const { data: financialSettings } = await admin
+    .from("tenant_financial_settings")
+    .select("max_installments")
+    .eq("tenant_id", tenant.id)
+    .maybeSingle();
+
+  applyBalancePaymentSchedule(eventoUpdates, payload.balancePaymentSchedule, financialSettings);
   const now = new Date().toISOString();
 
-  const { data: updatedEvento, error: updateError } = await admin
-    .from("eventos")
-    .update(eventoUpdates)
-    .eq("id", matchedEvento.id)
-    .eq("tenant_id", tenant.id)
-    .select("id, funil, etapa, cliente_nome, cliente_cpf, cliente_email, cliente_telefone")
-    .single();
+  let targetEventoId: number;
+  let updatedEvento: {
+    cliente_cpf: string | null;
+    cliente_email: string | null;
+    cliente_nome: string;
+    cliente_telefone: string | null;
+    etapa: string;
+    funil: string;
+    id: number;
+  };
 
-  if (updateError) throw updateError;
+  if (phoneMatch) {
+    if (phoneMatch.source === "vendas") {
+      applyVendasToFestaMigration(eventoUpdates);
+    }
+
+    const { data, error: updateError } = await admin
+      .from("eventos")
+      .update(eventoUpdates)
+      .eq("id", phoneMatch.evento.id)
+      .eq("tenant_id", tenant.id)
+      .select("id, funil, etapa, cliente_nome, cliente_cpf, cliente_email, cliente_telefone")
+      .single();
+
+    if (updateError) throw updateError;
+
+    targetEventoId = phoneMatch.evento.id;
+    updatedEvento = data;
+  } else {
+    const clienteNome =
+      typeof eventoUpdates.cliente_nome === "string" && eventoUpdates.cliente_nome.trim()
+        ? eventoUpdates.cliente_nome.trim()
+        : "Cliente formulário público";
+
+    const { data, error: insertError } = await admin
+      .from("eventos")
+      .insert({
+        ...eventoUpdates,
+        cliente_nome: clienteNome,
+        etapa: "boas_vindas",
+        funil: "festa",
+        origem: "formulario_publico",
+        status_interno: "ativo",
+        tenant_id: tenant.id,
+        tipo_evento: "festa",
+      })
+      .select("id, funil, etapa, cliente_nome, cliente_cpf, cliente_email, cliente_telefone")
+      .single();
+
+    if (insertError) throw insertError;
+
+    targetEventoId = data.id;
+    updatedEvento = data;
+  }
 
   if (customResponses.length > 0) {
     const { error: responsesError } = await admin.from("evento_closing_responses").upsert(
       customResponses.map((response) => ({
-        evento_id: matchedEvento.id,
+        evento_id: targetEventoId,
         field_id: response.field_id,
         tenant_id: tenant.id,
         value: response.value,
@@ -630,7 +759,7 @@ const handleSubmit = async (
       payload.acceptanceResponses.map((response) => ({
         accepted: response.accepted,
         accepted_at: now,
-        evento_id: matchedEvento.id,
+        evento_id: targetEventoId,
         tenant_id: tenant.id,
         term_id: response.termId,
       })),
@@ -640,7 +769,7 @@ const handleSubmit = async (
     if (acceptanceError) throw acceptanceError;
   }
 
-  const contract = await generateEventoContractForPublicFlow(admin, tenant.id, matchedEvento.id);
+  const contract = await generateEventoContractForPublicFlow(admin, tenant.id, targetEventoId);
 
   const { data: signingTerms, error: signingTermsError } = await admin
     .from("tenant_acceptance_terms")
@@ -662,7 +791,11 @@ const handleSubmit = async (
     contractId: contract.id,
     contractNumber: contract.contract_number,
     eventoId: updatedEvento.id,
-    message: "Formulário recebido. Leia o contrato abaixo e confirme sua assinatura.",
+    message: phoneMatch?.source === "vendas"
+      ? "Formulário recebido. Seu cadastro foi movido para Boas Vindas. Leia o contrato abaixo e confirme sua assinatura."
+      : phoneMatch?.source === "festa"
+        ? "Formulário recebido. Atualizamos seu cadastro existente. Leia o contrato abaixo e confirme sua assinatura."
+        : "Cadastro criado. Leia o contrato abaixo e confirme sua assinatura.",
     signingTerms: (signingTerms ?? []).map(mapPublicTerm),
   });
 };
@@ -769,6 +902,7 @@ const handleAcceptContract = async (
   if (updateContractError) throw updateContractError;
 
   const funnelMigration = resolveFunnelStageAfterContractAcceptance(evento.funil);
+  const isAlreadyInBoasVindas = evento.funil === "festa" && evento.etapa === "boas_vindas";
   const eventoUpdates: Record<string, unknown> = {};
 
   if (funnelMigration) {
@@ -778,6 +912,9 @@ const handleAcceptContract = async (
     eventoUpdates.fechamento_confirmado_em = acceptedAt;
     eventoUpdates.boas_vindas_whatsapp_agendado_em = acceptedAt;
     eventoUpdates.motivo_perda = null;
+  } else if (isAlreadyInBoasVindas) {
+    eventoUpdates.fechamento_confirmado_em = acceptedAt;
+    eventoUpdates.boas_vindas_whatsapp_agendado_em = acceptedAt;
   }
 
   if (Object.keys(eventoUpdates).length > 0) {
@@ -791,13 +928,16 @@ const handleAcceptContract = async (
 
     if (updateEventoError) throw updateEventoError;
 
+    const advancedToFesta =
+      updatedEvento.funil === "festa" && updatedEvento.etapa === "boas_vindas";
+
     return jsonResponse({
       acceptedAt,
-      advancedToFesta: updatedEvento.funil === "festa" && updatedEvento.etapa === "boas_vindas",
+      advancedToFesta,
       etapa: updatedEvento.etapa,
       funil: updatedEvento.funil,
       message: "Contrato assinado com sucesso! Em breve entraremos em contato.",
-      whatsappDispatchScheduled: Boolean(funnelMigration),
+      whatsappDispatchScheduled: advancedToFesta,
     });
   }
 
@@ -843,7 +983,7 @@ Deno.serve(async (request) => {
   } catch (error) {
     console.error("client-contract-form error", error);
     return jsonResponse(
-      { error: error instanceof Error ? error.message : "Erro interno ao processar o formulário." },
+      { error: resolveRuntimeErrorMessage(error) },
       500,
     );
   }

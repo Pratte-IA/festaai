@@ -1,16 +1,24 @@
 import { useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
+import AppLayout from "@/components/AppLayout";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
 import { MoveEventoFunnelDialog } from "@/components/eventos/MoveEventoFunnelDialog";
 import { EventoFormResponsesCard } from "@/components/eventos/EventoFormResponsesCard";
 import { EventoImageUsageAcceptanceRow } from "@/components/eventos/EventoImageUsageAcceptanceRow";
+import {
+  EventoContractCard,
+  shouldShowEventoContractCard,
+} from "@/components/eventos/EventoContractCard";
 import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import EventChecklist from "@/components/EventChecklist";
-import AppLayout from "@/components/AppLayout";
+import { formatIsoDateBR, formatTimestampDateBR, getTodayAtNoon, parseIsoDateLocal } from "@/lib/date";
+import { formatBrazilPhone } from "@/lib/phone";
 import { useTenantPackages } from "@/features/configuracoes";
 import {
+  getEventBalance,
+  getEventDisplayTotalPaid,
   useCreateEventoNota,
   useCreateEventoPagamento,
   useCreateEventoTarefa,
@@ -22,6 +30,7 @@ import {
   useUpdateEvento,
   useToggleEventoTarefa,
 } from "@/features/eventos";
+import { formatCelebratingAge, formatCurrentAge } from "@/features/eventos/birthday-age";
 import { useTenantAdminCapability } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,10 +55,10 @@ import { toast } from "@/hooks/use-toast";
 const getTimeRemaining = (partyDate: string | null): string => {
   if (!partyDate) return "Sem data";
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const party = new Date(partyDate);
-  party.setHours(0, 0, 0, 0);
+  const today = getTodayAtNoon();
+  const party = parseIsoDateLocal(partyDate);
+  if (!party) return "Sem data";
+
   const diffDays = Math.round((party.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays < 0) return "Realizada";
   if (diffDays === 0) return "Hoje";
@@ -60,25 +69,15 @@ const getTimeRemaining = (partyDate: string | null): string => {
 const getTimeRemainingBadge = (partyDate: string | null) => {
   if (!partyDate) return "outline" as const;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const party = new Date(partyDate);
-  party.setHours(0, 0, 0, 0);
+  const today = getTodayAtNoon();
+  const party = parseIsoDateLocal(partyDate);
+  if (!party) return "outline" as const;
+
   const diffDays = Math.round((party.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays < 0) return "secondary" as const;
   if (diffDays <= 1) return "destructive" as const;
   if (diffDays <= 7) return "default" as const;
   return "outline" as const;
-};
-
-const formatDate = (date: string | null) => {
-  if (!date) return "Nao informado";
-
-  return new Date(date).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 };
 
 const formatTime = (time: string | null) => {
@@ -89,17 +88,6 @@ const formatTime = (time: string | null) => {
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-
-const calculateAge = (birthDate: string | null, partyDate: string | null): string => {
-  if (!birthDate || !partyDate) return "Nao informado";
-
-  const birth = new Date(birthDate);
-  const party = new Date(partyDate);
-  let age = party.getFullYear() - birth.getFullYear();
-  const m = party.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && party.getDate() < birth.getDate())) age--;
-  return `${age} anos`;
-};
 
 const stageLabels: Record<string, string> = {
   contato_inicial: "Contato Inicial",
@@ -177,8 +165,9 @@ const EventoDetalhe = () => {
     );
   }
 
-  const totalPaid = event.valor_entrada + payments.reduce((sum, p) => sum + p.valor, 0);
-  const balance = event.valor_total - totalPaid;
+  const additionalPayments = payments.reduce((sum, payment) => sum + payment.valor, 0);
+  const totalPaid = getEventDisplayTotalPaid(event, additionalPayments);
+  const balance = getEventBalance(event, additionalPayments);
 
   const addTask = async () => {
     const titulo = newTask.trim();
@@ -267,7 +256,11 @@ const EventoDetalhe = () => {
     setShowPaymentForm(false);
   };
 
-  const celebratingAge = calculateAge(event.aniversariante_data_nascimento, event.data_evento);
+  const currentAge = formatCurrentAge(event.aniversariante_data_nascimento);
+  const celebratingAge = formatCelebratingAge(
+    event.aniversariante_data_nascimento,
+    event.data_evento,
+  );
 
   const handleUpdateEvento = async (values: EventoFormValues) => {
     if (!validEventoId) return;
@@ -368,7 +361,7 @@ const EventoDetalhe = () => {
           <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
-              {formatDate(event.data_evento)}
+              {formatIsoDateBR(event.data_evento)}
             </span>
             <Badge variant={getTimeRemainingBadge(event.data_evento)}>
               {getTimeRemaining(event.data_evento)}
@@ -421,7 +414,7 @@ const EventoDetalhe = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Data da festa" value={formatDate(event.data_evento)} />
+              <InfoRow label="Data da festa" value={formatIsoDateBR(event.data_evento)} />
               <InfoRow label="Horario" value={formatTime(event.hora_evento)} />
               <InfoRow label="Convidados" value={`${event.quantidade_convidados ?? 0} pessoas`} />
               <InfoRow
@@ -441,8 +434,12 @@ const EventoDetalhe = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <InfoRow label="Nome" value={event.aniversariante_nome ?? "Nao informado"} />
-              <InfoRow label="Data de nascimento" value={formatDate(event.aniversariante_data_nascimento)} />
-              <InfoRow label="Idade a comemorar" value={celebratingAge} highlight />
+              <InfoRow
+                label="Data de nascimento"
+                value={formatIsoDateBR(event.aniversariante_data_nascimento)}
+              />
+              <InfoRow label="Idade atual" value={currentAge} />
+              <InfoRow label="Idade a ser comemorada" value={celebratingAge} highlight />
             </CardContent>
           </Card>
 
@@ -455,7 +452,14 @@ const EventoDetalhe = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Telefone" value={event.cliente_telefone ?? "Nao informado"} />
+              <InfoRow
+                label="Telefone"
+                value={
+                  event.cliente_telefone
+                    ? formatBrazilPhone(event.cliente_telefone)
+                    : "Nao informado"
+                }
+              />
               <InfoRow label="E-mail" value={event.cliente_email ?? "Nao informado"} />
               <InfoRow label="Nome" value={event.cliente_nome} />
               {validEventoId ? <EventoImageUsageAcceptanceRow eventoId={validEventoId} /> : null}
@@ -513,7 +517,7 @@ const EventoDetalhe = () => {
               )}
               {payments.map((p) => (
                 <div key={p.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border/30">
-                  <span className="text-sm text-foreground">{formatDate(p.data_pagamento)}</span>
+                  <span className="text-sm text-foreground">{formatIsoDateBR(p.data_pagamento)}</span>
                   <span className="text-sm font-medium text-foreground">{formatCurrency(p.valor)}</span>
                 </div>
               ))}
@@ -639,7 +643,7 @@ const EventoDetalhe = () => {
               {notes.map((note) => (
                 <div key={note.id} className="p-3 rounded-lg bg-muted/40 border border-border/30">
                   <p className="text-sm text-foreground">{note.texto}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{formatDate(note.created_at)}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{formatTimestampDateBR(note.created_at)}</p>
                 </div>
               ))}
             </div>

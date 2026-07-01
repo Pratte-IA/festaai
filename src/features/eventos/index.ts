@@ -9,6 +9,12 @@ export { eventosQueryKeys } from "./query-keys";
 export { filterEventosBySearch, matchesEventoSearch } from "./filter-eventos-by-search";
 export { getEventoPackageDisplay } from "./evento-package-display";
 export {
+  getEventBalance,
+  getEventDisplayTotalPaid,
+  getEventRecordedPaid,
+  isEventFullySettled,
+} from "./event-financial";
+export {
   isCalendarOrcamentoEvento,
   isCalendarVisitaEvento,
   isClosedPartyEvento,
@@ -39,7 +45,7 @@ export { useCreateEvento } from "./use-create-evento";
 export { useEvento } from "./use-evento";
 export { useCreateEventoNota, useEventoNotas } from "./use-evento-notas";
 export { useCreateEventoPagamento, useEventoPagamentos } from "./use-evento-pagamentos";
-export { useCreateEventoTarefa, useEventoTarefas, useToggleEventoTarefa } from "./use-evento-tarefas";
+export { useCreateEventoTarefa, useDeleteEventoTarefa, useEventoTarefas, useToggleEventoTarefa, useUpdateEventoTarefa } from "./use-evento-tarefas";
 export { useEventos } from "./use-eventos";
 export { useDeleteEvento } from "./use-delete-evento";
 export { useUpdateEvento } from "./use-update-evento";

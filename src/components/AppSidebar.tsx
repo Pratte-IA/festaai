@@ -8,6 +8,7 @@ import {
   BarChart3,
   Settings,
   Calendar,
+  ListTodo,
   X,
   LogOut,
   UserCircle,
@@ -39,13 +40,14 @@ const vendasSection: NavSection = {
   title: "Vendas",
   items: [
     { icon: Users, label: "CRM", path: "/crm" },
-    { icon: Calendar, label: "Calendário", path: "/calendario" },
+    { icon: Calendar, label: "Agenda", path: "/agenda" },
   ],
 };
 
 const gestaoSection: NavSection = {
   title: "Gestão",
   items: [
+    { icon: ListTodo, label: "Tarefas", path: "/tarefas" },
     { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
     { icon: ClipboardList, label: "Formulários", path: "/formularios" },
     { icon: FileText, label: "Contratos", path: "/contratos" },
