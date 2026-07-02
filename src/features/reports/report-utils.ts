@@ -24,12 +24,4 @@ export const getEventTotalPaid = (event: Evento, paidByEventoId: Map<number, num
 export const getEventOutstandingBalance = (event: Evento, paidByEventoId: Map<number, number>) =>
   getEventBalance(event, paidByEventoId.get(event.id) ?? 0);
 
-import { toWhatsAppMePhone } from "@/lib/phone";
-
-export const openWhatsApp = (phone: string | null, name: string, message: string) => {
-  const cleaned = toWhatsAppMePhone(phone);
-
-  if (!cleaned) return;
-
-  window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(message.replace("{{nome}}", name))}`, "_blank");
-};
+export { openWhatsApp } from "@/lib/whatsapp";

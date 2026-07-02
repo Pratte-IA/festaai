@@ -31,7 +31,7 @@ import {
   useToggleEventoTarefa,
 } from "@/features/eventos";
 import { formatCelebratingAge, formatCurrentAge } from "@/features/eventos/birthday-age";
-import { openWhatsApp } from "@/features/reports";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { useTenantAdminCapability } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -306,6 +306,11 @@ const EventoDetalhe = () => {
   };
 
   const canDeleteLead = adminCapability?.isTenantAdmin ?? false;
+  const whatsappUrl = buildWhatsAppUrl(
+    event.cliente_telefone,
+    event.cliente_nome,
+    "Ola {{nome}}! Tudo bem?",
+  );
 
   return (
     <AppLayout>
@@ -386,25 +391,29 @@ const EventoDetalhe = () => {
             <Edit3 className="w-4 h-4" />
             Editar evento
           </Button>
-          <Button
-            className="bg-[#25D366] hover:bg-[#1da851] text-white gap-2"
-            disabled={!event.cliente_telefone}
-            onClick={() => {
-              if (!event.cliente_telefone) {
+          {whatsappUrl ? (
+            <Button asChild className="bg-[#25D366] hover:bg-[#1da851] text-white gap-2">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="w-4 h-4" />
+                WhatsApp
+              </a>
+            </Button>
+          ) : (
+            <Button
+              className="bg-[#25D366] hover:bg-[#1da851] text-white gap-2"
+              disabled={!event.cliente_telefone}
+              onClick={() => {
                 toast({
-                  title: "Telefone nao informado",
-                  description: "Cadastre o telefone do cliente para enviar mensagem.",
+                  title: "Telefone invalido",
+                  description: "Cadastre um celular valido para enviar mensagem.",
                   variant: "destructive",
                 });
-                return;
-              }
-
-              openWhatsApp(event.cliente_telefone, event.cliente_nome, "Ola {{nome}}! Tudo bem?");
-            }}
-          >
-            <MessageCircle className="w-4 h-4" />
-            WhatsApp
-          </Button>
+              }}
+            >
+              <MessageCircle className="w-4 h-4" />
+              WhatsApp
+            </Button>
+          )}
           <Button
             className="bg-festa-blue hover:bg-festa-blue/90 text-white gap-2"
             onClick={() => setIsClosingDialogOpen(true)}

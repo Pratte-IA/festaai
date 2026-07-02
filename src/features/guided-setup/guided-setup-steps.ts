@@ -55,6 +55,12 @@ export const GUIDED_SETUP_STEPS = [
     title: "Conectar o WhatsApp",
     description: "Vincule um número WhatsApp para disparos automáticos",
   },
+  {
+    key: "automacoes",
+    order: 10,
+    title: "Automações",
+    description: "Vincule cada automação ao número WhatsApp que envia ou recebe as mensagens",
+  },
 ] as const;
 
 export type GuidedSetupStepKey = (typeof GUIDED_SETUP_STEPS)[number]["key"];
@@ -72,6 +78,7 @@ export const GUIDED_SETUP_WIDE_STEPS: GuidedSetupStepKey[] = [
   "contrato",
   "formulario",
   "whatsapp",
+  "automacoes",
 ];
 
 export const isGuidedSetupStepKey = (value: string): value is GuidedSetupStepKey =>

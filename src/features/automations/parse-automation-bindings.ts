@@ -67,6 +67,10 @@ export const isAutomationBindingConfigured = (binding: AutomationTemplateBinding
   return binding.connectionId !== null;
 };
 
+export const areAllAutomationBindingsConfigured = (
+  bindings: AutomationTemplateBindingRow[],
+): boolean => bindings.every(isAutomationBindingConfigured);
+
 export const serializeAutomationTemplateBindings = (
   bindings: AutomationTemplateBindingRow[],
 ): Json => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, ChevronDown, Lock } from "lucide-react";
 
+import { AutomacoesSetupStep } from "@/components/guided-setup/AutomacoesSetupStep";
 import { AdicionaisSetupStep } from "@/components/guided-setup/AdicionaisSetupStep";
 import { ChecklistSetupStep } from "@/components/guided-setup/ChecklistSetupStep";
 import { CompanyProfileStepForm } from "@/components/guided-setup/CompanyProfileStepForm";
@@ -52,7 +53,9 @@ const renderStepContent = (
     case "formulario":
       return <FormularioSetupStep onCompleted={onCompleted} />;
     case "whatsapp":
-      return <WhatsappSetupStep onCompleted={onAllCompleted ?? onCompleted} />;
+      return <WhatsappSetupStep onCompleted={onCompleted} />;
+    case "automacoes":
+      return <AutomacoesSetupStep onCompleted={onAllCompleted ?? onCompleted} />;
     default:
       return null;
   }

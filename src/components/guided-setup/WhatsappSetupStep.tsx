@@ -28,7 +28,7 @@ export const WhatsappSetupStep = ({ onCompleted }: WhatsappSetupStepProps) => {
 
     void finishStep({
       onSuccess: onCompleted,
-      successMessage: "Configuração inicial concluída!",
+      successMessage: "WhatsApp conectado.",
     });
   };
 
@@ -47,7 +47,7 @@ export const WhatsappSetupStep = ({ onCompleted }: WhatsappSetupStepProps) => {
       <GuidedSetupContinueBar
         description={
           hasConnected
-            ? "WhatsApp conectado. Finalize a configuração inicial para liberar a plataforma."
+            ? "WhatsApp conectado. Continue para vincular as automações aos números."
             : "Crie uma conexão e escaneie o QR Code no aplicativo WhatsApp."
         }
         disabled={!hasConnected}

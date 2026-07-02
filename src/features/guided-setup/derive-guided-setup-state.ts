@@ -1,4 +1,9 @@
 import type { EstruturaBlock } from "@/data/packagesData";
+import {
+  areAllAutomationBindingsConfigured,
+  mergeAutomationTemplateBindings,
+  parseAutomationTemplateBindings,
+} from "@/features/automations/parse-automation-bindings";
 import { supabase } from "@/lib/supabase/client";
 
 import {
@@ -26,6 +31,8 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     contractAcceptanceResult,
     checklistResult,
     whatsappResult,
+    automationSettingsResult,
+    closingFormResult,
   ] = await Promise.all([
     supabase
       .from("tenant_company_profiles")
@@ -66,6 +73,15 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
       .select("id", { count: "exact", head: true })
       .eq("tenant_id", tenantId),
     supabase.from("whatsapp_connections").select("status").eq("tenant_id", tenantId),
+    supabase
+      .from("tenant_automation_settings")
+      .select("automation_template_bindings")
+      .eq("tenant_id", tenantId)
+      .maybeSingle(),
+    supabase
+      .from("tenant_closing_form_fields")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId),
   ]);
 
   if (profileResult.error) throw profileResult.error;
@@ -77,6 +93,8 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
   if (contractAcceptanceResult.error) throw contractAcceptanceResult.error;
   if (checklistResult.error) throw checklistResult.error;
   if (whatsappResult.error) throw whatsappResult.error;
+  if (automationSettingsResult.error) throw automationSettingsResult.error;
+  if (closingFormResult.error) throw closingFormResult.error;
 
   if (profileResult.data?.completed_at) {
     completed.push("company_profile");
@@ -103,12 +121,24 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     completed.push("contrato");
   }
 
+  if ((closingFormResult.count ?? 0) > 0) {
+    completed.push("formulario");
+  }
+
   if ((checklistResult.count ?? 0) > 0) {
     completed.push("checklist");
   }
 
   if (whatsappResult.data?.some((connection) => connection.status === "connected")) {
     completed.push("whatsapp");
+  }
+
+  const automationBindings = mergeAutomationTemplateBindings(
+    parseAutomationTemplateBindings(automationSettingsResult.data?.automation_template_bindings),
+  );
+
+  if (areAllAutomationBindingsConfigured(automationBindings)) {
+    completed.push("automacoes");
   }
 
   return {

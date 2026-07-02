@@ -82,12 +82,22 @@ export const useIsGuidedSetupComplete = () => {
       new Set([...derivedQuery.data.completedSteps, ...explicitCompleted]),
     ) as GuidedSetupStepKey[];
 
+    const allStepsComplete = isGuidedSetupComplete(completedSteps);
+    const explicitlyFinished = Boolean(
+      progressQuery.data?.completedAt && progressQuery.data.currentStep === "completed",
+    );
+
     return {
       activeStep: getActiveGuidedSetupStep(completedSteps),
       completedSteps,
-      isComplete: isGuidedSetupComplete(completedSteps),
+      isComplete: allStepsComplete || explicitlyFinished,
     };
-  }, [derivedQuery.data, progressQuery.data?.completedSteps]);
+  }, [
+    derivedQuery.data,
+    progressQuery.data?.completedAt,
+    progressQuery.data?.completedSteps,
+    progressQuery.data?.currentStep,
+  ]);
 
   return {
     ...derivedQuery,
@@ -115,6 +125,8 @@ export const useCompleteGuidedSetupStep = () => {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
+      const derivedState = await deriveGuidedSetupState(currentTenantId);
+
       const { data: existing, error: existingError } = await supabase
         .from("tenant_guided_setup_progress")
         .select("tenant_id, current_step, completed_steps, completed_at")
@@ -124,7 +136,9 @@ export const useCompleteGuidedSetupStep = () => {
       if (existingError) throw existingError;
 
       const currentCompleted = (existing?.completed_steps ?? []).filter(isGuidedSetupStepKey);
-      const completedSteps = Array.from(new Set([...currentCompleted, stepKey]));
+      const completedSteps = Array.from(
+        new Set([...derivedState.completedSteps, ...currentCompleted, stepKey]),
+      ) as GuidedSetupStepKey[];
       const nextStep = getNextGuidedSetupStep(completedSteps);
       const allComplete = isGuidedSetupComplete(completedSteps);
       const now = new Date().toISOString();

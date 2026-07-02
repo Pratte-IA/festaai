@@ -2,6 +2,7 @@ export { AUTOMATION_TEMPLATE_CATALOG, getAutomationTemplate, isAutomationTemplat
 export {
   createDefaultAutomationBindings,
   isAutomationBindingConfigured,
+  areAllAutomationBindingsConfigured,
 } from "./parse-automation-bindings";
 export type {
   AutomationBindingMode,
