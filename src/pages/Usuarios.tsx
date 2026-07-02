@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Eye, EyeOff, KeyRound, Lock, UserPlus, UsersRound } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Lock, ShieldCheck, UserPlus, UsersRound } from "lucide-react";
 import { z } from "zod";
 
 import AppLayout from "@/components/AppLayout";
@@ -59,24 +59,44 @@ const formatCpf = (digits: string | null | undefined) => {
 };
 
 const roleLabel = (role: string) => {
-  if (role === "owner") {
-    return "Dono";
-  }
-  if (role === "admin") {
+  if (role === "owner" || role === "admin") {
     return "Admin";
   }
   return "Vendas";
 };
 
 const roleBadgeVariant = (role: string): "default" | "secondary" | "outline" => {
-  if (role === "owner") {
-    return "default";
-  }
-  if (role === "admin") {
+  if (role === "owner" || role === "admin") {
     return "secondary";
   }
   return "outline";
 };
+
+const teamProfileDetails = [
+  {
+    badge: "Admin",
+    badgeVariant: "secondary" as const,
+    description: "Para quem configura a operação e gerencia a empresa no FestaAI.",
+    items: [
+      "Convida pessoas e define perfis na equipe",
+      "Altera pacotes, contratos, financeiro e demais configurações",
+      "Conecta WhatsApp, automações e integrações",
+      "Acessa Suporte e pode solicitar ajustes do agente",
+      "Exclui leads no CRM",
+    ],
+  },
+  {
+    badge: "Vendas",
+    badgeVariant: "outline" as const,
+    description: "Para quem conduz o dia a dia comercial da casa.",
+    items: [
+      "Atende leads no CRM e acompanha a agenda",
+      "Registra tarefas, formulários e contratos dos eventos",
+      "Consulta relatórios operacionais",
+      "Altera a própria senha de acesso",
+    ],
+  },
+];
 
 const Usuarios = () => {
   const { user } = useAuth();
@@ -306,6 +326,39 @@ const Usuarios = () => {
           </Card>
         )}
       </div>
+
+      <Card className="glass-card mt-6 border-border/50">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" aria-hidden />
+            <CardTitle className="text-lg">Diferença entre os perfis</CardTitle>
+          </div>
+          <CardDescription>
+            Escolha o perfil certo ao convidar. Quem contratou o FestaAI também aparece como Admin.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6 sm:grid-cols-2">
+          {teamProfileDetails.map((profile) => (
+            <div
+              key={profile.badge}
+              className="rounded-lg border border-border/60 bg-muted/20 p-4"
+            >
+              <Badge className="mb-3" variant={profile.badgeVariant}>
+                {profile.badge}
+              </Badge>
+              <p className="text-sm text-muted-foreground">{profile.description}</p>
+              <ul className="mt-4 space-y-2 text-sm text-foreground">
+                {profile.items.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card className="glass-card mt-8 border-border/50">
         <CardHeader>
