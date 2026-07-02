@@ -2,6 +2,7 @@ import type { AutomationTemplateDefinition, AutomationTemplateKey } from "./type
 
 export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
   {
+    bindingMode: "whatsapp_connection",
     key: "atendimento",
     title: "Atendimento",
     description:
@@ -9,12 +10,14 @@ export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
     direction: "inbound",
   },
   {
+    bindingMode: "whatsapp_connection",
     key: "boas-vindas",
     title: "Boas Vindas",
-    description: "Envia mensagem de boas-vindas após o primeiro contato ou fechamento da festa.",
+    description: "Envia mensagem de boas-vindas após o fechamento da festa.",
     direction: "outbound",
   },
   {
+    bindingMode: "whatsapp_connection",
     key: "sete-dias-antes",
     title: "7 dias Antes da Festa",
     description:
@@ -22,10 +25,11 @@ export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
     direction: "outbound",
   },
   {
+    bindingMode: "phone_number",
     key: "passar-para-vendedor",
     title: "Passar para o Vendedor",
     description:
-      "Encaminha a conversa para o número do vendedor quando o cliente precisa falar com alguém da equipe.",
+      "Informe o celular particular do vendedor para onde a conversa será encaminhada quando o cliente precisar falar com alguém da equipe.",
     direction: "outbound",
   },
 ];

@@ -11,6 +11,7 @@ import {
   normalizePhoneDigits,
   phonesMatch,
   toBrazilPhoneInputValue,
+  toWhatsAppMePhone,
   toWhatsAppPhoneKey,
 } from "@/lib/phone";
 
@@ -36,6 +37,11 @@ describe("phone utils", () => {
     expect(toWhatsAppPhoneKey("(45) 99978-5617")).toBe("554599785617");
     expect(toWhatsAppPhoneKey("5545999785617")).toBe("554599785617");
     expect(toWhatsAppPhoneKey("554599785617@s.whatsapp.net")).toBe("554599785617");
+  });
+
+  it("gera numero E.164 para links wa.me com nono digito", () => {
+    expect(toWhatsAppMePhone("(48) 98479-1283")).toBe("5548984791283");
+    expect(toWhatsAppMePhone("(45) 99978-5617")).toBe("5545999785617");
   });
 
   it("nao confunde celulares diferentes com mesmo sufixo parcial", () => {

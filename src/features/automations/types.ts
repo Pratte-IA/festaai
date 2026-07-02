@@ -8,7 +8,10 @@ export type AutomationTemplateKey =
 
 export type AutomationTemplateDirection = "inbound" | "outbound";
 
+export type AutomationBindingMode = "whatsapp_connection" | "phone_number";
+
 export interface AutomationTemplateDefinition {
+  bindingMode: AutomationBindingMode;
   description: string;
   direction: AutomationTemplateDirection;
   key: AutomationTemplateKey;
@@ -17,11 +20,13 @@ export interface AutomationTemplateDefinition {
 
 export interface AutomationTemplateBinding {
   connectionId: number | null;
+  forwardPhone: string | null;
   key: AutomationTemplateKey;
 }
 
 export interface AutomationTemplateBindingRow extends AutomationTemplateDefinition {
   connectionId: number | null;
+  forwardPhone: string | null;
 }
 
 export interface TenantAutomationWorkflow {

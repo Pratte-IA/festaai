@@ -31,6 +31,7 @@ import {
   useToggleEventoTarefa,
 } from "@/features/eventos";
 import { formatCelebratingAge, formatCurrentAge } from "@/features/eventos/birthday-age";
+import { openWhatsApp } from "@/features/reports";
 import { useTenantAdminCapability } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -385,7 +386,22 @@ const EventoDetalhe = () => {
             <Edit3 className="w-4 h-4" />
             Editar evento
           </Button>
-          <Button className="bg-[#25D366] hover:bg-[#1da851] text-white gap-2">
+          <Button
+            className="bg-[#25D366] hover:bg-[#1da851] text-white gap-2"
+            disabled={!event.cliente_telefone}
+            onClick={() => {
+              if (!event.cliente_telefone) {
+                toast({
+                  title: "Telefone nao informado",
+                  description: "Cadastre o telefone do cliente para enviar mensagem.",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              openWhatsApp(event.cliente_telefone, event.cliente_nome, "Ola {{nome}}! Tudo bem?");
+            }}
+          >
             <MessageCircle className="w-4 h-4" />
             WhatsApp
           </Button>

@@ -1,6 +1,7 @@
 import type { Json } from "@/lib/supabase/database.types";
 
 import {
+  createDefaultAutomationBindings,
   mergeAutomationTemplateBindings,
   parseAutomationTemplateBindings,
 } from "./parse-automation-bindings";
@@ -89,7 +90,7 @@ export const parseTenantAutomationSettingsRow = (
 };
 
 export const buildDefaultAutomationSettingsView = (): TenantAutomationSettingsView => ({
-  automationBindings: mergeAutomationTemplateBindings([]),
+  automationBindings: createDefaultAutomationBindings(),
   inboundAutomationEnabled: false,
   n8nEditorUrl: null,
   n8nProvisionStatus: null,

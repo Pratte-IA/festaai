@@ -124,6 +124,14 @@ export const toWhatsAppPhoneKey = (phone: string | null | undefined): string | n
   return `55${national}`;
 };
 
+/** Número E.164 para links wa.me (com nono dígito do celular BR). */
+export const toWhatsAppMePhone = (phone: string | null | undefined): string | null => {
+  const national = normalizeBrazilPhoneDigits(phone);
+  if (!national) return null;
+
+  return `55${national}`;
+};
+
 /** Formata para exibição: celular (XX) XXXXX-XXXX ou fixo (XX) XXXX-XXXX. */
 export const formatBrazilPhone = (phone: string | null | undefined): string => {
   const digits = normalizeBrazilPhoneDigits(phone);

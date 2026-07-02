@@ -24,10 +24,10 @@ export const getEventTotalPaid = (event: Evento, paidByEventoId: Map<number, num
 export const getEventOutstandingBalance = (event: Evento, paidByEventoId: Map<number, number>) =>
   getEventBalance(event, paidByEventoId.get(event.id) ?? 0);
 
-import { toWhatsAppPhoneKey } from "@/lib/phone";
+import { toWhatsAppMePhone } from "@/lib/phone";
 
 export const openWhatsApp = (phone: string | null, name: string, message: string) => {
-  const cleaned = toWhatsAppPhoneKey(phone);
+  const cleaned = toWhatsAppMePhone(phone);
 
   if (!cleaned) return;
 

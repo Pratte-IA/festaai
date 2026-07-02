@@ -1,5 +1,10 @@
 export { AUTOMATION_TEMPLATE_CATALOG, getAutomationTemplate, isAutomationTemplateKey } from "./automation-catalog";
+export {
+  createDefaultAutomationBindings,
+  isAutomationBindingConfigured,
+} from "./parse-automation-bindings";
 export type {
+  AutomationBindingMode,
   AutomationTemplateBindingRow,
   AutomationTemplateDefinition,
   AutomationTemplateDirection,
