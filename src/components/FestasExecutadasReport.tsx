@@ -3,29 +3,33 @@ import { Link } from "react-router-dom";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Filter, ChevronDown, ChevronUp, PartyPopper, Users } from "lucide-react";
+import { Filter, ChevronDown, ChevronUp, DollarSign, PartyPopper, Users } from "lucide-react";
 import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import { useTenantPackages } from "@/features/configuracoes";
-import { Evento } from "@/features/eventos";
+import { Evento, filterExecutadasFunnelEventsByPartyDate } from "@/features/eventos";
 import {
+  formatCurrency,
   formatDate,
-  isDateInPeriod,
   ReportComponentProps,
   useReportData,
 } from "@/features/reports";
 
-const FestasExecutadasReport = ({ period }: ReportComponentProps) => {
+const FestasExecutadasReport = ({ period: _period }: ReportComponentProps) => {
   const { data, error, isLoading } = useReportData();
   const { data: packages = [] } = useTenantPackages();
   const [showFilters, setShowFilters] = useState(false);
   const [clientFilter, setClientFilter] = useState("");
   const [childFilter, setChildFilter] = useState("");
+  const [partyDateStart, setPartyDateStart] = useState("");
+  const [partyDateEnd, setPartyDateEnd] = useState("");
 
   const events = useMemo<Evento[]>(() => {
-    return (data?.eventos ?? [])
-      .filter((event) => event.funil === "executadas" && isDateInPeriod(event.data_evento, period))
-      .sort((a, b) => (b.data_evento ?? "").localeCompare(a.data_evento ?? ""));
-  }, [data, period]);
+    return filterExecutadasFunnelEventsByPartyDate(
+      data?.eventos ?? [],
+      partyDateStart || undefined,
+      partyDateEnd || undefined,
+    ).sort((a, b) => (b.data_evento ?? "").localeCompare(a.data_evento ?? ""));
+  }, [data, partyDateStart, partyDateEnd]);
 
   const filtered = useMemo(() => {
     const normalizedClient = clientFilter.trim().toLowerCase();
@@ -43,7 +47,11 @@ const FestasExecutadasReport = ({ period }: ReportComponentProps) => {
     });
   }, [events, clientFilter, childFilter]);
 
+  const totalSales = filtered.reduce((sum, event) => sum + event.valor_total, 0);
+  const averageTicket = filtered.length > 0 ? totalSales / filtered.length : 0;
   const totalGuests = filtered.reduce((sum, event) => sum + (event.quantidade_convidados ?? 0), 0);
+  const averageGuests = filtered.length > 0 ? Math.round(totalGuests / filtered.length) : 0;
+  const hasPartyDateFilter = Boolean(partyDateStart || partyDateEnd);
 
   return (
     <div className="space-y-6">
@@ -56,26 +64,34 @@ const FestasExecutadasReport = ({ period }: ReportComponentProps) => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="glass-card p-4">
           <div className="flex items-center gap-2">
             <PartyPopper className="h-4 w-4 text-primary" />
             <p className="text-sm text-muted-foreground">Festas executadas</p>
           </div>
           <p className="text-2xl font-bold text-foreground">{filtered.length}</p>
+          {hasPartyDateFilter && (
+            <p className="mt-1 text-xs text-muted-foreground">Filtro de data da festa ativo</p>
+          )}
+        </div>
+        <div className="glass-card p-4">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-success" />
+            <p className="text-sm text-muted-foreground">Valor total de vendas</p>
+          </div>
+          <p className="text-2xl font-bold text-foreground">{formatCurrency(totalSales)}</p>
+        </div>
+        <div className="glass-card p-4">
+          <p className="text-sm text-muted-foreground">Ticket médio</p>
+          <p className="text-2xl font-bold text-foreground">{formatCurrency(averageTicket)}</p>
         </div>
         <div className="glass-card p-4">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-festa-blue" />
-            <p className="text-sm text-muted-foreground">Total de convidados</p>
+            <p className="text-sm text-muted-foreground">Média de convidados</p>
           </div>
-          <p className="text-2xl font-bold text-foreground">{totalGuests}</p>
-        </div>
-        <div className="glass-card p-4">
-          <p className="text-sm text-muted-foreground">Média de convidados</p>
-          <p className="text-2xl font-bold text-foreground">
-            {filtered.length > 0 ? Math.round(totalGuests / filtered.length) : 0}
-          </p>
+          <p className="text-2xl font-bold text-foreground">{averageGuests}</p>
         </div>
       </div>
 
@@ -103,12 +119,28 @@ const FestasExecutadasReport = ({ period }: ReportComponentProps) => {
               onChange={(event) => setChildFilter(event.target.value)}
             />
           </div>
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Data da festa — início</label>
+            <Input
+              type="date"
+              value={partyDateStart}
+              onChange={(event) => setPartyDateStart(event.target.value)}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Data da festa — fim</label>
+            <Input
+              type="date"
+              value={partyDateEnd}
+              onChange={(event) => setPartyDateEnd(event.target.value)}
+            />
+          </div>
         </div>
       )}
 
       {filtered.length === 0 ? (
         <div className="glass-card p-8 text-center text-muted-foreground">
-          Nenhuma festa executada encontrada no período selecionado.
+          Nenhuma festa executada encontrada com os filtros selecionados.
         </div>
       ) : (
         <div className="glass-card overflow-hidden">
@@ -120,6 +152,7 @@ const FestasExecutadasReport = ({ period }: ReportComponentProps) => {
                 <TableHead>Data da festa</TableHead>
                 <TableHead className="text-center">Convidados</TableHead>
                 <TableHead>Pacote</TableHead>
+                <TableHead className="text-right">Valor</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,6 +172,7 @@ const FestasExecutadasReport = ({ period }: ReportComponentProps) => {
                   <TableCell>
                     <EventoPackageLabel evento={event} packages={packages} />
                   </TableCell>
+                  <TableCell className="text-right">{formatCurrency(event.valor_pacote)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

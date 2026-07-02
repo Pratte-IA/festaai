@@ -6,6 +6,7 @@ export {
   stageMap,
 } from "./constants";
 export { eventosQueryKeys } from "./query-keys";
+export { filterExecutadasFunnelEvents, filterExecutadasFunnelEventsByPartyDate } from "./filter-executadas-funnel-events";
 export { filterEventosBySearch, matchesEventoSearch } from "./filter-eventos-by-search";
 export { getEventoPackageDisplay } from "./evento-package-display";
 export {

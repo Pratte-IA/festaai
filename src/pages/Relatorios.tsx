@@ -43,7 +43,7 @@ const reports = [
   {
     id: "festas-executadas",
     title: "Festas Executadas",
-    description: "Lista completa de festas realizadas no período",
+    description: "Lista completa de festas do funil executadas",
     icon: PartyPopper,
     accent: "bg-festa-blue/15 text-festa-blue",
   },
@@ -75,7 +75,7 @@ const reportComponents: Record<string, { component: React.FC<ReportComponentProp
   "festas-executadas": {
     component: FestasExecutadasReport,
     title: "Festas Executadas",
-    subtitle: "Festas do funil executadas, filtradas pela data da festa",
+    subtitle: "Todas as festas do funil executadas, igual ao CRM",
   },
   ocupacao: { component: OcupacaoReport, title: "Agenda / Ocupação", subtitle: "Análise de uso do espaço por período e dia da semana" },
   "pos-venda": { component: PosVendaReport, title: "Pós-Venda", subtitle: "Acompanhamento de feedback e relacionamento pós-festa" },
@@ -104,22 +104,31 @@ const Relatorios = () => {
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
         </div>
         <div className="glass-card mb-6 grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Início do período</label>
-            <Input
-              type="date"
-              value={period.startDate}
-              onChange={(event) => setPeriod((current) => ({ ...current, startDate: event.target.value }))}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Fim do período</label>
-            <Input
-              type="date"
-              value={period.endDate}
-              onChange={(event) => setPeriod((current) => ({ ...current, endDate: event.target.value }))}
-            />
-          </div>
+          {activeReport !== "festas-executadas" ? (
+            <>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Início do período</label>
+                <Input
+                  type="date"
+                  value={period.startDate}
+                  onChange={(event) => setPeriod((current) => ({ ...current, startDate: event.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Fim do período</label>
+                <Input
+                  type="date"
+                  value={period.endDate}
+                  onChange={(event) => setPeriod((current) => ({ ...current, endDate: event.target.value }))}
+                />
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground md:col-span-2">
+              Este relatório lista todas as festas do funil executadas. Use os filtros do relatório para
+              refinar por data da festa, cliente ou criança.
+            </p>
+          )}
         </div>
         <ReportComponent period={period} />
       </AppLayout>
