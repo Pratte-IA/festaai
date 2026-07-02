@@ -39,11 +39,6 @@ const createUserFormSchema = z.object({
   cpf: cpfDigitsSchema,
   email: z.string().email("E-mail inválido."),
   fullName: z.string().min(2, "Nome muito curto."),
-  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
-  passwordConfirm: z.string().min(8, "Confirme a senha."),
-}).refine((data) => data.password === data.passwordConfirm, {
-  message: "As senhas não conferem.",
-  path: ["passwordConfirm"],
 });
 
 const changePasswordSchema = z
@@ -92,8 +87,6 @@ const Usuarios = () => {
   const [fullName, setFullName] = useState("");
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [appRole, setAppRole] = useState<"admin" | "member">("member");
   const [createFormError, setCreateFormError] = useState<string | null>(null);
 
@@ -114,8 +107,6 @@ const Usuarios = () => {
       cpf,
       email,
       fullName,
-      password,
-      passwordConfirm,
     });
 
     if (!parsed.success) {
@@ -129,22 +120,19 @@ const Usuarios = () => {
         cpf: parsed.data.cpf,
         email: parsed.data.email,
         fullName: parsed.data.fullName,
-        password: parsed.data.password,
       });
 
       toast({
-        description: "O colaborador já pode entrar com o e-mail e a senha definidos.",
-        title: "Usuário criado",
+        description: "Enviamos um e-mail para a pessoa criar a senha e acessar o painel.",
+        title: "Convite enviado",
       });
 
       setFullName("");
       setCpf("");
       setEmail("");
-      setPassword("");
-      setPasswordConfirm("");
       setAppRole("member");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Não foi possível criar o usuário.";
+      const message = err instanceof Error ? err.message : "Não foi possível enviar o convite.";
       setCreateFormError(message);
     }
   };
@@ -259,8 +247,8 @@ const Usuarios = () => {
                 <CardTitle className="text-lg">Adicionar à equipe</CardTitle>
               </div>
               <CardDescription>
-                Crie o acesso com e-mail e senha. O perfil define se a pessoa administrará o tenant ou
-                apenas vendas.
+                Envie um convite por e-mail. A pessoa define a própria senha e o perfil define se ela
+                administrará o tenant ou apenas vendas.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -307,31 +295,11 @@ const Usuarios = () => {
                     <option value="admin">Admin</option>
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="member-password">Senha inicial</Label>
-                  <Input
-                    id="member-password"
-                    autoComplete="new-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="member-password-confirm">Confirmar senha</Label>
-                  <Input
-                    id="member-password-confirm"
-                    autoComplete="new-password"
-                    type="password"
-                    value={passwordConfirm}
-                    onChange={(e) => setPasswordConfirm(e.target.value)}
-                  />
-                </div>
                 {createFormError && (
                   <p className="text-sm text-destructive">{createFormError}</p>
                 )}
                 <Button disabled={createMember.isPending} type="submit">
-                  {createMember.isPending ? "Criando..." : "Criar usuário"}
+                  {createMember.isPending ? "Enviando..." : "Enviar convite"}
                 </Button>
               </form>
             </CardContent>

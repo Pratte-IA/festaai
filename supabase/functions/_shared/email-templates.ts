@@ -120,11 +120,14 @@ export const emailTemplates: Record<EmailTemplateKey, EmailTemplate> = {
         `
       ${heading("Você foi convidado para o FestaAI")}
       ${paragraph(`${escapeHtml(param(params, "inviterName", "Um administrador"))} convidou você para acessar <strong>${escapeHtml(param(params, "tenantName", "sua empresa"))}</strong>.`)}
-      ${paragraph("Clique no botão abaixo e entre com este e-mail para continuar.")}
+      ${paragraph("Clique no botão abaixo para <strong>criar sua senha</strong> e começar a usar o painel com este e-mail.")}
+      ${highlightBox("O link é pessoal e expira em algumas horas. Se ele expirar, peça para um administrador reenviar o convite.")}
     `,
       ),
-    text: (params) =>
-      `${param(params, "inviterName", "Um administrador")} convidou você para acessar ${param(params, "tenantName", "sua empresa")} no FestaAI.`,
+    text: (params) => {
+      const setupUrl = String(params.setupPasswordUrl ?? params.ctaUrl ?? `${appUrl(params)}/login`);
+      return `${param(params, "inviterName", "Um administrador")} convidou você para acessar ${param(params, "tenantName", "sua empresa")} no FestaAI. Crie sua senha: ${setupUrl}`;
+    },
   },
 
   password_reset: {

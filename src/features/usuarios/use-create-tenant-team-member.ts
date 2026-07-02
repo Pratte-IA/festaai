@@ -11,7 +11,6 @@ export interface CreateTenantTeamMemberInput {
   cpf: string;
   email: string;
   fullName: string;
-  password: string;
 }
 
 const readInvokeErrorMessage = (body: unknown, fallback: string) => {
@@ -43,7 +42,6 @@ export const useCreateTenantTeamMember = () => {
             cpf: input.cpf,
             email: input.email,
             fullName: input.fullName,
-            password: input.password,
             tenantId: currentTenantId,
           },
           headers: {

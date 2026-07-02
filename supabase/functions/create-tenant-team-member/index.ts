@@ -1,6 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
+import { findUserIdByEmail, generatePasswordRecoveryUrl } from "../_shared/auth-recovery-link.ts";
+import { sendTransactionalEmail } from "../_shared/send-transactional-email.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Origin": "*",
@@ -12,7 +15,6 @@ const bodySchema = z.object({
   fullName: z.string().min(2).max(120),
   cpf: z.string().min(11).max(18),
   email: z.string().email().max(320),
-  password: z.string().min(8).max(72),
   appRole: z.enum(["admin", "member"]),
 });
 
@@ -37,6 +39,8 @@ const normalizeCpf = (raw: string) => {
   }
   return digits;
 };
+
+const normalizeEmail = (value: string) => value.trim().toLowerCase();
 
 const mapAppRoleToTenantRole = (appRole: "admin" | "member") =>
   appRole === "admin" ? "admin" : "member";
@@ -79,6 +83,8 @@ Deno.serve(async (req) => {
     const tenantId = payload.tenantId;
     const tenantRole = mapAppRoleToTenantRole(payload.appRole);
     const cpfDigits = normalizeCpf(payload.cpf);
+    const email = normalizeEmail(payload.email);
+    const fullName = payload.fullName.trim();
 
     const service = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
@@ -120,35 +126,54 @@ Deno.serve(async (req) => {
       }
     }
 
-    const { data: newAuthUser, error: createError } = await service.auth.admin.createUser({
-      email: payload.email.trim().toLowerCase(),
-      password: payload.password,
-      email_confirm: false,
-      user_metadata: { full_name: payload.fullName.trim() },
-    });
+    let userId = (await findUserIdByEmail(service, email))?.id ?? null;
+    let createdUser = false;
 
-    if (createError || !newAuthUser.user) {
-      const msg = createError?.message ?? "Não foi possível criar o usuário.";
-      if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("already been registered")) {
-        return jsonResponse({ error: "Este e-mail já está cadastrado." }, 409);
+    if (!userId) {
+      const { data: newAuthUser, error: createError } = await service.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        user_metadata: { full_name: fullName },
+      });
+
+      if (createError || !newAuthUser.user) {
+        const msg = createError?.message ?? "Não foi possível criar o usuário.";
+        if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("already been registered")) {
+          return jsonResponse({ error: "Este e-mail já está cadastrado." }, 409);
+        }
+        return jsonResponse({ error: msg }, 400);
       }
-      return jsonResponse({ error: msg }, 400);
-    }
 
-    const newUserId = newAuthUser.user.id;
+      userId = newAuthUser.user.id;
+      createdUser = true;
+    } else {
+      const { data: existingMember } = await service
+        .from("tenant_members")
+        .select("id")
+        .eq("tenant_id", tenantId)
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (existingMember) {
+        return jsonResponse({ error: "Este e-mail já faz parte da sua equipe." }, 409);
+      }
+    }
 
     const { error: profileError } = await service.from("profiles").upsert(
       {
-        id: newUserId,
-        full_name: payload.fullName.trim(),
+        id: userId,
+        full_name: fullName,
         cpf: cpfDigits,
-        email: payload.email.trim().toLowerCase(),
+        email,
       },
       { onConflict: "id" },
     );
 
     if (profileError) {
-      await service.auth.admin.deleteUser(newUserId);
+      if (createdUser) {
+        await service.auth.admin.deleteUser(userId);
+      }
       throw profileError;
     }
 
@@ -157,16 +182,46 @@ Deno.serve(async (req) => {
       role: tenantRole,
       status: "active",
       tenant_id: tenantId,
-      user_id: newUserId,
+      user_id: userId,
     });
 
     if (memberError) {
-      await service.auth.admin.deleteUser(newUserId);
+      if (createdUser) {
+        await service.auth.admin.deleteUser(userId);
+      }
       throw memberError;
     }
 
+    const [{ data: tenant }, { data: inviterProfile }] = await Promise.all([
+      service.from("tenants").select("name").eq("id", tenantId).maybeSingle(),
+      service.from("profiles").select("full_name, email").eq("id", actor.id).maybeSingle(),
+    ]);
+
+    const setupPasswordUrl = await generatePasswordRecoveryUrl(service, email, { firstAccess: true });
+
+    await sendTransactionalEmail(supabaseUrl, serviceRoleKey, {
+      metadata: {
+        invited_by: actor.id,
+        trigger: "team_member_invite",
+      },
+      params: {
+        ctaLabel: "Criar minha senha e acessar",
+        ctaUrl: setupPasswordUrl,
+        inviterName: inviterProfile?.full_name?.trim() || inviterProfile?.email || "Um administrador",
+        setupPasswordUrl,
+        tenantName: tenant?.name ?? "sua empresa",
+      },
+      recipient: {
+        email,
+        name: fullName,
+      },
+      templateKey: "invite_member",
+      tenantId,
+    });
+
     return jsonResponse({
-      userId: newUserId,
+      emailSent: true,
+      userId,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -175,7 +230,7 @@ Deno.serve(async (req) => {
         400,
       );
     }
-    const message = error instanceof Error ? error.message : "Erro inesperado ao criar usuário.";
+    const message = error instanceof Error ? error.message : "Erro inesperado ao convidar usuário.";
     return jsonResponse({ error: message }, 400);
   }
 });
