@@ -309,7 +309,7 @@ const EventoDetalhe = () => {
   const whatsappUrl = buildWhatsAppUrl(
     event.cliente_telefone,
     event.cliente_nome,
-    "Ola {{nome}}! Tudo bem?",
+    "Olá, {{nome}}! Tudo bem?",
   );
 
   return (
