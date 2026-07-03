@@ -12,4 +12,6 @@ export const configuracoesQueryKeys = {
   paymentMethods: (tenantId: number | null) => ["configuracoes", tenantId, "payment-methods"] as const,
   acceptanceTerms: (tenantId: number | null) => ["configuracoes", tenantId, "acceptance-terms"] as const,
   closingForm: (tenantId: number | null) => ["configuracoes", tenantId, "closing-form"] as const,
+  satisfactionSurvey: (tenantId: number | null) =>
+    ["configuracoes", tenantId, "satisfaction-survey"] as const,
 };

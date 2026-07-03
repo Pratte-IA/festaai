@@ -3,7 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { Calendar, GripVertical, Package, PartyPopper, Users } from "lucide-react";
 import { useTenantPackages } from "@/features/configuracoes";
 import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
-import { Evento, FunnelType, Stage, StageDefinition, useUpdateEventoStage } from "@/features/eventos";
+import {
+  Evento,
+  FunnelType,
+  Stage,
+  StageDefinition,
+  sortEventosByPartyDateExecutionOrder,
+  useUpdateEventoStage,
+} from "@/features/eventos";
+import {
+  compareIsoDateToToday,
+  formatDateBR,
+  formatTimestampDateBR,
+} from "@/lib/date";
 import { toast } from "@/hooks/use-toast";
 
 interface KanbanBoardProps {
@@ -15,12 +27,8 @@ interface KanbanBoardProps {
 const getTimeRemaining = (partyDate: string | null): string => {
   if (!partyDate) return "Sem data";
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const party = new Date(partyDate);
-  party.setHours(0, 0, 0, 0);
-  const diffMs = party.getTime() - today.getTime();
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  const diffDays = compareIsoDateToToday(partyDate);
+  if (diffDays === null) return "Sem data";
 
   if (diffDays < 0) return "Realizada";
   if (diffDays === 0) return "Hoje";
@@ -31,11 +39,8 @@ const getTimeRemaining = (partyDate: string | null): string => {
 const getTimeRemainingColor = (partyDate: string | null): string => {
   if (!partyDate) return "text-muted-foreground";
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const party = new Date(partyDate);
-  party.setHours(0, 0, 0, 0);
-  const diffDays = Math.round((party.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const diffDays = compareIsoDateToToday(partyDate);
+  if (diffDays === null) return "text-muted-foreground";
 
   if (diffDays < 0) return "text-muted-foreground";
   if (diffDays <= 1) return "text-destructive font-semibold";
@@ -88,20 +93,14 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
     setDraggedEvent(null);
   };
 
-  const formatDate = (date: string | null) => {
-    if (!date) return "Sem data";
-
-    return new Date(date).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
+  const formatDate = (date: string | null, fallback = "Sem data") => formatDateBR(date, fallback);
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
       {stages.map((stage) => {
-        const stageEvents = events.filter((e) => e.etapa === stage.key);
+        const stageEvents = sortEventosByPartyDateExecutionOrder(
+          events.filter((e) => e.etapa === stage.key),
+        );
         return (
           <div
             key={stage.key}
@@ -144,7 +143,7 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
                       {/* Linha 3: Data de entrada */}
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0" />
-                        Entrada: {formatDate(event.created_at)}
+                        Entrada: {formatTimestampDateBR(event.created_at)}
                       </p>
 
                       {/* Linha 4: Data da festa + tempo restante */}

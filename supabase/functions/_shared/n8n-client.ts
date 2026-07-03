@@ -33,6 +33,9 @@ export interface N8nForwardResult {
   responseStatus: number | null;
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 const parseTimeoutMs = () => {
   const raw = Deno.env.get("N8N_FORWARD_TIMEOUT_MS");
   const parsed = raw ? Number.parseInt(raw, 10) : 5000;
@@ -40,7 +43,7 @@ const parseTimeoutMs = () => {
 };
 
 export const forwardToN8n = async (
-  payload: N8nInboundPayload,
+  payload: N8nInboundPayload | Record<string, unknown>,
   webhookUrl: string,
 ): Promise<N8nForwardResult> => {
   const secret = Deno.env.get("N8N_WEBHOOK_SECRET");
@@ -62,9 +65,12 @@ export const forwardToN8n = async (
   }
 
   const controller = new AbortController();
-  const timeoutMs = payload.message.mediaBase64
-    ? Math.max(parseTimeoutMs(), 30000)
-    : parseTimeoutMs();
+  const hasMediaBase64 =
+    "message" in payload &&
+    isRecord(payload.message) &&
+    typeof payload.message.mediaBase64 === "string" &&
+    payload.message.mediaBase64.length > 0;
+  const timeoutMs = hasMediaBase64 ? Math.max(parseTimeoutMs(), 30000) : parseTimeoutMs();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {

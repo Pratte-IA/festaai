@@ -1,6 +1,7 @@
 import { PackageData } from "@/data/packagesData";
+import { sanitizePackageAutomationNameInput } from "@/lib/package-automation-name";
 
-export type PackageMatchCandidate = Pick<PackageData, "id" | "name" | "active">;
+export type PackageMatchCandidate = Pick<PackageData, "id" | "name" | "nameAutomacao" | "active">;
 
 /** Normaliza texto para comparacao tolerante (acentos, prefixo "pacote", espacos). */
 export const normalizePackageMatchKey = (raw: string): string =>
@@ -60,4 +61,16 @@ export const resolvePackageByName = <T extends PackageMatchCandidate>(
   });
 
   return scored[0].pkg;
+};
+
+/** Resolve pacote pelo identificador estável de automação (`name_automacao`). */
+export const resolvePackageByAutomationName = <T extends PackageMatchCandidate>(
+  rawAutomationName: string | null | undefined,
+  packages: T[],
+): T | null => {
+  const query = sanitizePackageAutomationNameInput(rawAutomationName ?? "");
+  if (!query) return null;
+
+  const candidates = packages.filter((pkg) => pkg.active !== false);
+  return candidates.find((pkg) => pkg.nameAutomacao === query) ?? null;
 };

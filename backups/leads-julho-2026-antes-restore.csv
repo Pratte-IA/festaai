@@ -1,0 +1,9 @@
+funil,etapa,nome,telefone,email,origem,tipo_evento,data_evento,hora,aniversariante,nascimento,convidados,pacote_nome,valor_pacote,valor_adicionais,valor_entrada,observacoes
+vendas,proposta_enviada,Maria Eduarda,554899727997,,,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,
+vendas,proposta_enviada,Camili,554891878268,,,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,
+vendas,contato_inicial,Maria Eduarda,554896362339,,,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,
+vendas,contato_inicial,Vanessa,554884038841,,,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,
+vendas,contato_inicial,Karol Tomaz,554899687893,,,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,
+vendas,contato_inicial,Manu,554891222045,,,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,
+vendas,contato_inicial,Carla Carvalho,554899923519,,,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,
+vendas,contato_inicial,Micheli F Faoro Giraldi,554599785617,,whatsapp,festa,2027-04-25,,Henri,2021-04-27,80,,0,0,0,

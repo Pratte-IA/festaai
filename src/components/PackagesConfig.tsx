@@ -315,6 +315,8 @@ const PackagesConfig = ({
                       </>
                     ) : null}
                     <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                    <span className="font-mono">{pkg.nameAutomacao}</span>
+                    <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
                     <span>
                       {pricingTiers.length}{" "}
                       {pricingTiers.length === 1 ? "faixa de preço" : "faixas de preço"}

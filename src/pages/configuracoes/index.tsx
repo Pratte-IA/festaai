@@ -11,6 +11,7 @@ import {
   Package,
   PlugZap,
   Sparkles,
+  Star,
   Tag,
   Wallet,
 } from "lucide-react";
@@ -72,6 +73,12 @@ const cards: ConfigCardProps[] = [
     icon: Wallet,
   },
   {
+    to: "/configuracoes/pesquisa-avaliacao",
+    title: "Pesquisa de Avaliação",
+    description: "Monte a pesquisa de satisfação enviada após a festa — NPS, experiência e depoimentos",
+    icon: Star,
+  },
+  {
     to: "/configuracoes/integracoes/whatsapp",
     title: "WhatsApp",
     description: "Conecte números WhatsApp via Evolution para disparos automáticos",
@@ -87,7 +94,7 @@ const cards: ConfigCardProps[] = [
     to: GUIDED_SETUP_ROUTE,
     title: "Configuração Inicial Guiada",
     description:
-      "Revise ou altere qualquer etapa — empresa, pacotes, financeiro, formulário e integrações",
+      "Revise ou altere qualquer etapa — empresa, pacotes, financeiro, formulário, pesquisa e integrações",
     icon: Sparkles,
   },
 ];

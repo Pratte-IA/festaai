@@ -13,18 +13,11 @@ import type {
 } from "@/features/configuracoes/closing-form-types";
 import type { Evento, EventoUpdate } from "@/features/eventos/types";
 import type { Json } from "@/lib/supabase/database.types";
+import { formatIsoDateBR } from "@/lib/date";
 
 const EMPTY_RESPONSE_LABEL = "Não informado";
 
-const formatDateValue = (value: string): string => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
+const formatDateValue = (value: string): string => formatIsoDateBR(value) || value;
 
 const formatCurrencyValue = (value: string): string => {
   const amount = Number(value);

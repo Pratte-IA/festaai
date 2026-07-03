@@ -110,15 +110,14 @@ export const formatBrazilPhone = (phone: string | null | undefined): string => {
 };
 
 export const normalizeBrazilMobilePhoneForStorage = (phone: string | null | undefined): string | null => {
-  const digits = parseBrazilMobilePhoneInputDigits(phone);
-  if (!digits || !isValidBrazilMobilePhone(phone)) return null;
+  if (!isValidBrazilMobilePhone(phone)) return null;
 
-  return formatBrazilPhoneFromDigits(digits);
+  return toWhatsAppPhoneKey(phone);
 };
 
 export const normalizeBrazilPhoneForStorage = (phone: string | null | undefined): string | null => {
   const normalized = normalizeBrazilPhoneDigits(phone);
   if (!normalized || normalized.length !== 11 || normalized.charAt(2) !== "9") return null;
 
-  return formatBrazilPhoneFromDigits(normalized);
+  return toWhatsAppPhoneKey(phone);
 };

@@ -24,6 +24,7 @@ import { useAcceptEventoContract } from "@/features/eventos/use-evento-contract"
 import { Evento } from "@/features/eventos/types";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { toBrazilPhoneInputValue } from "@/lib/phone";
 
 interface ContractAcceptanceDialogProps {
   contract: EventoContract;
@@ -54,7 +55,7 @@ export const ContractAcceptanceDialog = ({
   const [acceptedByName, setAcceptedByName] = useState(evento.cliente_nome ?? "");
   const [acceptedByCpf, setAcceptedByCpf] = useState(evento.cliente_cpf ?? "");
   const [acceptedByEmail, setAcceptedByEmail] = useState(evento.cliente_email ?? "");
-  const [acceptedByPhone, setAcceptedByPhone] = useState(evento.cliente_telefone ?? "");
+  const [acceptedByPhone, setAcceptedByPhone] = useState(toBrazilPhoneInputValue(evento.cliente_telefone));
   const [acceptanceText, setAcceptanceText] = useState(CONTRACT_ACCEPTANCE_DECLARATION);
   const [termAcceptances, setTermAcceptances] = useState<Record<string, boolean>>({});
   const [declarationAccepted, setDeclarationAccepted] = useState(false);
@@ -65,7 +66,7 @@ export const ContractAcceptanceDialog = ({
     setAcceptedByName(evento.cliente_nome ?? "");
     setAcceptedByCpf(evento.cliente_cpf ?? "");
     setAcceptedByEmail(evento.cliente_email ?? "");
-    setAcceptedByPhone(evento.cliente_telefone ?? "");
+    setAcceptedByPhone(toBrazilPhoneInputValue(evento.cliente_telefone));
     setAcceptanceText(CONTRACT_ACCEPTANCE_DECLARATION);
     setDeclarationAccepted(false);
 

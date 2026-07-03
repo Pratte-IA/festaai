@@ -17,7 +17,6 @@ export const salesStages: StageDefinition<SalesStage>[] = [
   { key: "proposta_enviada", label: "Proposta Enviada" },
   { key: "negociacao", label: "Negociação" },
   { key: "visita_agendada", label: "Visita Agendada" },
-  { key: "contrato", label: "Contrato" },
   { key: "perdido", label: "Perdido" },
 ];
 

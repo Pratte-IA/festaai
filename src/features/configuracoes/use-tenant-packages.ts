@@ -16,6 +16,7 @@ import {
 
 import { configuracoesQueryKeys } from "./query-keys";
 import { guidedSetupQueryKeys } from "@/features/guided-setup/query-keys";
+import { resolvePackageAutomationNameForSave, buildPackageAutomationName } from "@/lib/package-automation-name";
 import { seedDefaultChecklistForPackage } from "./seed-default-checklist";
 import { syncTenantAdditionals } from "./sync-tenant-additionals";
 
@@ -34,6 +35,7 @@ type PackageRow = {
   included_guests: number | null;
   included_items: unknown;
   name: string;
+  name_automacao: string;
   pricing_tiers: unknown;
   rules: string | null;
   sort_order: number;
@@ -73,6 +75,7 @@ const mapPackageRow = (row: PackageRow): PackageData => {
     includedGuests: row.included_guests,
     includedItems: parsePackageItems(row.included_items),
     name: row.name,
+    nameAutomacao: row.name_automacao?.trim() || buildPackageAutomationName(row.name),
     pricingSchedule: schedule,
     pricingTiers: tiers,
     rules: row.rules,
@@ -108,6 +111,19 @@ const invalidatePackages = (
   void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.packages(tenantId) });
   void queryClient.invalidateQueries({ queryKey: configuracoesQueryKeys.packagesAdmin(tenantId) });
   void queryClient.invalidateQueries({ queryKey: guidedSetupQueryKeys.derived(tenantId) });
+};
+
+const fetchTenantPackageAutomationNames = async (
+  tenantId: number,
+): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from("tenant_packages")
+    .select("name_automacao")
+    .eq("tenant_id", tenantId);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => row.name_automacao).filter(Boolean);
 };
 
 const invalidateAdditionals = (
@@ -166,6 +182,14 @@ export const useUpdateTenantPackage = () => {
     mutationFn: async (pkg: PackageData) => {
       if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
+      const existingAutomationNames = await fetchTenantPackageAutomationNames(currentTenantId);
+      const nameAutomacao = resolvePackageAutomationNameForSave({
+        currentAutomationName: pkg.nameAutomacao,
+        displayName: pkg.name,
+        existingAutomationNames,
+        explicitAutomationName: pkg.nameAutomacao,
+      });
+
       const { error } = await supabase
         .from("tenant_packages")
         .update({
@@ -176,6 +200,7 @@ export const useUpdateTenantPackage = () => {
           equipe: pkg.equipe as unknown as Json,
           estrutura: pkg.estrutura as unknown as Json,
           name: pkg.name.trim(),
+          name_automacao: nameAutomacao,
           pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
           sort_order: pkg.sortOrder ?? 0,
           updated_by: user.id,
@@ -208,6 +233,12 @@ export const useCreateTenantPackage = () => {
       if (sortError) throw sortError;
 
       const nextSortOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+      const existingAutomationNames = await fetchTenantPackageAutomationNames(currentTenantId);
+      const nameAutomacao = resolvePackageAutomationNameForSave({
+        displayName: pkg.name,
+        existingAutomationNames,
+        explicitAutomationName: pkg.nameAutomacao,
+      });
 
       const { data, error } = await supabase
         .from("tenant_packages")
@@ -220,6 +251,7 @@ export const useCreateTenantPackage = () => {
           equipe: pkg.equipe as unknown as Json,
           estrutura: pkg.estrutura as unknown as Json,
           name: pkg.name.trim(),
+          name_automacao: nameAutomacao,
           pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
           sort_order: nextSortOrder,
           tenant_id: currentTenantId,
@@ -329,6 +361,13 @@ export const useDuplicateTenantPackage = () => {
       if (sortError) throw sortError;
 
       const nextSortOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+      const existingAutomationNames = await fetchTenantPackageAutomationNames(currentTenantId);
+      const duplicateDisplayName = `Cópia de ${source.name}`;
+      const nameAutomacao = resolvePackageAutomationNameForSave({
+        displayName: duplicateDisplayName,
+        existingAutomationNames,
+        explicitAutomationName: buildPackageAutomationName(duplicateDisplayName),
+      });
 
       const { data, error } = await supabase
         .from("tenant_packages")
@@ -343,7 +382,8 @@ export const useDuplicateTenantPackage = () => {
           excluded_items: source.excluded_items,
           included_guests: source.included_guests,
           included_items: source.included_items,
-          name: `Cópia de ${source.name}`,
+          name: duplicateDisplayName,
+          name_automacao: nameAutomacao,
           pricing_tiers: source.pricing_tiers,
           rules: source.rules,
           sort_order: nextSortOrder,

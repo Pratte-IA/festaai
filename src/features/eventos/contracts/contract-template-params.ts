@@ -6,6 +6,7 @@ import type { Evento } from "@/features/eventos/types";
 import { getPackagePriceForGuests } from "@/features/eventos/closing-form-runtime";
 import type { TenantCompanyProfile } from "@/features/guided-setup/types";
 import { formatCepDisplay, formatCnpjDisplay, formatCpfDisplay } from "@/lib/brazil-documents";
+import { formatBrazilPhone } from "@/lib/phone";
 
 import { EMPTY_PLACEHOLDER } from "./contract-types";
 import { applyPlaceholders } from "./contract-builder";
@@ -451,9 +452,11 @@ export const buildContractTenantPlaceholders = (
     templateKey: input.templateKey,
   });
 
+  const clientPhone = formatBrazilPhone(evento.cliente_telefone) || EMPTY_PLACEHOLDER;
+
   return {
     ...preview,
-    celular_locatario: evento.cliente_telefone ?? EMPTY_PLACEHOLDER,
+    celular_locatario: clientPhone,
     cpf_contratante: clientCpf,
     cpf_locatario: clientCpf,
     data_evento: formatDate(evento.data_evento),
@@ -487,7 +490,7 @@ export const buildContractTenantPlaceholders = (
       evento.pacote_convidados_inclusos != null
         ? String(evento.pacote_convidados_inclusos)
         : preview.quantidade_convidados_inclusa,
-    telefone_contratante: evento.cliente_telefone ?? EMPTY_PLACEHOLDER,
+    telefone_contratante: clientPhone,
     tema_decoracao: evento.aniversariante_tema ?? EMPTY_PLACEHOLDER,
     tipo_evento: evento.tipo_evento ?? EMPTY_PLACEHOLDER,
     valor_entrada: formatCurrency(evento.valor_entrada),
@@ -501,7 +504,7 @@ export const buildContractTenantPlaceholders = (
     cliente_email: evento.cliente_email ?? EMPTY_PLACEHOLDER,
     cliente_endereco: clientAddress,
     cliente_nome: clientName,
-    cliente_telefone: evento.cliente_telefone ?? EMPTY_PLACEHOLDER,
+    cliente_telefone: clientPhone,
   };
 };
 

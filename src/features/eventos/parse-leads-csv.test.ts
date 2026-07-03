@@ -171,4 +171,12 @@ describe("parseLeadImportCsv", () => {
     expect(r.rows[0].funil).toBe("festa");
     expect(r.rows[0].etapa).toBe("boas_vindas");
   });
+
+  it("migra etapa contrato em vendas para funil festa na importacao", () => {
+    const csv = stripUtf8Bom("funil,etapa,nome\nvendas,contrato,Maria\n");
+    const r = parseLeadImportCsv(csv);
+    expect(r.rows).toHaveLength(1);
+    expect(r.rows[0].funil).toBe("festa");
+    expect(r.rows[0].etapa).toBe("boas_vindas");
+  });
 });

@@ -41,6 +41,7 @@ export {
 } from "./parse-leads-csv";
 export type { LeadCsvParseResult, LeadCsvRowParsed } from "./parse-leads-csv";
 export { normalizePackageMatchKey, resolvePackageByName } from "./resolve-package-by-name";
+export { sortEventosByPartyDateExecutionOrder } from "./sort-eventos-by-party-date";
 export { useBulkCreateEventos } from "./use-bulk-create-eventos";
 export { useCreateEvento } from "./use-create-evento";
 export { useEvento } from "./use-evento";

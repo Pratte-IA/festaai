@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import { Json } from "@/lib/supabase/database.types";
 
 import { isEventoMappedField } from "../configuracoes/closing-form-types";
+import { computeClosingFormValorSaldo } from "./event-financial";
 import {
   type AcceptanceResponsePayload,
   type AdicionalSnapshotItem,
@@ -164,18 +165,15 @@ export const useSubmitClosingForm = () => {
       const entradaValue = fieldValues[
         fields.find((field) => field.fieldKey === "valor_entrada")?.id ?? ""
       ];
-      const saldoFieldId = fields.find((field) => field.fieldKey === "valor_saldo")?.id;
 
       if (pacoteValue != null && adicionaisValue !== undefined) {
         eventoUpdates.valor_total = Number(pacoteValue || 0) + Number(adicionaisValue || 0);
       }
 
-      if (saldoFieldId) {
-        eventoUpdates.valor_saldo = Number(fieldValues[saldoFieldId] || 0);
-      } else if (eventoUpdates.valor_total !== undefined) {
-        eventoUpdates.valor_saldo = Math.max(
-          Number(eventoUpdates.valor_total || 0) - Number(entradaValue || 0),
-          0,
+      if (eventoUpdates.valor_total !== undefined) {
+        eventoUpdates.valor_saldo = computeClosingFormValorSaldo(
+          Number(eventoUpdates.valor_total || 0),
+          Number(entradaValue || 0),
         );
       }
 

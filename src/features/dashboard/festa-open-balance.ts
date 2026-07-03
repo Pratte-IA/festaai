@@ -1,4 +1,5 @@
 import { Evento, getEventBalance } from "@/features/eventos";
+import { toLocalIsoDateKey } from "@/lib/date";
 
 export const getEventOpenBalance = (event: Evento, paidByEvent: Map<number, number>) =>
   getEventBalance(event, paidByEvent.get(event.id) ?? 0);
@@ -17,7 +18,7 @@ export const sumFestaOverdueOpenBalance = (
   paidByEvent: Map<number, number>,
   referenceDate = new Date(),
 ) => {
-  const today = referenceDate.toISOString().split("T")[0];
+  const today = toLocalIsoDateKey(referenceDate);
 
   return events.reduce((sum, event) => {
     if (!isFestaWithOpenBalance(event, paidByEvent)) return sum;

@@ -3,12 +3,15 @@ import { FunnelType, Stage } from "./types";
 
 export const getDefaultStageForFunnel = (funnel: FunnelType): Stage => stageMap[funnel][0].key;
 
-/** Etapa legada "fechado" em vendas migra para festa / boas_vindas. */
+/** Etapas legadas em vendas migram para festa / boas_vindas. */
 export const resolveFunnelStageForImport = (
   funnel: FunnelType,
   stage: Stage,
 ): { funnel: FunnelType; stage: Stage } => {
-  if (funnel === "vendas" && stage === ("fechado" as Stage)) {
+  if (
+    funnel === "vendas" &&
+    (stage === ("fechado" as Stage) || stage === ("contrato" as Stage))
+  ) {
     return { funnel: "festa", stage: "boas_vindas" };
   }
 

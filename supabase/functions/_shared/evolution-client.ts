@@ -1,5 +1,7 @@
 export type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error";
 
+export const generateWebhookToken = () => crypto.randomUUID().replace(/-/g, "");
+
 const requiredEnv = (key: string) => {
   const value = Deno.env.get(key);
   if (!value) throw new Error(`Missing required environment variable: ${key}`);

@@ -36,6 +36,7 @@ import type { Evento } from "@/features/eventos/types";
 import { cn } from "@/lib/utils";
 import { resolvePricingBandForDate } from "@/data/pricing-schedule";
 import { isBrazilianNationalHoliday } from "@/data/brazilian-holidays";
+import { formatIsoDateBR } from "@/lib/date";
 import { AcceptanceTermResponseField, setTermResponse } from "./AcceptanceTermResponseField";
 import { ClientPaymentValueSummary } from "./ClientPaymentValueSummary";
 import {
@@ -526,7 +527,7 @@ export const FormPreviewPanel = () => {
               <p className="text-xs text-muted-foreground">
                 Valor do pacote
                 {guestCount > 0 ? ` para ${guestCount} convidado${guestCount === 1 ? "" : "s"}` : ""}
-                {eventDate ? ` em ${new Date(`${eventDate}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}
+                {eventDate ? ` em ${formatIsoDateBR(eventDate)}` : ""}
                 :{" "}
                 <span className="font-medium text-foreground">{formatCurrency(selectedPrice)}</span>
                 {pricingBand ? (

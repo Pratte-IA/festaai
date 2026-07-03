@@ -17,7 +17,7 @@ describe("stage-validation", () => {
 
   it("valida etapas somente dentro do funil correspondente", () => {
     expect(isStageValidForFunnel("vendas", "negociacao")).toBe(true);
-    expect(isStageValidForFunnel("vendas", "contrato")).toBe(true);
+    expect(isStageValidForFunnel("vendas", "contrato")).toBe(false);
     expect(isStageValidForFunnel("festa", "contrato")).toBe(true);
     expect(isStageValidForFunnel("executadas", "redes_sociais")).toBe(true);
 
@@ -26,8 +26,12 @@ describe("stage-validation", () => {
     expect(isStageValidForFunnel("executadas", "perdido")).toBe(false);
   });
 
-  it("migra etapa legada fechado para festa / boas_vindas", () => {
+  it("migra etapas legadas de vendas para festa / boas_vindas", () => {
     expect(resolveFunnelStageForImport("vendas", "fechado" as Stage)).toEqual({
+      funnel: "festa",
+      stage: "boas_vindas",
+    });
+    expect(resolveFunnelStageForImport("vendas", "contrato" as Stage)).toEqual({
       funnel: "festa",
       stage: "boas_vindas",
     });

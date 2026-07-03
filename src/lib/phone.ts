@@ -164,12 +164,14 @@ export const toBrazilPhoneInputValue = (phone: string | null | undefined): strin
   return applyBrazilMobilePhoneMask(phone);
 };
 
-/** Persistência a partir do formulário (exige 11 dígitos digitados). */
+/**
+ * Persistência canônica: 55 + DDD + 8 dígitos (chave Evolution/WhatsApp).
+ * Usada em criação manual, webhook, importação CSV e formulário público.
+ */
 export const normalizeBrazilMobilePhoneForStorage = (phone: string | null | undefined): string | null => {
-  const digits = parseBrazilMobilePhoneInputDigits(phone);
-  if (!digits || !isValidBrazilMobilePhone(phone)) return null;
+  if (!isValidBrazilMobilePhone(phone)) return null;
 
-  return formatBrazilPhoneFromDigits(digits);
+  return toWhatsAppPhoneKey(phone);
 };
 
 /** Persistência a partir de WhatsApp / legado (converte 8→9 dígitos quando necessário). */
@@ -177,5 +179,5 @@ export const normalizeBrazilPhoneForStorage = (phone: string | null | undefined)
   const normalized = normalizeBrazilPhoneDigits(phone);
   if (!normalized || normalized.length !== 11 || normalized.charAt(2) !== "9") return null;
 
-  return formatBrazilPhoneFromDigits(normalized);
+  return toWhatsAppPhoneKey(phone);
 };

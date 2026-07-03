@@ -14,6 +14,7 @@ import {
   useReportData,
 } from "@/features/reports";
 import { Evento } from "@/features/eventos";
+import { isIsoDateBeforeToday, parseIsoDateLocal } from "@/lib/date";
 
 interface RecompraClient {
   event: Evento;
@@ -39,11 +40,15 @@ const RecompraReport = ({ period }: ReportComponentProps) => {
     const now = new Date();
 
     return (data?.eventos ?? [])
-      .filter((e) => e.funil === "executadas" && isDateInPeriod(e.data_evento, period) && e.data_evento && new Date(e.data_evento) < now)
+      .filter((e) => e.funil === "executadas" && isDateInPeriod(e.data_evento, period) && e.data_evento && isIsoDateBeforeToday(e.data_evento))
       .filter((e) => Boolean(e.aniversariante_data_nascimento))
       .map((event) => {
-        const partyDate = new Date(`${event.data_evento}T12:00:00`);
-        const birthDate = new Date(`${event.aniversariante_data_nascimento}T12:00:00`);
+        const partyDate = parseIsoDateLocal(event.data_evento ?? "");
+        const birthDate = parseIsoDateLocal(event.aniversariante_data_nascimento ?? "");
+        if (!partyDate || !birthDate) {
+          return null;
+        }
+
         const diffMs = now.getTime() - partyDate.getTime();
         const monthsSinceParty = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30.44));
 
@@ -63,6 +68,7 @@ const RecompraReport = ({ period }: ReportComponentProps) => {
 
         return { event, monthsSinceParty, previousAge, nextAge, priority };
       })
+      .filter((item): item is RecompraClient => item !== null)
       .sort((a, b) => {
         const priorityOrder = { alta: 0, media: 1, baixa: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority] || b.monthsSinceParty - a.monthsSinceParty;

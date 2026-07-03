@@ -8,6 +8,8 @@ import {
   parseTenantContractTemplateParams,
 } from "../_shared/evento-contract-builder.ts";
 import { loadTenantContractTemplateForGeneration } from "../_shared/load-tenant-contract-template.ts";
+import { dispatchBoasVindasAfterContractSigned } from "../_shared/dispatch-boas-vindas.ts";
+import { computeClosingFormValorSaldo } from "../_shared/event-financial.ts";
 import {
   getBrazilMobilePhoneValidationError,
   normalizeBrazilMobilePhoneForStorage,
@@ -434,7 +436,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
       admin
         .from("tenant_packages")
         .select(
-          "id, name, description, active, included_guests, pricing_tiers, included_items, excluded_items, buffet, equipe, estrutura, duration_minutes, rules, sort_order",
+          "id, name, name_automacao, description, active, included_guests, pricing_tiers, included_items, excluded_items, buffet, equipe, estrutura, duration_minutes, rules, sort_order",
         )
         .eq("tenant_id", tenant.id)
         .eq("active", true)
@@ -530,6 +532,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
       includedGuests: pkg.included_guests,
       includedItems: pkg.included_items,
       name: pkg.name,
+      nameAutomacao: pkg.name_automacao,
       pricingTiers: pkg.pricing_tiers,
       rules: pkg.rules,
       sortOrder: pkg.sort_order,
@@ -593,11 +596,11 @@ const buildEventoUpdatesFromSubmit = (payload: z.infer<typeof submitSchema>) => 
     eventoUpdates.valor_total = Number(pacoteValue || 0) + Number(adicionaisValue || 0);
   }
 
-  const saldoFieldId = payload.fields.find((field) => field.fieldKey === "valor_saldo")?.id;
-  if (saldoFieldId) {
-    eventoUpdates.valor_saldo = Number(payload.fieldValues[saldoFieldId] || 0);
-  } else if (eventoUpdates.valor_total !== undefined) {
-    eventoUpdates.valor_saldo = Math.max(Number(eventoUpdates.valor_total || 0) - entradaValue, 0);
+  if (eventoUpdates.valor_total !== undefined) {
+    eventoUpdates.valor_saldo = computeClosingFormValorSaldo(
+      Number(eventoUpdates.valor_total || 0),
+      entradaValue,
+    );
   }
 
   if (payload.pacoteId != null) {
@@ -931,13 +934,42 @@ const handleAcceptContract = async (
     const advancedToFesta =
       updatedEvento.funil === "festa" && updatedEvento.etapa === "boas_vindas";
 
+    let whatsappDispatch: Awaited<ReturnType<typeof dispatchBoasVindasAfterContractSigned>> | null =
+      null;
+
+    if (advancedToFesta || isAlreadyInBoasVindas) {
+      try {
+        whatsappDispatch = await dispatchBoasVindasAfterContractSigned(admin, {
+          acceptedAt,
+          contractId: payload.contractId,
+          contractNumber: contract.contract_number,
+          eventoId: payload.eventoId,
+          tenant: {
+            id: tenant.id,
+            name: tenant.name,
+            slug: tenant.slug,
+          },
+        });
+      } catch (dispatchError) {
+        console.error("boas-vindas dispatch error", dispatchError);
+        whatsappDispatch = {
+          dispatched: false,
+          errorMessage:
+            dispatchError instanceof Error ? dispatchError.message : "Erro ao disparar Boas Vindas.",
+          responseStatus: null,
+          skippedReason: null,
+        };
+      }
+    }
+
     return jsonResponse({
       acceptedAt,
       advancedToFesta,
       etapa: updatedEvento.etapa,
       funil: updatedEvento.funil,
       message: "Contrato assinado com sucesso! Em breve entraremos em contato.",
-      whatsappDispatchScheduled: advancedToFesta,
+      whatsappDispatch,
+      whatsappDispatchScheduled: advancedToFesta || isAlreadyInBoasVindas,
     });
   }
 

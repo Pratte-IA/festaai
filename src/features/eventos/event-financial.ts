@@ -20,3 +20,7 @@ export const getEventBalance = (
   isEventFullySettled(event)
     ? 0
     : Math.max(event.valor_total - getEventRecordedPaid(event, additionalPayments), 0);
+
+/** Saldo devedor do formulário de fechamento: total menos entrada (campo derivado). */
+export const computeClosingFormValorSaldo = (valorTotal: number, valorEntrada: number) =>
+  Math.max(Number(valorTotal || 0) - Number(valorEntrada || 0), 0);

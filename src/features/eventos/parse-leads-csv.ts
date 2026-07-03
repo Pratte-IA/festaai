@@ -421,8 +421,12 @@ export const parseLeadImportCsv = (text: string): LeadCsvParseResult => {
     const etapaRaw = cellAt(fields, columnByField, "etapa");
     let etapa: Stage;
 
-    if (normalizeHeaderKey(etapaRaw) === "fechado") {
-      const migrated = resolveFunnelStageForImport(rowFunil, "fechado" as Stage);
+    const legacyEtapa = normalizeHeaderKey(etapaRaw);
+    if (legacyEtapa === "fechado" || (rowFunil === "vendas" && legacyEtapa === "contrato")) {
+      const migrated = resolveFunnelStageForImport(
+        rowFunil,
+        (legacyEtapa === "fechado" ? "fechado" : "contrato") as Stage,
+      );
       rowFunil = migrated.funnel;
       etapa = migrated.stage;
     } else {

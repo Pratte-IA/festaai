@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizePackageMatchKey, resolvePackageByName } from "./resolve-package-by-name";
+import { normalizePackageMatchKey, resolvePackageByAutomationName, resolvePackageByName } from "./resolve-package-by-name";
 
 const packages = [
-  { id: "1", name: "Pacote Básico", active: true },
-  { id: "2", name: "Super Básico", active: true },
-  { id: "3", name: "Café", active: true },
-  { id: "4", name: "Café da Tarde", active: true },
-  { id: "5", name: "Inativo", active: false },
+  { id: "1", name: "Pacote Básico", nameAutomacao: "basico", active: true },
+  { id: "2", name: "Super Básico", nameAutomacao: "super_basico", active: true },
+  { id: "3", name: "Café", nameAutomacao: "cafe", active: true },
+  { id: "4", name: "Café da Tarde", nameAutomacao: "cafe_da_tarde", active: true },
+  { id: "5", name: "Inativo", nameAutomacao: "inativo", active: false },
 ];
 
 describe("normalizePackageMatchKey", () => {
@@ -46,5 +46,16 @@ describe("resolvePackageByName", () => {
   it("retorna null para texto vazio ou sem correspondencia", () => {
     expect(resolvePackageByName("", packages)).toBeNull();
     expect(resolvePackageByName("xyz inexistente", packages)).toBeNull();
+  });
+});
+
+describe("resolvePackageByAutomationName", () => {
+  it("resolve pelo identificador exato de automacao", () => {
+    expect(resolvePackageByAutomationName("basico", packages)?.name).toBe("Pacote Básico");
+    expect(resolvePackageByAutomationName("cafe_da_tarde", packages)?.name).toBe("Café da Tarde");
+  });
+
+  it("ignora pacotes inativos", () => {
+    expect(resolvePackageByAutomationName("inativo", packages)).toBeNull();
   });
 });

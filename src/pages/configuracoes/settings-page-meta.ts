@@ -47,6 +47,12 @@ export const SETTINGS_PAGE_META = {
     description:
       "Configure entrada, formas de pagamento do restante e limites de parcelamento padrão da casa.",
   },
+  "pesquisa-avaliacao": {
+    breadcrumb: "Pesquisa de Avaliação",
+    title: "Pesquisa de satisfação",
+    description:
+      "Configure as perguntas enviadas após a festa para medir NPS, experiência e coletar depoimentos das famílias.",
+  },
   "integracoes/whatsapp": {
     breadcrumb: "WhatsApp",
     title: "Conexões WhatsApp",
@@ -63,7 +69,7 @@ export const SETTINGS_PAGE_META = {
     breadcrumb: "Configuração inicial",
     title: "Configuração guiada",
     description:
-      "Configure empresa, pacotes, financeiro, contrato, formulário e integrações em etapas sequenciais.",
+      "Configure empresa, pacotes, financeiro, contrato, formulário, pesquisa de avaliação e integrações em etapas sequenciais.",
   },
 } as const satisfies Record<string, SettingsPageMeta>;
 

@@ -279,6 +279,8 @@ export const normalizeBuffetBlock = (raw: unknown): BuffetBlock => {
 export interface PackageData {
   id: string;
   name: string;
+  /** Identificador estável para automações (snake_case, sem acentos). */
+  nameAutomacao: string;
   description: string;
   buffet: BuffetBlock;
   estrutura: EstruturaBlock;
@@ -398,6 +400,7 @@ export const defaultPackages: PackageData[] = [
   {
     id: "1",
     name: "Pacote Básico",
+    nameAutomacao: "basico",
     description:
       "Ideal para festas íntimas com tudo que seu filho merece. Diversão garantida em um ambiente seguro e decorado com carinho.",
     buffet: {
@@ -447,6 +450,7 @@ export const defaultPackages: PackageData[] = [
   {
     id: "2",
     name: "Pacote Premium",
+    nameAutomacao: "premium",
     description:
       "A festa completa para quem quer surpreender! Buffet temático, equipe dedicada e diversão de sobra para todas as idades.",
     buffet: {
@@ -502,6 +506,7 @@ export const defaultPackages: PackageData[] = [
   {
     id: "3",
     name: "Pacote VIP",
+    nameAutomacao: "vip",
     description:
       "A experiência premium para festas inesquecíveis. Tudo incluso: buffet gourmet, entretenimento profissional, fotografia e muito mais.",
     buffet: {

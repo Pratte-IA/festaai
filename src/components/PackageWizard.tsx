@@ -30,6 +30,11 @@ import { Trash2 } from "lucide-react";
 import { buffetTemplates, itemSuggestions } from "@/data/packageTemplates";
 import { formatDurationMinutes, parseDurationInput } from "@/lib/duration";
 import {
+  buildPackageAutomationName,
+  isValidPackageAutomationName,
+  sanitizePackageAutomationNameInput,
+} from "@/lib/package-automation-name";
+import {
   Users, UtensilsCrossed, Gamepad2, UsersRound,
   Plus, X, Check, ChevronRight, ChevronLeft,
   Info, DollarSign, Package as PackageIcon, ArrowLeft
@@ -90,6 +95,8 @@ const formatCurrency = (value: number) =>
 /** Tamanho padrão de cada faixa de convidados (ex.: 1–10, 11–20). */
 const GUEST_TIER_SPAN = 10;
 
+const isPersistedPackageId = (id: string | undefined): boolean => /^\d+$/.test(id ?? "");
+
 const clonePackage = (pkg: PackageData): PackageData => ({
   ...pkg,
   buffet: cloneBuffet(pkg.buffet),
@@ -120,6 +127,7 @@ const createEmptyPackage = (): PackageData => {
   return {
     id: crypto.randomUUID(),
     name: "",
+    nameAutomacao: "",
     description: "",
     buffet: { salgados: [], doces: [], bolo: [], bebidas: [] },
     estrutura: { brinquedos: [], espaco: [], decoracao: [] },
@@ -149,6 +157,10 @@ const PackageWizard = ({
       ? clonePackage(initialPackage)
       : { ...createEmptyPackage(), estrutura: cloneEstrutura(tenantEstrutura) },
   );
+  const [automationNameTouched, setAutomationNameTouched] = useState(() =>
+    Boolean(initialPackage?.nameAutomacao?.trim()),
+  );
+  const isPersistedPackage = isPersistedPackageId(initialPackage?.id);
 
   const updatePricingTiers = (tiers: PackageData["pricingTiers"]) =>
     setPkg((current) => ({
@@ -203,6 +215,14 @@ const PackageWizard = ({
       return null;
     }
 
+    const automationName = sanitizePackageAutomationNameInput(data.nameAutomacao);
+    if (!isValidPackageAutomationName(automationName)) {
+      onValidationError?.(
+        "Informe um identificador válido para automação (ex.: basico, roda_gigante).",
+      );
+      return null;
+    }
+
     const trimmedDuration = durationText.trim();
     let durationMinutes: number | null = null;
     if (trimmedDuration) {
@@ -217,6 +237,7 @@ const PackageWizard = ({
     return {
       ...data,
       durationMinutes,
+      nameAutomacao: automationName,
       estrutura: cloneEstrutura(tenantEstrutura),
     };
   };
@@ -403,10 +424,38 @@ const PackageWizard = ({
                   <input
                     type="text"
                     value={pkg.name}
-                    onChange={(e) => setPkg({ ...pkg, name: e.target.value })}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      setPkg((current) => ({
+                        ...current,
+                        name,
+                        nameAutomacao:
+                          !automationNameTouched && !isPersistedPackage
+                            ? buildPackageAutomationName(name)
+                            : current.nameAutomacao,
+                      }));
+                    }}
                     placeholder="Ex: Pacote Premium"
                     className="input-base"
                   />
+                </Field>
+                <Field label="Identificador para automação">
+                  <input
+                    type="text"
+                    value={pkg.nameAutomacao}
+                    onChange={(e) => {
+                      setAutomationNameTouched(true);
+                      setPkg({
+                        ...pkg,
+                        nameAutomacao: sanitizePackageAutomationNameInput(e.target.value),
+                      });
+                    }}
+                    placeholder="Ex: basico, roda_gigante, cafe_colonial"
+                    className="input-base font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Usado pelos agentes no n8n. Minúsculas, sem acentos, sem a palavra &quot;pacote&quot;.
+                  </p>
                 </Field>
                 <Field label="Descrição comercial">
                   <textarea

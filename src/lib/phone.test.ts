@@ -53,13 +53,14 @@ describe("phone utils", () => {
     expect(formatBrazilPhone("45999785617")).toBe("(45) 99978-5617");
   });
 
-  it("persiste telefone legado via WhatsApp", () => {
-    expect(normalizeBrazilPhoneForStorage("554599785617")).toBe("(45) 99978-5617");
-    expect(normalizeBrazilPhoneForStorage("4599785617")).toBe("(45) 99978-5617");
+  it("persiste telefone legado via WhatsApp no formato 55ddd8digitos", () => {
+    expect(normalizeBrazilPhoneForStorage("554599785617")).toBe("554599785617");
+    expect(normalizeBrazilPhoneForStorage("4599785617")).toBe("554599785617");
+    expect(normalizeBrazilPhoneForStorage("(48) 98403-8841")).toBe("554884038841");
   });
 
   it("persiste telefone do formulario apenas com 11 digitos informados", () => {
-    expect(normalizeBrazilMobilePhoneForStorage("(45) 99978-5617")).toBe("(45) 99978-5617");
+    expect(normalizeBrazilMobilePhoneForStorage("(45) 99978-5617")).toBe("554599785617");
     expect(normalizeBrazilMobilePhoneForStorage("4599785617")).toBeNull();
   });
 

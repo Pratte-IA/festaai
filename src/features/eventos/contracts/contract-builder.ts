@@ -10,6 +10,7 @@ import type { PackageData } from "@/data/packagesData";
 import type { Evento } from "@/features/eventos/types";
 import type { TenantCompanyProfile } from "@/features/guided-setup/types";
 import { parsePackageItems } from "@/data/packagesData";
+import { formatBrazilPhone } from "@/lib/phone";
 
 import { parseAdicionaisSnapshot } from "../closing-form-runtime";
 import { hashContractContent } from "./contract-hash";
@@ -217,7 +218,7 @@ export const buildPlaceholderMap = (
     cliente_email: evento.cliente_email ?? EMPTY_PLACEHOLDER,
     cliente_endereco: formatAddress(evento),
     cliente_nome: evento.cliente_nome ?? EMPTY_PLACEHOLDER,
-    cliente_telefone: evento.cliente_telefone ?? EMPTY_PLACEHOLDER,
+    cliente_telefone: formatBrazilPhone(evento.cliente_telefone) || EMPTY_PLACEHOLDER,
     contract_number: input.contractNumber,
     data_evento: formatDate(evento.data_evento),
     forma_pagamento_entrada: evento.forma_pagamento_entrada ?? EMPTY_PLACEHOLDER,

@@ -846,6 +846,64 @@ export type Database = {
           },
         ]
       }
+      evento_satisfaction_responses: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          evento_id: number
+          id: number
+          question_id: number
+          tenant_id: number
+          updated_at: string
+          updated_by: string | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          evento_id: number
+          id?: number
+          question_id: number
+          tenant_id: number
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          evento_id?: number
+          id?: number
+          question_id?: number
+          tenant_id?: number
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evento_satisfaction_responses_evento_tenant_fkey"
+            columns: ["evento_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "eventos"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "evento_satisfaction_responses_question_tenant_fkey"
+            columns: ["question_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_satisfaction_survey_questions"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "evento_satisfaction_responses_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evento_contract_acceptances: {
         Row: {
           acceptance_text: string
@@ -1191,6 +1249,7 @@ export type Database = {
           aniversariante_personagem: string | null
           aniversariante_tema: string | null
           boas_vindas_whatsapp_agendado_em: string | null
+          boas_vindas_whatsapp_enviado_em: string | null
           cliente_bairro: string | null
           cliente_cep: string | null
           cliente_cidade: string | null
@@ -1244,6 +1303,7 @@ export type Database = {
           aniversariante_personagem?: string | null
           aniversariante_tema?: string | null
           boas_vindas_whatsapp_agendado_em?: string | null
+          boas_vindas_whatsapp_enviado_em?: string | null
           cliente_bairro?: string | null
           cliente_cep?: string | null
           cliente_cidade?: string | null
@@ -1297,6 +1357,7 @@ export type Database = {
           aniversariante_personagem?: string | null
           aniversariante_tema?: string | null
           boas_vindas_whatsapp_agendado_em?: string | null
+          boas_vindas_whatsapp_enviado_em?: string | null
           cliente_bairro?: string | null
           cliente_cep?: string | null
           cliente_cidade?: string | null
@@ -1676,6 +1737,7 @@ export type Database = {
           n8n_folder_id: string | null
           n8n_inbound_webhook_url: string | null
           n8n_last_error: string | null
+          n8n_outbound_webhook_urls: Json
           n8n_provision_status: string
           n8n_provisioned_at: string | null
           n8n_routing_key: string | null
@@ -1692,6 +1754,7 @@ export type Database = {
           n8n_folder_id?: string | null
           n8n_inbound_webhook_url?: string | null
           n8n_last_error?: string | null
+          n8n_outbound_webhook_urls?: Json
           n8n_provision_status?: string
           n8n_provisioned_at?: string | null
           n8n_routing_key?: string | null
@@ -1708,6 +1771,7 @@ export type Database = {
           n8n_folder_id?: string | null
           n8n_inbound_webhook_url?: string | null
           n8n_last_error?: string | null
+          n8n_outbound_webhook_urls?: Json
           n8n_provision_status?: string
           n8n_provisioned_at?: string | null
           n8n_routing_key?: string | null
@@ -1919,6 +1983,65 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenant_closing_form_fields_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_satisfaction_survey_questions: {
+        Row: {
+          active: boolean
+          config: Json
+          created_at: string
+          created_by: string | null
+          id: number
+          is_system: boolean
+          label: string
+          question_key: string | null
+          question_type: string
+          required: boolean
+          sort_order: number
+          tenant_id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_system?: boolean
+          label: string
+          question_key?: string | null
+          question_type?: string
+          required?: boolean
+          sort_order?: number
+          tenant_id: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_system?: boolean
+          label?: string
+          question_key?: string | null
+          question_type?: string
+          required?: boolean
+          sort_order?: number
+          tenant_id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_satisfaction_survey_questions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -2403,6 +2526,7 @@ export type Database = {
           included_guests: number | null
           included_items: Json
           name: string
+          name_automacao: string
           pricing_tiers: Json
           rules: string | null
           sort_order: number
@@ -2424,6 +2548,7 @@ export type Database = {
           included_guests?: number | null
           included_items?: Json
           name: string
+          name_automacao: string
           pricing_tiers?: Json
           rules?: string | null
           sort_order?: number
@@ -2445,6 +2570,7 @@ export type Database = {
           included_guests?: number | null
           included_items?: Json
           name?: string
+          name_automacao?: string
           pricing_tiers?: Json
           rules?: string | null
           sort_order?: number

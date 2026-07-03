@@ -10,6 +10,7 @@ import {
   PackageData,
   parsePackageItems,
 } from "@/data/packagesData";
+import { buildPackageAutomationName } from "@/lib/package-automation-name";
 import { supabase } from "@/lib/supabase/client";
 import { Json } from "@/lib/supabase/database.types";
 
@@ -53,6 +54,7 @@ type PackageRow = {
   included_guests: number | null;
   included_items: unknown;
   name: string;
+  name_automacao: string;
   pricing_tiers: unknown;
   rules: string | null;
   sort_order: number;
@@ -73,6 +75,7 @@ const mapPackageRow = (row: PackageRow): PackageData => {
     includedGuests: row.included_guests,
     includedItems: parsePackageItems(row.included_items),
     name: row.name,
+    nameAutomacao: row.name_automacao?.trim() || buildPackageAutomationName(row.name),
     pricingSchedule: schedule,
     pricingTiers: tiers,
     rules: row.rules,

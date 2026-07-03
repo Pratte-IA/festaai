@@ -1,10 +1,6 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
-import {
-  isValidBrazilMobilePhone,
-  normalizeBrazilPhoneForStorage,
-  phonesMatch,
-} from "./phone.ts";
+import { normalizeBrazilPhoneForStorage, phonesMatch } from "./phone.ts";
 
 export interface EnsureVendasLeadInput {
   customerName: string | null;
@@ -24,7 +20,7 @@ export const ensureVendasLeadFromWhatsapp = async (
   input: EnsureVendasLeadInput,
 ): Promise<EnsureVendasLeadResult> => {
   const storedPhone = normalizeBrazilPhoneForStorage(input.customerPhone);
-  if (!storedPhone || !isValidBrazilMobilePhone(storedPhone)) {
+  if (!storedPhone) {
     return { created: false, eventoId: null, skippedReason: "invalid_phone" };
   }
 

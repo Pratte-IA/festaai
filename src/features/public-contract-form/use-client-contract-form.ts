@@ -48,6 +48,7 @@ const mapPackage = (row: Record<string, unknown>): PackageData => {
     includedGuests: typeof row.includedGuests === "number" ? row.includedGuests : null,
     includedItems: parsePackageItems(row.includedItems),
     name: String(row.name),
+    nameAutomacao: String(row.nameAutomacao ?? row.name_automacao ?? ""),
     pricingSchedule: schedule,
     pricingTiers: tiers,
     rules: typeof row.rules === "string" ? row.rules : null,

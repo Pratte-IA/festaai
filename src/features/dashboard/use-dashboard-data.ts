@@ -6,6 +6,7 @@ import { buildMonthRevenueBreakdown } from "./month-revenue";
 import { Evento, EventoPagamento } from "@/features/eventos";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
+import { isIsoDateBeforeToday, parseIsoDateLocal } from "@/lib/date";
 
 type AlertType = "pendencia" | "prazo" | "contrato";
 
@@ -62,13 +63,16 @@ const shortDateFormatter = new Intl.DateTimeFormat("pt-BR", {
 
 const getMonthRange = () => {
   const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1);
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+  const toIsoDate = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
   return {
-    endDate: end.toISOString().split("T")[0],
-    endIso: new Date(end.setHours(23, 59, 59, 999)).toISOString(),
-    startDate: start.toISOString().split("T")[0],
+    endDate: toIsoDate(end),
+    endIso: end.toISOString(),
+    startDate: toIsoDate(start),
     startIso: start.toISOString(),
   };
 };
@@ -137,7 +141,7 @@ const buildAlerts = (events: Evento[], payments: EventoPagamento[]): DashboardAl
     }
 
     const paid = event.valor_entrada + (paidByEvent.get(event.id) ?? 0);
-    if (event.valor_total > paid && event.data_evento && new Date(event.data_evento) < new Date()) {
+    if (event.valor_total > paid && event.data_evento && isIsoDateBeforeToday(event.data_evento)) {
       alerts.push({
         description: "Saldo pendente em evento com data ja vencida",
         eventoId: event.id,
@@ -159,8 +163,12 @@ const buildAlerts = (events: Evento[], payments: EventoPagamento[]): DashboardAl
   return alerts.slice(0, 5);
 };
 
-const shortDate = (date: string) =>
-  shortDateFormatter.format(new Date(`${date}T12:00:00`)).replace(".", "");
+const shortDate = (date: string) => {
+  const parsed = parseIsoDateLocal(date);
+  if (!parsed) return date;
+
+  return shortDateFormatter.format(parsed).replace(".", "");
+};
 
 const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
   const { startIso, endIso, startDate, endDate } = getMonthRange();

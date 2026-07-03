@@ -33,6 +33,7 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     whatsappResult,
     automationSettingsResult,
     closingFormResult,
+    satisfactionSurveyResult,
   ] = await Promise.all([
     supabase
       .from("tenant_company_profiles")
@@ -82,6 +83,11 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
       .from("tenant_closing_form_fields")
       .select("id", { count: "exact", head: true })
       .eq("tenant_id", tenantId),
+    supabase
+      .from("tenant_satisfaction_survey_questions")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId)
+      .eq("active", true),
   ]);
 
   if (profileResult.error) throw profileResult.error;
@@ -95,6 +101,7 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
   if (whatsappResult.error) throw whatsappResult.error;
   if (automationSettingsResult.error) throw automationSettingsResult.error;
   if (closingFormResult.error) throw closingFormResult.error;
+  if (satisfactionSurveyResult.error) throw satisfactionSurveyResult.error;
 
   if (profileResult.data?.completed_at) {
     completed.push("company_profile");
@@ -123,6 +130,10 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
 
   if ((closingFormResult.count ?? 0) > 0) {
     completed.push("formulario");
+  }
+
+  if ((satisfactionSurveyResult.count ?? 0) > 0) {
+    completed.push("pesquisa_avaliacao");
   }
 
   if ((checklistResult.count ?? 0) > 0) {

@@ -3,6 +3,7 @@ import {
   isAluguelEspacoTemplateKey,
   type ContractTemplateKey,
 } from "./contract-template-types.ts";
+import { formatBrazilPhone } from "./phone.ts";
 
 const EMPTY_PLACEHOLDER = "—";
 
@@ -336,7 +337,7 @@ export const buildEventoContract = async (input: BuildEventoContractInput) => {
   const clientAddress = formatAddress(evento);
   const clientName = (evento.cliente_nome as string | null) ?? EMPTY_PLACEHOLDER;
   const clientCpf = formatCpf(evento.cliente_cpf as string | null);
-  const clientPhone = (evento.cliente_telefone as string | null) ?? EMPTY_PLACEHOLDER;
+  const clientPhone = formatBrazilPhone(evento.cliente_telefone as string | null) || EMPTY_PLACEHOLDER;
   const clientEmail = (evento.cliente_email as string | null) ?? EMPTY_PLACEHOLDER;
   const profile = input.companyProfile;
   const params = input.templateParams;

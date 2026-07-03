@@ -1,4 +1,17 @@
 const ISO_DATE_PREFIX = /^(\d{4})-(\d{2})-(\d{2})/;
+const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+const DAY_MS = 1000 * 60 * 60 * 24;
+
+export const isIsoDateOnly = (value: string): boolean => ISO_DATE_ONLY.test(value.trim());
+
+const toIsoDateKey = (date: Date): string =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+export const toLocalIsoDateKey = toIsoDateKey;
+
+/** YYYY-MM-DD do dia atual no fuso local (sem conversão UTC). */
+export const getTodayIsoDate = (): string => toIsoDateKey(getTodayAtNoon());
 
 /** Interpreta YYYY-MM-DD no fuso local, sem deslocamento de dia. */
 export const parseIsoDateLocal = (value: string): Date | null => {
@@ -39,4 +52,33 @@ export const getTodayAtNoon = (): Date => {
   const today = new Date();
   today.setHours(12, 0, 0, 0);
   return today;
+};
+
+/**
+ * Formata valor de data para exibição pt-BR.
+ * Campos date-only (YYYY-MM-DD) usam parsing literal; timestamps usam fuso local.
+ */
+export const formatDateBR = (value: string | null | undefined, fallback = "Nao informado"): string => {
+  if (!value) return fallback;
+
+  const trimmed = value.trim();
+  if (isIsoDateOnly(trimmed)) {
+    return formatIsoDateBR(trimmed);
+  }
+
+  return formatTimestampDateBR(trimmed);
+};
+
+/** Diferença em dias entre uma data ISO (YYYY-MM-DD) e hoje (fuso local). */
+export const compareIsoDateToToday = (isoDate: string): number | null => {
+  const date = parseIsoDateLocal(isoDate);
+  if (!date) return null;
+
+  const today = getTodayAtNoon();
+  return Math.round((date.getTime() - today.getTime()) / DAY_MS);
+};
+
+export const isIsoDateBeforeToday = (isoDate: string): boolean => {
+  const diff = compareIsoDateToToday(isoDate);
+  return diff !== null && diff < 0;
 };

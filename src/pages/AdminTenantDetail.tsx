@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAdminTenantBilling } from "@/features/comercial";
+import { formatIsoDateBR, getTodayIsoDate } from "@/lib/date";
 import { Tables } from "@/lib/supabase/database.types";
 import { supabase } from "@/lib/supabase/client";
 
@@ -49,10 +50,6 @@ const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
   timeStyle: "short",
 });
 
-const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  dateStyle: "short",
-});
-
 const getStatusVariant = (status: string) => {
   if (status === "active" || status === "trialing") {
     return "default";
@@ -78,10 +75,10 @@ const formatDate = (value: string | null) => {
     return "-";
   }
 
-  return dateFormatter.format(new Date(`${value}T00:00:00`));
+  return formatIsoDateBR(value);
 };
 
-const todayIsoDate = () => new Date().toISOString().slice(0, 10);
+const todayIsoDate = () => getTodayIsoDate();
 
 const countOrNull = (count: number | null) => count ?? 0;
 
