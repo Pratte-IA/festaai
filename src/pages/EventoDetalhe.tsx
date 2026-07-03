@@ -6,6 +6,7 @@ import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoF
 import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
 import { MoveEventoFunnelDialog } from "@/components/eventos/MoveEventoFunnelDialog";
 import { EventoFormResponsesCard } from "@/components/eventos/EventoFormResponsesCard";
+import { PublicSurveyLinkCard } from "@/components/pesquisa-avaliacao/PublicSurveyLinkCard";
 import { EventoImageUsageAcceptanceRow } from "@/components/eventos/EventoImageUsageAcceptanceRow";
 import {
   EventoContractCard,
@@ -497,6 +498,12 @@ const EventoDetalhe = () => {
             eventoId={validEventoId}
             hasFormSubmission={Boolean(event.fechamento_confirmado_em)}
           />
+        ) : null}
+
+        {validEventoId &&
+        event.funil === "executadas" &&
+        event.etapa === "aguardando_feedback" ? (
+          <PublicSurveyLinkCard eventoId={validEventoId} />
         ) : null}
 
         {/* 6. SITUAÇÃO FINANCEIRA — full width */}

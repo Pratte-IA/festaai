@@ -25,6 +25,14 @@ export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
     direction: "outbound",
   },
   {
+    bindingMode: "whatsapp_connection",
+    key: "pesquisa-satisfacao",
+    title: "Pesquisa de Satisfação",
+    description:
+      "Número que envia o link da pesquisa pós-festa pelo WhatsApp, no dia seguinte à festa, quando o lead entra em Aguardando Feedback.",
+    direction: "outbound",
+  },
+  {
     bindingMode: "phone_number",
     key: "passar-para-vendedor",
     title: "Passar para o Vendedor",

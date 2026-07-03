@@ -40,6 +40,7 @@ const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
 const ContratarPagamento = lazy(() => import("./pages/ContratarPagamento.tsx"));
 const ContratarOferta = lazy(() => import("./pages/ContratarOferta.tsx"));
 const FormularioCliente = lazy(() => import("./pages/FormularioCliente.tsx"));
+const PesquisaCliente = lazy(() => import("./pages/PesquisaCliente.tsx"));
 const MinhaAssinatura = lazy(() => import("./pages/MinhaAssinatura.tsx"));
 const AdminAgentRequests = lazy(() => import("./pages/AdminAgentRequests.tsx"));
 const AdminAgentRequestDetail = lazy(() => import("./pages/AdminAgentRequestDetail.tsx"));
@@ -379,6 +380,7 @@ const App = () => (
                 <Route path="/contratar/oferta/:token" element={<ContratarOferta />} />
                 <Route path="/contratar" element={<Contratar />} />
                 <Route path="/formulario/:tenantSlug" element={<FormularioCliente />} />
+                <Route path="/pesquisa/:tenantSlug/:eventoId" element={<PesquisaCliente />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/nova-senha" element={<NovaSenha />} />
                 <Route path="*" element={<NotFound />} />

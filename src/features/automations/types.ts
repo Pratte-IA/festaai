@@ -4,6 +4,7 @@ export type AutomationTemplateKey =
   | "atendimento"
   | "boas-vindas"
   | "sete-dias-antes"
+  | "pesquisa-satisfacao"
   | "passar-para-vendedor";
 
 export type AutomationTemplateDirection = "inbound" | "outbound";

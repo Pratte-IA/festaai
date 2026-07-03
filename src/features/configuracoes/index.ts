@@ -137,6 +137,7 @@ export {
   isSatisfactionSurveyChoiceType,
   parseSurveyOptionsFromLines,
   parseSurveyQuestionConfig,
+  resolveSatisfactionSurveyLabel,
   satisfactionSurveyQuestionTypeLabels,
 } from "./satisfaction-survey-types";
 export type {

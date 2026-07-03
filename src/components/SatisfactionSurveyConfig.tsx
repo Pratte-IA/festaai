@@ -29,6 +29,8 @@ import {
   formatSurveyOptionsAsLines,
   isSatisfactionSurveyChoiceType,
   parseSurveyOptionsFromLines,
+  parseSurveyQuestionConfig,
+  resolveSatisfactionSurveyLabel,
   satisfactionSurveyQuestionTypeLabels,
   useCreateSatisfactionSurveyQuestion,
   useDeleteSatisfactionSurveyQuestion,
@@ -38,7 +40,10 @@ import {
   type SatisfactionSurveyQuestion,
   type SatisfactionSurveyQuestionType,
 } from "@/features/configuracoes";
+import { useTenantCompanyProfile } from "@/features/guided-setup";
+import { useCurrentTenant } from "@/features/tenants";
 import { toast } from "@/hooks/use-toast";
+import { formatCompanyDisplayName } from "@/lib/company-display-name";
 import { cn } from "@/lib/utils";
 import { SETTINGS_PAGE_META } from "@/pages/configuracoes/settings-page-meta";
 
@@ -63,9 +68,11 @@ const SurveyQuestionRow = ({
   onToggleActive,
   onToggleRequired,
   question,
+  displayLabel,
 }: {
   canMoveDown: boolean;
   canMoveUp: boolean;
+  displayLabel: string;
   index: number;
   isBusy?: boolean;
   onDelete: (question: SatisfactionSurveyQuestion) => void;
@@ -113,7 +120,7 @@ const SurveyQuestionRow = ({
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">{index + 1}.</span>
-            <p className="text-sm font-semibold text-foreground">{question.label}</p>
+            <p className="text-sm font-semibold text-foreground">{displayLabel}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -179,6 +186,8 @@ const SurveyQuestionRow = ({
 };
 
 const SatisfactionSurveyConfig = ({ showSettingsHeader = false }: SatisfactionSurveyConfigProps) => {
+  const { currentTenant } = useCurrentTenant();
+  const { data: companyProfile } = useTenantCompanyProfile();
   const { data: questions = [], isLoading } = useTenantSatisfactionSurvey();
   const createQuestion = useCreateSatisfactionSurveyQuestion();
   const updateQuestion = useUpdateSatisfactionSurveyQuestion();
@@ -209,6 +218,14 @@ const SatisfactionSurveyConfig = ({ showSettingsHeader = false }: SatisfactionSu
 
   const showNewOptions = isSatisfactionSurveyChoiceType(newType);
   const showEditOptions = isSatisfactionSurveyChoiceType(editType);
+
+  const tenantCompanyName =
+    companyProfile?.companyName?.trim() || currentTenant?.name?.trim() || null;
+  const tenantCompanyDisplayName = tenantCompanyName
+    ? formatCompanyDisplayName(tenantCompanyName)
+    : null;
+
+  const resolveLabel = (label: string) => resolveSatisfactionSurveyLabel(label, tenantCompanyName);
 
   const isMutating =
     createQuestion.isPending ||
@@ -338,19 +355,6 @@ const SatisfactionSurveyConfig = ({ showSettingsHeader = false }: SatisfactionSu
         />
       ) : null}
 
-      <div className="rounded-xl border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
-        <p className="font-medium text-foreground">Pesquisa de satisfação — Festa Infantil</p>
-        <p className="mt-2">
-          Este formulário é enviado após a festa para medir a satisfação das famílias. Use{" "}
-          <code className="rounded bg-muted/60 px-1 py-0.5 text-xs">{SATISFACTION_SURVEY_COMPANY_PLACEHOLDER}</code>{" "}
-          no texto para substituir automaticamente pelo nome da sua casa de festas.
-        </p>
-        <p className="mt-2">
-          Recomendamos manter poucas perguntas obrigatórias — quanto mais rápido de responder, mais
-          famílias preenchem.
-        </p>
-      </div>
-
       <div className="overflow-hidden rounded-xl border border-border/50 bg-card/40">
         {sortedQuestions.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-muted-foreground">
@@ -362,6 +366,7 @@ const SatisfactionSurveyConfig = ({ showSettingsHeader = false }: SatisfactionSu
               key={question.id}
               index={index}
               question={question}
+              displayLabel={resolveLabel(question.label)}
               canMoveUp={index > 0}
               canMoveDown={index < sortedQuestions.length - 1}
               isBusy={busyQuestionId === question.id || isMutating}
@@ -405,7 +410,7 @@ const SatisfactionSurveyConfig = ({ showSettingsHeader = false }: SatisfactionSu
               id="new-survey-label"
               value={newLabel}
               onChange={(event) => setNewLabel(event.target.value)}
-              placeholder={`Ex.: O que faria você dizer que essa foi uma festa perfeita na ${SATISFACTION_SURVEY_COMPANY_PLACEHOLDER}?`}
+              placeholder={`Ex.: O que faria você dizer que essa foi uma festa perfeita na ${tenantCompanyDisplayName ?? SATISFACTION_SURVEY_COMPANY_PLACEHOLDER}?`}
               rows={2}
             />
           </div>
@@ -510,8 +515,10 @@ const SatisfactionSurveyConfig = ({ showSettingsHeader = false }: SatisfactionSu
               </div>
             ) : null}
 
-            {editType === "scale" ? (
-              <p className="text-xs text-muted-foreground">Escala fixa de 0 a 10 (NPS).</p>
+            {editLabel.includes(SATISFACTION_SURVEY_COMPANY_PLACEHOLDER) ? (
+              <p className="text-xs text-muted-foreground">
+                Prévia: {resolveLabel(editLabel)}
+              </p>
             ) : null}
           </div>
 

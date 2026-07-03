@@ -4,6 +4,7 @@ import {
   AutomationTemplateBindingsPanel,
   useAutomationTemplateBindingsManager,
 } from "@/components/automations/AutomationTemplateBindingsPanel";
+import { AUTOMATION_TEMPLATE_CATALOG } from "@/features/automations";
 import { GuidedSetupContinueBar } from "@/components/guided-setup/GuidedSetupContinueBar";
 import { useFinishGuidedSetupStep } from "@/features/guided-setup/use-finish-guided-setup-step";
 import { toast } from "@/hooks/use-toast";
@@ -47,7 +48,8 @@ export const AutomacoesSetupStep = ({ onCompleted }: AutomacoesSetupStepProps) =
     <div data-guided-setup-allowed className="max-w-4xl space-y-6">
       <div className="rounded-lg border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
         <p className="text-foreground">
-          Defina qual número WhatsApp da casa dispara cada automação. Para{" "}
+          Defina qual número WhatsApp da casa dispara cada automação — incluindo a{" "}
+          <span className="font-medium">Pesquisa de Satisfação</span> enviada após a festa. Para{" "}
           <span className="font-medium">Passar para o Vendedor</span>, informe o celular particular
           de quem recebe o encaminhamento.
         </p>
@@ -63,7 +65,7 @@ export const AutomacoesSetupStep = ({ onCompleted }: AutomacoesSetupStepProps) =
         description={
           allConfigured
             ? "Todos os vínculos configurados. Finalize a configuração inicial."
-            : "Vincule as quatro automações antes de continuar."
+            : `Vincule as ${AUTOMATION_TEMPLATE_CATALOG.length} automações antes de continuar.`
         }
         disabled={!allConfigured}
         isPending={isPending || isSaving}

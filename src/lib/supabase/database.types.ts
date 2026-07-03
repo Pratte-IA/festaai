@@ -1266,6 +1266,7 @@ export type Database = {
           data_evento: string | null
           data_limite_pagamento: string | null
           etapa: string
+          executadas_transicao_em: string | null
           fechamento_confirmado_em: string | null
           forma_pagamento_entrada: string | null
           forma_pagamento_saldo: string | null
@@ -1284,6 +1285,8 @@ export type Database = {
           quantidade_adultos: number | null
           quantidade_convidados: number | null
           quantidade_crianas: number | null
+          satisfaction_survey_preenchido_em: string | null
+          satisfaction_survey_whatsapp_enviado_em: string | null
           status_interno: string
           tenant_id: number
           tipo_evento: string

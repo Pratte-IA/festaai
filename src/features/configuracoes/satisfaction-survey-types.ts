@@ -1,4 +1,19 @@
+import { formatCompanyDisplayName } from "@/lib/company-display-name";
+
 export const SATISFACTION_SURVEY_COMPANY_PLACEHOLDER = "{{nome_empresa}}";
+
+export const resolveSatisfactionSurveyLabel = (
+  label: string,
+  companyName: string | null | undefined,
+): string => {
+  const resolvedName = companyName?.trim();
+  if (!resolvedName) return label;
+
+  return label.replaceAll(
+    SATISFACTION_SURVEY_COMPANY_PLACEHOLDER,
+    formatCompanyDisplayName(resolvedName),
+  );
+};
 
 export type SatisfactionSurveyQuestionType = "scale" | "single_choice" | "textarea";
 

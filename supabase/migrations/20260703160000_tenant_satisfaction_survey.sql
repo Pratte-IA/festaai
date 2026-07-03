@@ -17,7 +17,8 @@ create table public.tenant_satisfaction_survey_questions (
   constraint tenant_satisfaction_survey_questions_type_check check (
     question_type in ('scale', 'single_choice', 'textarea')
   ),
-  constraint tenant_satisfaction_survey_questions_key_unique unique (tenant_id, question_key)
+  constraint tenant_satisfaction_survey_questions_key_unique unique (tenant_id, question_key),
+  constraint tenant_satisfaction_survey_questions_id_tenant_id_key unique (id, tenant_id)
 );
 
 create table public.evento_satisfaction_responses (
@@ -40,9 +41,6 @@ create table public.evento_satisfaction_responses (
     on delete cascade,
   constraint evento_satisfaction_responses_unique unique (evento_id, question_id)
 );
-
-alter table public.tenant_satisfaction_survey_questions
-  add constraint tenant_satisfaction_survey_questions_id_tenant_id_key unique (id, tenant_id);
 
 create index tenant_satisfaction_survey_questions_tenant_idx
   on public.tenant_satisfaction_survey_questions (tenant_id, sort_order);
