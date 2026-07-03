@@ -45,11 +45,33 @@ export const useUpdateAutomationTemplateBindings = () => {
       if (!currentTenantId) throw new Error("Tenant atual indisponível.");
 
       const serialized = serializeAutomationTemplateBindings(bindings);
+      const atendimentoConnectionId =
+        bindings.find((binding) => binding.key === "atendimento")?.connectionId ?? null;
+
+      const { data: existingSettings, error: existingError } = await supabase
+        .from("tenant_automation_settings")
+        .select("n8n_inbound_webhook_url")
+        .eq("tenant_id", currentTenantId)
+        .maybeSingle();
+
+      if (existingError) throw existingError;
+
+      const hasInboundWebhook = Boolean(existingSettings?.n8n_inbound_webhook_url?.trim());
+      const shouldActivateAtendimento =
+        atendimentoConnectionId !== null && hasInboundWebhook;
 
       const { error: upsertError } = await supabase.from("tenant_automation_settings").upsert(
         {
           automation_template_bindings: serialized,
           tenant_id: currentTenantId,
+          ...(shouldActivateAtendimento
+            ? {
+                inbound_automation_enabled: true,
+                n8n_provision_status: "active",
+              }
+            : atendimentoConnectionId === null
+              ? { inbound_automation_enabled: false }
+              : {}),
         },
         { onConflict: "tenant_id" },
       );

@@ -11,7 +11,10 @@ import {
 } from "../_shared/evolution-message.ts";
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
 import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
+import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
+
+const ATENDIMENTO_TEMPLATE_KEY = "atendimento";
 
 type AuthStatus = "valid" | "invalid" | "missing" | "disabled";
 type ProcessingStatus = "received" | "processed" | "skipped" | "rejected";
@@ -210,7 +213,9 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
 
   const { data: automationSettings } = await ctx.service
     .from("tenant_automation_settings")
-    .select("inbound_automation_enabled, n8n_inbound_webhook_url, n8n_provision_status, n8n_routing_key")
+    .select(
+      "automation_template_bindings, inbound_automation_enabled, n8n_inbound_webhook_url, n8n_provision_status, n8n_routing_key",
+    )
     .eq("tenant_id", tenant.id)
     .maybeSingle();
 
@@ -219,7 +224,15 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       ? automationSettings.n8n_inbound_webhook_url
       : null;
 
+  const atendimentoConnectionId = resolveAutomationConnectionId(
+    automationSettings?.automation_template_bindings,
+    ATENDIMENTO_TEMPLATE_KEY,
+  );
+  const isAtendimentoConnection =
+    atendimentoConnectionId !== null && atendimentoConnectionId === ctx.connection.id;
+
   const canForward =
+    isAtendimentoConnection &&
     automationSettings?.inbound_automation_enabled === true &&
     automationSettings?.n8n_provision_status === "active" &&
     Boolean(tenantWebhookUrl);
@@ -244,13 +257,17 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
 
     if (!canForward) {
       const skipMessage =
-        automationSettings?.n8n_provision_status === "draft"
-          ? "Workflow N8N em rascunho — personalize, publique no N8N e ative manualmente no FestaAi."
-          : !automationSettings?.inbound_automation_enabled
-            ? "Automação inbound desabilitada para o tenant."
-            : !tenantWebhookUrl
-              ? "URL do workflow N8N não configurada."
-              : "Automação inbound não liberada.";
+        atendimentoConnectionId === null
+          ? "Automação de Atendimento sem número WhatsApp vinculado."
+          : !isAtendimentoConnection
+            ? "Mensagem recebida em número diferente do vinculado à automação de Atendimento."
+            : automationSettings?.n8n_provision_status === "draft"
+              ? "Workflow N8N em rascunho — personalize, publique no N8N e salve novamente o vínculo de Atendimento."
+              : !automationSettings?.inbound_automation_enabled
+                ? "Automação de Atendimento ainda não foi ativada — salve o vínculo na tela de Automações."
+                : !tenantWebhookUrl
+                  ? "URL do workflow N8N não configurada."
+                  : "Automação inbound não liberada.";
 
       await logAutomationDispatch(ctx, {
         connectionId: ctx.connection.id,

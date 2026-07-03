@@ -42,6 +42,7 @@ export interface N8nClonedWorkflowRef {
 
 export interface ProvisionTenantN8nResult {
   clonedWorkflows: N8nClonedWorkflowRef[];
+  disabled?: boolean;
   editorUrl: string | null;
   folderEditorUrl: string | null;
   folderId: string | null;
@@ -50,6 +51,10 @@ export interface ProvisionTenantN8nResult {
   webhookUrl: string | null;
   workflowId: string | null;
 }
+
+/** Provisionamento de clones N8N desligado por padrão — habilite com N8N_WORKFLOW_PROVISIONING_ENABLED=true. */
+export const isN8nWorkflowProvisioningEnabled = (): boolean =>
+  Deno.env.get("N8N_WORKFLOW_PROVISIONING_ENABLED")?.trim().toLowerCase() === "true";
 
 const EXECUTE_WORKFLOW_NODE_TYPES = new Set([
   "n8n-nodes-base.executeWorkflow",
@@ -334,6 +339,31 @@ export const provisionTenantN8nWorkflow = async (
   service: ServiceClient,
   tenant: { id: number; name: string; slug: string },
 ): Promise<ProvisionTenantN8nResult> => {
+  if (!isN8nWorkflowProvisioningEnabled()) {
+    const { data: existing } = await service
+      .from("tenant_automation_settings")
+      .select("n8n_provision_status, n8n_workflow_id, n8n_workflows")
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+
+    const workflowId =
+      typeof existing?.n8n_workflow_id === "string" ? existing.n8n_workflow_id : null;
+
+    return {
+      clonedWorkflows: Array.isArray(existing?.n8n_workflows)
+        ? (existing.n8n_workflows as N8nClonedWorkflowRef[])
+        : [],
+      disabled: true,
+      editorUrl: workflowId ? buildEditorUrl(workflowId) : null,
+      folderEditorUrl: null,
+      folderId: null,
+      provisionStatus: (existing?.n8n_provision_status as N8nProvisionStatus) ?? "draft",
+      skipped: true,
+      webhookUrl: null,
+      workflowId,
+    };
+  }
+
   const projectId = requiredEnv("N8N_PROJECT_ID");
   const templateFolderId = requiredEnv("N8N_TEMPLATE_FOLDER_ID");
 

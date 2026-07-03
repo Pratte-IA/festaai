@@ -41,12 +41,15 @@ Deno.serve(async (req) => {
       return jsonResponse({
         ok: true,
         clonedWorkflows: result.clonedWorkflows,
+        disabled: result.disabled ?? false,
         editorUrl: result.editorUrl,
         folderEditorUrl: result.folderEditorUrl,
         folderId: result.folderId,
-        message: result.skipped
-          ? "Workflows N8N já provisionados para este tenant."
-          : "Templates clonados em rascunho. Personalize no N8N, publique manualmente e só então ative a automação no FestaAi.",
+        message: result.disabled
+          ? "Provisionamento automático de workflows N8N está desativado."
+          : result.skipped
+            ? "Workflows N8N já provisionados para este tenant."
+            : "Templates clonados em rascunho. Personalize no N8N, publique manualmente e só então ative a automação no FestaAi.",
         provisionStatus: result.provisionStatus,
         skipped: result.skipped ?? false,
         webhookUrl: result.webhookUrl,
