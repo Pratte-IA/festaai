@@ -32,6 +32,7 @@ import {
   buildAdicionaisSnapshot,
   buildFieldIdByKey,
   buildPackageEventoUpdates,
+  CALCULATED_CLOSING_FORM_FIELD_KEYS,
   filterClientVisiblePaymentFields,
   getAdditionalsTotal,
   isClientFacingClosingFormField,
@@ -555,6 +556,8 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
     }
   };
 
+  const visibleSections = PUBLIC_FORM_SECTIONS.filter(shouldShowSection);
+
   const validatePhoneFieldValue = (field: ClosingFormField, value: string): string | null => {
     if (field.fieldType !== "phone" && field.fieldKey !== "cliente_telefone") return null;
     if (!field.required && !value) return null;
@@ -563,10 +566,38 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
     return getBrazilMobilePhoneValidationError(value);
   };
 
+  const shouldSkipClientFieldValidation = (field: ClosingFormField): boolean =>
+    Boolean(
+      field.fieldKey &&
+        (CALCULATED_CLOSING_FORM_FIELD_KEYS.has(field.fieldKey) ||
+          isClientPaymentSummaryFieldKey(field.fieldKey) ||
+          isHiddenPackageFieldKey(field.fieldKey)),
+    );
+
+  const resolveBalanceSaldo = (): number => {
+    const saldoFieldId = allFieldIdByKey.get("valor_saldo");
+    if (saldoFieldId) {
+      const value = Number(fieldValues[saldoFieldId] ?? 0);
+      if (Number.isFinite(value)) return Math.max(value, 0);
+    }
+
+    const entradaFieldId = allFieldIdByKey.get("valor_entrada");
+    const entrada = entradaFieldId ? Number(fieldValues[entradaFieldId] ?? 0) : 0;
+    return Math.max(paymentSummaryValues.totalValue - (Number.isFinite(entrada) ? entrada : 0), 0);
+  };
+
+  const appendBalancePaymentValidation = (nextErrors: Record<string, string>) => {
+    const saldoFieldId = allFieldIdByKey.get("valor_saldo");
+    if (!saldoFieldId || resolveBalanceSaldo() <= 0 || balancePaymentOption) return;
+    nextErrors.balancePaymentOption = "Selecione como deseja pagar o saldo restante.";
+  };
+
   const validateFields = (fields: ClosingFormField[]) => {
     const nextErrors: Record<string, string> = {};
 
     fields.forEach((field) => {
+      if (shouldSkipClientFieldValidation(field)) return;
+
       const value = fieldValues[field.id]?.trim() ?? "";
 
       if (field.fieldKey === "quantidade_convidados") {
@@ -595,7 +626,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
     return nextErrors;
   };
 
-  const validateSection = (section: ClosingFormSection) => {
+  const getSectionValidationErrors = (section: ClosingFormSection) => {
     const nextErrors: Record<string, string> = {};
 
     if (section === "pacote") {
@@ -614,56 +645,82 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
     );
 
     if (section === "pagamento") {
-      Object.assign(nextErrors, validateFields(filterClientVisiblePaymentFields(sectionFields)));
+      Object.assign(
+        nextErrors,
+        validateFields(
+          filterClientVisiblePaymentFields(sectionFields).filter(
+            (field) => !isClientPaymentSummaryFieldKey(field.fieldKey),
+          ),
+        ),
+      );
+      appendBalancePaymentValidation(nextErrors);
     } else if (section !== "pacote" && section !== "adicionais" && section !== "aceites") {
       Object.assign(nextErrors, validateFields(sectionFields));
     }
 
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    return nextErrors;
   };
 
-  const validate = () => {
+  const collectFullValidationErrors = () => {
     const nextErrors: Record<string, string> = {};
-
-    activeFields.forEach((field) => {
-      const value = fieldValues[field.id]?.trim() ?? "";
-
-      if (field.fieldKey === "quantidade_convidados") {
-        if (!field.required && !value) return;
-        const guestError = validateGuestCountValue(value, maxGuestCount);
-        if (guestError) nextErrors[field.id] = guestError;
-        return;
-      }
-
-      const phoneError = validatePhoneFieldValue(field, value);
-      if (phoneError) {
-        nextErrors[field.id] = phoneError;
-        return;
-      }
-
-      if (!field.required) return;
-
-      if (field.fieldType === "checkbox" || field.fieldType === "acceptance") {
-        if (value !== "true") nextErrors[field.id] = "Confirme este item para continuar.";
-        return;
-      }
-
-      if (!value) nextErrors[field.id] = "Este campo é obrigatório.";
+    visibleSections.forEach((section) => {
+      Object.assign(nextErrors, getSectionValidationErrors(section));
     });
+    return nextErrors;
+  };
 
-    const pacoteNomeField = activeFields.find((field) => field.fieldKey === PACKAGE_SELECTOR_FIELD_KEY);
-    if (pacoteNomeField?.required && config.packages.length > 0 && !selectedPackageId) {
-      nextErrors.pacote = "Selecione um pacote para continuar.";
+  const findFirstSectionIndexWithErrors = (validationErrors: Record<string, string>) => {
+    for (let index = 0; index < visibleSections.length; index += 1) {
+      const section = visibleSections[index];
+
+      if (section === "pacote" && validationErrors.pacote) return index;
+      if (
+        section === "aceites" &&
+        Object.keys(validationErrors).some((key) => key.startsWith("term-"))
+      ) {
+        return index;
+      }
+      if (section === "pagamento" && validationErrors.balancePaymentOption) return index;
+
+      const sectionFieldIds = new Set(
+        (fieldsBySection.get(section) ?? [])
+          .filter((field) => field.fieldKey !== PACKAGE_SELECTOR_FIELD_KEY)
+          .map((field) => field.id),
+      );
+
+      if (Object.keys(validationErrors).some((key) => sectionFieldIds.has(key))) {
+        return index;
+      }
     }
 
-    Object.assign(nextErrors, validateAcceptanceTermResponses(activeTerms, termResponses));
+    return -1;
+  };
 
+  const applyValidationErrors = (validationErrors: Record<string, string>) => {
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length === 0) return true;
+
+    const sectionIndex = findFirstSectionIndexWithErrors(validationErrors);
+    if (sectionIndex >= 0) {
+      setCurrentSectionIndex(sectionIndex);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    toast({
+      title: "Campos pendentes",
+      description: "Revise os campos destacados antes de continuar para o contrato.",
+      variant: "destructive",
+    });
+    return false;
+  };
+
+  const validateSection = (section: ClosingFormSection) => {
+    const nextErrors = getSectionValidationErrors(section);
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
 
-  const visibleSections = PUBLIC_FORM_SECTIONS.filter(shouldShowSection);
+  const validate = () => applyValidationErrors(collectFullValidationErrors());
 
   useEffect(() => {
     if (currentSectionIndex >= visibleSections.length && visibleSections.length > 0) {
@@ -692,7 +749,9 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     const guestCount = resolveGuestCount(EMPTY_EVENTO, fieldValues, fieldIdByKey);
     const selectedPackage = resolveSelectedPackage();
