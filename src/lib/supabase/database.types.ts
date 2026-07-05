@@ -1297,6 +1297,7 @@ export type Database = {
           quantidade_crianas: number | null
           satisfaction_survey_preenchido_em: string | null
           satisfaction_survey_whatsapp_enviado_em: string | null
+          sete_dias_whatsapp_enviado_em: string | null
           status_interno: string
           tenant_id: number
           tipo_evento: string
@@ -1364,6 +1365,7 @@ export type Database = {
           quantidade_crianas?: number | null
           satisfaction_survey_preenchido_em?: string | null
           satisfaction_survey_whatsapp_enviado_em?: string | null
+          sete_dias_whatsapp_enviado_em?: string | null
           status_interno?: string
           tenant_id: number
           tipo_evento?: string
@@ -1431,6 +1433,7 @@ export type Database = {
           quantidade_crianas?: number | null
           satisfaction_survey_preenchido_em?: string | null
           satisfaction_survey_whatsapp_enviado_em?: string | null
+          sete_dias_whatsapp_enviado_em?: string | null
           status_interno?: string
           tenant_id?: number
           tipo_evento?: string

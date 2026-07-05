@@ -4,13 +4,14 @@ import { createServiceClient } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { evolutionFetch, fetchInstanceApiKey } from "../_shared/evolution-client.ts";
 import { n8nApiFetch } from "../_shared/n8n-api.ts";
-import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
+import { syncAllTenantN8nEvolutionAutomations, resolvePreferredWhatsappConnectionForN8nSync } from "../_shared/evolution-n8n-sync.ts";
 
 const bodySchema = z.object({
-  inspect: z.boolean().optional(),
-  credentialId: z.string().trim().min(4).optional(),
-  tenantId: z.number().int().positive(),
   connectionId: z.number().int().positive().optional(),
+  credentialId: z.string().trim().min(4).optional(),
+  inspect: z.boolean().optional(),
+  templateKey: z.string().trim().min(2).optional(),
+  tenantId: z.number().int().positive(),
 });
 
 const isAuthorizedRequest = (req: Request) => {
@@ -56,53 +57,61 @@ Deno.serve(async (req) => {
       .eq("tenant_id", tenant.id)
       .order("updated_at", { ascending: false });
 
-    if (payload.connectionId) {
-      connectionQuery = connectionQuery.eq("id", payload.connectionId);
-    }
-
     const { data: connections, error: connectionsError } = await connectionQuery;
     if (connectionsError) throw connectionsError;
 
-    const target =
-      connections?.find((item) => item.status === "connected") ??
-      connections?.[0] ??
-      null;
+    const { data: automationSettings } = await service
+      .from("tenant_automation_settings")
+      .select("automation_template_bindings")
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+
+    const target = resolvePreferredWhatsappConnectionForN8nSync(
+      connections ?? [],
+      automationSettings?.automation_template_bindings,
+      payload.connectionId,
+    );
 
     if (!target) {
       return jsonResponse({ ok: false, error: "Nenhuma conexão WhatsApp encontrada." }, 404);
     }
 
     if (payload.inspect) {
+      const inspectConnectionId = payload.connectionId ?? target.id;
+
       if (payload.credentialId) {
         const credential = await n8nApiFetch<Record<string, unknown>>(
           `/credentials/${payload.credentialId}?includeData=true`,
         );
-        return jsonResponse({ ok: true, credential });
+        return jsonResponse({ ok: true, credential, connectionId: inspectConnectionId });
       }
 
+      const inspectTarget =
+        (connections ?? []).find((item) => item.id === inspectConnectionId) ?? target;
+
       const fetchResult = await evolutionFetch(
-        `/instance/fetchInstances?instanceName=${encodeURIComponent(target.instance_name)}`,
+        `/instance/fetchInstances?instanceName=${encodeURIComponent(inspectTarget.instance_name)}`,
       );
-      const resolvedKey = await fetchInstanceApiKey(target.instance_name);
+      const resolvedKey = await fetchInstanceApiKey(inspectTarget.instance_name);
       return jsonResponse({
         ok: true,
-        connectionId: target.id,
+        connectionId: inspectTarget.id,
         fetchStatus: fetchResult.status,
         fetchOk: fetchResult.ok,
         fetchBody: fetchResult.body,
-        instanceName: target.instance_name,
+        instanceName: inspectTarget.instance_name,
         resolvedKeyPrefix: resolvedKey ? `${resolvedKey.slice(0, 8)}...` : null,
       });
     }
 
-    const syncResult = await syncTenantN8nEvolutionAutomation(service, tenant, target);
+    const syncResult = await syncAllTenantN8nEvolutionAutomations(service, tenant, {
+      templateKey: payload.templateKey,
+    });
 
     return jsonResponse({
       ok: true,
-      connectionId: target.id,
-      credential: syncResult.credential,
-      instanceName: target.instance_name,
-      patchedWorkflowIds: syncResult.patchedWorkflowIds,
+      results: syncResult.results,
+      skipped: syncResult.skipped,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

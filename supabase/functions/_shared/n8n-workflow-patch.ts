@@ -124,11 +124,31 @@ export const patchPostgresChatMemoryNodes = (
   });
 };
 
+const attachEvolutionCredentialToSendTextNodes = (
+  nodes: N8nWorkflowNode[],
+  credential: { id: string; name: string },
+): N8nWorkflowNode[] =>
+  nodes.map((node) => {
+    if (!isEvolutionNode(node)) return node;
+
+    return {
+      ...node,
+      credentials: {
+        ...(node.credentials ?? {}),
+        evolutionApi: { id: credential.id, name: credential.name },
+      },
+    };
+  });
+
 /** Evolution send-text + Postgres Chat Memory em um único patch de workflow. */
 export const patchTenantWorkflowNodes = (
   nodes: N8nWorkflowNode[],
   webhookNodeName = "Webhook",
+  evolutionCredential?: { id: string; name: string },
 ): N8nWorkflowNode[] => {
-  const withEvolution = patchEvolutionSendTextNodes(nodes, webhookNodeName);
+  let withEvolution = patchEvolutionSendTextNodes(nodes, webhookNodeName);
+  if (evolutionCredential) {
+    withEvolution = attachEvolutionCredentialToSendTextNodes(withEvolution, evolutionCredential);
+  }
   return patchPostgresChatMemoryNodes(withEvolution, webhookNodeName);
 };

@@ -3,6 +3,7 @@ import MetricCard from "@/components/MetricCard";
 import MiniCalendar from "@/components/MiniCalendar";
 import PartyList from "@/components/PartyList";
 import AlertItem from "@/components/AlertItem";
+import { PublicFormLinkCard } from "@/components/formulario-contratacao/PublicFormLinkCard";
 import { Users, PartyPopper, TrendingUp, DollarSign, CreditCard, Clock, MessageSquare, Wallet, Receipt } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDashboardData } from "@/features/dashboard";
@@ -37,11 +38,15 @@ const Dashboard = () => {
       <div className="mb-2">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vendas</span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard icon={Users} title="Leads Novos - Hoje" value={isLoading ? "..." : String(metrics?.newLeadsToday ?? 0)} accent="primary" />
         <MetricCard icon={PartyPopper} title="Festas fechadas" value={isLoading ? "..." : String(metrics?.closedParties ?? 0)} accent="rosa" />
         <MetricCard icon={TrendingUp} title="Taxa de conversão" value={isLoading ? "..." : `${metrics?.conversionRate ?? 0}%`} accent="lilas" />
         <MetricCard icon={DollarSign} title="Valor vendido" value={isLoading ? "..." : currencyFormatter.format(metrics?.soldValue ?? 0)} accent="success" />
+      </div>
+
+      <div className="mb-8">
+        <PublicFormLinkCard />
       </div>
 
       {/* Financeiro Metrics */}

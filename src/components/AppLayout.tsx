@@ -1,6 +1,7 @@
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { PanelLeft } from "lucide-react";
 import { GuidedSetupBanner } from "@/components/guided-setup/GuidedSetupBanner";
+import { PwaInstallBanner } from "@/components/pwa/PwaInstallBanner";
 import { ReadOnlyModeGuard } from "@/components/guided-setup/ReadOnlyModeGuard";
 import { Button } from "@/components/ui/button";
 import AppSidebar from "./AppSidebar";
@@ -47,6 +48,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
             </Button>
           </div>
           <GuidedSetupBanner />
+          <PwaInstallBanner />
         </header>
         <ReadOnlyModeGuard>
           <div className="w-full p-6">{children}</div>

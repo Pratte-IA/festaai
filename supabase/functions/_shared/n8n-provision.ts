@@ -489,15 +489,16 @@ export const fetchN8nWorkflow = async (workflowId: string): Promise<N8nWorkflowR
 
 export const patchN8nWorkflowEvolutionSendText = async (
   workflowId: string,
+  evolutionCredential?: { id: string; name: string },
 ): Promise<{ postgresCredential: { credentialId: string; credentialName: string }; workflow: N8nWorkflowResponse }> => {
   const workflow = await fetchN8nWorkflow(workflowId);
   const webhookNodeName = findWebhookNodeName(workflow.nodes ?? []);
   const postgresCredential = await syncFestAiPostgresCredential();
-  let patchedNodes = patchTenantWorkflowNodes(workflow.nodes ?? [], webhookNodeName);
+  let patchedNodes = patchTenantWorkflowNodes(workflow.nodes ?? [], webhookNodeName, evolutionCredential);
   patchedNodes = attachPostgresCredentialToMemoryNodes(patchedNodes, postgresCredential);
 
   // Remove campo number órfão de patches anteriores (Evolution node usa remoteJid).
-  const cleanedNodes = patchedNodes.map((node) => {
+  let cleanedNodes = patchedNodes.map((node) => {
     if (!isEvolutionSendTextNode(node)) return node;
     const parameters = { ...(node.parameters ?? {}) };
     if (parameters.number !== undefined && parameters.remoteJid !== undefined) {
@@ -505,6 +506,22 @@ export const patchN8nWorkflowEvolutionSendText = async (
     }
     return { ...node, parameters };
   });
+
+  if (evolutionCredential) {
+    cleanedNodes = cleanedNodes.map((node) => {
+      if (!(node.type ?? "").toLowerCase().includes("evolution")) return node;
+      return {
+        ...node,
+        credentials: {
+          ...(node.credentials ?? {}),
+          evolutionApi: {
+            id: evolutionCredential.id,
+            name: evolutionCredential.name,
+          },
+        },
+      };
+    });
+  }
 
   return {
     postgresCredential,

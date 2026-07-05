@@ -64,17 +64,160 @@ const findEvolutionCredentialForTenant = (
   return evolutionCredentials[0] ?? null;
 };
 
+const resolveEvolutionServerUrl = () => {
+  const base =
+    Deno.env.get("EVOLUTION_API_BASE_URL") ??
+    Deno.env.get("EVOLUTION_API_URL") ??
+    "";
+  return base.replace(/\/$/, "");
+};
+
+const buildEvolutionCredentialData = (instanceApiKey: string) => {
+  const data: Record<string, string> = {
+    allowedDomains: "all",
+    apikey: instanceApiKey.trim(),
+  };
+
+  const serverUrl = resolveEvolutionServerUrl();
+  if (serverUrl) {
+    data["server-url"] = serverUrl;
+  }
+
+  return data;
+};
+
 const patchEvolutionCredentialApiKey = async (credentialId: string, instanceApiKey: string) => {
   await n8nApiFetch(`/credentials/${credentialId}`, {
     body: JSON.stringify({
-      data: {
-        allowedDomains: "all",
-        apikey: instanceApiKey.trim(),
-      },
+      data: buildEvolutionCredentialData(instanceApiKey),
       isPartialData: true,
     }),
     method: "PATCH",
   });
+};
+
+/** Nome da credencial Evolution no n8n — conexão principal usa só o tenant; demais incluem o rótulo. */
+export const buildConnectionEvolutionCredentialName = (
+  tenant: { name: string },
+  connection: { name: string },
+  options?: { isPrimary?: boolean },
+) => {
+  if (options?.isPrimary) return tenant.name.trim();
+  return `${tenant.name.trim()} - ${connection.name.trim()}`;
+};
+
+const findEvolutionCredentialByName = (
+  credentials: N8nCredentialSummary[],
+  credentialName: string,
+): N8nCredentialSummary | null => {
+  const normalizedTarget = normalizeLabel(credentialName);
+  return (
+    credentials.find((item) => normalizeLabel(item.name ?? "") === normalizedTarget) ??
+    credentials.find((item) => (item.name ?? "").trim() === credentialName.trim()) ??
+    null
+  );
+};
+
+const createEvolutionCredential = async (
+  credentialName: string,
+  instanceApiKey: string,
+): Promise<N8nCredentialSummary> => {
+  const created = await n8nApiFetch<N8nCredentialSummary>("/credentials", {
+    body: JSON.stringify({
+      data: buildEvolutionCredentialData(instanceApiKey),
+      name: credentialName.trim(),
+      type: "evolutionApi",
+    }),
+    method: "POST",
+  });
+
+  if (!created.id) {
+    throw new Error(`Falha ao criar credencial Evolution "${credentialName}" no n8n.`);
+  }
+
+  return created;
+};
+
+/**
+ * Garante uma credencial Evolution dedicada por conexão WhatsApp (multi-número).
+ * Cada instância Evolution exige apikey própria — compartilhar uma credencial quebra envios.
+ */
+export const ensureConnectionEvolutionCredential = async (
+  tenant: { name: string; slug: string },
+  connection: { name: string },
+  instanceApiKey: string,
+  options?: { isPrimary?: boolean; workflowNodes?: N8nWorkflowNode[] },
+): Promise<{ credentialId: string; credentialName: string }> => {
+  if (!instanceApiKey.trim()) {
+    throw new Error("Token da instância Evolution ausente para sincronizar credencial.");
+  }
+
+  const explicitCredentialId = Deno.env.get("N8N_EVOLUTION_CREDENTIAL_ID")?.trim();
+  if (explicitCredentialId) {
+    await patchEvolutionCredentialApiKey(explicitCredentialId, instanceApiKey);
+    return { credentialId: explicitCredentialId, credentialName: tenant.name };
+  }
+
+  const credentialName = buildConnectionEvolutionCredentialName(tenant, connection, options);
+
+  const fromWorkflow = options?.workflowNodes
+    ? extractCredentialFromWorkflowNodes(options.workflowNodes)
+    : null;
+
+  if (fromWorkflow?.id) {
+    const workflowCredentialName = (fromWorkflow.name ?? "").trim();
+    if (
+      workflowCredentialName &&
+      normalizeLabel(workflowCredentialName) === normalizeLabel(credentialName)
+    ) {
+      await patchEvolutionCredentialApiKey(fromWorkflow.id, instanceApiKey);
+      return { credentialId: fromWorkflow.id, credentialName: workflowCredentialName };
+    }
+  }
+
+  let credentials: N8nCredentialSummary[] = [];
+  try {
+    credentials = await listCredentials();
+  } catch {
+    credentials = [];
+  }
+
+  const byName = findEvolutionCredentialByName(credentials, credentialName);
+  if (byName?.id) {
+    await patchEvolutionCredentialApiKey(byName.id, instanceApiKey);
+    return { credentialId: byName.id, credentialName: byName.name ?? credentialName };
+  }
+
+  if (fromWorkflow?.id && options?.isPrimary) {
+    await patchEvolutionCredentialApiKey(fromWorkflow.id, instanceApiKey);
+    return {
+      credentialId: fromWorkflow.id,
+      credentialName: fromWorkflow.name ?? credentialName,
+    };
+  }
+
+  const tenantFallback = findEvolutionCredentialForTenant(credentials, tenant);
+  if (tenantFallback?.id && options?.isPrimary) {
+    await patchEvolutionCredentialApiKey(tenantFallback.id, instanceApiKey);
+    return {
+      credentialId: tenantFallback.id,
+      credentialName: tenantFallback.name ?? credentialName,
+    };
+  }
+
+  try {
+    const created = await createEvolutionCredential(credentialName, instanceApiKey);
+    return { credentialId: created.id!, credentialName: created.name ?? credentialName };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.toLowerCase().includes("already exists")) throw error;
+
+    const retryMatch = findEvolutionCredentialByName(await listCredentials(), credentialName);
+    if (!retryMatch?.id) throw error;
+
+    await patchEvolutionCredentialApiKey(retryMatch.id, instanceApiKey);
+    return { credentialId: retryMatch.id, credentialName: retryMatch.name ?? credentialName };
+  }
 };
 
 /**

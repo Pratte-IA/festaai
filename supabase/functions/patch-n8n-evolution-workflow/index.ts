@@ -2,7 +2,11 @@ import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 import { createServiceClient } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
-import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
+import {
+  resolveTenantWorkflowAutomationTargets,
+  syncAllTenantN8nEvolutionAutomations,
+  syncTenantN8nWorkflowEvolutionAutomation,
+} from "../_shared/evolution-n8n-sync.ts";
 import {
   findN8nWorkflowIdByWebhookRef,
   fetchN8nWorkflow,
@@ -11,6 +15,7 @@ import {
 
 const bodySchema = z.object({
   inspect: z.boolean().optional(),
+  templateKey: z.string().trim().min(2).optional(),
   tenantId: z.number().int().positive().optional(),
   webhookRef: z.string().trim().min(8).optional(),
   workflowId: z.string().trim().min(4).optional(),
@@ -109,9 +114,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { postgresCredential, workflow: updated } = await patchN8nWorkflowEvolutionSendText(workflowId);
+    let postgresCredential: Awaited<
+      ReturnType<typeof patchN8nWorkflowEvolutionSendText>
+    >["postgresCredential"] | null = null;
+    let updated: Awaited<ReturnType<typeof patchN8nWorkflowEvolutionSendText>>["workflow"] | null =
+      null;
 
-    let automationSync: Awaited<ReturnType<typeof syncTenantN8nEvolutionAutomation>> | null = null;
+    let automationSync: Awaited<ReturnType<typeof syncAllTenantN8nEvolutionAutomations>> | null = null;
+    let workflowSync: Awaited<ReturnType<typeof syncTenantN8nWorkflowEvolutionAutomation>> | null = null;
+
     if (payload.tenantId) {
       const service = createServiceClient();
       const { data: tenant } = await service
@@ -121,18 +132,51 @@ Deno.serve(async (req) => {
         .maybeSingle();
 
       if (tenant) {
-        const { data: connection } = await service
-          .from("whatsapp_connections")
-          .select("id, instance_name, status")
-          .eq("tenant_id", tenant.id)
-          .order("updated_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        const [{ data: connections }, { data: automationSettings }, targets] = await Promise.all([
+          service
+            .from("whatsapp_connections")
+            .select("id, instance_name, name, status")
+            .eq("tenant_id", tenant.id)
+            .order("updated_at", { ascending: false }),
+          service
+            .from("tenant_automation_settings")
+            .select("automation_template_bindings")
+            .eq("tenant_id", tenant.id)
+            .maybeSingle(),
+          resolveTenantWorkflowAutomationTargets(service, tenant.id),
+        ]);
 
-        if (connection) {
-          automationSync = await syncTenantN8nEvolutionAutomation(service, tenant, connection);
+        const webhookRef = payload.webhookRef?.trim() || null;
+        const matchedTarget =
+          targets.find((target) => target.workflowId === workflowId) ??
+          (webhookRef ? targets.find((target) => target.webhookRef === webhookRef) : null) ??
+          (payload.templateKey
+            ? targets.find((target) => target.templateKey === payload.templateKey)
+            : null);
+
+        if (matchedTarget) {
+          workflowSync = await syncTenantN8nWorkflowEvolutionAutomation(
+            service,
+            tenant,
+            matchedTarget,
+            connections ?? [],
+            automationSettings?.automation_template_bindings,
+          );
+        } else {
+          automationSync = await syncAllTenantN8nEvolutionAutomations(service, tenant, {
+            templateKey: payload.templateKey,
+          });
         }
       }
+    } else {
+      const patched = await patchN8nWorkflowEvolutionSendText(workflowId);
+      postgresCredential = patched.postgresCredential;
+      updated = patched.workflow;
+    }
+
+    if (!updated) {
+      const workflow = await fetchN8nWorkflow(workflowId);
+      updated = workflow;
     }
 
     return jsonResponse({
@@ -141,6 +185,7 @@ Deno.serve(async (req) => {
       postgresCredential,
       workflowId,
       workflowName: updated.name ?? null,
+      workflowSync,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
