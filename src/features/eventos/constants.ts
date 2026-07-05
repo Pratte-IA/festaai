@@ -23,7 +23,6 @@ export const salesStages: StageDefinition<SalesStage>[] = [
 export const partyStages: StageDefinition<PartyStage>[] = [
   { key: "boas_vindas", label: "Boas Vindas" },
   { key: "planejamento", label: "Planejamento" },
-  { key: "contrato", label: "Contrato" },
   { key: "organizacao", label: "Organização" },
   { key: "festa_pronta", label: "Festa Pronta" },
 ];

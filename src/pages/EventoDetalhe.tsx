@@ -99,7 +99,6 @@ const stageLabels: Record<string, string> = {
   proposta_enviada: "Proposta Enviada",
   negociacao: "Negociação",
   visita_agendada: "Visita Agendada",
-  contrato: "Contrato",
   perdido: "Perdido",
   boas_vindas: "Boas Vindas",
   planejamento: "Planejamento",

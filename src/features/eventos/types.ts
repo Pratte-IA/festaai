@@ -13,7 +13,6 @@ export type SalesStage =
 export type PartyStage =
   | "boas_vindas"
   | "planejamento"
-  | "contrato"
   | "organizacao"
   | "festa_pronta";
 

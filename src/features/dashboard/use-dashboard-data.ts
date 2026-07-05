@@ -85,7 +85,7 @@ const getStatusLabel = (evento: Evento) => {
     };
   }
 
-  if (evento.etapa === "contrato" || evento.etapa === "planejamento") {
+  if (evento.etapa === "planejamento") {
     return {
       label: "Planejando",
       statusColor: "bg-primary/15 text-primary",
@@ -128,15 +128,6 @@ const buildAlerts = (events: Evento[], payments: EventoPagamento[]): DashboardAl
         eventoId: event.id,
         title: eventTitle,
         type: "pendencia",
-      });
-    }
-
-    if (event.etapa === "contrato") {
-      alerts.push({
-        description: "Contrato pendente de assinatura ou conferencia",
-        eventoId: event.id,
-        title: eventTitle,
-        type: "contrato",
       });
     }
 

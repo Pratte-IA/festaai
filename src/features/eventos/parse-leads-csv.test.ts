@@ -128,12 +128,12 @@ describe("parseLeadImportCsv", () => {
     expect(r.rows[1].etapa).toBe("negociacao");
   });
 
-  it("permitir funil festa por coluna por linha", () => {
+  it("migra etapa contrato legada do funil festa para planejamento na importacao", () => {
     const csv = stripUtf8Bom("funil,etapa,Nome\nfesta,contrato,Joao Silva\n");
     const r = parseLeadImportCsv(csv);
     expect(r.rows).toHaveLength(1);
     expect(r.rows[0].funil).toBe("festa");
-    expect(r.rows[0].etapa).toBe("contrato");
+    expect(r.rows[0].etapa).toBe("planejamento");
   });
 
   it("primeira etapa do funil se celula etapa vazia", () => {
