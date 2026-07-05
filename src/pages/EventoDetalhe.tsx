@@ -1,9 +1,8 @@
 import { useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Users, MessageCircle, Trophy, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
+import { ArrowLeft, Calendar, Users, MessageCircle, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
-import { ClosingFormDialog } from "@/components/eventos/ClosingFormDialog";
 import { MoveEventoFunnelDialog } from "@/components/eventos/MoveEventoFunnelDialog";
 import { EventoFormResponsesCard } from "@/components/eventos/EventoFormResponsesCard";
 import { PublicSurveyLinkCard } from "@/components/pesquisa-avaliacao/PublicSurveyLinkCard";
@@ -142,7 +141,6 @@ const EventoDetalhe = () => {
   const [newPaymentDate, setNewPaymentDate] = useState("");
   const [newPaymentAmount, setNewPaymentAmount] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isClosingDialogOpen, setIsClosingDialogOpen] = useState(false);
   const [isMoveFunnelOpen, setIsMoveFunnelOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isMarkLostOpen, setIsMarkLostOpen] = useState(false);
@@ -447,14 +445,6 @@ const EventoDetalhe = () => {
             </Button>
           )}
           <Button
-            className="bg-festa-blue hover:bg-festa-blue/90 text-white gap-2"
-            onClick={() => setIsClosingDialogOpen(true)}
-            disabled={event.funil !== "vendas" || event.etapa === "perdido"}
-          >
-            <Trophy className="w-4 h-4" />
-            Marcar como Vendido
-          </Button>
-          <Button
             variant="outline"
             className="border-destructive text-destructive hover:bg-destructive/10 gap-2"
             disabled={event.funil !== "vendas" || event.etapa === "perdido" || updateEvento.isPending}
@@ -729,18 +719,6 @@ const EventoDetalhe = () => {
         onOpenChange={setIsEditDialogOpen}
         onSubmit={handleUpdateEvento}
         open={isEditDialogOpen}
-      />
-
-      <ClosingFormDialog
-        evento={event}
-        onOpenChange={setIsClosingDialogOpen}
-        onSuccess={() => {
-          toast({
-            title: "Festa fechada",
-            description: "Os dados foram confirmados e a festa avançou para o funil Festa.",
-          });
-        }}
-        open={isClosingDialogOpen}
       />
 
       <MoveEventoFunnelDialog

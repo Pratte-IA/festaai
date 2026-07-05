@@ -1,4 +1,4 @@
-export const SETE_DIAS_AUTOMATION_EFFECTIVE_DATE = "2026-07-06";
+export const SETE_DIAS_AUTOMATION_EFFECTIVE_DATE = "2026-07-05";
 
 export const getBrazilTodayIsoDate = (now = new Date()): string =>
   new Intl.DateTimeFormat("en-CA", {

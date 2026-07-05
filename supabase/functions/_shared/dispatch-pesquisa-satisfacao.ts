@@ -1,6 +1,6 @@
 import { formatCompanyDisplayName } from "./company-display-name.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
-import { normalizeBrazilMobilePhoneForStorage } from "./phone.ts";
+import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
 import {
   buildPublicSatisfactionSurveyUrl,
   buildSatisfactionSurveyDispatchMessage,
@@ -145,7 +145,7 @@ export const dispatchPesquisaSatisfacaoAfterPostParty = async (
     };
   }
 
-  const customerPhone = normalizeBrazilMobilePhoneForStorage(
+  const customerPhone = resolveWhatsAppPhoneForOutbound(
     typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : null,
   );
   if (!customerPhone) {

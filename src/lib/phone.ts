@@ -181,3 +181,7 @@ export const normalizeBrazilPhoneForStorage = (phone: string | null | undefined)
 
   return toWhatsAppPhoneKey(phone);
 };
+
+/** Resolve número para envio Evolution (aceita celular de formulário ou chave já armazenada). */
+export const resolveWhatsAppPhoneForOutbound = (phone: string | null | undefined): string | null =>
+  toWhatsAppPhoneKey(phone) ?? normalizeBrazilMobilePhoneForStorage(phone);

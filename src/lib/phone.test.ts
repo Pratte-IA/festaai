@@ -10,6 +10,7 @@ import {
   normalizeBrazilMobilePhoneForStorage,
   normalizePhoneDigits,
   phonesMatch,
+  resolveWhatsAppPhoneForOutbound,
   toBrazilPhoneInputValue,
   toWhatsAppMePhone,
   toWhatsAppPhoneKey,
@@ -86,5 +87,10 @@ describe("phone utils", () => {
     expect(isValidBrazilMobilePhone("(45) 99978-561")).toBe(false);
     expect(getBrazilMobilePhoneValidationError("(45) 9978-5617")).toMatch(/9 dígitos/i);
     expect(getBrazilMobilePhoneValidationError("(45) 99978-5617")).toBeNull();
+  });
+
+  it("resolve telefone armazenado (55+DDD+8) para envio WhatsApp", () => {
+    expect(resolveWhatsAppPhoneForOutbound("554599785617")).toBe("554599785617");
+    expect(resolveWhatsAppPhoneForOutbound("(45) 99978-5617")).toBe("554599785617");
   });
 });

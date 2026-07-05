@@ -1,5 +1,5 @@
 /** Data em que passam a valer a transição automática pós-festa e o fluxo de pesquisa. */
-export const POST_PARTY_AUTOMATION_EFFECTIVE_DATE = "2026-07-06";
+export const POST_PARTY_AUTOMATION_EFFECTIVE_DATE = "2026-07-05";
 
 export const getBrazilTodayIsoDate = (now = new Date()): string =>
   new Intl.DateTimeFormat("en-CA", {
