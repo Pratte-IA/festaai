@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
         background_color: "#f7f7f8",
         display: "standalone",
         orientation: "portrait-primary",
-        start_url: "/",
+        start_url: "/login",
         scope: "/",
         lang: "pt-BR",
         categories: ["business", "productivity"],

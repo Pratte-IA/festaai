@@ -145,6 +145,7 @@ const EventoDetalhe = () => {
   const [isClosingDialogOpen, setIsClosingDialogOpen] = useState(false);
   const [isMoveFunnelOpen, setIsMoveFunnelOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isMarkLostOpen, setIsMarkLostOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -310,6 +311,32 @@ const EventoDetalhe = () => {
     }
   };
 
+  const handleMarkAsLost = async () => {
+    if (!validEventoId || event.funil !== "vendas" || event.etapa === "perdido") return;
+
+    try {
+      await updateEvento.mutateAsync({
+        eventoId: validEventoId,
+        values: {
+          etapa: "perdido",
+          status_interno: "perdido",
+        },
+      });
+
+      toast({
+        title: "Lead marcado como perdido",
+        description: "O lead foi movido para a etapa Perdido no funil de Vendas.",
+      });
+      setIsMarkLostOpen(false);
+    } catch {
+      toast({
+        title: "Nao foi possivel marcar como perdido",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const canDeleteLead = adminCapability?.isTenantAdmin ?? false;
   const whatsappUrl = buildWhatsAppUrl(
     event.cliente_telefone,
@@ -427,7 +454,12 @@ const EventoDetalhe = () => {
             <Trophy className="w-4 h-4" />
             Marcar como Vendido
           </Button>
-          <Button variant="outline" className="border-destructive text-destructive hover:bg-destructive/10 gap-2">
+          <Button
+            variant="outline"
+            className="border-destructive text-destructive hover:bg-destructive/10 gap-2"
+            disabled={event.funil !== "vendas" || event.etapa === "perdido" || updateEvento.isPending}
+            onClick={() => setIsMarkLostOpen(true)}
+          >
             <XCircle className="w-4 h-4" />
             Marcar como Perdido
           </Button>
@@ -716,6 +748,28 @@ const EventoDetalhe = () => {
         onOpenChange={setIsMoveFunnelOpen}
         open={isMoveFunnelOpen}
       />
+
+      <AlertDialog onOpenChange={setIsMarkLostOpen} open={isMarkLostOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Marcar como perdido?</AlertDialogTitle>
+            <AlertDialogDescription>
+              O lead de {event.cliente_nome} sera movido para a etapa Perdido no funil de Vendas.
+              Follow-ups automaticos em andamento serao cancelados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={updateEvento.isPending}
+              onClick={() => void handleMarkAsLost()}
+            >
+              Marcar como perdido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog onOpenChange={setIsDeleteOpen} open={isDeleteOpen}>
         <AlertDialogContent>

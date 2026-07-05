@@ -261,19 +261,23 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       continue;
     }
 
-    try {
-      await ensureVendasLeadFromWhatsapp(ctx.service, {
-        customerName: message.customerName,
-        customerPhone: message.customerPhone as string,
-        inboundMessage: {
-          text: message.text,
-          type: message.type,
-        },
-        tenantId: tenant.id,
-      });
-    } catch (leadError) {
-      const leadMessage = leadError instanceof Error ? leadError.message : "Erro ao garantir lead em Vendas.";
-      await logWebhookIngest(ctx, "skipped", `Lead não criado: ${leadMessage}`);
+    // Lead em Contato Inicial só nasce quando o cliente inicia conversa no número de Atendimento.
+    // Workflows outbound (7 dias, boas-vindas, follow-up etc.) não devem criar leads ao receber respostas.
+    if (isAtendimentoConnection) {
+      try {
+        await ensureVendasLeadFromWhatsapp(ctx.service, {
+          customerName: message.customerName,
+          customerPhone: message.customerPhone as string,
+          inboundMessage: {
+            text: message.text,
+            type: message.type,
+          },
+          tenantId: tenant.id,
+        });
+      } catch (leadError) {
+        const leadMessage = leadError instanceof Error ? leadError.message : "Erro ao garantir lead em Vendas.";
+        await logWebhookIngest(ctx, "skipped", `Lead não criado: ${leadMessage}`);
+      }
     }
 
     if (!canForward) {
