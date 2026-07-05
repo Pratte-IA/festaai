@@ -9,6 +9,7 @@ import { ContratoSetupStep } from "@/components/guided-setup/ContratoSetupStep";
 import { EstruturaSetupStep } from "@/components/guided-setup/EstruturaSetupStep";
 import { FinanceiroSetupStep } from "@/components/guided-setup/FinanceiroSetupStep";
 import { FormularioSetupStep } from "@/components/guided-setup/FormularioSetupStep";
+import { FollowupPropostaSetupStep } from "@/components/guided-setup/FollowupPropostaSetupStep";
 import { PesquisaAvaliacaoSetupStep } from "@/components/guided-setup/PesquisaAvaliacaoSetupStep";
 import { PackagesSetupStep } from "@/components/guided-setup/PackagesSetupStep";
 import { WhatsappSetupStep } from "@/components/guided-setup/WhatsappSetupStep";
@@ -53,6 +54,8 @@ const renderStepContent = (
       return <ContratoSetupStep onCompleted={onCompleted} />;
     case "formulario":
       return <FormularioSetupStep onCompleted={onCompleted} />;
+    case "followup_proposta":
+      return <FollowupPropostaSetupStep onCompleted={onCompleted} />;
     case "pesquisa_avaliacao":
       return <PesquisaAvaliacaoSetupStep onCompleted={onCompleted} />;
     case "whatsapp":

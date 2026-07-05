@@ -132,6 +132,32 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     completed.push("formulario");
   }
 
+  const { data: followupTemplates, error: followupTemplatesError } = await supabase
+    .from("tenant_message_templates")
+    .select("key")
+    .eq("tenant_id", tenantId)
+    .in("key", [
+      "follow-up-proposta-1-data-livre",
+      "follow-up-proposta-1-data-indisponivel",
+      "follow-up-proposta-2-data-livre",
+      "follow-up-proposta-2-data-indisponivel",
+      "follow-up-proposta-3-visita",
+      "follow-up-proposta-4-encerramento",
+    ]);
+
+  if (followupTemplatesError) throw followupTemplatesError;
+
+  const automationBindings = mergeAutomationTemplateBindings(
+    parseAutomationTemplateBindings(automationSettingsResult.data?.automation_template_bindings),
+  );
+  const followupBindingConfigured = automationBindings.some(
+    (binding) => binding.key === "follow-up-proposta" && binding.connectionId !== null,
+  );
+
+  if ((followupTemplates?.length ?? 0) > 0 || followupBindingConfigured) {
+    completed.push("followup_proposta");
+  }
+
   if ((satisfactionSurveyResult.count ?? 0) > 0) {
     completed.push("pesquisa_avaliacao");
   }
@@ -143,10 +169,6 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
   if (whatsappResult.data?.some((connection) => connection.status === "connected")) {
     completed.push("whatsapp");
   }
-
-  const automationBindings = mergeAutomationTemplateBindings(
-    parseAutomationTemplateBindings(automationSettingsResult.data?.automation_template_bindings),
-  );
 
   if (areAllAutomationBindingsConfigured(automationBindings)) {
     completed.push("automacoes");

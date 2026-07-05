@@ -3,6 +3,7 @@ export type N8nProvisionStatus = "draft" | "active" | "error";
 export type AutomationTemplateKey =
   | "atendimento"
   | "boas-vindas"
+  | "follow-up-proposta"
   | "sete-dias-antes"
   | "pesquisa-satisfacao"
   | "passar-para-vendedor";

@@ -9,6 +9,20 @@ import {
   type FinancialSettings,
 } from "./financial-settings-types";
 import { configuracoesQueryKeys } from "./query-keys";
+import {
+  DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL,
+  DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE,
+  DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL,
+  DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE,
+  DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA,
+  DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO,
+  PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL,
+  PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
+  PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_INDISPONIVEL,
+  PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_LIVRE,
+  PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
+  PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
+} from "@/features/eventos/proposta-followup";
 
 export interface MessageTemplate {
   body: string;
@@ -29,6 +43,36 @@ export const defaultMessageTemplates: MessageTemplate[] = [
   { key: "proposta", title: "Proposta", body: "" },
   { key: "confirmacao", title: "Confirmacao", body: "" },
   { key: "pos-festa", title: "Pos-festa", body: "" },
+  {
+    body: "",
+    key: "follow-up-proposta-1-data-livre",
+    title: "Follow-up Proposta 1 (data livre)",
+  },
+  {
+    body: "",
+    key: "follow-up-proposta-1-data-indisponivel",
+    title: "Follow-up Proposta 1 (data indisponivel)",
+  },
+  {
+    body: "",
+    key: "follow-up-proposta-2-data-livre",
+    title: "Follow-up Proposta 2 (data livre)",
+  },
+  {
+    body: "",
+    key: "follow-up-proposta-2-data-indisponivel",
+    title: "Follow-up Proposta 2 (data indisponivel)",
+  },
+  {
+    body: "",
+    key: "follow-up-proposta-3-visita",
+    title: "Follow-up Proposta 3 (convite de visita)",
+  },
+  {
+    body: "",
+    key: "follow-up-proposta-4-encerramento",
+    title: "Follow-up Proposta 4 (encerramento)",
+  },
 ];
 
 export const useTenantMessageTemplates = () => {
@@ -49,8 +93,23 @@ export const useTenantMessageTemplates = () => {
 
       return defaultMessageTemplates.map((template) => {
         const row = rowsByKey.get(template.key);
+        const defaultBody =
+          template.key === PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE
+            ? DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE
+            : template.key === PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL
+              ? DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL
+              : template.key === PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_LIVRE
+                ? DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE
+                : template.key === PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_INDISPONIVEL
+                  ? DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL
+                  : template.key === PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA
+                    ? DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA
+                    : template.key === PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO
+                      ? DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO
+                      : template.body;
+
         return {
-          body: row?.body ?? template.body,
+          body: row?.body ?? defaultBody,
           id: row?.id,
           key: template.key,
           title: row?.title ?? template.title,

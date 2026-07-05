@@ -58,7 +58,6 @@ export const AutomacoesSetupStep = ({ onCompleted }: AutomacoesSetupStepProps) =
       <AutomationTemplateBindingsPanel
         manager={manager}
         showSettingsWhatsappLink={false}
-        showN8nEditorLink={false}
       />
 
       <GuidedSetupContinueBar

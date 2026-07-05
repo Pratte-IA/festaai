@@ -362,7 +362,11 @@ export const ClosingFormDialog = ({
       setFieldValues((fieldPrevious) => {
         const fieldNext = { ...fieldPrevious };
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
+        const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
+        if (adicionaisSelecionadosId) {
+          fieldNext[adicionaisSelecionadosId] = snapshot.map((item) => item.name).join(", ");
+        }
         return syncFinancialFields(fieldNext, resolvePacoteValue(fieldNext));
       });
 

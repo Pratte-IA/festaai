@@ -8,6 +8,7 @@ import {
   Layers,
   Lock,
   LucideIcon,
+  MessageSquare,
   Package,
   PlugZap,
   Sparkles,
@@ -73,6 +74,13 @@ const cards: ConfigCardProps[] = [
     icon: Wallet,
   },
   {
+    to: "/configuracoes/followup-proposta",
+    title: "Follow-ups de Proposta",
+    description:
+      "Mensagens automáticas de retorno para leads em Proposta Enviada — regras, textos e prévia do FU1",
+    icon: MessageSquare,
+  },
+  {
     to: "/configuracoes/pesquisa-avaliacao",
     title: "Pesquisa de Avaliação",
     description: "Monte a pesquisa de satisfação enviada após a festa — NPS, experiência e depoimentos",
@@ -94,7 +102,7 @@ const cards: ConfigCardProps[] = [
     to: GUIDED_SETUP_ROUTE,
     title: "Configuração Inicial Guiada",
     description:
-      "Revise ou altere qualquer etapa — empresa, pacotes, financeiro, formulário, pesquisa e integrações",
+      "Revise ou altere qualquer etapa — empresa, pacotes, financeiro, formulário, follow-ups, pesquisa e integrações",
     icon: Sparkles,
   },
 ];

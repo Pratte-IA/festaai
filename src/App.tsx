@@ -30,6 +30,7 @@ const ConfiguracoesFormularioContratacao = lazy(
 );
 const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
 const ConfiguracoesPesquisaAvaliacao = lazy(() => import("./pages/configuracoes/PesquisaAvaliacao"));
+const ConfiguracoesFollowupProposta = lazy(() => import("./pages/configuracoes/FollowupProposta"));
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
 const ConfiguracoesAdicionais = lazy(() => import("./pages/configuracoes/Adicionais"));
 const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"));
@@ -348,6 +349,7 @@ const App = () => (
                     element={<Navigate to="/configuracoes/formulario-contratacao" replace />}
                   />
                   <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
+                  <Route path="followup-proposta" element={<ConfiguracoesFollowupProposta />} />
                   <Route path="pesquisa-avaliacao" element={<ConfiguracoesPesquisaAvaliacao />} />
                   <Route
                     path="integracoes/whatsapp"

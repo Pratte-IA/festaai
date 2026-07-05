@@ -6,6 +6,7 @@ import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import {
   Evento,
   FunnelType,
+  getPropostaFollowupKanbanBadge,
   Stage,
   StageDefinition,
   sortEventosByPartyDateExecutionOrder,
@@ -73,6 +74,16 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
       return;
     }
 
+    if (stageKey === "proposta_enviada" && !draggedEvento.data_evento) {
+      toast({
+        title: "Data da festa obrigatoria",
+        description: "Cadastre a data da festa antes de mover para Proposta Enviada.",
+        variant: "destructive",
+      });
+      setDraggedEvent(null);
+      return;
+    }
+
     updateEventoStage.mutate(
       {
         eventoId: draggedEvent,
@@ -116,7 +127,11 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
             </div>
 
             <div className="space-y-2 min-h-[200px] p-2 rounded-xl bg-muted/20 border border-border/30">
-              {stageEvents.map((event) => (
+              {stageEvents.map((event) => {
+                const followupBadge =
+                  funnel === "vendas" ? getPropostaFollowupKanbanBadge(event) : null;
+
+                return (
                 <div
                   key={event.id}
                   draggable
@@ -129,10 +144,18 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
                   <div className="flex items-start gap-2">
                     <GripVertical className="w-4 h-4 text-muted-foreground/40 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0 space-y-2">
-                      {/* Linha 1: Nome do cliente */}
-                      <p className="text-sm font-bold text-foreground truncate">
-                        {event.cliente_nome}
-                      </p>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-bold text-foreground truncate">
+                          {event.cliente_nome}
+                        </p>
+                        {followupBadge && (
+                          <span
+                            className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${followupBadge.className}`}
+                          >
+                            {followupBadge.label}
+                          </span>
+                        )}
+                      </div>
 
                       {/* Linha 2: Nome do aniversariante */}
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -171,7 +194,8 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
 
               {stageEvents.length === 0 && (
                 <div className="flex items-center justify-center h-24 text-xs text-muted-foreground/50">

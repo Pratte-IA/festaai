@@ -4,6 +4,7 @@ import { extractConnectionPhone, fetchMessageMediaBase64, syncConnectionWebhook 
 import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
 import {
   isConnectionUpdateEvent,
+  isInboundCustomerReplyMessage,
   isMediaMessageType,
   isMessagesUpsertEvent,
   parseEvolutionMessages,
@@ -11,6 +12,7 @@ import {
 } from "../_shared/evolution-message.ts";
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
 import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
+import { pausePropostaFollowupOnCustomerReply } from "../_shared/pause-proposta-followup.ts";
 import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
 
@@ -238,6 +240,21 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
     Boolean(tenantWebhookUrl);
 
   for (const message of messages) {
+    if (isInboundCustomerReplyMessage(message)) {
+      try {
+        await pausePropostaFollowupOnCustomerReply(ctx.service, {
+          customerPhone: message.customerPhone as string,
+          respondedAt: new Date().toISOString(),
+          tenantId: tenant.id,
+        });
+      } catch (pauseError) {
+        console.error(
+          "pausePropostaFollowupOnCustomerReply failed:",
+          pauseError instanceof Error ? pauseError.message : pauseError,
+        );
+      }
+    }
+
     const skipReason = shouldSkipMessage(message);
     if (skipReason) {
       await logWebhookIngest(ctx, "skipped", `Mensagem ignorada: ${skipReason}.`);
@@ -248,6 +265,10 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       await ensureVendasLeadFromWhatsapp(ctx.service, {
         customerName: message.customerName,
         customerPhone: message.customerPhone as string,
+        inboundMessage: {
+          text: message.text,
+          type: message.type,
+        },
         tenantId: tenant.id,
       });
     } catch (leadError) {

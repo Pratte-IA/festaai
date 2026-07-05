@@ -8,10 +8,16 @@ import {
 } from "@/features/configuracoes";
 import {
   CLOSING_FORM_SECTIONS,
+  formatAdicionaisSelecionadosLabel,
   formatClosingFormResponseValue,
+  getEventoFieldValueAsString,
   isCustomClosingFormField,
+  parseAdicionaisSnapshot,
+  useEvento,
   useEventoClosingResponses,
 } from "@/features/eventos";
+
+const ADICIONAIS_FORM_FIELD_KEYS = new Set(["adicionais_selecionados", "valor_adicionais"]);
 
 interface EventoFormResponsesCardProps {
   eventoId: number;
@@ -22,12 +28,21 @@ export const EventoFormResponsesCard = ({
   eventoId,
   hasFormSubmission = false,
 }: EventoFormResponsesCardProps) => {
+  const { data: evento, isLoading: isEventoLoading } = useEvento(eventoId);
   const { data: fields = [], isLoading: isFieldsLoading } = useTenantClosingForm();
   const { data: responses = {}, isLoading: isResponsesLoading } = useEventoClosingResponses(eventoId);
 
   const groupedResponses = useMemo(() => {
-    const customFields = fields
-      .filter((field) => field.active && isCustomClosingFormField(field))
+    const displayFields = fields
+      .filter((field) => {
+        if (!field.active) return false;
+        if (isCustomClosingFormField(field)) return true;
+        return (
+          field.section === "adicionais" &&
+          field.fieldKey != null &&
+          ADICIONAIS_FORM_FIELD_KEYS.has(field.fieldKey)
+        );
+      })
       .sort((a, b) => {
         const sectionOrder =
           CLOSING_FORM_SECTIONS.indexOf(a.section) - CLOSING_FORM_SECTIONS.indexOf(b.section);
@@ -37,9 +52,30 @@ export const EventoFormResponsesCard = ({
 
     const groups = new Map<string, Array<{ label: string; value: string }>>();
 
-    customFields.forEach((field) => {
-      const rawValue = responses[field.id] ?? "";
-      const shouldShow = rawValue.trim() !== "" || hasFormSubmission;
+    displayFields.forEach((field) => {
+      let rawValue = "";
+
+      if (field.fieldKey === "adicionais_selecionados" && evento) {
+        rawValue = responses[field.id]?.trim() ?? "";
+        if (!rawValue) {
+          rawValue = formatAdicionaisSelecionadosLabel(
+            parseAdicionaisSnapshot(evento.adicionais_snapshot),
+          );
+        }
+      } else if (field.fieldKey === "valor_adicionais" && evento) {
+        rawValue = getEventoFieldValueAsString(evento, "valor_adicionais");
+      } else {
+        rawValue = responses[field.id] ?? "";
+      }
+
+      const hasAdicionaisData =
+        field.fieldKey === "adicionais_selecionados"
+          ? rawValue.trim() !== ""
+          : field.fieldKey === "valor_adicionais"
+            ? Number(rawValue) > 0
+            : false;
+
+      const shouldShow = rawValue.trim() !== "" || hasFormSubmission || hasAdicionaisData;
       if (!shouldShow) return;
 
       const sectionLabel = closingFormSectionLabels[field.section];
@@ -52,9 +88,9 @@ export const EventoFormResponsesCard = ({
     });
 
     return groups;
-  }, [fields, hasFormSubmission, responses]);
+  }, [evento, fields, hasFormSubmission, responses]);
 
-  const isLoading = isFieldsLoading || isResponsesLoading;
+  const isLoading = isEventoLoading || isFieldsLoading || isResponsesLoading;
   const hasResponses = groupedResponses.size > 0;
 
   if (!isLoading && !hasResponses) return null;

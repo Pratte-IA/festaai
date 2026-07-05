@@ -57,6 +57,13 @@ const extractMessageText = (message: Record<string, unknown> | null | undefined)
   const sticker = message.stickerMessage;
   if (sticker) return "[sticker]";
 
+  const reaction = message.reactionMessage;
+  if (typeof reaction === "object" && reaction) {
+    const emoji = (reaction as { text?: unknown }).text;
+    if (typeof emoji === "string" && emoji.trim()) return emoji.trim();
+    return "[reação]";
+  }
+
   const contact = message.contactMessage;
   if (contact) return "[contato]";
 
@@ -111,6 +118,7 @@ const resolveMessageType = (message: Record<string, unknown> | null | undefined)
   if (message.audioMessage) return "audio";
   if (message.documentMessage) return "document";
   if (message.stickerMessage) return "sticker";
+  if (message.reactionMessage) return "reaction";
   if (message.contactMessage) return "contact";
   if (message.locationMessage) return "location";
   return "unknown";
@@ -226,6 +234,14 @@ export const shouldSkipMessage = (message: ParsedEvolutionMessage): string | nul
   if (!message.customerPhone) return "invalid_phone";
   if (!message.text?.trim()) return "empty_message";
   return null;
+};
+
+/** Resposta inbound do cliente que deve pausar a sequência de follow-up de proposta. */
+export const isInboundCustomerReplyMessage = (message: ParsedEvolutionMessage): boolean => {
+  if (message.fromMe || !message.customerPhone) return false;
+  if (message.text?.trim()) return true;
+  if (message.type === "audio") return true;
+  return false;
 };
 
 export const isMessagesUpsertEvent = (eventName: string | null): boolean =>

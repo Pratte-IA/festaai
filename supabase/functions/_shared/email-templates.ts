@@ -121,7 +121,7 @@ export const emailTemplates: Record<EmailTemplateKey, EmailTemplate> = {
       ${heading("Você foi convidado para o FestaAI")}
       ${paragraph(`${escapeHtml(param(params, "inviterName", "Um administrador"))} convidou você para acessar <strong>${escapeHtml(param(params, "tenantName", "sua empresa"))}</strong>.`)}
       ${paragraph("Clique no botão abaixo para <strong>criar sua senha</strong> e começar a usar o painel com este e-mail.")}
-      ${highlightBox("O link é pessoal e expira em algumas horas. Se ele expirar, peça para um administrador reenviar o convite.")}
+      ${highlightBox("O link é pessoal e expira em <strong>24 horas</strong>. Se ele expirar, peça para um administrador reenviar o convite.")}
     `,
       ),
     text: (params) => {
@@ -139,7 +139,7 @@ export const emailTemplates: Record<EmailTemplateKey, EmailTemplate> = {
       ${heading("Redefinição de senha")}
       ${paragraph(`Olá, <strong>${escapeHtml(param(params, "name", "tudo bem"))}</strong>.`)}
       ${paragraph("Recebemos uma solicitação para redefinir a senha da sua conta FestaAI.")}
-      ${highlightBox("Clique no botão abaixo para <strong>criar uma nova senha</strong>. O link é pessoal e expira em algumas horas.")}
+      ${highlightBox("Clique no botão abaixo para <strong>criar uma nova senha</strong>. O link é pessoal e expira em <strong>24 horas</strong>.")}
       ${paragraph("Se você não solicitou esta alteração, ignore este e-mail. Sua senha atual continuará válida.")}
     `,
       ),
@@ -159,7 +159,7 @@ export const emailTemplates: Record<EmailTemplateKey, EmailTemplate> = {
       ${paragraph(`Olá, <strong>${escapeHtml(param(params, "name", "tudo bem"))}</strong>.`)}
       ${paragraph("Seu pagamento foi confirmado e sua assinatura FestaAI está ativa.")}
       ${highlightBox("Clique no botão abaixo para <strong>criar sua senha</strong> e acessar a plataforma com o e-mail cadastrado na contratação.")}
-      ${paragraph("O link é pessoal e expira em algumas horas. Se precisar de um novo link, responda este e-mail.")}
+      ${paragraph("O link é pessoal e expira em <strong>24 horas</strong>. Se precisar de um novo link, responda este e-mail.")}
     `,
       ),
     text: (params) => {

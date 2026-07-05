@@ -609,6 +609,27 @@ const buildEventoUpdatesFromSubmit = (payload: z.infer<typeof submitSchema>) => 
 
   if (payload.adicionaisSnapshot != null) {
     eventoUpdates.adicionais_snapshot = payload.adicionaisSnapshot;
+
+    const adicionaisField = payload.fields.find((field) => field.fieldKey === "adicionais_selecionados");
+    if (adicionaisField && Array.isArray(payload.adicionaisSnapshot)) {
+      const labels = payload.adicionaisSnapshot
+        .flatMap((item) => {
+          if (!item || typeof item !== "object") return [];
+          const row = item as Record<string, unknown>;
+          return typeof row.name === "string" && row.name.trim() ? [row.name.trim()] : [];
+        })
+        .join(", ");
+
+      if (labels) {
+        const fieldId = Number(adicionaisField.id);
+        const existing = customResponses.find((response) => response.field_id === fieldId);
+        if (existing) {
+          if (!existing.value.trim()) existing.value = labels;
+        } else {
+          customResponses.push({ field_id: fieldId, value: labels });
+        }
+      }
+    }
   }
 
   return { customResponses, eventoUpdates };

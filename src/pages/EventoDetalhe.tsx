@@ -12,6 +12,10 @@ import {
   EventoContractCard,
   shouldShowEventoContractCard,
 } from "@/components/eventos/EventoContractCard";
+import {
+  EventoFormQuickAccessCard,
+  shouldShowEventoFormQuickAccessCard,
+} from "@/components/eventos/EventoFormQuickAccessCard";
 import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import EventChecklist from "@/components/EventChecklist";
 import { formatIsoDateBR, formatTimestampDateBR, getTodayAtNoon, parseIsoDateLocal } from "@/lib/date";
@@ -586,6 +590,10 @@ const EventoDetalhe = () => {
             )}
           </CardContent>
         </Card>
+
+        {shouldShowEventoFormQuickAccessCard(event) && (
+          <EventoFormQuickAccessCard evento={event} />
+        )}
 
         {shouldShowEventoContractCard(event) && <EventoContractCard evento={event} />}
 

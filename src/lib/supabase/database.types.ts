@@ -1268,6 +1268,15 @@ export type Database = {
           etapa: string
           executadas_transicao_em: string | null
           fechamento_confirmado_em: string | null
+          followup_1_enviado_em: string | null
+          followup_1_variante: string | null
+          followup_2_enviado_em: string | null
+          followup_2_variante: string | null
+          followup_3_enviado_em: string | null
+          followup_4_enviado_em: string | null
+          followup_cancelado_motivo: string | null
+          followup_resposta_cliente_em: string | null
+          followup_status: string | null
           forma_pagamento_entrada: string | null
           forma_pagamento_saldo: string | null
           funil: string
@@ -1282,6 +1291,7 @@ export type Database = {
           pacote_id: number | null
           pacote_nome: string | null
           parcelas: number | null
+          proposta_enviada_em: string | null
           quantidade_adultos: number | null
           quantidade_convidados: number | null
           quantidade_crianas: number | null
@@ -1323,7 +1333,17 @@ export type Database = {
           data_evento?: string | null
           data_limite_pagamento?: string | null
           etapa?: string
+          executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          followup_1_enviado_em?: string | null
+          followup_1_variante?: string | null
+          followup_2_enviado_em?: string | null
+          followup_2_variante?: string | null
+          followup_3_enviado_em?: string | null
+          followup_4_enviado_em?: string | null
+          followup_cancelado_motivo?: string | null
+          followup_resposta_cliente_em?: string | null
+          followup_status?: string | null
           forma_pagamento_entrada?: string | null
           forma_pagamento_saldo?: string | null
           funil?: string
@@ -1338,9 +1358,12 @@ export type Database = {
           pacote_id?: number | null
           pacote_nome?: string | null
           parcelas?: number | null
+          proposta_enviada_em?: string | null
           quantidade_adultos?: number | null
           quantidade_convidados?: number | null
           quantidade_crianas?: number | null
+          satisfaction_survey_preenchido_em?: string | null
+          satisfaction_survey_whatsapp_enviado_em?: string | null
           status_interno?: string
           tenant_id: number
           tipo_evento?: string
@@ -1377,7 +1400,17 @@ export type Database = {
           data_evento?: string | null
           data_limite_pagamento?: string | null
           etapa?: string
+          executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          followup_1_enviado_em?: string | null
+          followup_1_variante?: string | null
+          followup_2_enviado_em?: string | null
+          followup_2_variante?: string | null
+          followup_3_enviado_em?: string | null
+          followup_4_enviado_em?: string | null
+          followup_cancelado_motivo?: string | null
+          followup_resposta_cliente_em?: string | null
+          followup_status?: string | null
           forma_pagamento_entrada?: string | null
           forma_pagamento_saldo?: string | null
           funil?: string
@@ -1392,9 +1425,12 @@ export type Database = {
           pacote_id?: number | null
           pacote_nome?: string | null
           parcelas?: number | null
+          proposta_enviada_em?: string | null
           quantidade_adultos?: number | null
           quantidade_convidados?: number | null
           quantidade_crianas?: number | null
+          satisfaction_survey_preenchido_em?: string | null
+          satisfaction_survey_whatsapp_enviado_em?: string | null
           status_interno?: string
           tenant_id?: number
           tipo_evento?: string

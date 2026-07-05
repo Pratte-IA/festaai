@@ -50,21 +50,28 @@ export const GUIDED_SETUP_STEPS = [
       "Configure o formulário que o cliente preenche com os dados da festa para organização e contrato",
   },
   {
-    key: "pesquisa_avaliacao",
+    key: "followup_proposta",
     order: 9,
+    title: "Follow-ups de proposta",
+    description:
+      "Mensagens automáticas de retorno para leads em Proposta Enviada — começando 48h após o envio",
+  },
+  {
+    key: "pesquisa_avaliacao",
+    order: 10,
     title: "Pesquisa de avaliação",
     description:
       "Monte a pesquisa de satisfação enviada após a festa — NPS, experiência e depoimentos",
   },
   {
     key: "whatsapp",
-    order: 10,
+    order: 11,
     title: "Conectar o WhatsApp",
     description: "Vincule um número WhatsApp para disparos automáticos",
   },
   {
     key: "automacoes",
-    order: 11,
+    order: 12,
     title: "Automações",
     description: "Vincule cada automação ao número WhatsApp que envia ou recebe as mensagens",
   },
@@ -84,6 +91,7 @@ export const GUIDED_SETUP_WIDE_STEPS: GuidedSetupStepKey[] = [
   "checklist",
   "contrato",
   "formulario",
+  "followup_proposta",
   "pesquisa_avaliacao",
   "whatsapp",
   "automacoes",

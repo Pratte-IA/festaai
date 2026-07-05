@@ -18,6 +18,14 @@ export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
   },
   {
     bindingMode: "whatsapp_connection",
+    key: "follow-up-proposta",
+    title: "Follow-up de Proposta",
+    description:
+      "Envia follow-ups automáticos de proposta (FU1 após 48h) para leads em Proposta Enviada sem retorno.",
+    direction: "outbound",
+  },
+  {
+    bindingMode: "whatsapp_connection",
     key: "sete-dias-antes",
     title: "7 dias Antes da Festa",
     description:

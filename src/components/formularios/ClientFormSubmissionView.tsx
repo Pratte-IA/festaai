@@ -9,10 +9,12 @@ import {
 } from "@/features/configuracoes";
 import {
   CLIENT_FORM_SECTIONS,
+  formatAdicionaisSelecionadosLabel,
   formatClosingFormResponseValue,
   getEventoFieldValueAsString,
   isClientFacingClosingFormField,
   isCustomClosingFormField,
+  parseAdicionaisSnapshot,
   useEvento,
   useEventoAcceptanceResponses,
   useEventoClosingResponses,
@@ -56,6 +58,13 @@ export const ClientFormSubmissionView = ({ eventoId }: ClientFormSubmissionViewP
           const termId = field.config?.termId;
           if (typeof termId === "number" || typeof termId === "string") {
             rawValue = acceptanceResponses[String(termId)] ? "true" : "false";
+          }
+        } else if (field.fieldKey === "adicionais_selecionados") {
+          rawValue = responses[field.id]?.trim() ?? "";
+          if (!rawValue) {
+            rawValue = formatAdicionaisSelecionadosLabel(
+              parseAdicionaisSnapshot(evento.adicionais_snapshot),
+            );
           }
         } else if (field.fieldKey && isEventoMappedField(field.fieldKey)) {
           rawValue = getEventoFieldValueAsString(evento, field.fieldKey);

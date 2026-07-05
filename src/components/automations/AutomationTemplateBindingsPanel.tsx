@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertCircle, Bot, ExternalLink, Loader2, PlugZap } from "lucide-react";
+import { AlertCircle, Bot, Loader2, PlugZap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -270,14 +270,12 @@ interface AutomationTemplateBindingsPanelProps {
   manager: AutomationTemplateBindingsManager;
   showCardHeader?: boolean;
   showSettingsWhatsappLink?: boolean;
-  showN8nEditorLink?: boolean;
 }
 
 export const AutomationTemplateBindingsPanel = ({
   manager,
   showCardHeader = true,
   showSettingsWhatsappLink = true,
-  showN8nEditorLink = true,
 }: AutomationTemplateBindingsPanelProps) => {
   const {
     connections,
@@ -289,7 +287,6 @@ export const AutomationTemplateBindingsPanel = ({
     isLoadingConnections,
     isSaving,
     localBindings,
-    settings,
   } = manager;
 
   return (
@@ -359,17 +356,6 @@ export const AutomationTemplateBindingsPanel = ({
                 />
               ))}
             </div>
-
-            {showN8nEditorLink && settings?.n8nEditorUrl && (
-              <div className="pt-2">
-                <Button asChild variant="ghost" size="sm" className="gap-2 px-0 text-muted-foreground">
-                  <a href={settings.n8nEditorUrl} target="_blank" rel="noreferrer">
-                    Abrir pasta no editor N8N
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
-            )}
           </>
         )}
       </CardContent>

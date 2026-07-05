@@ -1,10 +1,17 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
+import { isTrivialInboundReengagementMessage } from "./inbound-reengagement-message.ts";
 import { normalizeBrazilPhoneForStorage, phonesMatch } from "./phone.ts";
+
+export interface EnsureVendasLeadInboundMessage {
+  text: string | null;
+  type: string;
+}
 
 export interface EnsureVendasLeadInput {
   customerName: string | null;
   customerPhone: string;
+  inboundMessage?: EnsureVendasLeadInboundMessage;
   tenantId: number;
 }
 
@@ -12,8 +19,18 @@ export interface EnsureVendasLeadResult {
   created: boolean;
   eventoId: number | null;
   reactivated?: boolean;
-  skippedReason?: "existing_vendas_lead" | "invalid_phone";
+  reactivationStage?: "contato_inicial" | "negociacao";
+  skippedReason?: "existing_vendas_lead" | "invalid_phone" | "trivial_reengagement";
 }
+
+const isFu4PerdidoLead = (evento: {
+  etapa: string;
+  followup_4_enviado_em?: string | null;
+  followup_status?: string | null;
+}): boolean =>
+  evento.etapa === "perdido" &&
+  (evento.followup_status === "concluido_perdido" ||
+    typeof evento.followup_4_enviado_em === "string");
 
 export const ensureVendasLeadFromWhatsapp = async (
   service: SupabaseClient,
@@ -26,7 +43,7 @@ export const ensureVendasLeadFromWhatsapp = async (
 
   const { data: vendasEventos, error: queryError } = await service
     .from("eventos")
-    .select("id, cliente_telefone, etapa")
+    .select("id, cliente_telefone, etapa, followup_4_enviado_em, followup_status")
     .eq("tenant_id", input.tenantId)
     .eq("funil", "vendas")
     .order("updated_at", { ascending: false });
@@ -39,6 +56,54 @@ export const ensureVendasLeadFromWhatsapp = async (
 
   if (existingLead) {
     if (existingLead.etapa === "perdido") {
+      if (isFu4PerdidoLead(existingLead)) {
+        const inbound = input.inboundMessage ?? { text: null, type: "unknown" };
+
+        if (isTrivialInboundReengagementMessage(inbound)) {
+          return {
+            created: false,
+            eventoId: existingLead.id,
+            skippedReason: "trivial_reengagement",
+          };
+        }
+
+        const reactivatedAt = new Date().toISOString();
+        const { error: updateError } = await service
+          .from("eventos")
+          .update({
+            etapa: "negociacao",
+            motivo_perda: null,
+            status_interno: "ativo",
+          })
+          .eq("id", existingLead.id);
+
+        if (updateError) throw updateError;
+
+        const reactivatedBR = new Date(reactivatedAt).toLocaleString("pt-BR", {
+          timeZone: "America/Sao_Paulo",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+
+        await service.from("evento_notas").insert({
+          evento_id: existingLead.id,
+          tenant_id: input.tenantId,
+          texto:
+            `[Automação] Cliente retomou contato após follow-up de proposta (FU4) — ${reactivatedBR}\n` +
+            "Lead movido para Negociação para retomada do atendimento.",
+        });
+
+        return {
+          created: false,
+          eventoId: existingLead.id,
+          reactivated: true,
+          reactivationStage: "negociacao",
+        };
+      }
+
       const { error: updateError } = await service
         .from("eventos")
         .update({
@@ -54,6 +119,7 @@ export const ensureVendasLeadFromWhatsapp = async (
         created: false,
         eventoId: existingLead.id,
         reactivated: true,
+        reactivationStage: "contato_inicial",
       };
     }
 

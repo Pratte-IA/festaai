@@ -47,6 +47,12 @@ export const SETTINGS_PAGE_META = {
     description:
       "Configure entrada, formas de pagamento do restante e limites de parcelamento padrão da casa.",
   },
+  "followup-proposta": {
+    breadcrumb: "Follow-ups de Proposta",
+    title: "Follow-ups de proposta",
+    description:
+      "Configure as mensagens automáticas enviadas após a proposta — regras de disparo, validação de data e textos personalizáveis.",
+  },
   "pesquisa-avaliacao": {
     breadcrumb: "Pesquisa de Avaliação",
     title: "Pesquisa de satisfação",
@@ -69,7 +75,7 @@ export const SETTINGS_PAGE_META = {
     breadcrumb: "Configuração inicial",
     title: "Configuração guiada",
     description:
-      "Configure empresa, pacotes, financeiro, contrato, formulário, pesquisa de avaliação e integrações em etapas sequenciais.",
+      "Configure empresa, pacotes, financeiro, contrato, formulário, follow-ups, pesquisa de avaliação e integrações em etapas sequenciais.",
   },
 } as const satisfies Record<string, SettingsPageMeta>;
 

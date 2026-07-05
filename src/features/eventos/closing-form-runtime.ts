@@ -297,6 +297,9 @@ export const buildAdicionaisSnapshot = (
 export const getAdditionalsTotal = (snapshot: AdicionalSnapshotItem[]): number =>
   snapshot.reduce((sum, item) => sum + item.subtotal, 0);
 
+export const formatAdicionaisSelecionadosLabel = (snapshot: AdicionalSnapshotItem[]): string =>
+  snapshot.map((item) => item.name).join(", ");
+
 export const applyPackageToFieldValues = (
   pkg: PackageData,
   guestCount: number,
@@ -406,7 +409,12 @@ export const computeClosingFormPaymentSummary = ({
   guestCountSource: Pick<Evento, "quantidade_convidados">;
   packages: PackageData[];
   selectedPackageId: string | null;
-}): { adicionaisValue: number; pacoteValue: number; totalValue: number } => {
+}): {
+  adicionaisSnapshot: AdicionalSnapshotItem[];
+  adicionaisValue: number;
+  pacoteValue: number;
+  totalValue: number;
+} => {
   const guestCount = resolveGuestCount(guestCountSource, fieldValues, fieldIdByKey);
   const eventDate = resolveEventDateFromFieldValues(fieldValues, fieldIdByKey);
   const selectedPackage = selectedPackageId
@@ -425,6 +433,7 @@ export const computeClosingFormPaymentSummary = ({
   const adicionaisValue = getAdditionalsTotal(adicionaisSnapshot);
 
   return {
+    adicionaisSnapshot,
     adicionaisValue,
     pacoteValue,
     totalValue: pacoteValue + adicionaisValue,
@@ -475,6 +484,11 @@ export const recalculateClosingFormFinancials = ({
 
   setKey("valor_adicionais", summary.adicionaisValue);
   setKey("valor_pacote", summary.pacoteValue);
+
+  const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");
+  if (adicionaisSelecionadosId) {
+    next[adicionaisSelecionadosId] = formatAdicionaisSelecionadosLabel(summary.adicionaisSnapshot);
+  }
 
   return recalculateFinancialTotals(next, fieldIdByKey, { pacoteValue: summary.pacoteValue });
 };

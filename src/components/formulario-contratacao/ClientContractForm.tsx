@@ -34,6 +34,7 @@ import {
   buildPackageEventoUpdates,
   CALCULATED_CLOSING_FORM_FIELD_KEYS,
   filterClientVisiblePaymentFields,
+  formatAdicionaisSelecionadosLabel,
   getAdditionalsTotal,
   isClientFacingClosingFormField,
   isClientPaymentSummaryFieldKey,
@@ -476,7 +477,11 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
         const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate);
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
+        const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
+        if (adicionaisSelecionadosId) {
+          fieldNext[adicionaisSelecionadosId] = formatAdicionaisSelecionadosLabel(snapshot);
+        }
 
         config.fields.forEach((field) => {
           if (
@@ -508,7 +513,11 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       setFieldValues((fieldPrevious) => {
         const fieldNext = { ...fieldPrevious };
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
+        const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
+        if (adicionaisSelecionadosId) {
+          fieldNext[adicionaisSelecionadosId] = formatAdicionaisSelecionadosLabel(snapshot);
+        }
         return syncFinancialFields(fieldNext, resolvePacoteValue(fieldNext));
       });
 
@@ -530,7 +539,11 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       setFieldValues((fieldPrevious) => {
         const fieldNext = { ...fieldPrevious };
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
+        const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(total);
+        if (adicionaisSelecionadosId) {
+          fieldNext[adicionaisSelecionadosId] = formatAdicionaisSelecionadosLabel(snapshot);
+        }
         return syncFinancialFields(fieldNext, resolvePacoteValue(fieldNext));
       });
 
@@ -760,13 +773,28 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
       additionalSelections,
       guestCount,
     );
+    const adicionaisSelecionadosId = allFieldIdByKey.get("adicionais_selecionados");
+    const submitFieldValues = { ...fieldValues };
+    if (adicionaisSelecionadosId) {
+      submitFieldValues[adicionaisSelecionadosId] =
+        formatAdicionaisSelecionadosLabel(adicionaisSnapshot);
+    }
+
+    const adicionaisSelecionadosField = config.fields.find(
+      (field) => field.active && field.fieldKey === "adicionais_selecionados",
+    );
+    const submitFields =
+      adicionaisSelecionadosField &&
+      !activeFields.some((field) => field.id === adicionaisSelecionadosField.id)
+        ? [...activeFields, adicionaisSelecionadosField]
+        : activeFields;
 
     try {
       const result = await submitForm.mutateAsync({
         acceptanceResponses: buildAcceptanceResponsesPayload(activeTerms, termResponses),
         adicionaisSnapshot,
-        fieldValues,
-        fields: activeFields.map((field) => ({
+        fieldValues: submitFieldValues,
+        fields: submitFields.map((field) => ({
           fieldKey: field.fieldKey,
           fieldType: field.fieldType,
           id: field.id,

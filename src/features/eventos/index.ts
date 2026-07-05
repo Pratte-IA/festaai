@@ -49,6 +49,33 @@ export {
   POST_PARTY_AUTOMATION_EFFECTIVE_DATE,
   shouldTransitionToAguardandoFeedback,
 } from "./post-party-automation";
+export {
+  DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL,
+  DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE,
+  DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL,
+  DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE,
+  DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA,
+  DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO,
+  getPropostaFollowupKanbanBadge,
+  PROPOSTA_FOLLOWUP_1_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL,
+  PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
+  PROPOSTA_FOLLOWUP_2_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_INDISPONIVEL,
+  PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_LIVRE,
+  PROPOSTA_FOLLOWUP_3_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
+  PROPOSTA_FOLLOWUP_4_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
+  PROPOSTA_FOLLOWUP_LOSS_MOTIVO,
+  PROPOSTA_FOLLOWUP_TEMPLATE_KEY,
+  propostaFollowupStatusLabels,
+} from "./proposta-followup";
+export type {
+  PropostaFollowup1Variante,
+  PropostaFollowup2Variante,
+  PropostaFollowupStatus,
+} from "./proposta-followup";
 export { useBulkCreateEventos } from "./use-bulk-create-eventos";
 export { useCreateEvento } from "./use-create-evento";
 export { useEvento } from "./use-evento";
@@ -153,11 +180,13 @@ export type { AdicionalSnapshotItem } from "./closing-form-runtime";
 export {
   CLIENT_FORM_SECTIONS,
   CLOSING_FORM_SECTIONS,
+  formatAdicionaisSelecionadosLabel,
   formatClosingFormResponseValue,
   getEventoFieldValueAsString,
   isClientFacingClosingFormField,
   isCustomClosingFormField,
   isClosingFormFieldApplicableToPackage,
+  parseAdicionaisSnapshot,
 } from "./closing-form-runtime";
 export type {
   Evento,

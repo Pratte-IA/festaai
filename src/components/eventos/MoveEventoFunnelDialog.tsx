@@ -68,6 +68,15 @@ export const MoveEventoFunnelDialog = ({
       return;
     }
 
+    if (targetFunnel === "vendas" && targetStage === "proposta_enviada" && !evento.data_evento) {
+      toast({
+        title: "Data da festa obrigatoria",
+        description: "Cadastre a data da festa antes de mover para Proposta Enviada.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await updateEvento.mutateAsync({
         eventoId: evento.id,

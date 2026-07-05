@@ -56,3 +56,37 @@ export const persistAgentConversationMessage = async (
 
   throw error;
 };
+
+const langChainRoleFromAgentRole = (role: PersistAgentMessageInput["role"]): string => {
+  if (role === "human") return "human";
+  if (role === "system") return "system";
+  return "ai";
+};
+
+/** Grava mensagem outbound/inbound também no histórico LangChain do n8n. */
+export const persistN8nChatHistoryMessage = async (
+  service: AgentMessageService,
+  input: PersistAgentMessageInput,
+): Promise<void> => {
+  const phoneKey = toWhatsAppPhoneKey(input.customerPhone) ?? input.customerPhone;
+  const sessionId = buildAgentSessionId(input.tenantId, phoneKey);
+  const langChainRole = langChainRoleFromAgentRole(input.role);
+
+  const { error } = await service.from(AGENT_MEMORY_TABLE_NAME).insert({
+    message: {
+      data: { content: input.content },
+      type: langChainRole,
+    },
+    session_id: sessionId,
+  });
+
+  if (error) throw error;
+};
+
+export const persistAgentOutboundAutomationMessage = async (
+  service: AgentMessageService,
+  input: PersistAgentMessageInput,
+): Promise<void> => {
+  await persistAgentConversationMessage(service, input);
+  await persistN8nChatHistoryMessage(service, input);
+};
