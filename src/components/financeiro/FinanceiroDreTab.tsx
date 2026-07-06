@@ -7,25 +7,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  buildTenantFinanceiroPeriodSummary,
-  FinanceiroLancamento,
-  groupLancamentosByCategoria,
+  buildDrePeriodSummary,
+  FinanceiroDisplayItem,
+  groupDisplayItemsByCategoria,
 } from "@/features/financeiro";
 
 interface FinanceiroDreTabProps {
+  entradas: FinanceiroDisplayItem[];
   isLoading: boolean;
-  lancamentos: FinanceiroLancamento[];
+  saidas: FinanceiroDisplayItem[];
 }
 
-export const FinanceiroDreTab = ({ isLoading, lancamentos }: FinanceiroDreTabProps) => {
+export const FinanceiroDreTab = ({ entradas, isLoading, saidas }: FinanceiroDreTabProps) => {
   const [entradasExpanded, setEntradasExpanded] = useState(false);
   const [saidasExpanded, setSaidasExpanded] = useState(false);
 
-  const summary = buildTenantFinanceiroPeriodSummary(lancamentos);
-  const entradas = lancamentos.filter((item) => item.tipo === "entrada");
-  const saidas = lancamentos.filter((item) => item.tipo === "saida");
-  const entradasPorCategoria = groupLancamentosByCategoria(lancamentos, "entrada");
-  const saidasPorCategoria = groupLancamentosByCategoria(lancamentos, "saida");
+  const summary = buildDrePeriodSummary(entradas, saidas);
+  const entradasPorCategoria = groupDisplayItemsByCategoria(entradas);
+  const saidasPorCategoria = groupDisplayItemsByCategoria(saidas);
 
   return (
     <div className="space-y-4">
@@ -35,6 +34,7 @@ export const FinanceiroDreTab = ({ isLoading, lancamentos }: FinanceiroDreTabPro
         items={entradas}
         onExpandedChange={setEntradasExpanded}
         rows={entradasPorCategoria}
+        subtitle="Entrada do contrato na assinatura; saldo e demais valores entram manualmente"
         title="Entradas"
         total={summary.entradas}
         type="entrada"
@@ -46,6 +46,7 @@ export const FinanceiroDreTab = ({ isLoading, lancamentos }: FinanceiroDreTabPro
         items={saidas}
         onExpandedChange={setSaidasExpanded}
         rows={saidasPorCategoria}
+        subtitle="Despesas das festas e despesas gerais por data de lancamento"
         title="Saidas"
         total={summary.saidas}
         type="saida"
@@ -71,9 +72,10 @@ export const FinanceiroDreTab = ({ isLoading, lancamentos }: FinanceiroDreTabPro
 interface DreSectionProps {
   expanded: boolean;
   isLoading: boolean;
-  items: FinanceiroLancamento[];
+  items: FinanceiroDisplayItem[];
   onExpandedChange: (expanded: boolean) => void;
   rows: { label: string; total: number }[];
+  subtitle: string;
   title: string;
   total: number;
   type: "entrada" | "saida";
@@ -85,6 +87,7 @@ const DreSection = ({
   items,
   onExpandedChange,
   rows,
+  subtitle,
   title,
   total,
   type,
@@ -95,6 +98,7 @@ const DreSection = ({
         <div className="flex items-center justify-between gap-3 border-b border-border/40 p-4">
           <div>
             <p className="text-sm font-semibold text-foreground">{title}</p>
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
             <p className={`mt-1 text-xl font-bold ${type === "saida" ? "text-destructive" : "text-foreground"}`}>
               {formatFinanceiroCurrency(total)}
             </p>
@@ -141,7 +145,7 @@ const DreSection = ({
             <FinanceiroLancamentosList
               emptyMessage={`Nenhuma ${type === "entrada" ? "entrada" : "saida"} neste periodo.`}
               isLoading={isLoading}
-              lancamentos={items}
+              items={items}
             />
           </div>
         </CollapsibleContent>

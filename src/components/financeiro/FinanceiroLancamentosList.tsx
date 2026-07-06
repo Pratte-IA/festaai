@@ -3,34 +3,34 @@ import { Trash2 } from "lucide-react";
 
 import { formatFinanceiroCurrency } from "@/components/financeiro/FinanceiroSummaryStats";
 import { Button } from "@/components/ui/button";
-import { getFinanceiroCategoriaLabel, FinanceiroLancamento } from "@/features/financeiro";
+import { FinanceiroDisplayItem, getFinanceiroCategoriaLabel } from "@/features/financeiro";
 import { formatIsoDateBR } from "@/lib/date";
 
 interface FinanceiroLancamentosListProps {
   emptyMessage: string;
   isLoading?: boolean;
-  lancamentos: FinanceiroLancamento[];
-  onDelete?: (item: FinanceiroLancamento) => void;
+  items: FinanceiroDisplayItem[];
+  onDelete?: (item: FinanceiroDisplayItem) => void;
 }
 
 export const FinanceiroLancamentosList = ({
   emptyMessage,
   isLoading = false,
-  lancamentos,
+  items,
   onDelete,
 }: FinanceiroLancamentosListProps) => {
   if (isLoading) {
     return <p className="text-sm italic text-muted-foreground">Carregando lancamentos...</p>;
   }
 
-  if (lancamentos.length === 0) {
+  if (items.length === 0) {
     return <p className="text-sm italic text-muted-foreground">{emptyMessage}</p>;
   }
 
   return (
     <div className="space-y-2">
-      {lancamentos.map((item) => {
-        const canDelete = onDelete && item.origem !== "pagamento";
+      {items.map((item) => {
+        const canDelete = onDelete && item.deletable && item.ledgerId != null;
 
         return (
           <div
@@ -44,6 +44,7 @@ export const FinanceiroLancamentosList = ({
               </p>
               <p className="text-xs text-muted-foreground">
                 {formatIsoDateBR(item.data_lancamento)}
+                {item.origem === "contrato" ? " · Assinatura do contrato" : null}
                 {item.evento_id ? (
                   <>
                     {" · "}
@@ -51,9 +52,9 @@ export const FinanceiroLancamentosList = ({
                       Festa #{item.evento_id}
                     </Link>
                   </>
-                ) : (
+                ) : item.origem !== "contrato" ? (
                   " · Geral"
-                )}
+                ) : null}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">

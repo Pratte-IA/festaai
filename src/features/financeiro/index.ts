@@ -1,7 +1,15 @@
 export { getFinanceiroCategoriaLabel, FINANCEIRO_CATEGORIAS_ENTRADA, FINANCEIRO_CATEGORIAS_SAIDA_EVENTO, FINANCEIRO_CATEGORIAS_SAIDA_GERAL } from "./constants";
 export type { FinanceiroCategoriaEntrada, FinanceiroCategoriaSaidaEvento, FinanceiroCategoriaSaidaGeral } from "./constants";
-export { groupLancamentosByCategoria } from "./dre-utils";
-export type { DreCategoriaTotal } from "./dre-utils";
+export {
+  buildDreEntradas,
+  buildDrePeriodSummary,
+  buildDreSaidas,
+  mapContratoEntradaToDisplay,
+  mapLancamentoToDisplay,
+  sumDisplayItems,
+} from "./build-dre-entradas";
+export type { DrePeriodSummary, FinanceiroContratoEntrada, FinanceiroDisplayItem } from "./display-types";
+export { groupDisplayItemsByCategoria, groupLancamentosByCategoria } from "./dre-utils";
 export {
   formatFinanceiroMonthLabel,
   getDefaultFinanceiroMonth,
@@ -32,3 +40,4 @@ export {
   useFinanceiroLancamentos,
 } from "./use-financeiro-lancamentos";
 export { useEventoFinanceiroSummary } from "./use-evento-financeiro-summary";
+export { useFinanceiroContratoEntradas } from "./use-financeiro-contrato-entradas";

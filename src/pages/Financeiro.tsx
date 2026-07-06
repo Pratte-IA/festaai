@@ -9,11 +9,13 @@ import { FinanceiroSaidasTab } from "@/components/financeiro/FinanceiroSaidasTab
 import { LancamentoFormDialog } from "@/components/financeiro/LancamentoFormDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  buildTenantFinanceiroPeriodSummary,
-  FinanceiroLancamento,
+  buildDreEntradas,
+  buildDreSaidas,
+  FinanceiroDisplayItem,
   getDefaultFinanceiroMonth,
   getMonthRange,
   useDeleteFinanceiroLancamento,
+  useFinanceiroContratoEntradas,
   useFinanceiroLancamentos,
 } from "@/features/financeiro";
 import { toast } from "@/hooks/use-toast";
@@ -33,10 +35,16 @@ const Financeiro = () => {
   const [entradaDialogOpen, setEntradaDialogOpen] = useState(false);
 
   const { from, to } = useMemo(() => getMonthRange(month), [month]);
-  const { data: lancamentos = [], isLoading } = useFinanceiroLancamentos({ from, to });
+  const { data: lancamentos = [], isLoading: isLancamentosLoading } = useFinanceiroLancamentos({ from, to });
+  const { data: contratoEntradas = [], isLoading: isContratoLoading } = useFinanceiroContratoEntradas(from, to);
   const deleteLancamento = useDeleteFinanceiroLancamento();
 
-  const periodSummary = useMemo(() => buildTenantFinanceiroPeriodSummary(lancamentos), [lancamentos]);
+  const dreEntradas = useMemo(
+    () => buildDreEntradas(contratoEntradas, lancamentos),
+    [contratoEntradas, lancamentos],
+  );
+  const dreSaidas = useMemo(() => buildDreSaidas(lancamentos), [lancamentos]);
+  const isLoading = isLancamentosLoading || isContratoLoading;
 
   const handleTabChange = (value: string) => {
     if (!isFinanceiroTab(value)) {
@@ -46,13 +54,17 @@ const Financeiro = () => {
     setSearchParams(value === "dre" ? {} : { tab: value }, { replace: true });
   };
 
-  const handleDelete = async (item: FinanceiroLancamento) => {
+  const handleDelete = async (item: FinanceiroDisplayItem) => {
+    if (!item.ledgerId) {
+      return;
+    }
+
     if (!window.confirm("Remover este lancamento?")) {
       return;
     }
 
     try {
-      await deleteLancamento.mutateAsync({ eventoId: item.evento_id, id: item.id });
+      await deleteLancamento.mutateAsync({ eventoId: item.evento_id, id: item.ledgerId });
       toast({ title: "Lancamento removido" });
     } catch {
       toast({
@@ -68,7 +80,7 @@ const Financeiro = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">Financeiro</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            DRE, entradas e saidas do tenant por periodo.
+            DRE com entrada do contrato na assinatura; saldo e demais valores por lancamento manual.
           </p>
         </div>
 
@@ -84,26 +96,24 @@ const Financeiro = () => {
           </TabsList>
 
           <TabsContent value="dre">
-            <FinanceiroDreTab isLoading={isLoading} lancamentos={lancamentos} />
+            <FinanceiroDreTab entradas={dreEntradas} isLoading={isLoading} saidas={dreSaidas} />
           </TabsContent>
 
           <TabsContent value="entradas">
             <FinanceiroEntradasTab
+              entradas={dreEntradas}
               isLoading={isLoading}
-              lancamentos={lancamentos}
               onAddEntrada={() => setEntradaDialogOpen(true)}
               onDelete={handleDelete}
-              total={periodSummary.entradas}
             />
           </TabsContent>
 
           <TabsContent value="saidas">
             <FinanceiroSaidasTab
               isLoading={isLoading}
-              lancamentos={lancamentos}
               onAddDespesa={() => setDespesaDialogOpen(true)}
               onDelete={handleDelete}
-              total={periodSummary.saidas}
+              saidas={dreSaidas}
             />
           </TabsContent>
         </Tabs>

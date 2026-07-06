@@ -1,4 +1,5 @@
 export const FINANCEIRO_CATEGORIAS_ENTRADA = {
+  contrato: "Entrada do contrato",
   pagamento: "Pagamento recebido",
   upsell: "Venda extra",
   outros: "Outros",
