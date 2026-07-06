@@ -189,6 +189,24 @@ export const setEvolutionWebhook = async (instanceName: string, webhookConfig: R
   });
 };
 
+/** Retorna a configuração atual do webhook na Evolution (null se ausente). */
+export const fetchEvolutionWebhook = async (
+  instanceName: string,
+): Promise<Record<string, unknown> | null> => {
+  const result = await evolutionFetch(`/webhook/find/${encodeURIComponent(instanceName)}`);
+  if (!result.ok || !result.body || result.body === null) return null;
+  return result.body;
+};
+
+export const isEvolutionWebhookConfigured = (
+  webhook: Record<string, unknown> | null,
+  expectedUrl: string,
+): boolean => {
+  if (!webhook) return false;
+  const url = webhook.url;
+  return typeof url === "string" && url.trim() === expectedUrl.trim();
+};
+
 export const syncConnectionWebhook = async (
   service: {
     from: (table: string) => {
