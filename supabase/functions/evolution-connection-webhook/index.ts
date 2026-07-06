@@ -4,12 +4,14 @@ import { extractConnectionPhone, fetchMessageMediaBase64, syncConnectionWebhook 
 import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
 import {
   isConnectionUpdateEvent,
+  isHumanInterventionMessage,
   isInboundCustomerReplyMessage,
   isMediaMessageType,
   isMessagesUpsertEvent,
   parseEvolutionMessages,
   shouldSkipMessage,
 } from "../_shared/evolution-message.ts";
+import { isKnownAutomationOutboundMessage } from "../_shared/is-known-automation-outbound.ts";
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
 import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
 import { pausePropostaFollowupOnCustomerReply } from "../_shared/pause-proposta-followup.ts";
@@ -261,9 +263,20 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       continue;
     }
 
+    if (isHumanInterventionMessage(message)) {
+      const isKnownAutomation = await isKnownAutomationOutboundMessage(ctx.service, {
+        messageId: message.id,
+        tenantId: tenant.id,
+      });
+      if (isKnownAutomation) {
+        await logWebhookIngest(ctx, "skipped", "Mensagem ignorada: eco de automação (fromMe).");
+        continue;
+      }
+    }
+
     // Lead em Contato Inicial só nasce quando o cliente inicia conversa no número de Atendimento.
     // Workflows outbound (7 dias, boas-vindas, follow-up etc.) não devem criar leads ao receber respostas.
-    if (isAtendimentoConnection) {
+    if (isAtendimentoConnection && !message.fromMe) {
       try {
         await ensureVendasLeadFromWhatsapp(ctx.service, {
           customerName: message.customerName,
@@ -371,26 +384,28 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
 
     if (dedupeError) throw dedupeError;
 
-    try {
-      await persistAgentConversationMessage(ctx.service, {
-        connectionId: ctx.connection.id,
-        content: message.text as string,
-        customerPhone: message.customerPhone as string,
-        messageId: message.id,
-        metadata: {
-          customerName: message.customerName,
-          direction: "inbound",
-          messageType: message.type,
-          source: "whatsapp",
-        },
-        role: "human",
-        tenantId: tenant.id,
-      });
-    } catch (memoryError) {
-      console.error(
-        "agent_conversation_messages insert failed:",
-        memoryError instanceof Error ? memoryError.message : memoryError,
-      );
+    if (!message.fromMe) {
+      try {
+        await persistAgentConversationMessage(ctx.service, {
+          connectionId: ctx.connection.id,
+          content: message.text as string,
+          customerPhone: message.customerPhone as string,
+          messageId: message.id,
+          metadata: {
+            customerName: message.customerName,
+            direction: "inbound",
+            messageType: message.type,
+            source: "whatsapp",
+          },
+          role: "human",
+          tenantId: tenant.id,
+        });
+      } catch (memoryError) {
+        console.error(
+          "agent_conversation_messages insert failed:",
+          memoryError instanceof Error ? memoryError.message : memoryError,
+        );
+      }
     }
 
     const forwardResult = await forwardToN8n(n8nPayload, tenantWebhookUrl as string);

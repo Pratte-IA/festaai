@@ -162,6 +162,7 @@ export const buildLogPayload = (payload: N8nInboundPayload) => ({
   event: payload.event,
   message: {
     customerPhone: payload.message.customerPhone,
+    fromMe: payload.message.fromMe,
     hasMediaBase64: Boolean(payload.message.mediaBase64),
     id: payload.message.id,
     mediaMimetype: payload.message.mediaMimetype,

@@ -1,5 +1,12 @@
 export { getFinanceiroCategoriaLabel, FINANCEIRO_CATEGORIAS_ENTRADA, FINANCEIRO_CATEGORIAS_SAIDA_EVENTO, FINANCEIRO_CATEGORIAS_SAIDA_GERAL } from "./constants";
 export type { FinanceiroCategoriaEntrada, FinanceiroCategoriaSaidaEvento, FinanceiroCategoriaSaidaGeral } from "./constants";
+export { groupLancamentosByCategoria } from "./dre-utils";
+export type { DreCategoriaTotal } from "./dre-utils";
+export {
+  formatFinanceiroMonthLabel,
+  getDefaultFinanceiroMonth,
+  getMonthRange,
+} from "./month-range";
 export {
   buildEventoFinanceiroSummary,
   buildTenantFinanceiroPeriodSummary,

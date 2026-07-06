@@ -17,7 +17,6 @@ import {
   CreditCard,
   LifeBuoy,
   Wallet,
-  Receipt,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
@@ -59,10 +58,7 @@ const gestaoSection: NavSection = {
 
 const financeiroSection: NavSection = {
   title: "Financeiro",
-  items: [
-    { icon: Wallet, label: "Visão Geral", path: "/financeiro" },
-    { icon: Receipt, label: "Lançamentos", path: "/financeiro/lancamentos" },
-  ],
+  items: [{ icon: Wallet, label: "Financeiro", path: "/financeiro" }],
 };
 
 const sistemaBaseItems: NavItem[] = [

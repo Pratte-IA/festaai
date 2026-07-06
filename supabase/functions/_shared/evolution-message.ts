@@ -229,10 +229,20 @@ export const parseEvolutionMessages = (payload: Record<string, unknown>): Parsed
   return parsed;
 };
 
+export const hasForwardableContent = (message: ParsedEvolutionMessage): boolean => {
+  if (message.text?.trim()) return true;
+  if (isMediaMessageType(message.type)) return true;
+  if (message.type === "audio") return true;
+  return false;
+};
+
+/** Intervenção manual do número conectado (WhatsApp app/Web) — deve chegar ao n8n com fromMe: true. */
+export const isHumanInterventionMessage = (message: ParsedEvolutionMessage): boolean =>
+  message.fromMe === true && Boolean(message.customerPhone) && hasForwardableContent(message);
+
 export const shouldSkipMessage = (message: ParsedEvolutionMessage): string | null => {
-  if (message.fromMe) return "fromMe";
   if (!message.customerPhone) return "invalid_phone";
-  if (!message.text?.trim()) return "empty_message";
+  if (!hasForwardableContent(message)) return "empty_message";
   return null;
 };
 
