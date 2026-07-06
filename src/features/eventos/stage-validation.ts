@@ -21,7 +21,7 @@ export const resolveFunnelStageForImport = (
   return { funnel, stage };
 };
 
-/** Após formulário público: aceite imediato e migração para Festa / Boas Vindas. */
+/** Após assinatura do contrato: migração de Vendas para Festa / Boas Vindas. */
 export const resolveFunnelStageAfterClientForm = (
   funnel: FunnelType,
 ): { etapa: Stage; funil: FunnelType; status_interno: "ativo" } | null => {

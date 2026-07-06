@@ -727,6 +727,78 @@ export type Database = {
           },
         ]
       }
+      financeiro_lancamentos: {
+        Row: {
+          categoria: string
+          created_at: string
+          created_by: string | null
+          data_lancamento: string
+          descricao: string | null
+          evento_id: number | null
+          id: number
+          observacao: string | null
+          origem: string
+          referencia_id: number | null
+          referencia_tipo: string | null
+          tenant_id: number
+          tipo: string
+          updated_at: string
+          updated_by: string | null
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          created_by?: string | null
+          data_lancamento: string
+          descricao?: string | null
+          evento_id?: number | null
+          id?: number
+          observacao?: string | null
+          origem: string
+          referencia_id?: number | null
+          referencia_tipo?: string | null
+          tenant_id: number
+          tipo: string
+          updated_at?: string
+          updated_by?: string | null
+          valor: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          created_by?: string | null
+          data_lancamento?: string
+          descricao?: string | null
+          evento_id?: number | null
+          id?: number
+          observacao?: string | null
+          origem?: string
+          referencia_id?: number | null
+          referencia_tipo?: string | null
+          tenant_id?: number
+          tipo?: string
+          updated_at?: string
+          updated_by?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financeiro_lancamentos_evento_tenant_fkey"
+            columns: ["evento_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "eventos"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "financeiro_lancamentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evento_acceptance_responses: {
         Row: {
           accepted: boolean

@@ -1,0 +1,60 @@
+import { Evento } from "@/features/eventos";
+
+import { FinanceiroLancamento } from "./types";
+
+export const sumLancamentosByTipo = (
+  lancamentos: Pick<FinanceiroLancamento, "tipo" | "valor">[],
+  tipo: FinanceiroLancamento["tipo"],
+) => lancamentos.filter((item) => item.tipo === tipo).reduce((sum, item) => sum + item.valor, 0);
+
+export const sumUpsellEntradas = (lancamentos: Pick<FinanceiroLancamento, "origem" | "tipo" | "valor">[]) =>
+  lancamentos
+    .filter((item) => item.tipo === "entrada" && item.origem === "upsell")
+    .reduce((sum, item) => sum + item.valor, 0);
+
+export const computeEventRevenueTotal = (
+  event: Pick<Evento, "valor_total">,
+  upsellTotal: number,
+) => Number(event.valor_total || 0) + upsellTotal;
+
+export const computeEventResult = (entradaTotal: number, saidaTotal: number) => entradaTotal - saidaTotal;
+
+export const computeEventMarginPercent = (entradaTotal: number, resultado: number) => {
+  if (entradaTotal <= 0) {
+    return null;
+  }
+
+  return (resultado / entradaTotal) * 100;
+};
+
+export const buildEventoFinanceiroSummary = (
+  event: Pick<Evento, "valor_total">,
+  lancamentos: Pick<FinanceiroLancamento, "origem" | "tipo" | "valor">[],
+) => {
+  const upsellTotal = sumUpsellEntradas(lancamentos);
+  const entradaTotal = computeEventRevenueTotal(event, upsellTotal);
+  const saidaTotal = sumLancamentosByTipo(lancamentos, "saida");
+  const resultadoFesta = computeEventResult(entradaTotal, saidaTotal);
+  const margemPercent = computeEventMarginPercent(entradaTotal, resultadoFesta);
+
+  return {
+    entradaTotal,
+    margemPercent,
+    resultadoFesta,
+    saidaTotal,
+    upsellTotal,
+  };
+};
+
+export const buildTenantFinanceiroPeriodSummary = (
+  lancamentos: Pick<FinanceiroLancamento, "tipo" | "valor">[],
+) => {
+  const entradas = sumLancamentosByTipo(lancamentos, "entrada");
+  const saidas = sumLancamentosByTipo(lancamentos, "saida");
+
+  return {
+    entradas,
+    resultado: entradas - saidas,
+    saidas,
+  };
+};

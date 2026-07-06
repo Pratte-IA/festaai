@@ -1,6 +1,7 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 import { isTrivialInboundReengagementMessage } from "./inbound-reengagement-message.ts";
+import { buildPhoneLookupVariants } from "./phone-lookup.ts";
 import { normalizeBrazilPhoneForStorage, phonesMatch } from "./phone.ts";
 
 export interface EnsureVendasLeadInboundMessage {
@@ -20,7 +21,11 @@ export interface EnsureVendasLeadResult {
   eventoId: number | null;
   reactivated?: boolean;
   reactivationStage?: "contato_inicial" | "negociacao";
-  skippedReason?: "existing_vendas_lead" | "invalid_phone" | "trivial_reengagement";
+  skippedReason?:
+    | "existing_vendas_lead"
+    | "existing_festa_lead"
+    | "invalid_phone"
+    | "trivial_reengagement";
 }
 
 const isFu4PerdidoLead = (evento: {
@@ -128,6 +133,30 @@ export const ensureVendasLeadFromWhatsapp = async (
       eventoId: existingLead.id,
       skippedReason: "existing_vendas_lead",
     };
+  }
+
+  const phoneVariants = buildPhoneLookupVariants(storedPhone);
+  if (phoneVariants.length > 0) {
+    const { data: festaEventos, error: festaQueryError } = await service
+      .from("eventos")
+      .select("id, cliente_telefone")
+      .eq("tenant_id", input.tenantId)
+      .eq("funil", "festa")
+      .in("cliente_telefone", phoneVariants);
+
+    if (festaQueryError) throw festaQueryError;
+
+    const existingFestaLead = (festaEventos ?? []).find((evento) =>
+      phonesMatch(evento.cliente_telefone, storedPhone),
+    );
+
+    if (existingFestaLead) {
+      return {
+        created: false,
+        eventoId: existingFestaLead.id,
+        skippedReason: "existing_festa_lead",
+      };
+    }
   }
 
   const clienteNome = input.customerName?.trim() || "Lead WhatsApp";

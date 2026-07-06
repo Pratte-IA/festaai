@@ -36,6 +36,9 @@ const ConfiguracoesAdicionais = lazy(() => import("./pages/configuracoes/Adicion
 const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"));
 const ConfiguracoesAutomacoes = lazy(() => import("./pages/configuracoes/Automacoes"));
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
+const EventoFinanceiro = lazy(() => import("./pages/EventoFinanceiro.tsx"));
+const Financeiro = lazy(() => import("./pages/Financeiro.tsx"));
+const FinanceiroLancamentos = lazy(() => import("./pages/FinanceiroLancamentos.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
 const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
 const ContratarPagamento = lazy(() => import("./pages/ContratarPagamento.tsx"));
@@ -254,6 +257,16 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/crm/evento/:id/financeiro"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <EventoFinanceiro />
+                      </TenantAdminRoute>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/crm/evento/:id"
                   element={
                     <ProtectedRoute>
@@ -307,6 +320,26 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Tarefas />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/financeiro/lancamentos"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <FinanceiroLancamentos />
+                      </TenantAdminRoute>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/financeiro"
+                  element={
+                    <ProtectedRoute>
+                      <TenantAdminRoute>
+                        <Financeiro />
+                      </TenantAdminRoute>
                     </ProtectedRoute>
                   }
                 />

@@ -16,6 +16,8 @@ import {
   Building2,
   CreditCard,
   LifeBuoy,
+  Wallet,
+  Receipt,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
@@ -55,6 +57,14 @@ const gestaoSection: NavSection = {
   ],
 };
 
+const financeiroSection: NavSection = {
+  title: "Financeiro",
+  items: [
+    { icon: Wallet, label: "Visão Geral", path: "/financeiro" },
+    { icon: Receipt, label: "Lançamentos", path: "/financeiro/lancamentos" },
+  ],
+};
+
 const sistemaBaseItems: NavItem[] = [
   { icon: UserCog, label: "Usuários", path: "/usuarios" },
   { icon: CreditCard, label: "Assinatura", path: "/minha-assinatura" },
@@ -83,6 +93,7 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
 
   const sectionsResolved: NavSection[] = [
     vendasSection,
+    ...(tenantAdminCap?.isTenantAdmin ? [financeiroSection] : []),
     gestaoSection,
     {
       title: "Sistema",

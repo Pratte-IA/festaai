@@ -41,7 +41,7 @@ describe("stage-validation", () => {
     });
   });
 
-  it("migra lead de vendas para festa / boas_vindas apos formulario do cliente", () => {
+  it("migra lead de vendas para festa / boas_vindas apos assinatura do contrato", () => {
     expect(resolveFunnelStageAfterClientForm("vendas")).toEqual({
       etapa: "boas_vindas",
       funil: "festa",

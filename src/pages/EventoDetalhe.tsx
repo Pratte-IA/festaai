@@ -15,6 +15,8 @@ import {
   EventoFormQuickAccessCard,
   shouldShowEventoFormQuickAccessCard,
 } from "@/components/eventos/EventoFormQuickAccessCard";
+import { EventoResultadoFinanceiroCard } from "@/components/eventos/EventoResultadoFinanceiroCard";
+import { EventoPublicFormLinkCard } from "@/components/eventos/EventoPublicFormLinkCard";
 import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import EventChecklist from "@/components/EventChecklist";
 import { formatIsoDateBR, formatTimestampDateBR, getTodayAtNoon, parseIsoDateLocal } from "@/lib/date";
@@ -24,7 +26,6 @@ import {
   getEventBalance,
   getEventDisplayTotalPaid,
   useCreateEventoNota,
-  useCreateEventoPagamento,
   useCreateEventoTarefa,
   useDeleteEvento,
   useEvento,
@@ -123,10 +124,9 @@ const EventoDetalhe = () => {
   const validEventoId = isValidEventoId ? Number(eventoId) : null;
   const { data: event, error, isLoading } = useEvento(validEventoId);
   const { data: packages = [] } = useTenantPackages();
-  const { data: payments = [], isLoading: isPaymentsLoading } = useEventoPagamentos(validEventoId);
+  const { data: payments = [] } = useEventoPagamentos(validEventoId);
   const { data: tasks = [], isLoading: isTasksLoading } = useEventoTarefas(validEventoId);
   const { data: notes = [], isLoading: isNotesLoading } = useEventoNotas(validEventoId);
-  const createPagamento = useCreateEventoPagamento();
   const createTarefa = useCreateEventoTarefa();
   const toggleTarefa = useToggleEventoTarefa();
   const createNota = useCreateEventoNota();
@@ -136,9 +136,6 @@ const EventoDetalhe = () => {
 
   const [newTask, setNewTask] = useState("");
   const [newNote, setNewNote] = useState("");
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [newPaymentDate, setNewPaymentDate] = useState("");
-  const [newPaymentAmount, setNewPaymentAmount] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isMoveFunnelOpen, setIsMoveFunnelOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -235,31 +232,6 @@ const EventoDetalhe = () => {
     setNewNote("");
   };
 
-  const addPayment = async () => {
-    const amount = parseFloat(newPaymentAmount);
-
-    if (!validEventoId || !newPaymentDate || isNaN(amount) || amount <= 0) return;
-
-    try {
-      await createPagamento.mutateAsync({
-        data_pagamento: newPaymentDate,
-        eventoId: validEventoId,
-        valor: amount,
-      });
-    } catch {
-      toast({
-        title: "Nao foi possivel salvar o pagamento",
-        description: "Tente novamente em instantes.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setNewPaymentDate("");
-    setNewPaymentAmount("");
-    setShowPaymentForm(false);
-  };
-
   const currentAge = formatCurrentAge(event.aniversariante_data_nascimento);
   const celebratingAge = formatCelebratingAge(
     event.aniversariante_data_nascimento,
@@ -335,6 +307,8 @@ const EventoDetalhe = () => {
   };
 
   const canDeleteLead = adminCapability?.isTenantAdmin ?? false;
+  const canManageEventFinance =
+    canDeleteLead && (event.funil === "festa" || event.funil === "executadas");
   const whatsappUrl = buildWhatsAppUrl(
     event.cliente_telefone,
     event.cliente_nome,
@@ -540,18 +514,8 @@ const EventoDetalhe = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <MiniStat label="Pacote" value={formatCurrency(event.valor_pacote)} />
-              <MiniStat label="Adicionais" value={formatCurrency(event.valor_adicionais)} />
-              <MiniStat label="Total" value={formatCurrency(event.valor_total)} highlight />
-              <MiniStat label="Entrada" value={formatCurrency(event.valor_entrada)} />
-            </div>
-
-            <Separator className="my-4" />
-
-            {/* Totals */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <MiniStat label="Total contratado" value={formatCurrency(event.valor_total)} highlight />
               <MiniStat label="Total pago" value={formatCurrency(totalPaid)} />
               <MiniStat
                 label="Saldo devedor"
@@ -560,57 +524,14 @@ const EventoDetalhe = () => {
                 negative={balance > 0}
               />
             </div>
-
-            <Separator className="my-4" />
-
-            {/* Payments list */}
-            <div className="space-y-2 mb-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Pagamentos realizados</p>
-              {isPaymentsLoading && (
-                <p className="text-sm text-muted-foreground italic">Carregando pagamentos...</p>
-              )}
-              {!isPaymentsLoading && payments.length === 0 && (
-                <p className="text-sm text-muted-foreground italic">Nenhum pagamento registrado</p>
-              )}
-              {payments.map((p) => (
-                <div key={p.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border/30">
-                  <span className="text-sm text-foreground">{formatIsoDateBR(p.data_pagamento)}</span>
-                  <span className="text-sm font-medium text-foreground">{formatCurrency(p.valor)}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Add payment */}
-            {showPaymentForm ? (
-              <div className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border border-border/60 bg-muted/20">
-                <Input
-                  type="date"
-                  value={newPaymentDate}
-                  onChange={(e) => setNewPaymentDate(e.target.value)}
-                  className="text-sm"
-                />
-                <Input
-                  type="number"
-                  placeholder="Valor (R$)"
-                  value={newPaymentAmount}
-                  onChange={(e) => setNewPaymentAmount(e.target.value)}
-                  className="text-sm"
-                  min="0"
-                  step="0.01"
-                />
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={addPayment} disabled={createPagamento.isPending}>Salvar</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowPaymentForm(false)}>Cancelar</Button>
-                </div>
-              </div>
-            ) : (
-              <Button size="sm" variant="outline" className="gap-2" onClick={() => setShowPaymentForm(true)}>
-                <Plus className="w-4 h-4" />
-                Adicionar pagamento
-              </Button>
-            )}
           </CardContent>
         </Card>
+
+        {canManageEventFinance && validEventoId ? (
+          <EventoResultadoFinanceiroCard event={event} eventoId={validEventoId} />
+        ) : null}
+
+        {event.funil === "vendas" ? <EventoPublicFormLinkCard evento={event} /> : null}
 
         {shouldShowEventoFormQuickAccessCard(event) && (
           <EventoFormQuickAccessCard evento={event} />

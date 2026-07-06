@@ -148,6 +148,7 @@ export interface SubmitClientContractFormInput {
     required: boolean;
   }>;
   pacoteId?: number | null;
+  linkedEventoId?: number | null;
   packageEventoUpdates?: {
     pacote_convidados_inclusos?: number | null;
     pacote_nome?: string;

@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { ClientContractForm } from "@/components/formulario-contratacao/ClientContractForm";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,10 @@ import { useClientContractFormConfig } from "@/features/public-contract-form";
 
 const FormularioCliente = () => {
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const linkedEventoId = Number(searchParams.get("evento"));
+  const validLinkedEventoId =
+    Number.isInteger(linkedEventoId) && linkedEventoId > 0 ? linkedEventoId : null;
   const { data: config, error, isLoading } = useClientContractFormConfig(tenantSlug);
 
   return (
@@ -36,7 +40,9 @@ const FormularioCliente = () => {
           </div>
         )}
 
-        {config && <ClientContractForm config={config} />}
+        {config && (
+          <ClientContractForm config={config} linkedEventoId={validLinkedEventoId} />
+        )}
       </main>
     </div>
   );

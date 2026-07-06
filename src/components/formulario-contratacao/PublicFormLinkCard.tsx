@@ -39,9 +39,10 @@ export const PublicFormLinkCard = () => {
         <div className="space-y-1 min-w-0">
           <p className="text-sm font-medium text-foreground">Formulário público para o cliente</p>
           <p className="text-sm text-muted-foreground">
-            Ao preencher, o sistema localiza o lead em Vendas pelo telefone (incluindo perdidos) e
-            move para Festa → Boas Vindas. Se já existir cadastro em Festa com o mesmo telefone,
-            atualiza esse registro. Caso contrário, cria um novo em Boas Vindas.
+            Ao preencher, o sistema localiza o lead em Vendas pelo telefone, e-mail ou nome (incluindo
+            perdidos) e atualiza o cadastro. A migração para Festa → Boas Vindas ocorre somente após
+            a assinatura do contrato. Se já existir cadastro em Festa com os mesmos dados, atualiza esse
+            registro. Caso contrário, cria um novo em Boas Vindas.
           </p>
           <p className="text-xs font-mono text-foreground/80 break-all">{publicUrl}</p>
         </div>

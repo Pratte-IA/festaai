@@ -4,6 +4,8 @@ import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
+import { financeiroQueryKeys } from "@/features/financeiro";
+
 import { eventosQueryKeys } from "./query-keys";
 import { EventoPagamento } from "./types";
 
@@ -79,6 +81,10 @@ export const useCreateEventoPagamento = () => {
     onSuccess: (_pagamento, input) => {
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.payments(currentTenantId, input.eventoId),
+      });
+      void queryClient.invalidateQueries({ queryKey: financeiroQueryKeys.all(currentTenantId) });
+      void queryClient.invalidateQueries({
+        queryKey: financeiroQueryKeys.eventoSummary(currentTenantId, input.eventoId),
       });
     },
   });

@@ -92,10 +92,15 @@ const formatCurrency = (value: number) =>
 
 interface ClientContractFormProps {
   config: ClientContractFormConfig;
+  linkedEventoId?: number | null;
   onSuccess?: (result: ClientContractFormSubmitResult) => void;
 }
 
-export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProps) => {
+export const ClientContractForm = ({
+  config,
+  linkedEventoId = null,
+  onSuccess,
+}: ClientContractFormProps) => {
   const submitForm = useSubmitClientContractForm();
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
@@ -810,6 +815,7 @@ export const ClientContractForm = ({ config, onSuccess }: ClientContractFormProp
           : undefined,
         tenantSlug: config.tenantSlug,
         balancePaymentSchedule: balancePaymentOption,
+        linkedEventoId,
       });
 
       setSubmitResult(result);

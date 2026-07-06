@@ -10,6 +10,12 @@ import {
 import { loadTenantContractTemplateForGeneration } from "../_shared/load-tenant-contract-template.ts";
 import { dispatchBoasVindasAfterContractSigned } from "../_shared/dispatch-boas-vindas.ts";
 import { computeClosingFormValorSaldo } from "../_shared/event-financial.ts";
+import { buildPhoneLookupVariants } from "../_shared/phone-lookup.ts";
+import {
+  findDuplicateVendasLeads,
+  resolveFunnelLeadMatch,
+  type FunnelLeadCandidate,
+} from "../_shared/resolve-funnel-lead-match.ts";
 import {
   getBrazilMobilePhoneValidationError,
   normalizeBrazilMobilePhoneForStorage,
@@ -80,6 +86,7 @@ const submitSchema = z.object({
   balancePaymentSchedule: z.enum(["7_dias_antes", "mensal"]).nullable().optional(),
   fieldValues: z.record(z.string()),
   fields: z.array(submitFieldSchema).min(1),
+  linkedEventoId: z.number().int().positive().nullable().optional(),
   pacoteId: z.number().int().positive().nullable().optional(),
   packageEventoUpdates: z
     .object({
@@ -181,40 +188,116 @@ const resolveFunnelStageAfterContractAcceptance = (funil: string) => {
   };
 };
 
-type EventoPhoneCandidate = {
-  cliente_telefone: string | null;
-  etapa: string;
-  funil: string;
-  id: number;
-  status_interno: string;
-  updated_at: string;
+const EVENTO_MATCH_SELECT =
+  "id, funil, etapa, cliente_nome, cliente_email, cliente_telefone, updated_at, status_interno";
+
+const loadFunnelLeadCandidates = async (
+  admin: ReturnType<typeof createClient>,
+  tenantId: number,
+  options: {
+    clientName: string | null;
+    linkedEventoId: number | null;
+    normalizedPhone: string;
+  },
+): Promise<FunnelLeadCandidate[]> => {
+  const candidates = new Map<number, FunnelLeadCandidate>();
+
+  const addRows = (rows: FunnelLeadCandidate[] | null | undefined) => {
+    for (const row of rows ?? []) {
+      candidates.set(row.id, row);
+    }
+  };
+
+  if (options.linkedEventoId) {
+    const { data, error } = await admin
+      .from("eventos")
+      .select(EVENTO_MATCH_SELECT)
+      .eq("tenant_id", tenantId)
+      .eq("id", options.linkedEventoId)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (data) candidates.set(data.id, data as FunnelLeadCandidate);
+  }
+
+  const phoneVariants = buildPhoneLookupVariants(options.normalizedPhone);
+  if (phoneVariants.length > 0) {
+    const { data, error } = await admin
+      .from("eventos")
+      .select(EVENTO_MATCH_SELECT)
+      .eq("tenant_id", tenantId)
+      .in("funil", ["vendas", "festa"])
+      .in("cliente_telefone", phoneVariants);
+
+    if (error) throw error;
+
+    addRows(
+      (data ?? []).filter((row) =>
+        phonesMatch(row.cliente_telefone, options.normalizedPhone),
+      ) as FunnelLeadCandidate[],
+    );
+  }
+
+  const sanitizedName = options.clientName?.replace(/[%_]/g, "").trim();
+  if (sanitizedName && sanitizedName.length >= 3) {
+    const { data, error } = await admin
+      .from("eventos")
+      .select(EVENTO_MATCH_SELECT)
+      .eq("tenant_id", tenantId)
+      .in("funil", ["vendas", "festa"])
+      .ilike("cliente_nome", sanitizedName);
+
+    if (error) throw error;
+    addRows(data as FunnelLeadCandidate[]);
+  }
+
+  return [...candidates.values()];
 };
 
-/** Prioriza lead em Vendas; senão reutiliza cadastro existente em Festa pelo telefone. */
-const resolveEventoMatchByPhone = (
-  eventos: EventoPhoneCandidate[],
-  phoneValue: string,
-): { evento: EventoPhoneCandidate; source: "festa" | "vendas" } | null => {
-  const vendasMatch = eventos.find(
-    (evento) => evento.funil === "vendas" && phonesMatch(evento.cliente_telefone, phoneValue),
-  );
-  if (vendasMatch) return { evento: vendasMatch, source: "vendas" };
+const archiveDuplicateVendasLeads = async (
+  admin: ReturnType<typeof createClient>,
+  tenantId: number,
+  festaEventoId: number,
+  funnelEventos: Array<{
+    cliente_email: string | null;
+    cliente_nome: string;
+    cliente_telefone: string | null;
+    etapa: string;
+    funil: string;
+    id: number;
+    status_interno: string;
+    updated_at: string;
+  }>,
+  criteria: {
+    email: string | null;
+    name: string | null;
+    phone: string | null;
+  },
+) => {
+  const duplicates = findDuplicateVendasLeads(funnelEventos, criteria, festaEventoId);
+  if (duplicates.length === 0) return;
 
-  const festaMatch = eventos.find(
-    (evento) => evento.funil === "festa" && phonesMatch(evento.cliente_telefone, phoneValue),
-  );
-  if (festaMatch) return { evento: festaMatch, source: "festa" };
+  for (const duplicate of duplicates) {
+    const { error: updateError } = await admin
+      .from("eventos")
+      .update({
+        etapa: "perdido",
+        motivo_perda: `Lead consolidado no evento #${festaEventoId} (formulário de contratação).`,
+        status_interno: "cancelado",
+      })
+      .eq("tenant_id", tenantId)
+      .eq("id", duplicate.id);
 
-  return null;
-};
+    if (updateError) throw updateError;
 
-const applyVendasToFestaMigration = (eventoUpdates: Record<string, unknown>) => {
-  const migration = resolveFunnelStageAfterContractAcceptance("vendas");
-  if (!migration) return;
-
-  Object.assign(eventoUpdates, migration);
-  eventoUpdates.motivo_perda = null;
-  eventoUpdates.tipo_evento = "festa";
+    await admin.from("evento_notas").insert({
+      evento_id: duplicate.id,
+      tenant_id: tenantId,
+      texto:
+        `[Automação] Lead duplicado arquivado após fechamento no evento festa #${festaEventoId}. ` +
+        "O cadastro ativo permanece no funil Festa.",
+    });
+  }
 };
 
 const resolveTenant = async (
@@ -687,16 +770,25 @@ const handleSubmit = async (
     );
   }
 
-  const { data: funnelEventos, error: eventosError } = await admin
-    .from("eventos")
-    .select("id, funil, etapa, cliente_telefone, updated_at, status_interno")
-    .eq("tenant_id", tenant.id)
-    .in("funil", ["vendas", "festa"])
-    .order("updated_at", { ascending: false });
+  const nameField = payload.fields.find((field) => field.fieldKey === "cliente_nome");
+  const emailField = payload.fields.find((field) => field.fieldKey === "cliente_email");
+  const clientName = nameField ? (payload.fieldValues[nameField.id] ?? "").trim() : null;
+  const clientEmail = emailField ? (payload.fieldValues[emailField.id] ?? "").trim() : null;
 
-  if (eventosError) throw eventosError;
+  const funnelEventos = await loadFunnelLeadCandidates(admin, tenant.id, {
+    clientName,
+    linkedEventoId: payload.linkedEventoId ?? null,
+    normalizedPhone,
+  });
 
-  const phoneMatch = resolveEventoMatchByPhone(funnelEventos ?? [], normalizedPhone);
+  const leadMatchCriteria = {
+    email: clientEmail || null,
+    linkedEventoId: payload.linkedEventoId ?? null,
+    name: clientName || null,
+    phone: normalizedPhone,
+  };
+
+  const leadMatch = resolveFunnelLeadMatch(funnelEventos, leadMatchCriteria);
   const { customResponses, eventoUpdates } = buildEventoUpdatesFromSubmit(payload);
   eventoUpdates.cliente_telefone = normalizedPhone;
 
@@ -720,22 +812,18 @@ const handleSubmit = async (
     id: number;
   };
 
-  if (phoneMatch) {
-    if (phoneMatch.source === "vendas") {
-      applyVendasToFestaMigration(eventoUpdates);
-    }
-
+  if (leadMatch) {
     const { data, error: updateError } = await admin
       .from("eventos")
       .update(eventoUpdates)
-      .eq("id", phoneMatch.evento.id)
+      .eq("id", leadMatch.evento.id)
       .eq("tenant_id", tenant.id)
       .select("id, funil, etapa, cliente_nome, cliente_cpf, cliente_email, cliente_telefone")
       .single();
 
     if (updateError) throw updateError;
 
-    targetEventoId = phoneMatch.evento.id;
+    targetEventoId = leadMatch.evento.id;
     updatedEvento = data;
   } else {
     const clienteNome =
@@ -815,9 +903,9 @@ const handleSubmit = async (
     contractId: contract.id,
     contractNumber: contract.contract_number,
     eventoId: updatedEvento.id,
-    message: phoneMatch?.source === "vendas"
-      ? "Formulário recebido. Seu cadastro foi movido para Boas Vindas. Leia o contrato abaixo e confirme sua assinatura."
-      : phoneMatch?.source === "festa"
+    message: leadMatch?.source === "vendas"
+      ? "Formulário recebido. Leia o contrato abaixo e confirme sua assinatura para concluir a contratação."
+      : leadMatch?.source === "festa"
         ? "Formulário recebido. Atualizamos seu cadastro existente. Leia o contrato abaixo e confirme sua assinatura."
         : "Cadastro criado. Leia o contrato abaixo e confirme sua assinatura.",
     signingTerms: (signingTerms ?? []).map(mapPublicTerm),
@@ -836,7 +924,7 @@ const handleAcceptContract = async (
 
   const { data: evento, error: eventoError } = await admin
     .from("eventos")
-    .select("id, funil, etapa, cliente_telefone")
+    .select("id, funil, etapa, cliente_nome, cliente_email, cliente_telefone")
     .eq("tenant_id", tenant.id)
     .eq("id", payload.eventoId)
     .maybeSingle();
@@ -933,6 +1021,7 @@ const handleAcceptContract = async (
     eventoUpdates.funil = funnelMigration.funil;
     eventoUpdates.etapa = funnelMigration.etapa;
     eventoUpdates.status_interno = funnelMigration.status_interno;
+    eventoUpdates.tipo_evento = "festa";
     eventoUpdates.fechamento_confirmado_em = acceptedAt;
     eventoUpdates.boas_vindas_whatsapp_agendado_em = acceptedAt;
     eventoUpdates.motivo_perda = null;
@@ -951,6 +1040,20 @@ const handleAcceptContract = async (
       .single();
 
     if (updateEventoError) throw updateEventoError;
+
+    if (funnelMigration) {
+      const funnelEventos = await loadFunnelLeadCandidates(admin, tenant.id, {
+        clientName: evento.cliente_nome,
+        linkedEventoId: payload.eventoId,
+        normalizedPhone: evento.cliente_telefone ?? "",
+      });
+
+      await archiveDuplicateVendasLeads(admin, tenant.id, payload.eventoId, funnelEventos, {
+        email: evento.cliente_email,
+        name: evento.cliente_nome,
+        phone: evento.cliente_telefone,
+      });
+    }
 
     const advancedToFesta =
       updatedEvento.funil === "festa" && updatedEvento.etapa === "boas_vindas";
