@@ -63,7 +63,7 @@ export const SETTINGS_PAGE_META = {
     breadcrumb: "WhatsApp",
     title: "Conexões WhatsApp",
     description:
-      "Conecte números da casa via Evolution API para disparos automáticos e comunicação com clientes.",
+      "Conecte números da casa para disparos automáticos e comunicação com clientes.",
   },
   automacoes: {
     breadcrumb: "Automações",

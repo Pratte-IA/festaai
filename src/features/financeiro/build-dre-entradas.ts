@@ -4,7 +4,7 @@ import { FinanceiroLancamento } from "./types";
 const toIsoDate = (value: string) => value.slice(0, 10);
 
 export const mapContratoEntradaToDisplay = (item: FinanceiroContratoEntrada): FinanceiroDisplayItem => ({
-  categoria: "contrato",
+  categoria: "entrada_contrato",
   data_lancamento: toIsoDate(item.acceptedAt),
   deletable: false,
   descricao: item.clienteNome,

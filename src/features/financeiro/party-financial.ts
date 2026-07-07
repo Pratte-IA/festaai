@@ -7,10 +7,20 @@ export const sumLancamentosByTipo = (
   tipo: FinanceiroLancamento["tipo"],
 ) => lancamentos.filter((item) => item.tipo === tipo).reduce((sum, item) => sum + item.valor, 0);
 
-export const sumUpsellEntradas = (lancamentos: Pick<FinanceiroLancamento, "origem" | "tipo" | "valor">[]) =>
+export const sumEntradasAdicionais = (
+  lancamentos: Pick<FinanceiroLancamento, "categoria" | "origem" | "tipo" | "valor">[],
+) =>
   lancamentos
-    .filter((item) => item.tipo === "entrada" && item.origem === "upsell")
+    .filter(
+      (item) =>
+        item.tipo === "entrada" &&
+        (item.origem === "upsell" ||
+          (item.origem === "manual" && item.categoria !== "pagamento_contrato")),
+    )
     .reduce((sum, item) => sum + item.valor, 0);
+
+/** @deprecated Use sumEntradasAdicionais */
+export const sumUpsellEntradas = sumEntradasAdicionais;
 
 export const computeEventRevenueTotal = (
   event: Pick<Evento, "valor_total">,

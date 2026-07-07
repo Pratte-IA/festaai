@@ -37,14 +37,14 @@ const EventoFinanceiro = () => {
   const createPagamento = useCreateEventoPagamento();
   const deleteLancamento = useDeleteFinanceiroLancamento();
 
-  const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
+  const [entradaDialogOpen, setEntradaDialogOpen] = useState(false);
   const [despesaDialogOpen, setDespesaDialogOpen] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [newPaymentDate, setNewPaymentDate] = useState("");
   const [newPaymentAmount, setNewPaymentAmount] = useState("");
 
-  const upsells = useMemo(
-    () => lancamentos.filter((item) => item.origem === "upsell" && item.tipo === "entrada"),
+  const entradasManuais = useMemo(
+    () => lancamentos.filter((item) => item.tipo === "entrada" && item.origem === "manual"),
     [lancamentos],
   );
 
@@ -182,11 +182,15 @@ const EventoFinanceiro = () => {
               </div>
             </div>
 
-            <SectionHeader title="Vendas extras" actionLabel="Nova venda extra" onAction={() => setUpsellDialogOpen(true)} />
-            {upsells.length === 0 ? (
-              <EmptyLine text="Nenhuma venda extra registrada." />
+            <SectionHeader
+              title="Entradas manuais"
+              actionLabel="Nova entrada"
+              onAction={() => setEntradaDialogOpen(true)}
+            />
+            {entradasManuais.length === 0 ? (
+              <EmptyLine text="Nenhuma entrada manual registrada." />
             ) : (
-              upsells.map((item) => (
+              entradasManuais.map((item) => (
                 <LancamentoRow
                   key={item.id}
                   categoria={getFinanceiroCategoriaLabel(item.categoria)}
@@ -274,9 +278,9 @@ const EventoFinanceiro = () => {
       </div>
 
       <LancamentoFormDialog
-        open={upsellDialogOpen}
-        onOpenChange={setUpsellDialogOpen}
-        mode="upsell"
+        open={entradaDialogOpen}
+        onOpenChange={setEntradaDialogOpen}
+        mode="entrada_evento"
         eventoId={validEventoId}
       />
       <LancamentoFormDialog

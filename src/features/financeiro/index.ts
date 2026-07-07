@@ -1,5 +1,10 @@
-export { getFinanceiroCategoriaLabel, FINANCEIRO_CATEGORIAS_ENTRADA, FINANCEIRO_CATEGORIAS_SAIDA_EVENTO, FINANCEIRO_CATEGORIAS_SAIDA_GERAL } from "./constants";
-export type { FinanceiroCategoriaEntrada, FinanceiroCategoriaSaidaEvento, FinanceiroCategoriaSaidaGeral } from "./constants";
+export {
+  getFinanceiroCategoriaLabel,
+  getFinanceiroCategoriaOptions,
+  FINANCEIRO_CATEGORIAS_ENTRADA,
+  FINANCEIRO_CATEGORIAS_SAIDA,
+} from "./constants";
+export type { FinanceiroCategoriaEntrada, FinanceiroCategoriaSaida } from "./constants";
 export {
   buildDreEntradas,
   buildDrePeriodSummary,
@@ -9,7 +14,14 @@ export {
   sumDisplayItems,
 } from "./build-dre-entradas";
 export type { DrePeriodSummary, FinanceiroContratoEntrada, FinanceiroDisplayItem } from "./display-types";
-export { groupDisplayItemsByCategoria, groupLancamentosByCategoria } from "./dre-utils";
+export {
+  buildDashboardDescricaoRows,
+  buildDashboardEntradaRows,
+  buildDashboardSaidaRows,
+  groupDisplayItemsByCategoria,
+  groupLancamentosByCategoria,
+} from "./dre-utils";
+export type { DashboardDescricaoRow, DreCategoriaTotal } from "./dre-utils";
 export {
   formatFinanceiroMonthLabel,
   getDefaultFinanceiroMonth,

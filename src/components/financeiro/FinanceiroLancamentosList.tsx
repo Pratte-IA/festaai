@@ -38,10 +38,10 @@ export const FinanceiroLancamentosList = ({
             className="flex items-center justify-between gap-3 rounded-lg border border-border/30 bg-muted/20 p-2.5"
           >
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium">
-                {getFinanceiroCategoriaLabel(item.categoria)}
-                {item.descricao ? ` · ${item.descricao}` : ""}
-              </p>
+              <p className="truncate text-sm font-medium">{getFinanceiroCategoriaLabel(item.categoria)}</p>
+              {item.descricao ? (
+                <p className="truncate text-xs text-muted-foreground">{item.descricao}</p>
+              ) : null}
               <p className="text-xs text-muted-foreground">
                 {formatIsoDateBR(item.data_lancamento)}
                 {item.origem === "contrato" ? " · Assinatura do contrato" : null}

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import AppLayout from "@/components/AppLayout";
-import { FinanceiroDreTab } from "@/components/financeiro/FinanceiroDreTab";
+import { FinanceiroDashboard } from "@/components/financeiro/FinanceiroDashboard";
 import { FinanceiroEntradasTab } from "@/components/financeiro/FinanceiroEntradasTab";
 import { FinanceiroMonthFilter } from "@/components/financeiro/FinanceiroMonthFilter";
 import { FinanceiroSaidasTab } from "@/components/financeiro/FinanceiroSaidasTab";
@@ -20,15 +20,15 @@ import {
 } from "@/features/financeiro";
 import { toast } from "@/hooks/use-toast";
 
-type FinanceiroTab = "dre" | "entradas" | "saidas";
+type FinanceiroTab = "dashboard" | "entradas" | "saidas";
 
 const isFinanceiroTab = (value: string | null): value is FinanceiroTab =>
-  value === "dre" || value === "entradas" || value === "saidas";
+  value === "dashboard" || value === "entradas" || value === "saidas";
 
 const Financeiro = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const activeTab: FinanceiroTab = isFinanceiroTab(tabParam) ? tabParam : "dre";
+  const activeTab: FinanceiroTab = isFinanceiroTab(tabParam) ? tabParam : "dashboard";
 
   const [month, setMonth] = useState(getDefaultFinanceiroMonth);
   const [despesaDialogOpen, setDespesaDialogOpen] = useState(false);
@@ -51,7 +51,7 @@ const Financeiro = () => {
       return;
     }
 
-    setSearchParams(value === "dre" ? {} : { tab: value }, { replace: true });
+    setSearchParams(value === "dashboard" ? {} : { tab: value }, { replace: true });
   };
 
   const handleDelete = async (item: FinanceiroDisplayItem) => {
@@ -80,7 +80,7 @@ const Financeiro = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">Financeiro</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            DRE com entrada do contrato na assinatura; saldo e demais valores por lancamento manual.
+            Dashboard financeiro com totais do mes e detalhamento por descricao.
           </p>
         </div>
 
@@ -90,13 +90,13 @@ const Financeiro = () => {
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
           <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="dre">DRE</TabsTrigger>
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="entradas">Entradas</TabsTrigger>
             <TabsTrigger value="saidas">Saidas</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dre">
-            <FinanceiroDreTab entradas={dreEntradas} isLoading={isLoading} saidas={dreSaidas} />
+          <TabsContent value="dashboard">
+            <FinanceiroDashboard entradas={dreEntradas} isLoading={isLoading} saidas={dreSaidas} />
           </TabsContent>
 
           <TabsContent value="entradas">

@@ -35,14 +35,14 @@ describe("build-dre-entradas", () => {
       ],
       [
         lancamento({ id: 1, origem: "pagamento", categoria: "pagamento", valor: 1000 }),
-        lancamento({ id: 2, origem: "upsell", valor: 800 }),
+        lancamento({ id: 2, origem: "manual", categoria: "pagamento_contrato", valor: 800 }),
       ],
     );
 
     expect(entradas).toHaveLength(2);
-    expect(entradas.some((item) => item.origem === "contrato" && item.valor === 5000)).toBe(true);
+    expect(entradas.some((item) => item.categoria === "entrada_contrato" && item.valor === 5000)).toBe(true);
     expect(entradas.some((item) => item.origem === "pagamento")).toBe(false);
-    expect(entradas.some((item) => item.origem === "upsell" && item.valor === 800)).toBe(true);
+    expect(entradas.some((item) => item.categoria === "pagamento_contrato" && item.valor === 800)).toBe(true);
   });
 
   it("calcula resultado do DRE com contratos e saidas", () => {
@@ -50,7 +50,7 @@ describe("build-dre-entradas", () => {
       [{ acceptedAt: "2026-07-01T10:00:00.000Z", clienteNome: "Joao", contractId: 1, eventoId: 1, id: 1, valorEntrada: 1000 }],
       [],
     );
-    const saidas = [{ categoria: "aluguel", valor: 1200 }] as const;
+    const saidas = [{ categoria: "gastos_fixos", valor: 1200 }] as const;
 
     const summary = buildDrePeriodSummary(
       entradas,

@@ -19,15 +19,16 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  FINANCEIRO_CATEGORIAS_SAIDA_EVENTO,
-  FINANCEIRO_CATEGORIAS_SAIDA_GERAL,
+  FINANCEIRO_CATEGORIAS_ENTRADA,
+  FINANCEIRO_CATEGORIAS_SAIDA,
   useCreateFinanceiroLancamento,
 } from "@/features/financeiro";
 import { toast } from "@/hooks/use-toast";
 
-type LancamentoFormMode = "upsell" | "despesa_evento" | "despesa_geral" | "entrada_geral";
+export type LancamentoFormMode = "entrada_evento" | "entrada_geral" | "despesa_evento" | "despesa_geral";
 
 interface LancamentoFormDialogProps {
+  defaultCategoria?: string;
   eventoId?: number | null;
   mode: LancamentoFormMode;
   onOpenChange: (open: boolean) => void;
@@ -37,24 +38,40 @@ interface LancamentoFormDialogProps {
 const modeLabels: Record<LancamentoFormMode, string> = {
   despesa_evento: "Nova despesa da festa",
   despesa_geral: "Nova despesa geral",
+  entrada_evento: "Nova entrada da festa",
   entrada_geral: "Nova entrada geral",
-  upsell: "Nova venda extra",
 };
 
-export const LancamentoFormDialog = ({ eventoId, mode, onOpenChange, open }: LancamentoFormDialogProps) => {
+const defaultCategoriaByMode: Record<LancamentoFormMode, string> = {
+  despesa_evento: "",
+  despesa_geral: "",
+  entrada_evento: "pagamento_contrato",
+  entrada_geral: "pagamento_contrato",
+};
+
+export const LancamentoFormDialog = ({
+  defaultCategoria,
+  eventoId,
+  mode,
+  onOpenChange,
+  open,
+}: LancamentoFormDialogProps) => {
   const createLancamento = useCreateFinanceiroLancamento();
   const [dataLancamento, setDataLancamento] = useState("");
   const [valor, setValor] = useState("");
-  const [descricao, setDescricao] = useState("");
+  const [complemento, setComplemento] = useState("");
   const [observacao, setObservacao] = useState("");
-  const [categoria, setCategoria] = useState("");
+  const [categoria, setCategoria] = useState(defaultCategoria ?? defaultCategoriaByMode[mode]);
+
+  const isEntrada = mode === "entrada_evento" || mode === "entrada_geral";
+  const categoriaOptions = isEntrada ? FINANCEIRO_CATEGORIAS_ENTRADA : FINANCEIRO_CATEGORIAS_SAIDA;
 
   const resetForm = () => {
     setDataLancamento("");
     setValor("");
-    setDescricao("");
+    setComplemento("");
     setObservacao("");
-    setCategoria("");
+    setCategoria(defaultCategoria ?? defaultCategoriaByMode[mode]);
   };
 
   const handleSubmit = async () => {
@@ -69,14 +86,10 @@ export const LancamentoFormDialog = ({ eventoId, mode, onOpenChange, open }: Lan
       return;
     }
 
-    const isUpsell = mode === "upsell";
-    const isEntradaGeral = mode === "entrada_geral";
-    const isDespesa = mode === "despesa_evento" || mode === "despesa_geral";
-
-    if (isDespesa && !categoria) {
+    if (!categoria) {
       toast({
-        title: "Categoria obrigatoria",
-        description: "Selecione uma categoria para a despesa.",
+        title: "Descricao obrigatoria",
+        description: "Selecione uma descricao para o lancamento.",
         variant: "destructive",
       });
       return;
@@ -84,13 +97,13 @@ export const LancamentoFormDialog = ({ eventoId, mode, onOpenChange, open }: Lan
 
     try {
       await createLancamento.mutateAsync({
-        categoria: isUpsell ? "upsell" : isEntradaGeral ? "outros" : categoria,
+        categoria,
         data_lancamento: dataLancamento,
-        descricao: descricao.trim() || null,
+        descricao: complemento.trim() || null,
         eventoId: mode === "despesa_geral" || mode === "entrada_geral" ? null : eventoId ?? null,
         observacao: observacao.trim() || null,
-        origem: isUpsell ? "upsell" : "manual",
-        tipo: isDespesa ? "saida" : "entrada",
+        origem: "manual",
+        tipo: isEntrada ? "entrada" : "saida",
         valor: parsedValor,
       });
 
@@ -105,9 +118,6 @@ export const LancamentoFormDialog = ({ eventoId, mode, onOpenChange, open }: Lan
       });
     }
   };
-
-  const categoriaOptions =
-    mode === "despesa_geral" ? FINANCEIRO_CATEGORIAS_SAIDA_GERAL : FINANCEIRO_CATEGORIAS_SAIDA_EVENTO;
 
   return (
     <Dialog
@@ -147,36 +157,37 @@ export const LancamentoFormDialog = ({ eventoId, mode, onOpenChange, open }: Lan
             />
           </div>
 
-          {(mode === "despesa_evento" || mode === "despesa_geral") && (
-            <div className="space-y-2">
-              <Label>Categoria</Label>
-              <Select value={categoria} onValueChange={setCategoria}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(categoriaOptions).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label>Descricao</Label>
+            <Select value={categoria} onValueChange={setCategoria}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a descricao" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(categoriaOptions).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Usada para unificar o total gasto ou recebido em cada item no fim do mes.
+            </p>
+          </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descricao-lancamento">Descricao</Label>
+            <Label htmlFor="complemento-lancamento">Complemento (opcional)</Label>
             <Input
-              id="descricao-lancamento"
-              value={descricao}
-              onChange={(event) => setDescricao(event.target.value)}
-              placeholder="Ex.: Decoração extra, aluguel do mes..."
+              id="complemento-lancamento"
+              value={complemento}
+              onChange={(event) => setComplemento(event.target.value)}
+              placeholder="Ex.: Festa da Maria, fornecedor X..."
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="observacao-lancamento">Observacao</Label>
+            <Label htmlFor="observacao-lancamento">Observacao interna</Label>
             <Textarea
               id="observacao-lancamento"
               value={observacao}
