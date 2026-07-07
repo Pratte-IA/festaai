@@ -1333,6 +1333,7 @@ export type Database = {
           cliente_rg: string | null
           cliente_rua: string | null
           cliente_telefone: string | null
+          convidados_alteracoes_historico: Json
           created_at: string
           created_by: string | null
           data_evento: string | null
@@ -1401,6 +1402,7 @@ export type Database = {
           cliente_rg?: string | null
           cliente_rua?: string | null
           cliente_telefone?: string | null
+          convidados_alteracoes_historico?: Json
           created_at?: string
           created_by?: string | null
           data_evento?: string | null
@@ -1469,6 +1471,7 @@ export type Database = {
           cliente_rg?: string | null
           cliente_rua?: string | null
           cliente_telefone?: string | null
+          convidados_alteracoes_historico?: Json
           created_at?: string
           created_by?: string | null
           data_evento?: string | null

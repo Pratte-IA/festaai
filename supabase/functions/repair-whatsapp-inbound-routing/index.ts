@@ -4,7 +4,7 @@ import { createServiceClient } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import {
   ensureVilaEncantadaInboundRouting,
-  VILA_ENCANTADA_INSTANCE_NAME,
+  VILA_ENCANTADA_PRINCIPAL_INSTANCE_NAME,
 } from "../_shared/ensure-vila-encantada-inbound-routing.ts";
 import { syncConnectionWebhook } from "../_shared/evolution-client.ts";
 
@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
 
     return jsonResponse({
       connection,
-      instanceName: VILA_ENCANTADA_INSTANCE_NAME,
+      instanceName: VILA_ENCANTADA_PRINCIPAL_INSTANCE_NAME,
       ok: true,
       webhookSynced,
     });

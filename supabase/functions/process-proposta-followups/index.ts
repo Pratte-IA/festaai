@@ -103,12 +103,15 @@ Deno.serve(async (req) => {
       return tenant;
     };
 
+    // FU1 deve ser enviado a TODOS os leads em Proposta Enviada, mesmo que o
+    // cliente já tenha respondido (followup_status "pausado_resposta"). Apenas
+    // FU2/FU3/FU4 respeitam a pausa por resposta do cliente.
     const { data: fu1Candidates, error: fu1ListError } = await supabase
       .from("eventos")
       .select("id, tenant_id, proposta_enviada_em, status_interno")
       .eq("funil", "vendas")
       .eq("etapa", "proposta_enviada")
-      .eq("followup_status", "ativo")
+      .in("followup_status", ["ativo", "pausado_resposta"])
       .not("proposta_enviada_em", "is", null)
       .is("followup_1_enviado_em", null)
       .not("data_evento", "is", null);

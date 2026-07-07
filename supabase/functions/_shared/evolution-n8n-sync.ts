@@ -11,6 +11,8 @@ import {
   patchN8nWorkflowEvolutionSendText,
 } from "./n8n-provision.ts";
 
+/** Sincronização N8N ↔ Evolution — invocar apenas manualmente (admin/ops), nunca no fluxo automático. */
+
 const N8N_AUTOMATION_TEMPLATE_KEYS = ["atendimento", "boas-vindas", "sete-dias-antes"] as const;
 
 type WhatsappConnectionRow = {

@@ -1,6 +1,7 @@
-import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 
+import { PackageData } from "@/data/packagesData";
 import {
   Evento,
   EventType,
@@ -8,6 +9,7 @@ import {
   funnelTabs,
   getDefaultStageForFunnel,
   isStageValidForFunnel,
+  recalculateEventoGuestPricing,
   stageMap,
   Stage,
 } from "@/features/eventos";
@@ -62,6 +64,7 @@ interface EventoFormDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: EventoFormValues) => Promise<void> | void;
   open: boolean;
+  packages?: PackageData[];
 }
 
 interface EventoFormState {
@@ -165,6 +168,7 @@ export const EventoFormDialog = ({
   onOpenChange,
   onSubmit,
   open,
+  packages = [],
 }: EventoFormDialogProps) => {
   const [form, setForm] = useState<EventoFormState>(() => getInitialFormState(initialEvento, initialFunnel));
   const [formError, setFormError] = useState<string | null>(null);
@@ -178,9 +182,54 @@ export const EventoFormDialog = ({
 
   const stages = useMemo(() => stageMap[form.funil], [form.funil]);
   const totalValue = moneyValue(form.valor_pacote) + moneyValue(form.valor_adicionais);
+  const hasLinkedPackagePricing = Boolean(initialEvento?.pacote_id && packages.length > 0);
 
   const updateForm = (values: Partial<EventoFormState>) => {
     setForm((currentForm) => ({ ...currentForm, ...values }));
+  };
+
+  const applyGuestPricing = useCallback(
+    (currentForm: EventoFormState, guestCountValue: string, eventDate?: string) => {
+      const nextForm: EventoFormState = {
+        ...currentForm,
+        quantidade_convidados: guestCountValue,
+        ...(eventDate !== undefined ? { data_evento: eventDate } : {}),
+      };
+
+      if (!initialEvento?.pacote_id || packages.length === 0) {
+        return nextForm;
+      }
+
+      const guestCount = guestCountValue.trim() ? Number(guestCountValue) : 0;
+      if (!Number.isFinite(guestCount) || guestCount <= 0) {
+        return nextForm;
+      }
+
+      const pricing = recalculateEventoGuestPricing({
+        adicionaisSnapshot: initialEvento.adicionais_snapshot,
+        dataEvento: (eventDate ?? currentForm.data_evento) || null,
+        guestCount,
+        pacoteId: initialEvento.pacote_id,
+        packages,
+        valorAdicionais: moneyValue(currentForm.valor_adicionais),
+        valorPacote: moneyValue(currentForm.valor_pacote),
+      });
+
+      return {
+        ...nextForm,
+        valor_adicionais: pricing.valor_adicionais?.toString() ?? nextForm.valor_adicionais,
+        valor_pacote: pricing.valor_pacote?.toString() ?? nextForm.valor_pacote,
+      };
+    },
+    [initialEvento, packages],
+  );
+
+  const handleGuestCountChange = (value: string) => {
+    setForm((currentForm) => applyGuestPricing(currentForm, value));
+  };
+
+  const handleEventDateChange = (value: string) => {
+    setForm((currentForm) => applyGuestPricing(currentForm, currentForm.quantidade_convidados, value));
   };
 
   const handleFunnelChange = (funil: FunnelType) => {
@@ -338,7 +387,7 @@ export const EventoFormDialog = ({
               <Input
                 type="date"
                 value={form.data_evento}
-                onChange={(event) => updateForm({ data_evento: event.target.value })}
+                onChange={(event) => handleEventDateChange(event.target.value)}
               />
             </Field>
 
@@ -355,9 +404,14 @@ export const EventoFormDialog = ({
                 min="0"
                 type="number"
                 value={form.quantidade_convidados}
-                onChange={(event) => updateForm({ quantidade_convidados: event.target.value })}
+                onChange={(event) => handleGuestCountChange(event.target.value)}
                 placeholder="40"
               />
+              {hasLinkedPackagePricing ? (
+                <p className="text-xs text-muted-foreground">
+                  O valor do pacote é recalculado automaticamente conforme a tabela de preços.
+                </p>
+              ) : null}
             </Field>
 
             <Field label="Pacote">

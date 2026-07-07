@@ -117,10 +117,6 @@ export const getPropostaFollowupKanbanBadge = (evento: {
 }): { className: string; label: string } | null => {
   if (evento.etapa !== "proposta_enviada") return null;
 
-  if (evento.followup_status === "pausado_resposta") {
-    return { className: "bg-primary/15 text-primary", label: "Respondeu" };
-  }
-
   if (evento.followup_3_enviado_em) {
     return { className: "bg-muted text-muted-foreground", label: "Aguard. FU4" };
   }
@@ -133,8 +129,16 @@ export const getPropostaFollowupKanbanBadge = (evento: {
     return { className: "bg-success/15 text-success", label: "FU1 ✓" };
   }
 
-  if (evento.followup_status === "ativo" && evento.proposta_enviada_em) {
+  const aguardandoFu1 =
+    evento.proposta_enviada_em &&
+    (evento.followup_status === "ativo" || evento.followup_status === "pausado_resposta");
+
+  if (aguardandoFu1) {
     return { className: "bg-muted text-muted-foreground", label: "Aguard. FU1" };
+  }
+
+  if (evento.followup_status === "pausado_resposta") {
+    return { className: "bg-primary/15 text-primary", label: "Respondeu" };
   }
 
   return null;

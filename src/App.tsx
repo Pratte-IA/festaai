@@ -10,6 +10,9 @@ import { TenantAdminRoute, TenantProvider } from "@/features/tenants";
 
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AdminTenantDetail = lazy(() => import("./pages/AdminTenantDetail.tsx"));
+const AdminTenantConfig = lazy(() => import("./pages/AdminTenantConfig.tsx"));
+const AdminTenantConfigSection = lazy(() => import("./pages/AdminTenantConfigSection.tsx"));
+const AdminTenantN8nConfig = lazy(() => import("./pages/AdminTenantN8nConfig.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Usuarios = lazy(() => import("./pages/Usuarios.tsx"));
 const CRM = lazy(() => import("./pages/CRM.tsx"));
@@ -157,6 +160,30 @@ const App = () => (
                   element={
                     <PlatformAdminRoute>
                       <AdminAgentRequests />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tenants/:id/n8n"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminTenantN8nConfig />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tenants/:id/configuracao/:section"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminTenantConfigSection />
+                    </PlatformAdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tenants/:id/configuracao"
+                  element={
+                    <PlatformAdminRoute>
+                      <AdminTenantConfig />
                     </PlatformAdminRoute>
                   }
                 />

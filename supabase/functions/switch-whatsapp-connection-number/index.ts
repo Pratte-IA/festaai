@@ -7,8 +7,6 @@ import {
   syncConnectionWebhook,
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
-import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
-
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
   connectionId: z.number().int().positive(),
@@ -81,20 +79,6 @@ Deno.serve(async (req) => {
       .single();
 
     if (updateError) throw updateError;
-
-    try {
-      const { data: tenant } = await service
-        .from("tenants")
-        .select("id, name, slug")
-        .eq("id", tenantId)
-        .maybeSingle();
-
-      if (tenant) {
-        await syncTenantN8nEvolutionAutomation(service, tenant, updated);
-      }
-    } catch {
-      // best-effort — mesma instância Evolution, workflow inalterado
-    }
 
     return jsonResponse({ ok: true, connection: updated });
   } catch (error) {

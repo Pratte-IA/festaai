@@ -183,6 +183,14 @@ export type {
 } from "./contracts/contract-types";
 export { formatContractHashShort, hashContractContent } from "./contracts/contract-hash";
 export type { ClosingFormSubmission } from "./use-evento-closing-form";
+export {
+  appendConvidadosAlteracaoHistorico,
+  buildConvidadosAlteracaoHistoricoEntry,
+  getSignedContractFinancialSnapshot,
+  parseConvidadosAlteracoesHistorico,
+  recalculateEventoGuestPricing,
+} from "./evento-guest-pricing";
+export type { ConvidadosAlteracaoHistoricoEntry } from "./evento-guest-pricing";
 export type { AdicionalSnapshotItem } from "./closing-form-runtime";
 export {
   CLIENT_FORM_SECTIONS,

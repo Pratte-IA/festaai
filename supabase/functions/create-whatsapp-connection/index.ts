@@ -12,11 +12,6 @@ import {
   setEvolutionWebhook,
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
-import {
-  syncTenantN8nEvolutionAutomation,
-} from "../_shared/evolution-n8n-sync.ts";
-import { provisionTenantN8nWorkflow } from "../_shared/n8n-provision.ts";
-
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
   name: z.string().trim().min(2).max(120),
@@ -122,25 +117,6 @@ Deno.serve(async (req) => {
     });
 
     if (secretError) throw secretError;
-
-    try {
-      await provisionTenantN8nWorkflow(service, {
-        id: tenant.id,
-        name: tenant.name,
-        slug: tenant.slug,
-      });
-    } catch {
-      // best-effort: admin pode reprovisionar manualmente
-    }
-
-    try {
-      await syncTenantN8nEvolutionAutomation(service, tenant, connection, {
-        createPayload: createResult.body,
-        fallbackApiKey: instanceApiKey,
-      });
-    } catch {
-      // best-effort — patch Enviar texto + credencial Evolution no n8n
-    }
 
     if (webhookConfig) {
       try {

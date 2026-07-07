@@ -148,7 +148,9 @@ export const dispatchPropostaFollowup1 = async (
     };
   }
 
-  if (evento.followup_status !== "ativo") {
+  // FU1 é enviado mesmo quando a sequência foi pausada por resposta do cliente
+  // ("pausado_resposta"): todo lead em Proposta Enviada recebe o FU1.
+  if (evento.followup_status !== "ativo" && evento.followup_status !== "pausado_resposta") {
     return {
       dispatched: false,
       errorMessage: null,

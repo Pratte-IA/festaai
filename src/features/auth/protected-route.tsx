@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { canAccessTenantApp, useCurrentTenant } from "@/features/tenants";
 
 import { useAuth } from "./use-auth";
+import { getPlatformAdminViewingTenantId } from "@/features/admin";
 
 interface RouteStateProps {
   description: string;
@@ -42,7 +43,7 @@ const RouteState = ({ description, title, variant = "loading" }: RouteStateProps
 };
 
 export const ProtectedRoute = ({ children }: PropsWithChildren) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isPlatformAdmin } = useAuth();
   const {
     currentTenant,
     error: tenantError,
@@ -93,7 +94,10 @@ export const ProtectedRoute = ({ children }: PropsWithChildren) => {
     );
   }
 
-  if (currentTenant && !canAccessTenantApp(currentTenant.status)) {
+  const isPlatformAdminViewing =
+    isPlatformAdmin && currentTenant && getPlatformAdminViewingTenantId() === currentTenant.id;
+
+  if (currentTenant && !canAccessTenantApp(currentTenant.status) && !isPlatformAdminViewing) {
     return (
       <RouteState
         description="O acesso desta empresa esta bloqueado por status de assinatura. Entre em contato com o suporte para regularizar."

@@ -11,9 +11,7 @@ import {
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
 import {
-  ensureVilaEncantadaInboundRouting,
-  isVilaEncantadaProductionInstance,
-  VILA_ENCANTADA_INSTANCE_NAME,
+  VILA_ENCANTADA_LUANA_INSTANCE_NAME,
 } from "../_shared/ensure-vila-encantada-inbound-routing.ts";
 
 const bodySchema = z.object({
@@ -43,15 +41,6 @@ Deno.serve(async (req) => {
       .order("created_at", { ascending: false });
 
     if (listError) throw listError;
-
-    try {
-      await ensureVilaEncantadaInboundRouting(service, tenantId);
-    } catch (routingError) {
-      console.error(
-        "ensureVilaEncantadaInboundRouting failed:",
-        routingError instanceof Error ? routingError.message : routingError,
-      );
-    }
 
     const refreshed = [];
 
@@ -98,7 +87,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      if (connection.instance_name === VILA_ENCANTADA_INSTANCE_NAME) {
+      if (connection.instance_name === VILA_ENCANTADA_LUANA_INSTANCE_NAME) {
         try {
           await syncConnectionWebhook(service, connection);
         } catch {

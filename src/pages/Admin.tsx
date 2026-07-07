@@ -322,7 +322,7 @@ const Admin = () => {
                       <p className="text-muted-foreground">{formatDateTime(tenant.updated_at)}</p>
                       <div className="md:text-right">
                         <Button asChild size="sm" variant="outline">
-                          <Link to={`/admin/tenants/${tenant.id}`}>Ver detalhes</Link>
+                          <Link to={`/admin/tenants/${tenant.id}`}>Abrir painel</Link>
                         </Button>
                       </div>
                     </article>

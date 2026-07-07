@@ -24,12 +24,15 @@ import { formatIsoDateBR, formatTimestampDateBR, getTodayAtNoon, parseIsoDateLoc
 import { formatBrazilPhone } from "@/lib/phone";
 import { useTenantPackages } from "@/features/configuracoes";
 import {
+  appendConvidadosAlteracaoHistorico,
   getEventBalance,
   getEventDisplayTotalPaid,
+  recalculateEventoGuestPricing,
   useCreateEventoNota,
   useCreateEventoTarefa,
   useDeleteEvento,
   useEvento,
+  useEventoContract,
   useEventoNotas,
   useEventoPagamentos,
   useEventoTarefas,
@@ -38,6 +41,7 @@ import {
 } from "@/features/eventos";
 import { formatCelebratingAge, formatCurrentAge } from "@/features/eventos/birthday-age";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { Json } from "@/lib/supabase/database.types";
 import { useTenantAdminCapability } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -124,6 +128,7 @@ const EventoDetalhe = () => {
   const validEventoId = isValidEventoId ? Number(eventoId) : null;
   const { data: event, error, isLoading } = useEvento(validEventoId);
   const { data: packages = [] } = useTenantPackages();
+  const { data: contract } = useEventoContract(validEventoId);
   const { data: payments = [] } = useEventoPagamentos(validEventoId);
   const { data: tasks = [], isLoading: isTasksLoading } = useEventoTarefas(validEventoId);
   const { data: notes = [], isLoading: isNotesLoading } = useEventoNotas(validEventoId);
@@ -241,10 +246,41 @@ const EventoDetalhe = () => {
   const handleUpdateEvento = async (values: EventoFormValues) => {
     if (!validEventoId) return;
 
+    const guestCount = values.quantidade_convidados ?? 0;
+    const pricingUpdates =
+      guestCount > 0 && event.pacote_id
+        ? recalculateEventoGuestPricing({
+            adicionaisSnapshot: event.adicionais_snapshot,
+            dataEvento: values.data_evento,
+            guestCount,
+            pacoteId: event.pacote_id,
+            packages,
+            valorAdicionais: values.valor_adicionais,
+            valorPacote: values.valor_pacote,
+          })
+        : {};
+
+    const nextValues = {
+      ...values,
+      ...pricingUpdates,
+      valor_total:
+        pricingUpdates.valor_total ??
+        Math.round((values.valor_pacote + values.valor_adicionais) * 100) / 100,
+    };
+
+    const historyUpdate = appendConvidadosAlteracaoHistorico(event, nextValues, {
+      trackHistory: contract?.status === "accepted",
+    });
+
     try {
       await updateEvento.mutateAsync({
         eventoId: validEventoId,
-        values,
+        values: {
+          ...nextValues,
+          ...(historyUpdate
+            ? { convidados_alteracoes_historico: historyUpdate as unknown as Json }
+            : {}),
+        },
       });
 
       toast({
@@ -638,6 +674,7 @@ const EventoDetalhe = () => {
         onOpenChange={setIsEditDialogOpen}
         onSubmit={handleUpdateEvento}
         open={isEditDialogOpen}
+        packages={packages}
       />
 
       <MoveEventoFunnelDialog

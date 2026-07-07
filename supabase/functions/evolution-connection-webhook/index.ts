@@ -1,7 +1,6 @@
 import { createServiceClient } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { extractConnectionPhone, fetchMessageMediaBase64, syncConnectionWebhook } from "../_shared/evolution-client.ts";
-import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
 import {
   isConnectionUpdateEvent,
   isHumanInterventionMessage,
@@ -13,7 +12,6 @@ import {
 } from "../_shared/evolution-message.ts";
 import { isKnownAutomationOutboundMessage } from "../_shared/is-known-automation-outbound.ts";
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
-import { ensureVilaEncantadaInboundRouting, isVilaEncantadaProductionInstance } from "../_shared/ensure-vila-encantada-inbound-routing.ts";
 import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
 import { pausePropostaFollowupOnCustomerReply } from "../_shared/pause-proposta-followup.ts";
 import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
@@ -156,18 +154,6 @@ const handleConnectionUpdate = async (ctx: WebhookContext) => {
       await syncConnectionWebhook(ctx.service, ctx.connection);
     } catch {
       // best-effort — garante webhookBase64 nas instâncias existentes
-    }
-    try {
-      const { data: tenant } = await ctx.service
-        .from("tenants")
-        .select("id, name, slug")
-        .eq("id", ctx.connection.tenant_id)
-        .maybeSingle();
-      if (tenant) {
-        await syncTenantN8nEvolutionAutomation(ctx.service, tenant, ctx.connection);
-      }
-    } catch {
-      // best-effort
     }
   } else if (state === "close") {
     updates.status = "disconnected";
@@ -337,11 +323,11 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
           : !isAtendimentoConnection
             ? "Mensagem recebida em número diferente do vinculado à automação de Atendimento."
             : automationSettings?.n8n_provision_status === "draft"
-              ? "Workflow N8N em rascunho — personalize, publique no N8N e salve novamente o vínculo de Atendimento."
+              ? "Workflow N8N em rascunho — configure e ative manualmente na admin da plataforma."
               : !automationSettings?.inbound_automation_enabled
-                ? "Automação de Atendimento ainda não foi ativada — salve o vínculo na tela de Automações."
+                ? "Automação inbound desativada — ative manualmente na admin da plataforma (Configuração N8N)."
                 : !tenantWebhookUrl
-                  ? "URL do workflow N8N não configurada."
+                  ? "URL do workflow N8N não configurada — defina na admin da plataforma (Configuração N8N)."
                   : "Automação inbound não liberada.";
 
       await logAutomationDispatch(ctx, {
@@ -486,17 +472,6 @@ Deno.serve(async (req) => {
     payload = extractPayload(await req.json());
     eventName = resolveEventName(payload);
     instanceName = resolveInstanceName(payload);
-
-    if (isVilaEncantadaProductionInstance(instanceName)) {
-      try {
-        await ensureVilaEncantadaInboundRouting(service, 2);
-      } catch (routingError) {
-        console.error(
-          "ensureVilaEncantadaInboundRouting failed:",
-          routingError instanceof Error ? routingError.message : routingError,
-        );
-      }
-    }
 
     authStatus = await validateWebhookAuth(service, req, instanceName);
 

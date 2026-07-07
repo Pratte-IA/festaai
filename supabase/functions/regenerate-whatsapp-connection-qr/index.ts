@@ -3,7 +3,6 @@ import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 import { resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { tryFetchQrCode, syncConnectionWebhook } from "../_shared/evolution-client.ts";
-import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
 
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
@@ -70,20 +69,6 @@ Deno.serve(async (req) => {
       .single();
 
     if (updateError) throw updateError;
-
-    try {
-      const { data: tenant } = await service
-        .from("tenants")
-        .select("id, name, slug")
-        .eq("id", tenantId)
-        .maybeSingle();
-
-      if (tenant) {
-        await syncTenantN8nEvolutionAutomation(service, tenant, updated);
-      }
-    } catch {
-      // best-effort
-    }
 
     return jsonResponse({ ok: true, connection: updated });
   } catch (error) {

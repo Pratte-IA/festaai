@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, FileText, Plus, Trash2 } from "lucide-react";
 
 import AppLayout from "@/components/AppLayout";
+import { EventoContratoFinanceiroInfo } from "@/components/financeiro/EventoContratoFinanceiroInfo";
 import { FinanceiroSummaryStats, formatFinanceiroCurrency } from "@/components/financeiro/FinanceiroSummaryStats";
 import { LancamentoFormDialog } from "@/components/financeiro/LancamentoFormDialog";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
   getEventDisplayTotalPaid,
   useCreateEventoPagamento,
   useEvento,
+  useEventoContract,
   useEventoPagamentos,
 } from "@/features/eventos";
 import {
@@ -32,6 +34,7 @@ const EventoFinanceiro = () => {
   const validEventoId = isValidEventoId ? Number(eventoId) : null;
 
   const { data: event, error, isLoading } = useEvento(validEventoId);
+  const { data: contract } = useEventoContract(validEventoId);
   const { data: payments = [] } = useEventoPagamentos(validEventoId);
   const { isLoading: isSummaryLoading, lancamentos, summary } = useEventoFinanceiroSummary(event);
   const createPagamento = useCreateEventoPagamento();
@@ -173,14 +176,7 @@ const EventoFinanceiro = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-lg border border-border/40 bg-muted/20 p-3">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Contrato (informativo)</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                <InfoItem label="Pacote" value={formatFinanceiroCurrency(event.valor_pacote)} />
-                <InfoItem label="Adicionais" value={formatFinanceiroCurrency(event.valor_adicionais)} />
-                <InfoItem label="Total contratado" value={formatFinanceiroCurrency(event.valor_total)} highlight />
-              </div>
-            </div>
+            <EventoContratoFinanceiroInfo contract={contract} event={event} />
 
             <SectionHeader
               title="Entradas manuais"

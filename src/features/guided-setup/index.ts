@@ -6,6 +6,7 @@ export {
   GUIDED_SETUP_WIDE_STEPS,
   getActiveGuidedSetupStep,
   getNextGuidedSetupStep,
+  isGuidedSetupStepKey,
   type GuidedSetupStepKey,
 } from "./guided-setup-steps";
 export { guidedSetupQueryKeys } from "./query-keys";
