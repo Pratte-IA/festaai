@@ -13,10 +13,12 @@ import {
 } from "../_shared/evolution-message.ts";
 import { isKnownAutomationOutboundMessage } from "../_shared/is-known-automation-outbound.ts";
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
+import { ensureVilaEncantadaInboundRouting, isVilaEncantadaProductionInstance } from "../_shared/ensure-vila-encantada-inbound-routing.ts";
 import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
 import { pausePropostaFollowupOnCustomerReply } from "../_shared/pause-proposta-followup.ts";
 import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
+import { phonesMatch } from "../_shared/phone.ts";
 
 const ATENDIMENTO_TEMPLATE_KEY = "atendimento";
 
@@ -106,7 +108,27 @@ const validateWebhookAuth = async (
       .select("webhook_token")
       .eq("instance_name", instanceName)
       .maybeSingle();
-    expectedToken = secretRow?.webhook_token ?? globalToken;
+
+    if (secretRow?.webhook_token) {
+      expectedToken = secretRow.webhook_token;
+    } else {
+      const { data: connection } = await service
+        .from("whatsapp_connections")
+        .select("id")
+        .eq("instance_name", instanceName)
+        .maybeSingle();
+
+      if (connection) {
+        const { data: secretByConnection } = await service
+          .from("whatsapp_connection_webhook_secrets")
+          .select("webhook_token")
+          .eq("connection_id", connection.id)
+          .maybeSingle();
+        expectedToken = secretByConnection?.webhook_token ?? globalToken;
+      } else {
+        expectedToken = globalToken;
+      }
+    }
   } else {
     expectedToken = globalToken;
   }
@@ -232,8 +254,23 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
     automationSettings?.automation_template_bindings,
     ATENDIMENTO_TEMPLATE_KEY,
   );
-  const isAtendimentoConnection =
+
+  let isAtendimentoConnection =
     atendimentoConnectionId !== null && atendimentoConnectionId === ctx.connection.id;
+
+  if (!isAtendimentoConnection && atendimentoConnectionId !== null) {
+    const { data: boundConnection } = await ctx.service
+      .from("whatsapp_connections")
+      .select("id, instance_name, phone")
+      .eq("id", atendimentoConnectionId)
+      .maybeSingle();
+
+    if (boundConnection) {
+      isAtendimentoConnection =
+        boundConnection.instance_name === ctx.connection.instance_name ||
+        phonesMatch(boundConnection.phone, ctx.connection.phone);
+    }
+  }
 
   const canForward =
     isAtendimentoConnection &&
@@ -449,6 +486,17 @@ Deno.serve(async (req) => {
     payload = extractPayload(await req.json());
     eventName = resolveEventName(payload);
     instanceName = resolveInstanceName(payload);
+
+    if (isVilaEncantadaProductionInstance(instanceName)) {
+      try {
+        await ensureVilaEncantadaInboundRouting(service, 2);
+      } catch (routingError) {
+        console.error(
+          "ensureVilaEncantadaInboundRouting failed:",
+          routingError instanceof Error ? routingError.message : routingError,
+        );
+      }
+    }
 
     authStatus = await validateWebhookAuth(service, req, instanceName);
 

@@ -10,7 +10,11 @@ import {
   syncConnectionWebhook,
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
-import { syncTenantN8nEvolutionAutomation } from "../_shared/evolution-n8n-sync.ts";
+import {
+  ensureVilaEncantadaInboundRouting,
+  isVilaEncantadaProductionInstance,
+  VILA_ENCANTADA_INSTANCE_NAME,
+} from "../_shared/ensure-vila-encantada-inbound-routing.ts";
 
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
@@ -39,6 +43,15 @@ Deno.serve(async (req) => {
       .order("created_at", { ascending: false });
 
     if (listError) throw listError;
+
+    try {
+      await ensureVilaEncantadaInboundRouting(service, tenantId);
+    } catch (routingError) {
+      console.error(
+        "ensureVilaEncantadaInboundRouting failed:",
+        routingError instanceof Error ? routingError.message : routingError,
+      );
+    }
 
     const refreshed = [];
 
@@ -72,18 +85,6 @@ Deno.serve(async (req) => {
             } catch {
               // best-effort — reativa webhookBase64 em instâncias antigas
             }
-            try {
-              const { data: tenant } = await service
-                .from("tenants")
-                .select("id, name, slug")
-                .eq("id", tenantId)
-                .maybeSingle();
-              if (tenant) {
-                await syncTenantN8nEvolutionAutomation(service, tenant, connection);
-              }
-            } catch {
-              // best-effort — sincroniza apikey da instância na credencial n8n
-            }
           }
 
           if (status === "connecting" && !qrCode) {
@@ -94,6 +95,14 @@ Deno.serve(async (req) => {
         lastError = error instanceof Error ? error.message : "Falha ao consultar Evolution.";
         if (connection.status !== "connected") {
           status = "error";
+        }
+      }
+
+      if (connection.instance_name === VILA_ENCANTADA_INSTANCE_NAME) {
+        try {
+          await syncConnectionWebhook(service, connection);
+        } catch {
+          // best-effort — garante webhook da instância de produção
         }
       }
 

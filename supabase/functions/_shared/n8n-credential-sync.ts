@@ -35,8 +35,23 @@ const extractCredentialFromWorkflowNodes = (nodes: N8nWorkflowNode[]): N8nCreden
 };
 
 const listCredentials = async (): Promise<N8nCredentialSummary[]> => {
-  const response = await n8nApiFetch<{ data?: N8nCredentialSummary[] }>("/credentials");
-  return response.data ?? [];
+  const collected: N8nCredentialSummary[] = [];
+  let cursor: string | null = null;
+
+  do {
+    const query = new URLSearchParams({ limit: "250" });
+    if (cursor) query.set("cursor", cursor);
+
+    const response = await n8nApiFetch<{
+      data?: N8nCredentialSummary[];
+      nextCursor?: string | null;
+    }>(`/credentials?${query.toString()}`);
+
+    collected.push(...(response.data ?? []));
+    cursor = response.nextCursor ?? null;
+  } while (cursor);
+
+  return collected;
 };
 
 const findEvolutionCredentialForTenant = (
@@ -111,11 +126,44 @@ const findEvolutionCredentialByName = (
   credentialName: string,
 ): N8nCredentialSummary | null => {
   const normalizedTarget = normalizeLabel(credentialName);
+  const evolutionCredentials = credentials.filter((item) => isEvolutionCredentialType(item.type));
+
   return (
-    credentials.find((item) => normalizeLabel(item.name ?? "") === normalizedTarget) ??
-    credentials.find((item) => (item.name ?? "").trim() === credentialName.trim()) ??
+    evolutionCredentials.find((item) => normalizeLabel(item.name ?? "") === normalizedTarget) ??
+    evolutionCredentials.find((item) => (item.name ?? "").trim() === credentialName.trim()) ??
     null
   );
+};
+
+/** Reutiliza credencial existente do tenant/conexão — evita duplicatas no n8n. */
+const findEvolutionCredentialForConnection = (
+  credentials: N8nCredentialSummary[],
+  tenant: { name: string },
+  connection: { name: string },
+  options?: { isPrimary?: boolean },
+): N8nCredentialSummary | null => {
+  const credentialName = buildConnectionEvolutionCredentialName(tenant, connection, options);
+  const byExactName = findEvolutionCredentialByName(credentials, credentialName);
+  if (byExactName?.id) return byExactName;
+
+  const tenantLabel = normalizeLabel(tenant.name);
+  const connectionLabel = normalizeLabel(connection.name);
+  const evolutionCredentials = credentials.filter((item) => isEvolutionCredentialType(item.type));
+
+  for (const credential of evolutionCredentials) {
+    const label = normalizeLabel(credential.name ?? "");
+    if (!label) continue;
+    if (label.includes(tenantLabel) && label.includes(connectionLabel)) return credential;
+  }
+
+  if (options?.isPrimary) {
+    for (const credential of evolutionCredentials) {
+      const label = normalizeLabel(credential.name ?? "");
+      if (label === tenantLabel || label.startsWith(`${tenantLabel} `)) return credential;
+    }
+  }
+
+  return null;
 };
 
 const createEvolutionCredential = async (
@@ -164,36 +212,32 @@ export const ensureConnectionEvolutionCredential = async (
     ? extractCredentialFromWorkflowNodes(options.workflowNodes)
     : null;
 
+  // Workflow já vinculado: só atualiza apikey — nunca cria credencial nova.
   if (fromWorkflow?.id) {
-    const workflowCredentialName = (fromWorkflow.name ?? "").trim();
-    if (
-      workflowCredentialName &&
-      normalizeLabel(workflowCredentialName) === normalizeLabel(credentialName)
-    ) {
-      await patchEvolutionCredentialApiKey(fromWorkflow.id, instanceApiKey);
-      return { credentialId: fromWorkflow.id, credentialName: workflowCredentialName };
-    }
+    await patchEvolutionCredentialApiKey(fromWorkflow.id, instanceApiKey);
+    return {
+      credentialId: fromWorkflow.id,
+      credentialName: fromWorkflow.name ?? credentialName,
+    };
   }
 
-  let credentials: N8nCredentialSummary[] = [];
-  try {
-    credentials = await listCredentials();
-  } catch {
-    credentials = [];
+  const credentials = await listCredentials();
+
+  const byConnection = findEvolutionCredentialForConnection(
+    credentials,
+    tenant,
+    connection,
+    options,
+  );
+  if (byConnection?.id) {
+    await patchEvolutionCredentialApiKey(byConnection.id, instanceApiKey);
+    return { credentialId: byConnection.id, credentialName: byConnection.name ?? credentialName };
   }
 
   const byName = findEvolutionCredentialByName(credentials, credentialName);
   if (byName?.id) {
     await patchEvolutionCredentialApiKey(byName.id, instanceApiKey);
     return { credentialId: byName.id, credentialName: byName.name ?? credentialName };
-  }
-
-  if (fromWorkflow?.id && options?.isPrimary) {
-    await patchEvolutionCredentialApiKey(fromWorkflow.id, instanceApiKey);
-    return {
-      credentialId: fromWorkflow.id,
-      credentialName: fromWorkflow.name ?? credentialName,
-    };
   }
 
   const tenantFallback = findEvolutionCredentialForTenant(credentials, tenant);
@@ -212,7 +256,10 @@ export const ensureConnectionEvolutionCredential = async (
     const message = error instanceof Error ? error.message : String(error);
     if (!message.toLowerCase().includes("already exists")) throw error;
 
-    const retryMatch = findEvolutionCredentialByName(await listCredentials(), credentialName);
+    const refreshedCredentials = await listCredentials();
+    const retryMatch =
+      findEvolutionCredentialForConnection(refreshedCredentials, tenant, connection, options) ??
+      findEvolutionCredentialByName(refreshedCredentials, credentialName);
     if (!retryMatch?.id) throw error;
 
     await patchEvolutionCredentialApiKey(retryMatch.id, instanceApiKey);
