@@ -17,6 +17,8 @@ const Contratos = lazy(() => import("./pages/Contratos.tsx"));
 const ContratoDetalhe = lazy(() => import("./pages/ContratoDetalhe.tsx"));
 const Formularios = lazy(() => import("./pages/Formularios.tsx"));
 const FormularioDetalhe = lazy(() => import("./pages/FormularioDetalhe.tsx"));
+const PesquisaAvaliacao = lazy(() => import("./pages/PesquisaAvaliacao.tsx"));
+const PesquisaAvaliacaoDetalhe = lazy(() => import("./pages/PesquisaAvaliacaoDetalhe.tsx"));
 const Agenda = lazy(() => import("./pages/Agenda.tsx"));
 const Relatorios = lazy(() => import("./pages/Relatorios.tsx"));
 const Tarefas = lazy(() => import("./pages/Tarefas.tsx"));
@@ -287,6 +289,22 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Formularios />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pesquisa-avaliacao/:eventoId"
+                  element={
+                    <ProtectedRoute>
+                      <PesquisaAvaliacaoDetalhe />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pesquisa-avaliacao"
+                  element={
+                    <ProtectedRoute>
+                      <PesquisaAvaliacao />
                     </ProtectedRoute>
                   }
                 />

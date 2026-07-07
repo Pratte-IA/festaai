@@ -13,7 +13,6 @@ export type SalesStage =
 export type PartyStage =
   | "boas_vindas"
   | "planejamento"
-  | "organizacao"
   | "festa_pronta";
 
 export type ExecutedStage =
@@ -26,12 +25,13 @@ export type InternalStatus = "novo" | "ativo" | "pendente" | "finalizado" | "per
 
 export type Evento = Omit<
   Tables<"eventos">,
-  "etapa" | "funil" | "status_interno" | "tipo_evento"
+  "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos"
 > & {
   etapa: Stage;
   funil: FunnelType;
   status_interno: InternalStatus;
   tipo_evento: EventType;
+  checklist_concluidos: string[];
 };
 
 export type EventoInsert = Omit<
@@ -46,12 +46,13 @@ export type EventoInsert = Omit<
 
 export type EventoUpdate = Omit<
   TablesUpdate<"eventos">,
-  "etapa" | "funil" | "status_interno" | "tipo_evento"
+  "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos"
 > & {
   etapa?: Stage;
   funil?: FunnelType;
   status_interno?: InternalStatus;
   tipo_evento?: EventType;
+  checklist_concluidos?: string[];
 };
 
 export type EventoPagamento = Tables<"evento_pagamentos">;

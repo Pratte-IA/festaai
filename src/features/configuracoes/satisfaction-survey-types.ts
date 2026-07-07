@@ -75,6 +75,22 @@ export const parseSurveyOptionsFromLines = (text: string): string[] =>
 
 export const formatSurveyOptionsAsLines = (options: string[]): string => options.join("\n");
 
+export const formatSatisfactionSurveyResponseValue = (
+  questionType: SatisfactionSurveyQuestionType,
+  rawValue: string,
+  config: SatisfactionSurveyQuestionConfig,
+): string => {
+  const value = rawValue.trim();
+  if (!value) return "—";
+
+  if (questionType === "scale") {
+    const max = "max" in config && typeof config.max === "number" ? config.max : 10;
+    return `${value}/${max}`;
+  }
+
+  return value;
+};
+
 export const parseSurveyQuestionConfig = (
   questionType: SatisfactionSurveyQuestionType,
   config: Record<string, unknown> | null | undefined,

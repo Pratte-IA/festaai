@@ -7,6 +7,13 @@ export const sumLancamentosByTipo = (
   tipo: FinanceiroLancamento["tipo"],
 ) => lancamentos.filter((item) => item.tipo === tipo).reduce((sum, item) => sum + item.valor, 0);
 
+export const sumDescontos = (
+  lancamentos: Pick<FinanceiroLancamento, "categoria" | "tipo" | "valor">[],
+) =>
+  lancamentos
+    .filter((item) => item.tipo === "entrada" && item.categoria === "desconto")
+    .reduce((sum, item) => sum + item.valor, 0);
+
 export const sumEntradasAdicionais = (
   lancamentos: Pick<FinanceiroLancamento, "categoria" | "origem" | "tipo" | "valor">[],
 ) =>
@@ -15,7 +22,9 @@ export const sumEntradasAdicionais = (
       (item) =>
         item.tipo === "entrada" &&
         (item.origem === "upsell" ||
-          (item.origem === "manual" && item.categoria !== "pagamento_contrato")),
+          (item.origem === "manual" &&
+            item.categoria !== "pagamento_contrato" &&
+            item.categoria !== "desconto")),
     )
     .reduce((sum, item) => sum + item.valor, 0);
 
@@ -39,10 +48,11 @@ export const computeEventMarginPercent = (entradaTotal: number, resultado: numbe
 
 export const buildEventoFinanceiroSummary = (
   event: Pick<Evento, "valor_total">,
-  lancamentos: Pick<FinanceiroLancamento, "origem" | "tipo" | "valor">[],
+  lancamentos: Pick<FinanceiroLancamento, "categoria" | "origem" | "tipo" | "valor">[],
 ) => {
-  const upsellTotal = sumUpsellEntradas(lancamentos);
-  const entradaTotal = computeEventRevenueTotal(event, upsellTotal);
+  const upsellTotal = sumEntradasAdicionais(lancamentos);
+  const descontoTotal = sumDescontos(lancamentos);
+  const entradaTotal = computeEventRevenueTotal(event, upsellTotal) + descontoTotal;
   const saidaTotal = sumLancamentosByTipo(lancamentos, "saida");
   const resultadoFesta = computeEventResult(entradaTotal, saidaTotal);
   const margemPercent = computeEventMarginPercent(entradaTotal, resultadoFesta);

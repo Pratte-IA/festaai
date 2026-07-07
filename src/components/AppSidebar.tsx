@@ -17,6 +17,7 @@ import {
   CreditCard,
   LifeBuoy,
   Wallet,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
@@ -51,6 +52,7 @@ const gestaoSection: NavSection = {
     { icon: ListTodo, label: "Tarefas", path: "/tarefas" },
     { icon: BarChart3, label: "Relatórios", path: "/relatorios" },
     { icon: ClipboardList, label: "Formulários", path: "/formularios" },
+    { icon: Star, label: "Pesquisa de avaliação", path: "/pesquisa-avaliacao" },
     { icon: FileText, label: "Contratos", path: "/contratos" },
     { icon: Settings, label: "Configurações", path: "/configuracoes" },
   ],

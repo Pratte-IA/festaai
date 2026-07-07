@@ -21,6 +21,8 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   FINANCEIRO_CATEGORIAS_ENTRADA,
   FINANCEIRO_CATEGORIAS_SAIDA,
+  isFinanceiroCategoriaDesconto,
+  resolveFinanceiroLancamentoValor,
   useCreateFinanceiroLancamento,
 } from "@/features/financeiro";
 import { toast } from "@/hooks/use-toast";
@@ -64,6 +66,7 @@ export const LancamentoFormDialog = ({
   const [categoria, setCategoria] = useState(defaultCategoria ?? defaultCategoriaByMode[mode]);
 
   const isEntrada = mode === "entrada_evento" || mode === "entrada_geral";
+  const isDesconto = isEntrada && isFinanceiroCategoriaDesconto(categoria);
   const categoriaOptions = isEntrada ? FINANCEIRO_CATEGORIAS_ENTRADA : FINANCEIRO_CATEGORIAS_SAIDA;
 
   const resetForm = () => {
@@ -76,11 +79,14 @@ export const LancamentoFormDialog = ({
 
   const handleSubmit = async () => {
     const parsedValor = Number(valor);
+    const valorResolvido = categoria ? resolveFinanceiroLancamentoValor(categoria, parsedValor) : null;
 
-    if (!dataLancamento || !Number.isFinite(parsedValor) || parsedValor <= 0) {
+    if (!dataLancamento || valorResolvido == null) {
       toast({
         title: "Dados invalidos",
-        description: "Informe data e valor validos.",
+        description: isDesconto
+          ? "Informe data e valor do desconto (sera lancado como negativo)."
+          : "Informe data e valor validos.",
         variant: "destructive",
       });
       return;
@@ -104,7 +110,7 @@ export const LancamentoFormDialog = ({
         observacao: observacao.trim() || null,
         origem: "manual",
         tipo: isEntrada ? "entrada" : "saida",
-        valor: parsedValor,
+        valor: valorResolvido,
       });
 
       toast({ title: "Lancamento registrado" });
@@ -146,7 +152,9 @@ export const LancamentoFormDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="valor-lancamento">Valor (R$)</Label>
+            <Label htmlFor="valor-lancamento">
+              {isDesconto ? "Valor do desconto (R$)" : "Valor (R$)"}
+            </Label>
             <Input
               id="valor-lancamento"
               type="number"
@@ -155,6 +163,11 @@ export const LancamentoFormDialog = ({
               value={valor}
               onChange={(event) => setValor(event.target.value)}
             />
+            {isDesconto ? (
+              <p className="text-xs text-muted-foreground">
+                Informe o valor positivo; sera registrado como negativo nas entradas.
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-2">

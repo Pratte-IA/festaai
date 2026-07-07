@@ -18,6 +18,10 @@ export const resolveFunnelStageForImport = (
     }
   }
 
+  if (funnel === "festa" && stage === ("organizacao" as Stage)) {
+    return { funnel: "festa", stage: "planejamento" };
+  }
+
   return { funnel, stage };
 };
 

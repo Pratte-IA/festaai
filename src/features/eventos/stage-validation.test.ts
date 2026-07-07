@@ -39,6 +39,10 @@ describe("stage-validation", () => {
       funnel: "festa",
       stage: "planejamento",
     });
+    expect(resolveFunnelStageForImport("festa", "organizacao" as Stage)).toEqual({
+      funnel: "festa",
+      stage: "planejamento",
+    });
   });
 
   it("migra lead de vendas para festa / boas_vindas apos assinatura do contrato", () => {

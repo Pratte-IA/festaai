@@ -1,6 +1,8 @@
 export {
   getFinanceiroCategoriaLabel,
   getFinanceiroCategoriaOptions,
+  isFinanceiroCategoriaDesconto,
+  resolveFinanceiroLancamentoValor,
   FINANCEIRO_CATEGORIAS_ENTRADA,
   FINANCEIRO_CATEGORIAS_SAIDA,
 } from "./constants";

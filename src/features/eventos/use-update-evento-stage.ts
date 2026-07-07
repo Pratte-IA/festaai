@@ -15,6 +15,7 @@ interface UpdateEventoStageInput {
 
 interface UpdateEventoStageContext {
   previousEventos?: Evento[];
+  previousEvento?: Evento;
 }
 
 const updateEventoStage = async (
@@ -55,30 +56,47 @@ export const useUpdateEventoStage = () => {
 
       return updateEventoStage(currentTenantId, user.id, input);
     },
-    onError: (_error, input, context) => {
-      queryClient.setQueryData(
-        eventosQueryKeys.list(currentTenantId, input.funnel),
-        context?.previousEventos,
-      );
-    },
     onMutate: async (input) => {
-      const queryKey = eventosQueryKeys.list(currentTenantId, input.funnel);
+      const listQueryKey = eventosQueryKeys.list(currentTenantId, input.funnel);
+      const detailQueryKey = eventosQueryKeys.detail(currentTenantId, input.eventoId);
 
-      await queryClient.cancelQueries({ queryKey });
+      await queryClient.cancelQueries({ queryKey: listQueryKey });
+      await queryClient.cancelQueries({ queryKey: detailQueryKey });
 
-      const previousEventos = queryClient.getQueryData<Evento[]>(queryKey);
+      const previousEventos = queryClient.getQueryData<Evento[]>(listQueryKey);
+      const previousEvento = queryClient.getQueryData<Evento>(detailQueryKey);
 
-      queryClient.setQueryData<Evento[]>(queryKey, (currentEventos = []) =>
+      queryClient.setQueryData<Evento[]>(listQueryKey, (currentEventos = []) =>
         currentEventos.map((evento) =>
           evento.id === input.eventoId ? { ...evento, etapa: input.stage } : evento,
         ),
       );
 
-      return { previousEventos };
+      queryClient.setQueryData<Evento>(detailQueryKey, (currentEvento) =>
+        currentEvento ? { ...currentEvento, etapa: input.stage } : currentEvento,
+      );
+
+      return { previousEventos, previousEvento };
+    },
+    onError: (_error, input, context) => {
+      queryClient.setQueryData(
+        eventosQueryKeys.list(currentTenantId, input.funnel),
+        context?.previousEventos,
+      );
+      queryClient.setQueryData(
+        eventosQueryKeys.detail(currentTenantId, input.eventoId),
+        context?.previousEvento,
+      );
+    },
+    onSuccess: (evento) => {
+      queryClient.setQueryData(eventosQueryKeys.detail(currentTenantId, evento.id), evento);
     },
     onSettled: (_data, _error, input) => {
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.list(currentTenantId, input.funnel),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: eventosQueryKeys.detail(currentTenantId, input.eventoId),
       });
     },
   });

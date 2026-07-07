@@ -18,7 +18,8 @@ import {
 import { EventoResultadoFinanceiroCard } from "@/components/eventos/EventoResultadoFinanceiroCard";
 import { EventoPublicFormLinkCard } from "@/components/eventos/EventoPublicFormLinkCard";
 import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
-import EventChecklist from "@/components/EventChecklist";
+import { EventoChecklist } from "@/components/eventos/EventoChecklist";
+import { shouldShowEventChecklist } from "@/features/eventos";
 import { formatIsoDateBR, formatTimestampDateBR, getTodayAtNoon, parseIsoDateLocal } from "@/lib/date";
 import { formatBrazilPhone } from "@/lib/phone";
 import { useTenantPackages } from "@/features/configuracoes";
@@ -103,7 +104,6 @@ const stageLabels: Record<string, string> = {
   perdido: "Perdido",
   boas_vindas: "Boas Vindas",
   planejamento: "Planejamento",
-  organizacao: "Organização",
   festa_pronta: "Festa Pronta",
   aguardando_feedback: "Aguardando Feedback",
   redes_sociais: "Redes Sociais",
@@ -539,10 +539,9 @@ const EventoDetalhe = () => {
 
         {shouldShowEventoContractCard(event) && <EventoContractCard evento={event} />}
 
-        {/* CHECKLIST DE ORGANIZAÇÃO — only for organização stage */}
-        {event.etapa === "organizacao" && (
+        {shouldShowEventChecklist(event.etapa) && (
           <div className="mt-4">
-            <EventChecklist />
+            <EventoChecklist evento={event} />
           </div>
         )}
 

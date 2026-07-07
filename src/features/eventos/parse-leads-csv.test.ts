@@ -136,6 +136,14 @@ describe("parseLeadImportCsv", () => {
     expect(r.rows[0].etapa).toBe("planejamento");
   });
 
+  it("migra etapa organizacao legada do funil festa para planejamento na importacao", () => {
+    const csv = stripUtf8Bom("funil,etapa,Nome\nfesta,organizacao,Joao Silva\n");
+    const r = parseLeadImportCsv(csv);
+    expect(r.rows).toHaveLength(1);
+    expect(r.rows[0].funil).toBe("festa");
+    expect(r.rows[0].etapa).toBe("planejamento");
+  });
+
   it("primeira etapa do funil se celula etapa vazia", () => {
     const csv = stripUtf8Bom("funil,etapa,Nome\nvendas,,Lucia Costa\n");
     const r = parseLeadImportCsv(csv);

@@ -14,4 +14,8 @@ export const configuracoesQueryKeys = {
   closingForm: (tenantId: number | null) => ["configuracoes", tenantId, "closing-form"] as const,
   satisfactionSurvey: (tenantId: number | null) =>
     ["configuracoes", tenantId, "satisfaction-survey"] as const,
+  satisfactionSurveySubmissionsList: (tenantId: number | null) =>
+    ["configuracoes", tenantId, "satisfaction-survey", "submissions"] as const,
+  satisfactionSurveyResponses: (tenantId: number | null, eventoId: number | null) =>
+    ["configuracoes", tenantId, "satisfaction-survey", "responses", eventoId] as const,
 };

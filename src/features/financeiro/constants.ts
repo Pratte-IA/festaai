@@ -1,6 +1,7 @@
 export const FINANCEIRO_CATEGORIAS_ENTRADA = {
   entrada_contrato: "Entrada Contrato",
   pagamento_contrato: "Pagamento Contrato",
+  desconto: "Desconto",
 } as const;
 
 export const FINANCEIRO_CATEGORIAS_SAIDA = {
@@ -46,5 +47,18 @@ export const getFinanceiroCategoriaOptions = (tipo: "entrada" | "saida") =>
 export const isFinanceiroCategoriaEntrada = (categoria: string): categoria is FinanceiroCategoriaEntrada =>
   categoria in FINANCEIRO_CATEGORIAS_ENTRADA;
 
-export const isFinanceiroCategoriaSaida = (categoria: string): categoria is FinanceiroCategoriaSaida =>
-  categoria in FINANCEIRO_CATEGORIAS_SAIDA;
+export const isFinanceiroCategoriaDesconto = (categoria: string): categoria is "desconto" =>
+  categoria === "desconto";
+
+/** Converte valor informado em lancamento: desconto sempre negativo. */
+export const resolveFinanceiroLancamentoValor = (categoria: string, valor: number) => {
+  if (!Number.isFinite(valor) || valor === 0) {
+    return null;
+  }
+
+  if (isFinanceiroCategoriaDesconto(categoria)) {
+    return -Math.abs(valor);
+  }
+
+  return Math.abs(valor);
+};

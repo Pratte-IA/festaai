@@ -25,6 +25,13 @@ export {
 export type { EventoPackageDisplay } from "./evento-package-display";
 export { getDefaultStageForFunnel, isStageValidForFunnel } from "./stage-validation";
 export {
+  shouldShowEventChecklist,
+  parseChecklistConcluidos,
+  calculateChecklistProgress,
+  isChecklistComplete,
+} from "./evento-checklist";
+export { useEventoChecklist } from "./use-evento-checklist";
+export {
   buildLeadImportCsvTemplate,
   downloadLeadImportCsvTemplate,
   getLeadImportCsvFilename,

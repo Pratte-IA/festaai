@@ -3,7 +3,7 @@ import { Trash2 } from "lucide-react";
 
 import { formatFinanceiroCurrency } from "@/components/financeiro/FinanceiroSummaryStats";
 import { Button } from "@/components/ui/button";
-import { FinanceiroDisplayItem, getFinanceiroCategoriaLabel } from "@/features/financeiro";
+import { FinanceiroDisplayItem, getFinanceiroCategoriaLabel, isFinanceiroCategoriaDesconto } from "@/features/financeiro";
 import { formatIsoDateBR } from "@/lib/date";
 
 interface FinanceiroLancamentosListProps {
@@ -58,9 +58,18 @@ export const FinanceiroLancamentosList = ({
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <span className={`text-sm font-medium ${item.tipo === "saida" ? "text-destructive" : "text-foreground"}`}>
-                {item.tipo === "saida" ? "-" : "+"}
-                {formatFinanceiroCurrency(item.valor)}
+              <span
+                className={`text-sm font-medium tabular-nums ${
+                  item.valor < 0 || isFinanceiroCategoriaDesconto(item.categoria)
+                    ? "text-destructive"
+                    : item.tipo === "saida"
+                      ? "text-destructive"
+                      : "text-foreground"
+                }`}
+              >
+                {item.valor < 0
+                  ? formatFinanceiroCurrency(item.valor)
+                  : `${item.tipo === "saida" ? "-" : "+"}${formatFinanceiroCurrency(item.valor)}`}
               </span>
               {canDelete ? (
                 <Button

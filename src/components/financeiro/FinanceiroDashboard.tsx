@@ -128,11 +128,13 @@ const DescricaoBreakdownCard = ({
             </span>
             <span
               className={`text-sm font-semibold tabular-nums ${
-                row.total <= 0
-                  ? "text-muted-foreground/70"
-                  : type === "saida"
-                    ? "text-destructive"
-                    : "text-foreground"
+                row.total < 0
+                  ? "text-destructive"
+                  : row.total <= 0
+                    ? "text-muted-foreground/70"
+                    : type === "saida"
+                      ? "text-destructive"
+                      : "text-foreground"
               }`}
             >
               {formatFinanceiroCurrency(row.total)}
