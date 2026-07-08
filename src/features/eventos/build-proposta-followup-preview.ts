@@ -1,6 +1,7 @@
 import { formatCompanyDisplayName } from "@/lib/company-display-name";
 
 import {
+  DEFAULT_PROPOSTA_FOLLOWUP_0_CONTATO_INICIAL,
   DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE,
   DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL,
@@ -27,6 +28,18 @@ const extractFirstName = (fullName: string): string => {
   const trimmed = fullName.trim();
   if (!trimmed) return "Cliente";
   return trimmed.split(/\s+/)[0] ?? trimmed;
+};
+
+export const buildPropostaFollowup0PreviewMessage = (input: {
+  clienteNome: string;
+  companyLegalName: string;
+  templateBody?: string;
+}): string => {
+  const template = input.templateBody?.trim() || DEFAULT_PROPOSTA_FOLLOWUP_0_CONTATO_INICIAL;
+
+  return template
+    .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
+    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName));
 };
 
 export const buildPropostaFollowup1PreviewMessage = (input: {

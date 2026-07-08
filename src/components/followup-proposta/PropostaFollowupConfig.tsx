@@ -10,6 +10,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_END,
+  PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_START,
+  PROPOSTA_FOLLOWUP_0_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
   PROPOSTA_FOLLOWUP_1_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
@@ -24,6 +28,7 @@ import {
   PROPOSTA_FOLLOWUP_TEMPLATE_KEY,
 } from "@/features/eventos/proposta-followup";
 import {
+  buildPropostaFollowup0PreviewMessage,
   buildPropostaFollowup1PreviewMessage,
   buildPropostaFollowup2PreviewMessage,
   buildPropostaFollowup3PreviewMessage,
@@ -53,6 +58,8 @@ const TEMPLATE_VARIABLES = [
   "{{nome_empresa}}",
 ];
 
+const FU0_TEMPLATE_VARIABLES = ["{{primeiro_nome}}", "{{nome_empresa}}"];
+
 const FollowupTemplateEditor = ({
   description,
   isSaving,
@@ -61,6 +68,7 @@ const FollowupTemplateEditor = ({
   previewMessage,
   template,
   title,
+  variables = TEMPLATE_VARIABLES,
 }: {
   description: string;
   isSaving: boolean;
@@ -69,6 +77,7 @@ const FollowupTemplateEditor = ({
   previewMessage: string;
   template: MessageTemplate;
   title: string;
+  variables?: string[];
 }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
 
@@ -89,7 +98,7 @@ const FollowupTemplateEditor = ({
         className="font-mono text-sm leading-relaxed"
       />
       <p className="text-xs text-muted-foreground">
-        Variáveis: {TEMPLATE_VARIABLES.join(" · ")}
+        Variáveis: {variables.join(" · ")}
       </p>
     </div>
 
@@ -154,6 +163,10 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
     };
   };
 
+  const fu0Template = getTemplate(
+    PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
+    "Follow-up 0 — retomada de contato inicial",
+  );
   const dataLivreTemplate = getTemplate(
     PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
     "Follow-up 1 — data livre",
@@ -177,6 +190,16 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
   const fu4EncerramentoTemplate = getTemplate(
     PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
     "Follow-up 4 — encerramento",
+  );
+
+  const previewFu0 = useMemo(
+    () =>
+      buildPropostaFollowup0PreviewMessage({
+        clienteNome: PROPOSTA_FOLLOWUP_PREVIEW.clienteNome,
+        companyLegalName,
+        templateBody: fu0Template.body,
+      }),
+    [companyLegalName, fu0Template.body],
   );
 
   const previewDataLivre = useMemo(
@@ -281,10 +304,10 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
           description={SETTINGS_PAGE_META["followup-proposta"].description}
           stats={
             <>
-              <SettingsStatChip>Sequência FU1–FU4 ativa</SettingsStatChip>
+              <SettingsStatChip>FU0 + Sequência FU1–FU4 ativa</SettingsStatChip>
               <SettingsStatChip>
-                FU1 {PROPOSTA_FOLLOWUP_1_DELAY_HOURS}h · FU2/FU3 {PROPOSTA_FOLLOWUP_2_DELAY_HOURS}h ·
-                FU4 {PROPOSTA_FOLLOWUP_4_DELAY_HOURS}h
+                FU0 {PROPOSTA_FOLLOWUP_0_DELAY_HOURS}h · FU1 {PROPOSTA_FOLLOWUP_1_DELAY_HOURS}h ·
+                FU2/FU3 {PROPOSTA_FOLLOWUP_2_DELAY_HOURS}h · FU4 {PROPOSTA_FOLLOWUP_4_DELAY_HOURS}h
               </SettingsStatChip>
             </>
           }
@@ -302,6 +325,32 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
           Cada mensagem enviada fica registrada na memória do agente de atendimento, para que, quando
           o cliente responder, a IA saiba exatamente o que já foi dito.
         </p>
+      </div>
+
+      <div className="rounded-xl border border-primary/25 bg-primary/5 p-4 space-y-3">
+        <div className="flex items-start gap-3">
+          <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-foreground">Regra de disparo — Follow-up 0 (contato inicial)</p>
+            <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground list-disc pl-4">
+              <li>
+                <span className="text-foreground">{PROPOSTA_FOLLOWUP_0_DELAY_HOURS} horas</span>{" "}
+                após a <strong>nossa última mensagem</strong> ao lead em Contato Inicial
+              </li>
+              <li>
+                Enviado apenas dentro do horário comercial (
+                <span className="text-foreground">
+                  {PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_START}h às{" "}
+                  {PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_END}h
+                </span>
+                , fuso de Brasília)
+              </li>
+              <li>Lead ainda em Contato Inicial e sem retorno após a nossa mensagem</li>
+              <li>Se o cliente responder, o timer é zerado automaticamente e o FU0 não é enviado</li>
+              <li>É uma mensagem única — não substitui a sequência FU1–FU4 da proposta</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -419,6 +468,22 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
           </p>
         </div>
       </div>
+
+      <FollowupTemplateEditor
+        description="Enviada 12h após a nossa última mensagem a um lead em Contato Inicial que não retornou, dentro do horário comercial. Retomada leve do atendimento."
+        isSaving={savingKey === PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL}
+        onChange={(body) =>
+          setDrafts((current) => ({
+            ...current,
+            [PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL]: body,
+          }))
+        }
+        onSave={() => void handleSave(fu0Template)}
+        previewMessage={previewFu0}
+        template={fu0Template}
+        title="Follow-up 0 — retomada de contato inicial"
+        variables={FU0_TEMPLATE_VARIABLES}
+      />
 
       <FollowupTemplateEditor
         description="Enviada quando a data da festa ainda está livre na agenda (sem festa confirmada nem bloqueio manual)."

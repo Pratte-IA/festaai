@@ -14,6 +14,10 @@ import { isKnownAutomationOutboundMessage } from "../_shared/is-known-automation
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
 import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
 import { pausePropostaFollowupOnCustomerReply } from "../_shared/pause-proposta-followup.ts";
+import {
+  markContatoInicialFollowupOutbound,
+  pauseContatoInicialFollowupOnCustomerReply,
+} from "../_shared/contato-inicial-followup.ts";
 import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
 import { phonesMatch } from "../_shared/phone.ts";
@@ -276,6 +280,42 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
         console.error(
           "pausePropostaFollowupOnCustomerReply failed:",
           pauseError instanceof Error ? pauseError.message : pauseError,
+        );
+      }
+
+      // Cliente respondeu no contato inicial: zera o marco do FU0 (timer de 12h).
+      try {
+        await pauseContatoInicialFollowupOnCustomerReply(ctx.service, {
+          customerPhone: message.customerPhone as string,
+          tenantId: tenant.id,
+        });
+      } catch (pauseError) {
+        console.error(
+          "pauseContatoInicialFollowupOnCustomerReply failed:",
+          pauseError instanceof Error ? pauseError.message : pauseError,
+        );
+      }
+    }
+
+    // Nossa mensagem enviada (fromMe) no número de Atendimento é o marco do FU0:
+    // reinicia o timer de 12h enquanto aguardamos o retorno do lead em contato inicial.
+    if (
+      isAtendimentoConnection &&
+      message.fromMe &&
+      message.customerPhone &&
+      typeof message.text === "string" &&
+      message.text.trim().length > 0
+    ) {
+      try {
+        await markContatoInicialFollowupOutbound(ctx.service, {
+          customerPhone: message.customerPhone,
+          sentAt: message.timestamp ?? new Date().toISOString(),
+          tenantId: tenant.id,
+        });
+      } catch (markError) {
+        console.error(
+          "markContatoInicialFollowupOutbound failed:",
+          markError instanceof Error ? markError.message : markError,
         );
       }
     }

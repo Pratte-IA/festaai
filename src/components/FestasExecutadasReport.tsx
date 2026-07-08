@@ -36,6 +36,9 @@ const FestasExecutadasReport = ({ period: _period }: ReportComponentProps) => {
     const normalizedChild = childFilter.trim().toLowerCase();
 
     return events.filter((event) => {
+      // Festas canceladas ficam no funil Executadas apenas como oportunidade futura,
+      // sem contar como festa realizada nas metricas deste relatorio.
+      if (event.status_interno === "cancelado") return false;
       if (normalizedClient && !event.cliente_nome.toLowerCase().includes(normalizedClient)) return false;
       if (
         normalizedChild &&

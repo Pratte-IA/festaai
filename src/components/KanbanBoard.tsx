@@ -130,6 +130,7 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
               {stageEvents.map((event) => {
                 const followupBadge =
                   funnel === "vendas" ? getPropostaFollowupKanbanBadge(event) : null;
+                const isCancelledParty = event.status_interno === "cancelado";
 
                 return (
                 <div
@@ -148,12 +149,18 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
                         <p className="text-sm font-bold text-foreground truncate">
                           {event.cliente_nome}
                         </p>
-                        {followupBadge && (
-                          <span
-                            className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${followupBadge.className}`}
-                          >
-                            {followupBadge.label}
+                        {isCancelledParty ? (
+                          <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-destructive/15 text-destructive">
+                            Festa Cancelada
                           </span>
+                        ) : (
+                          followupBadge && (
+                            <span
+                              className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${followupBadge.className}`}
+                            >
+                              {followupBadge.label}
+                            </span>
+                          )
                         )}
                       </div>
 

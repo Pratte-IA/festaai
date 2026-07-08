@@ -1333,6 +1333,7 @@ export type Database = {
           cliente_rg: string | null
           cliente_rua: string | null
           cliente_telefone: string | null
+          contato_inicial_ultima_mensagem_em: string | null
           convidados_alteracoes_historico: Json
           created_at: string
           created_by: string | null
@@ -1341,6 +1342,7 @@ export type Database = {
           etapa: string
           executadas_transicao_em: string | null
           fechamento_confirmado_em: string | null
+          followup_0_enviado_em: string | null
           followup_1_enviado_em: string | null
           followup_1_variante: string | null
           followup_2_enviado_em: string | null
@@ -1402,6 +1404,7 @@ export type Database = {
           cliente_rg?: string | null
           cliente_rua?: string | null
           cliente_telefone?: string | null
+          contato_inicial_ultima_mensagem_em?: string | null
           convidados_alteracoes_historico?: Json
           created_at?: string
           created_by?: string | null
@@ -1410,6 +1413,7 @@ export type Database = {
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          followup_0_enviado_em?: string | null
           followup_1_enviado_em?: string | null
           followup_1_variante?: string | null
           followup_2_enviado_em?: string | null
@@ -1471,6 +1475,7 @@ export type Database = {
           cliente_rg?: string | null
           cliente_rua?: string | null
           cliente_telefone?: string | null
+          contato_inicial_ultima_mensagem_em?: string | null
           convidados_alteracoes_historico?: Json
           created_at?: string
           created_by?: string | null
@@ -1479,6 +1484,7 @@ export type Database = {
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          followup_0_enviado_em?: string | null
           followup_1_enviado_em?: string | null
           followup_1_variante?: string | null
           followup_2_enviado_em?: string | null

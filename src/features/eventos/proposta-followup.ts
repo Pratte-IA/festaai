@@ -1,5 +1,17 @@
 export const PROPOSTA_FOLLOWUP_TEMPLATE_KEY = "follow-up-proposta";
 
+export const PROPOSTA_FOLLOWUP_0_DELAY_HOURS = 12;
+
+// Horas sem retorno do cliente (após a nossa última mensagem) para o Kanban
+// começar a sinalizar "Aguard. FU0" — antecipa o disparo automático em 12h.
+export const PROPOSTA_FOLLOWUP_0_AGUARDANDO_BADGE_HOURS = 2;
+
+export const PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_START = 8;
+
+export const PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_END = 18;
+
+export const PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL = "follow-up-proposta-0-contato-inicial";
+
 export const PROPOSTA_FOLLOWUP_1_DELAY_HOURS = 48;
 
 export const PROPOSTA_FOLLOWUP_2_DELAY_HOURS = 72;
@@ -43,6 +55,12 @@ export const propostaFollowupStatusLabels: Record<PropostaFollowupStatus, string
   concluido_perdido: "Follow-up encerrado",
   pausado_resposta: "Cliente respondeu",
 };
+
+export const DEFAULT_PROPOSTA_FOLLOWUP_0_CONTATO_INICIAL = `Oiii, {{primeiro_nome}}! Tudo bem? 😊
+
+Passando aqui para saber se ficou alguma dúvida — a gente adoraria te ajudar com tudo o que você precisar para planejar essa festa especial. 🎉
+
+Ficamos no aguardo do seu retorno para darmos sequência no atendimento e cuidar de cada detalhe com muito carinho. 💛✨`;
 
 export const DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
@@ -107,14 +125,40 @@ Por enquanto, a data {{data_festa}} continuará disponível para novas reservas.
 Se em algum momento você quiser retomar a proposta, ajustar algum detalhe ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
 
 export const getPropostaFollowupKanbanBadge = (evento: {
+  contato_inicial_ultima_mensagem_em?: string | null;
+  created_at?: string | null;
   etapa: string;
+  followup_0_enviado_em?: string | null;
   followup_1_enviado_em?: string | null;
   followup_2_enviado_em?: string | null;
   followup_3_enviado_em?: string | null;
   followup_4_enviado_em?: string | null;
   followup_status?: string | null;
   proposta_enviada_em?: string | null;
+  updated_at?: string | null;
 }): { className: string; label: string } | null => {
+  if (evento.etapa === "contato_inicial") {
+    if (evento.followup_0_enviado_em) {
+      return { className: "bg-success/15 text-success", label: "FU0 ✓" };
+    }
+
+    // Referência para "parado há +2h": preferimos o marco da nossa última
+    // mensagem; na ausência dele (leads anteriores ao rastreio), usamos a
+    // última atualização do lead como aproximação.
+    const referencia =
+      evento.contato_inicial_ultima_mensagem_em ?? evento.updated_at ?? evento.created_at;
+
+    if (referencia) {
+      const horasSemRetorno = (Date.now() - new Date(referencia).getTime()) / (1000 * 60 * 60);
+
+      if (horasSemRetorno >= PROPOSTA_FOLLOWUP_0_AGUARDANDO_BADGE_HOURS) {
+        return { className: "bg-muted text-muted-foreground", label: "Aguard. FU0" };
+      }
+    }
+
+    return null;
+  }
+
   if (evento.etapa !== "proposta_enviada") return null;
 
   if (evento.followup_3_enviado_em) {

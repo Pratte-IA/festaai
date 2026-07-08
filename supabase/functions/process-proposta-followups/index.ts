@@ -1,10 +1,13 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
+import { dispatchPropostaFollowup0 } from "../_shared/dispatch-proposta-followup-0.ts";
 import { dispatchPropostaFollowup1 } from "../_shared/dispatch-proposta-followup-1.ts";
 import { dispatchPropostaFollowup2 } from "../_shared/dispatch-proposta-followup-2.ts";
 import { dispatchPropostaFollowup3 } from "../_shared/dispatch-proposta-followup-3.ts";
 import { dispatchPropostaFollowup4 } from "../_shared/dispatch-proposta-followup-4.ts";
 import {
+  isWithinPropostaFollowup0BusinessHours,
+  PROPOSTA_FOLLOWUP_0_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_1_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_2_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_3_DELAY_HOURS,
@@ -56,7 +59,13 @@ type Fu4DispatchResult = {
   skippedReason: string | null;
 };
 
-type FollowupStep = "fu1" | "fu2" | "fu3" | "fu4";
+type Fu0DispatchResult = {
+  dispatched: boolean;
+  eventoId: number;
+  skippedReason: string | null;
+};
+
+type FollowupStep = "fu0" | "fu1" | "fu2" | "fu3" | "fu4";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -82,6 +91,7 @@ Deno.serve(async (req) => {
     const inactiveStatuses = new Set(["perdido", "cancelado"]);
 
     const tenantCache = new Map<number, TenantInfo | null>();
+    const fu0Results: Fu0DispatchResult[] = [];
     const fu1Results: DispatchResult[] = [];
     const fu2Results: DispatchResult[] = [];
     const fu3Results: Fu3DispatchResult[] = [];
@@ -102,6 +112,79 @@ Deno.serve(async (req) => {
       tenantCache.set(tenantId, tenant);
       return tenant;
     };
+
+    // FU0 (retomada de contato inicial): leads que não retornaram após a nossa
+    // última mensagem. Só é disparado dentro do horário comercial (08h–18h) e
+    // 12h após a nossa última mensagem (marco em contato_inicial_ultima_mensagem_em).
+    const fu0WithinBusinessHours = isWithinPropostaFollowup0BusinessHours(new Date(now));
+    let fu0Candidates: Array<{
+      id: number;
+      tenant_id: number;
+      contato_inicial_ultima_mensagem_em: string | null;
+      status_interno?: string;
+    }> = [];
+
+    if (fu0WithinBusinessHours) {
+      const { data, error: fu0ListError } = await supabase
+        .from("eventos")
+        .select("id, tenant_id, contato_inicial_ultima_mensagem_em, status_interno")
+        .eq("funil", "vendas")
+        .eq("etapa", "contato_inicial")
+        .not("contato_inicial_ultima_mensagem_em", "is", null)
+        .is("followup_0_enviado_em", null);
+
+      if (fu0ListError) throw fu0ListError;
+      fu0Candidates = data ?? [];
+    }
+
+    const fu0Active = fu0Candidates.filter((evento) => {
+      const status = evento.status_interno;
+      return !status || !inactiveStatuses.has(status);
+    });
+
+    const fu0Eligible = fu0Active.filter((evento) => {
+      if (typeof evento.contato_inicial_ultima_mensagem_em !== "string") return false;
+      return hoursSince(evento.contato_inicial_ultima_mensagem_em) >= PROPOSTA_FOLLOWUP_0_DELAY_HOURS;
+    });
+
+    for (const evento of fu0Eligible) {
+      try {
+        const tenant = await loadTenant(evento.tenant_id);
+        if (!tenant) {
+          fu0Results.push({
+            dispatched: false,
+            eventoId: evento.id,
+            skippedReason: "Tenant não encontrado para follow-up.",
+          });
+          continue;
+        }
+
+        const result = await dispatchPropostaFollowup0(supabase, {
+          eventoId: evento.id,
+          tenant,
+          triggeredAt: now,
+        });
+
+        fu0Results.push({
+          dispatched: result.dispatched,
+          eventoId: evento.id,
+          skippedReason: result.skippedReason,
+        });
+
+        if (result.errorMessage) {
+          errors.push({ eventoId: evento.id, message: result.errorMessage, step: "fu0" });
+        }
+      } catch (dispatchError) {
+        errors.push({
+          eventoId: evento.id,
+          message:
+            dispatchError instanceof Error
+              ? dispatchError.message
+              : "Erro ao disparar follow-up 0.",
+          step: "fu0",
+        });
+      }
+    }
 
     // FU1 deve ser enviado a TODOS os leads em Proposta Enviada, mesmo que o
     // cliente já tenha respondido (followup_status "pausado_resposta"). Apenas
@@ -358,6 +441,13 @@ Deno.serve(async (req) => {
 
     return jsonResponse({
       errors,
+      fu0: {
+        candidates: fu0Candidates.length,
+        delayHours: PROPOSTA_FOLLOWUP_0_DELAY_HOURS,
+        dispatchResults: fu0Results,
+        eligible: fu0Eligible.length,
+        withinBusinessHours: fu0WithinBusinessHours,
+      },
       fu1: {
         candidates: fu1Candidates?.length ?? 0,
         delayHours: PROPOSTA_FOLLOWUP_1_DELAY_HOURS,

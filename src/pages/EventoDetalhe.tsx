@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Users, MessageCircle, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
+import { ArrowLeft, Ban, Calendar, Users, MessageCircle, XCircle, MoreHorizontal, Trash2, ArrowRightLeft, PartyPopper, Phone, Edit3, Plus, Clock, Package, CreditCard, Cake } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
 import { MoveEventoFunnelDialog } from "@/components/eventos/MoveEventoFunnelDialog";
@@ -145,6 +145,7 @@ const EventoDetalhe = () => {
   const [isMoveFunnelOpen, setIsMoveFunnelOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isMarkLostOpen, setIsMarkLostOpen] = useState(false);
+  const [isCancelPartyOpen, setIsCancelPartyOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -342,6 +343,34 @@ const EventoDetalhe = () => {
     }
   };
 
+  const handleCancelParty = async () => {
+    if (!validEventoId || event.funil !== "festa") return;
+
+    try {
+      await updateEvento.mutateAsync({
+        eventoId: validEventoId,
+        values: {
+          funil: "executadas",
+          etapa: "oportunidade_futura",
+          status_interno: "cancelado",
+        },
+      });
+
+      toast({
+        title: "Festa cancelada",
+        description:
+          "A festa foi movida para Oportunidade Futura no funil Executadas e nao entra nos relatorios de festas executadas.",
+      });
+      setIsCancelPartyOpen(false);
+    } catch {
+      toast({
+        title: "Nao foi possivel cancelar a festa",
+        description: "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const canDeleteLead = adminCapability?.isTenantAdmin ?? false;
   const canManageEventFinance =
     canDeleteLead && (event.funil === "festa" || event.funil === "executadas");
@@ -453,15 +482,28 @@ const EventoDetalhe = () => {
               WhatsApp
             </Button>
           )}
-          <Button
-            variant="outline"
-            className="border-destructive text-destructive hover:bg-destructive/10 gap-2"
-            disabled={event.funil !== "vendas" || event.etapa === "perdido" || updateEvento.isPending}
-            onClick={() => setIsMarkLostOpen(true)}
-          >
-            <XCircle className="w-4 h-4" />
-            Marcar como Perdido
-          </Button>
+          {event.funil === "vendas" && (
+            <Button
+              variant="outline"
+              className="border-destructive text-destructive hover:bg-destructive/10 gap-2"
+              disabled={event.etapa === "perdido" || updateEvento.isPending}
+              onClick={() => setIsMarkLostOpen(true)}
+            >
+              <XCircle className="w-4 h-4" />
+              Marcar como Perdido
+            </Button>
+          )}
+          {event.funil === "festa" && (
+            <Button
+              variant="outline"
+              className="border-destructive text-destructive hover:bg-destructive/10 gap-2"
+              disabled={updateEvento.isPending}
+              onClick={() => setIsCancelPartyOpen(true)}
+            >
+              <Ban className="w-4 h-4" />
+              Festa Cancelada
+            </Button>
+          )}
         </div>
 
         {/* Content grid */}
@@ -700,6 +742,29 @@ const EventoDetalhe = () => {
               onClick={() => void handleMarkAsLost()}
             >
               Marcar como perdido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog onOpenChange={setIsCancelPartyOpen} open={isCancelPartyOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Marcar festa como cancelada?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A festa de {event.cliente_nome} sera movida para a etapa Oportunidade Futura no funil
+              Executadas. Ela nao sera contabilizada nos relatorios de festas executadas e ficara
+              disponivel como oportunidade para uma nova festa no proximo ano.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={updateEvento.isPending}
+              onClick={() => void handleCancelParty()}
+            >
+              Confirmar cancelamento
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

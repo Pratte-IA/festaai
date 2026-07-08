@@ -2,7 +2,7 @@ import { persistAgentOutboundAutomationMessage } from "./agent-memory.ts";
 import { resolveAutomationConnectionId } from "./automation-bindings.ts";
 import { formatCompanyDisplayName } from "./company-display-name.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
-import { normalizeBrazilMobilePhoneForStorage } from "./phone.ts";
+import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
 import {
   buildPropostaFollowup4Message,
   buildPropostaFollowup4Nota,
@@ -178,7 +178,7 @@ export const dispatchPropostaFollowup4 = async (
     };
   }
 
-  const customerPhone = normalizeBrazilMobilePhoneForStorage(
+  const customerPhone = resolveWhatsAppPhoneForOutbound(
     typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : null,
   );
   if (!customerPhone) {

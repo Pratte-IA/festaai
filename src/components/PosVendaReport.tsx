@@ -26,7 +26,12 @@ const PosVendaReport = ({ period }: ReportComponentProps) => {
 
   const clients = useMemo<PostSaleClient[]>(() => {
     return (data?.eventos ?? [])
-      .filter((e) => e.funil === "executadas" && isDateInPeriod(e.data_evento, period))
+      .filter(
+        (e) =>
+          e.funil === "executadas" &&
+          e.status_interno !== "cancelado" &&
+          isDateInPeriod(e.data_evento, period),
+      )
       .map((event) => {
         const daysSinceParty = event.data_evento ? daysBetween(`${event.data_evento}T12:00:00`) : 0;
         const hasFeedback = event.etapa !== "aguardando_feedback";

@@ -4,12 +4,12 @@ import { formatCompanyDisplayName } from "./company-display-name.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
 import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
 import {
-  buildPropostaFollowup3Message,
-  buildPropostaFollowup3Nota,
-} from "./proposta-followup-3-message.ts";
+  buildPropostaFollowup0Message,
+  buildPropostaFollowup0Nota,
+} from "./proposta-followup-0-message.ts";
 import {
-  PROPOSTA_FOLLOWUP_3_EVENT,
-  PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
+  PROPOSTA_FOLLOWUP_0_EVENT,
+  PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
   PROPOSTA_FOLLOWUP_TEMPLATE_KEY,
 } from "./proposta-followup-constants.ts";
 
@@ -17,7 +17,7 @@ type ServiceClient = {
   from: (table: string) => Record<string, unknown>;
 };
 
-export interface DispatchPropostaFollowup3Input {
+export interface DispatchPropostaFollowup0Input {
   eventoId: number;
   tenant: {
     id: number;
@@ -27,7 +27,7 @@ export interface DispatchPropostaFollowup3Input {
   triggeredAt: string;
 }
 
-export interface DispatchPropostaFollowup3Result {
+export interface DispatchPropostaFollowup0Result {
   dispatched: boolean;
   errorMessage: string | null;
   responseStatus: number | null;
@@ -69,10 +69,10 @@ const loadTenantTemplateBody = async (
   return body || null;
 };
 
-export const dispatchPropostaFollowup3 = async (
+export const dispatchPropostaFollowup0 = async (
   admin: ServiceClient,
-  input: DispatchPropostaFollowup3Input,
-): Promise<DispatchPropostaFollowup3Result> => {
+  input: DispatchPropostaFollowup0Input,
+): Promise<DispatchPropostaFollowup0Result> => {
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
     .select("automation_template_bindings")
@@ -106,7 +106,7 @@ export const dispatchPropostaFollowup3 = async (
   const { data: evento, error: eventoError } = await admin
     .from("eventos")
     .select(
-      "id, aniversariante_nome, cliente_nome, cliente_telefone, data_evento, etapa, followup_2_enviado_em, followup_3_enviado_em, followup_status, funil",
+      "id, cliente_nome, cliente_telefone, contato_inicial_ultima_mensagem_em, etapa, followup_0_enviado_em, funil, status_interno",
     )
     .eq("tenant_id", input.tenant.id)
     .eq("id", input.eventoId)
@@ -116,55 +116,49 @@ export const dispatchPropostaFollowup3 = async (
   if (!evento) {
     return {
       dispatched: false,
-      errorMessage: "Evento não encontrado para follow-up 3.",
+      errorMessage: "Evento não encontrado para follow-up 0.",
       responseStatus: null,
       skippedReason: null,
     };
   }
 
-  if (!evento.followup_2_enviado_em) {
+  if (evento.followup_0_enviado_em) {
     return {
       dispatched: false,
       errorMessage: null,
       responseStatus: null,
-      skippedReason: "Follow-up 2 ainda não enviado para este evento.",
+      skippedReason: "Follow-up 0 já enviado para este evento.",
     };
   }
 
-  if (evento.followup_3_enviado_em) {
+  if (evento.etapa !== "contato_inicial" || evento.funil !== "vendas") {
     return {
       dispatched: false,
       errorMessage: null,
       responseStatus: null,
-      skippedReason: "Follow-up 3 já enviado para este evento.",
+      skippedReason: "Lead não está mais em Contato Inicial.",
     };
   }
 
-  if (evento.etapa !== "proposta_enviada" || evento.funil !== "vendas") {
+  const statusInterno =
+    typeof evento.status_interno === "string" ? evento.status_interno : null;
+  if (statusInterno === "perdido" || statusInterno === "cancelado") {
     return {
       dispatched: false,
       errorMessage: null,
       responseStatus: null,
-      skippedReason: "Lead não está mais em Proposta Enviada.",
+      skippedReason: "Lead inativo (perdido/cancelado).",
     };
   }
 
-  if (evento.followup_status !== "ativo") {
+  // O marco só existe enquanto aguardamos o retorno do cliente após a nossa
+  // última mensagem. Se o cliente respondeu, o webhook zera este campo.
+  if (!evento.contato_inicial_ultima_mensagem_em) {
     return {
       dispatched: false,
       errorMessage: null,
       responseStatus: null,
-      skippedReason: "Sequência de follow-up não está ativa para este lead.",
-    };
-  }
-
-  const dataEvento = typeof evento.data_evento === "string" ? evento.data_evento : null;
-  if (!dataEvento) {
-    return {
-      dispatched: false,
-      errorMessage: null,
-      responseStatus: null,
-      skippedReason: "Lead sem data da festa — follow-up não enviado.",
+      skippedReason: "Sem mensagem nossa pendente de retorno neste lead.",
     };
   }
 
@@ -228,16 +222,13 @@ export const dispatchPropostaFollowup3 = async (
   const templateBody = await loadTenantTemplateBody(
     admin,
     input.tenant.id,
-    PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
+    PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
   );
   const companyLegalName = await resolveCompanyLegalName(admin, input.tenant.id, input.tenant.name);
 
-  const messageText = buildPropostaFollowup3Message({
-    aniversarianteNome:
-      typeof evento.aniversariante_nome === "string" ? evento.aniversariante_nome : null,
+  const messageText = buildPropostaFollowup0Message({
     clienteNome: typeof evento.cliente_nome === "string" ? evento.cliente_nome : null,
     companyLegalName,
-    dataEvento,
     templateBody,
   });
 
@@ -254,14 +245,14 @@ export const dispatchPropostaFollowup3 = async (
     customer_phone: customerPhone,
     direction: "outbound_whatsapp",
     error_message: sendResult.errorMessage,
-    event: PROPOSTA_FOLLOWUP_3_EVENT,
+    event: PROPOSTA_FOLLOWUP_0_EVENT,
     instance_name: instanceName,
     message_id: sendResult.messageId,
     n8n_response_status: sendResult.status,
     n8n_status: sendResult.ok ? "sent" : "failed",
     payload: {
       companyDisplayName: formatCompanyDisplayName(companyLegalName),
-      event: PROPOSTA_FOLLOWUP_3_EVENT,
+      event: PROPOSTA_FOLLOWUP_0_EVENT,
       evento: { id: evento.id },
       templateKey: PROPOSTA_FOLLOWUP_TEMPLATE_KEY,
       tenant: {
@@ -276,17 +267,16 @@ export const dispatchPropostaFollowup3 = async (
     await admin
       .from("eventos")
       .update({
-        followup_3_enviado_em: input.triggeredAt,
+        followup_0_enviado_em: input.triggeredAt,
       })
       .eq("tenant_id", input.tenant.id)
       .eq("id", input.eventoId)
-      .is("followup_3_enviado_em", null);
+      .is("followup_0_enviado_em", null);
 
     await admin.from("evento_notas").insert({
       evento_id: input.eventoId,
       tenant_id: input.tenant.id,
-      texto: buildPropostaFollowup3Nota({
-        dataEvento,
+      texto: buildPropostaFollowup0Nota({
         enviadoEm: input.triggeredAt,
       }),
     });
@@ -297,12 +287,11 @@ export const dispatchPropostaFollowup3 = async (
       customerPhone,
       messageId: sendResult.messageId,
       metadata: {
-        dataEvento,
         direction: "outbound",
         eventoId: input.eventoId,
-        followupStep: 3,
+        followupStep: 0,
         source: "followup_automation",
-        templateKey: PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
+        templateKey: PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
       },
       role: "ai",
       tenantId: input.tenant.id,
