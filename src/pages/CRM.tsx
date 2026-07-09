@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, Search, Upload, X } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { EventoFormDialog, EventoFormValues } from "@/components/eventos/EventoFormDialog";
@@ -18,9 +18,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 
+const isFunnelType = (value: string | null): value is FunnelType =>
+  value === "vendas" || value === "festa" || value === "executadas";
+
 const CRM = () => {
   const navigate = useNavigate();
-  const [activeFunnel, setActiveFunnel] = useState<FunnelType>("vendas");
+  const [searchParams] = useSearchParams();
+  const funilParam = searchParams.get("funil");
+  const etapaParam = searchParams.get("etapa");
+  const [activeFunnel, setActiveFunnel] = useState<FunnelType>(() =>
+    isFunnelType(funilParam) ? funilParam : "vendas",
+  );
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,6 +40,12 @@ const CRM = () => {
     return filterEventosBySearch(visible, searchTerm);
   }, [eventos, searchTerm]);
   const hasActiveSearch = searchTerm.trim().length > 0;
+
+  useEffect(() => {
+    if (isFunnelType(funilParam)) {
+      setActiveFunnel(funilParam);
+    }
+  }, [funilParam]);
 
   const handleCreateEvento = async (values: EventoFormValues) => {
     try {
@@ -141,7 +155,12 @@ const CRM = () => {
       )}
 
       {!isLoading && !error && !(hasActiveSearch && filteredEventos.length === 0) && (
-        <KanbanBoard events={filteredEventos} funnel={activeFunnel} stages={[...stages]} />
+        <KanbanBoard
+          events={filteredEventos}
+          funnel={activeFunnel}
+          highlightStage={etapaParam}
+          stages={[...stages]}
+        />
       )}
 
       <LeadsUploadDialog initialFunnel={activeFunnel} onOpenChange={setIsUploadOpen} open={isUploadOpen} />

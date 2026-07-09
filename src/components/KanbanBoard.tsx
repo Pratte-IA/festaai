@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, GripVertical, Package, PartyPopper, Users } from "lucide-react";
 import { useTenantPackages } from "@/features/configuracoes";
@@ -23,6 +23,7 @@ import { toast } from "@/hooks/use-toast";
 interface KanbanBoardProps {
   events: Evento[];
   funnel: FunnelType;
+  highlightStage?: string | null;
   stages: StageDefinition[];
 }
 
@@ -50,12 +51,20 @@ const getTimeRemainingColor = (partyDate: string | null): string => {
   return "text-muted-foreground";
 };
 
-const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
+const KanbanBoard = ({ events, funnel, highlightStage, stages }: KanbanBoardProps) => {
   const navigate = useNavigate();
   const [draggedEvent, setDraggedEvent] = useState<number | null>(null);
   const updateEventoStage = useUpdateEventoStage();
   const { data: packages = [] } = useTenantPackages();
   const showPackageLine = funnel === "executadas" || funnel === "festa";
+
+  useEffect(() => {
+    if (!highlightStage) return;
+    if (!stages.some((stage) => stage.key === highlightStage)) return;
+
+    const column = document.getElementById(`kanban-stage-${highlightStage}`);
+    column?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [highlightStage, stages]);
 
   const handleDragStart = (eventId: number) => {
     setDraggedEvent(eventId);
@@ -116,6 +125,7 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
         return (
           <div
             key={stage.key}
+            id={`kanban-stage-${stage.key}`}
             className="flex-shrink-0 w-72"
             onDragOver={handleDragOver}
             onDrop={() => handleDrop(stage.key)}

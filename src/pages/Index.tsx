@@ -1,11 +1,11 @@
 import AppLayout from "@/components/AppLayout";
 import MetricCard from "@/components/MetricCard";
 import MiniCalendar from "@/components/MiniCalendar";
-import PartyList from "@/components/PartyList";
 import AlertItem from "@/components/AlertItem";
+import { DashboardCommercialActivity } from "@/components/dashboard/DashboardCommercialActivity";
 import { DashboardTodayGuide } from "@/components/dashboard/DashboardTodayGuide";
 import { PublicFormCopyButton } from "@/components/formulario-contratacao/PublicFormCopyButton";
-import { Users, PartyPopper, TrendingUp, DollarSign, CreditCard, Clock, MessageSquare, Wallet, Receipt } from "lucide-react";
+import { CreditCard, Clock, MessageSquare, Wallet, Receipt, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDashboardData } from "@/features/dashboard";
 
@@ -40,20 +40,12 @@ const Dashboard = () => {
       )}
 
       <DashboardTodayGuide
+        festaAiDailyStatus={data?.festaAiDailyStatus}
         isLoading={isLoading}
         operationalGuide={data?.operationalGuide}
-        systemActions={data?.systemActions ?? []}
       />
 
-      <div className="mb-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vendas</span>
-      </div>
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard icon={Users} title="Leads Novos - Hoje" value={isLoading ? "..." : String(metrics?.newLeadsToday ?? 0)} accent="primary" />
-        <MetricCard icon={PartyPopper} title="Festas fechadas" value={isLoading ? "..." : String(metrics?.closedParties ?? 0)} accent="rosa" />
-        <MetricCard icon={TrendingUp} title="Taxa de conversão" value={isLoading ? "..." : `${metrics?.conversionRate ?? 0}%`} accent="lilas" />
-        <MetricCard icon={DollarSign} title="Valor vendido" value={isLoading ? "..." : currencyFormatter.format(metrics?.soldValue ?? 0)} accent="success" />
-      </div>
+      <DashboardCommercialActivity activity={data?.commercialActivity} isLoading={isLoading} />
 
       <div className="mb-2">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Financeiro</span>
@@ -106,8 +98,6 @@ const Dashboard = () => {
         </div>
 
         <div className="space-y-6 lg:col-span-2">
-          <PartyList isLoading={isLoading} parties={data?.upcomingParties ?? []} />
-
           <div className="glass-card animate-fade-in p-5">
             <div className="mb-4 flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-warning" />

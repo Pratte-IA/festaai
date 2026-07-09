@@ -3,12 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { countNewLeadsToday } from "./count-new-leads-today";
 import { sumFestaOpenBalance, sumFestaOverdueOpenBalance } from "./festa-open-balance";
 import { buildMonthRevenueBreakdown } from "./month-revenue";
+import { buildCommercialActivity, type CommercialActivity } from "./commercial-activity";
+import { buildFestaAiDailyStatus, type FestaAiDailyStatus } from "./festa-ai-daily-status";
 import { buildOperationalGuide, type DashboardOperationalGuide } from "./operational-guide";
-import {
-  buildTodaySystemActions,
-  buildTodaySystemSummary,
-  type DashboardGuideItem,
-} from "./today-guide";
 import { Evento, EventoPagamento } from "@/features/eventos";
 import type { TenantTarefaEvento, TenantTarefaListItem } from "@/features/tarefas/types";
 import { useCurrentTenant } from "@/features/tenants";
@@ -51,6 +48,7 @@ interface DashboardTarefaRow {
 
 interface DashboardData {
   alerts: DashboardAlert[];
+  commercialActivity: CommercialActivity;
   metrics: {
     closedParties: number;
     conversionRate: number;
@@ -67,8 +65,8 @@ interface DashboardData {
     futureOpportunities: number;
   };
   operationalGuide: DashboardOperationalGuide;
+  festaAiDailyStatus: FestaAiDailyStatus;
   upcomingParties: DashboardParty[];
-  systemActions: DashboardGuideItem[];
 }
 
 const dashboardQueryKeys = {
@@ -250,7 +248,7 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       .returns<DashboardTarefaRow[]>(),
     supabase
       .from("evento_contracts")
-      .select("id")
+      .select("id, evento_id")
       .eq("tenant_id", tenantId)
       .eq("status", "generated")
       .eq("assinatura_followup_status", "ativo"),
@@ -275,7 +273,7 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
   const events = eventsResult.data ?? [];
   const payments = paymentsResult.data ?? [];
   const tarefas = (tarefasResult.data ?? []).map(mapDashboardTarefa);
-  const pendingContractSignatures = contractsResult.data?.length ?? 0;
+  const contractSignatureEventoIds = (contractsResult.data ?? []).map((contract) => contract.evento_id);
   const monthEvents = events.filter((event) => event.created_at >= startIso && event.created_at <= endIso);
   const closedEvents = monthEvents.filter(
     (event) => event.funil === "festa" || event.funil === "executadas",
@@ -311,13 +309,14 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       };
     });
 
-  const alerts = buildAlerts(events, payments);
-  const systemSummary = buildTodaySystemSummary(events, pendingContractSignatures);
-  const systemActions = buildTodaySystemActions(systemSummary);
   const operationalGuide = buildOperationalGuide(events, payments, tarefas);
+  const festaAiDailyStatus = buildFestaAiDailyStatus(events, contractSignatureEventoIds);
+  const commercialActivity = buildCommercialActivity(events);
+  const alerts = buildAlerts(events, payments);
 
   return {
     alerts,
+    commercialActivity,
     metrics: {
       closedParties: closedEvents.length,
       conversionRate:
@@ -334,9 +333,9 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       soldValue: closedEvents.reduce((sum, event) => sum + event.valor_total, 0),
       toReceive,
     },
+    festaAiDailyStatus,
     operationalGuide,
     upcomingParties,
-    systemActions,
   };
 };
 

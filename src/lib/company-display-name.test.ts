@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveSatisfactionSurveyLabel } from "@/features/configuracoes/satisfaction-survey-types";
-import { extractFirstName, formatCompanyDisplayName } from "@/lib/company-display-name";
+import { extractDisplayFirstName, extractFirstName, formatCompanyDisplayName } from "@/lib/company-display-name";
 
 describe("company-display-name", () => {
   it("remove sufixos jurídicos comuns", () => {
@@ -14,6 +14,12 @@ describe("company-display-name", () => {
   it("extrai o primeiro nome do contratante", () => {
     expect(extractFirstName("Maria Fernanda Silva")).toBe("Maria");
     expect(extractFirstName("")).toBe("Cliente");
+  });
+
+  it("extrai nome composto para exibicao", () => {
+    expect(extractDisplayFirstName("Maria Clara prim do nascimento")).toBe("Maria Clara");
+    expect(extractDisplayFirstName("Judi cristina prim do nascimento")).toBe("Judi");
+    expect(extractDisplayFirstName("João Pedro Silva")).toBe("João Pedro");
   });
 });
 
