@@ -28,25 +28,44 @@ export const mapLancamentoToDisplay = (item: FinanceiroLancamento): FinanceiroDi
   valor: item.valor,
 });
 
-export const buildDreEntradas = (
-  contratoEntradas: FinanceiroContratoEntrada[],
-  lancamentos: FinanceiroLancamento[],
-): FinanceiroDisplayItem[] => {
-  const fromContracts = contratoEntradas.map(mapContratoEntradaToDisplay);
-  const fromLedger = lancamentos
-    .filter((item) => item.tipo === "entrada" && item.origem !== "pagamento")
-    .map(mapLancamentoToDisplay);
+/** Entradas do DRE: apenas sinal/reserva da festa (contrato assinado). */
+export const buildDreEntradas = (contratoEntradas: FinanceiroContratoEntrada[]): FinanceiroDisplayItem[] =>
+  sortDisplayItems(contratoEntradas.map(mapContratoEntradaToDisplay));
 
-  return [...fromContracts, ...fromLedger].sort((a, b) =>
-    b.data_lancamento.localeCompare(a.data_lancamento) || b.id.localeCompare(a.id),
+const sortDisplayItems = (items: FinanceiroDisplayItem[]) =>
+  [...items].sort(
+    (a, b) => b.data_lancamento.localeCompare(a.data_lancamento) || b.id.localeCompare(a.id),
   );
-};
+
+/** Reservas geradas automaticamente na assinatura do contrato. */
+export const buildEntradasFestasAutomaticas = buildDreEntradas;
+
+/** Receitas avulsas da empresa (ex.: venda de estoque), sem vinculo com festa. */
+export const buildEntradasManuaisGerais = (lancamentos: FinanceiroLancamento[]): FinanceiroDisplayItem[] =>
+  sortDisplayItems(
+    lancamentos
+      .filter((item) => item.tipo === "entrada" && item.origem === "manual" && item.evento_id == null)
+      .map(mapLancamentoToDisplay),
+  );
 
 export const buildDreSaidas = (lancamentos: FinanceiroLancamento[]): FinanceiroDisplayItem[] =>
-  lancamentos
-    .filter((item) => item.tipo === "saida")
-    .map(mapLancamentoToDisplay)
-    .sort((a, b) => b.data_lancamento.localeCompare(a.data_lancamento) || b.id.localeCompare(a.id));
+  sortDisplayItems(lancamentos.filter((item) => item.tipo === "saida").map(mapLancamentoToDisplay));
+
+/** Despesas gerais do tenant (aluguel, marketing, investimentos etc.). */
+export const buildSaidasGerais = (lancamentos: FinanceiroLancamento[]): FinanceiroDisplayItem[] =>
+  sortDisplayItems(
+    lancamentos
+      .filter((item) => item.tipo === "saida" && item.evento_id == null)
+      .map(mapLancamentoToDisplay),
+  );
+
+/** Despesas lancadas no financeiro de cada festa. */
+export const buildSaidasFestas = (lancamentos: FinanceiroLancamento[]): FinanceiroDisplayItem[] =>
+  sortDisplayItems(
+    lancamentos
+      .filter((item) => item.tipo === "saida" && item.evento_id != null)
+      .map(mapLancamentoToDisplay),
+  );
 
 export const sumDisplayItems = (items: Pick<FinanceiroDisplayItem, "valor">[]) =>
   items.reduce((sum, item) => sum + item.valor, 0);

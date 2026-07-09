@@ -1,4 +1,5 @@
-import { phonesMatch } from "./phone.ts";
+import { buildAgentSessionId } from "./agent-memory.ts";
+import { phonesMatch, toWhatsAppPhoneKey } from "./phone.ts";
 
 type ServiceClient = {
   from: (table: string) => Record<string, unknown>;
@@ -38,6 +39,80 @@ const findActiveContatoInicialLead = async (
   return match ?? null;
 };
 
+const extractChatMessageType = (message: unknown): "ai" | "human" | null => {
+  if (!message || typeof message !== "object") return null;
+  const record = message as Record<string, unknown>;
+  const direct = typeof record.type === "string" ? record.type : null;
+  if (direct === "ai" || direct === "human") return direct;
+
+  const nested = record.data;
+  if (nested && typeof nested === "object") {
+    const nestedType = (nested as Record<string, unknown>).type;
+    if (nestedType === "ai" || nestedType === "human") return nestedType;
+  }
+
+  return null;
+};
+
+/**
+ * Resolve desde quando estamos aguardando o retorno do cliente no contato
+ * inicial. Fonte da verdade: histórico do agente (n8n) — a última mensagem
+ * relevante precisa ser nossa (AI). Respostas da IA via n8n não ecoam no
+ * webhook Evolution como fromMe, então o marco na coluna sozinho não basta.
+ */
+export const resolveContatoInicialAwaitingReplySince = async (
+  admin: ServiceClient,
+  input: { customerPhone: string | null; tenantId: number },
+): Promise<string | null> => {
+  const phoneKey = toWhatsAppPhoneKey(input.customerPhone);
+  if (!phoneKey) return null;
+
+  const sessionId = buildAgentSessionId(input.tenantId, phoneKey);
+
+  const { data, error } = await admin
+    .from("n8n_chat_histories")
+    .select("id, created_at, message")
+    .eq("session_id", sessionId)
+    .order("id", { ascending: false })
+    .limit(30);
+
+  if (error) throw error;
+
+  for (const row of (data ?? []) as Array<{
+    created_at: string;
+    message: unknown;
+  }>) {
+    const type = extractChatMessageType(row.message);
+    if (type === "ai") return row.created_at;
+    if (type === "human") return null;
+  }
+
+  return null;
+};
+
+/**
+ * Sincroniza o marco em eventos com o histórico do agente (para badge/Kanban).
+ * Só grava quando ainda estamos aguardando retorno após a nossa última mensagem.
+ */
+export const syncContatoInicialUltimaMensagemMarco = async (
+  admin: ServiceClient,
+  input: {
+    awaitingSince: string | null;
+    eventoId: number;
+    tenantId: number;
+  },
+): Promise<void> => {
+  const { error } = await admin
+    .from("eventos")
+    .update({ contato_inicial_ultima_mensagem_em: input.awaitingSince })
+    .eq("tenant_id", input.tenantId)
+    .eq("id", input.eventoId)
+    .eq("etapa", "contato_inicial")
+    .is("followup_0_enviado_em", null);
+
+  if (error) throw error;
+};
+
 export interface MarkContatoInicialOutboundInput {
   customerPhone: string;
   sentAt: string;
@@ -50,8 +125,8 @@ export interface MarkContatoInicialOutboundResult {
 }
 
 /**
- * Registra a nossa última mensagem enviada a um lead em contato inicial.
- * É o marco que inicia (ou reinicia) o timer de 12h do FU0.
+ * Registra a nossa última mensagem enviada a um lead em contato inicial
+ * (ex.: mensagem manual fromMe no WhatsApp de Atendimento).
  */
 export const markContatoInicialFollowupOutbound = async (
   admin: ServiceClient,
@@ -86,17 +161,20 @@ export interface PauseContatoInicialFollowupResult {
 }
 
 /**
- * Cliente respondeu no contato inicial: zeramos o marco para o timer de 12h só
- * voltar a contar depois da nossa próxima mensagem. Assim o FU0 nunca dispara
- * enquanto o cliente estiver conversando.
+ * Cliente respondeu: zera o marco. O cron também valida no histórico n8n
+ * (última mensagem humana ⇒ sem FU0).
  */
 export const pauseContatoInicialFollowupOnCustomerReply = async (
   admin: ServiceClient,
   input: PauseContatoInicialFollowupInput,
 ): Promise<PauseContatoInicialFollowupResult> => {
   const match = await findActiveContatoInicialLead(admin, input.tenantId, input.customerPhone);
-  if (!match || !match.contato_inicial_ultima_mensagem_em) {
-    return { eventoId: match?.id ?? null, paused: false };
+  if (!match) {
+    return { eventoId: null, paused: false };
+  }
+
+  if (!match.contato_inicial_ultima_mensagem_em) {
+    return { eventoId: match.id, paused: false };
   }
 
   const { error: updateError } = await admin

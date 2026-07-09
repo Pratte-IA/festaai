@@ -12,6 +12,10 @@ import { dispatchBoasVindasAfterContractSigned } from "../_shared/dispatch-boas-
 import { computeClosingFormValorSaldo } from "../_shared/event-financial.ts";
 import { buildPhoneLookupVariants } from "../_shared/phone-lookup.ts";
 import {
+  resolveFunnelStageAfterContractAcceptance,
+  resolveFunnelStagePendingContractSignature,
+} from "../_shared/funnel-stage-client-form.ts";
+import {
   findDuplicateVendasLeads,
   resolveFunnelLeadMatch,
   type FunnelLeadCandidate,
@@ -177,15 +181,6 @@ const applyFieldValueToEvento = (
     default:
       eventoUpdates[fieldKey] = value === "" ? null : value;
   }
-};
-
-const resolveFunnelStageAfterContractAcceptance = (funil: string) => {
-  if (funil !== "vendas") return null;
-  return {
-    etapa: "boas_vindas",
-    funil: "festa",
-    status_interno: "ativo" as const,
-  };
 };
 
 const EVENTO_MATCH_SELECT =
@@ -800,6 +795,7 @@ const handleSubmit = async (
 
   applyBalancePaymentSchedule(eventoUpdates, payload.balancePaymentSchedule, financialSettings);
   const now = new Date().toISOString();
+  const pendingContractStage = resolveFunnelStagePendingContractSignature();
 
   let targetEventoId: number;
   let updatedEvento: {
@@ -815,7 +811,10 @@ const handleSubmit = async (
   if (leadMatch) {
     const { data, error: updateError } = await admin
       .from("eventos")
-      .update(eventoUpdates)
+      .update({
+        ...eventoUpdates,
+        ...pendingContractStage,
+      })
       .eq("id", leadMatch.evento.id)
       .eq("tenant_id", tenant.id)
       .select("id, funil, etapa, cliente_nome, cliente_cpf, cliente_email, cliente_telefone")
@@ -835,11 +834,9 @@ const handleSubmit = async (
       .from("eventos")
       .insert({
         ...eventoUpdates,
+        ...pendingContractStage,
         cliente_nome: clienteNome,
-        etapa: "boas_vindas",
-        funil: "festa",
         origem: "formulario_publico",
-        status_interno: "ativo",
         tenant_id: tenant.id,
         tipo_evento: "festa",
       })
@@ -903,11 +900,9 @@ const handleSubmit = async (
     contractId: contract.id,
     contractNumber: contract.contract_number,
     eventoId: updatedEvento.id,
-    message: leadMatch?.source === "vendas"
+    message: leadMatch
       ? "Formulário recebido. Leia o contrato abaixo e confirme sua assinatura para concluir a contratação."
-      : leadMatch?.source === "festa"
-        ? "Formulário recebido. Atualizamos seu cadastro existente. Leia o contrato abaixo e confirme sua assinatura."
-        : "Cadastro criado. Leia o contrato abaixo e confirme sua assinatura.",
+      : "Cadastro criado. Leia o contrato abaixo e confirme sua assinatura.",
     signingTerms: (signingTerms ?? []).map(mapPublicTerm),
   });
 };

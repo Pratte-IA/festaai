@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildDreEntradas, buildDrePeriodSummary } from "./build-dre-entradas";
+import { buildDreEntradas, buildDrePeriodSummary, buildEntradasManuaisGerais, buildSaidasFestas, buildSaidasGerais } from "./build-dre-entradas";
 import { FinanceiroLancamento } from "./types";
 
 const lancamento = (overrides: Partial<FinanceiroLancamento>): FinanceiroLancamento =>
@@ -21,35 +21,67 @@ const lancamento = (overrides: Partial<FinanceiroLancamento>): FinanceiroLancame
   }) as FinanceiroLancamento;
 
 describe("build-dre-entradas", () => {
-  it("inclui contratos pela data de assinatura e exclui pagamentos do DRE", () => {
-    const entradas = buildDreEntradas(
-      [
-        {
-          acceptedAt: "2026-07-05T15:30:00.000Z",
-          clienteNome: "Maria",
-          contractId: 10,
-          eventoId: 3,
-          id: 99,
-          valorEntrada: 5000,
-        },
-      ],
-      [
-        lancamento({ id: 1, origem: "pagamento", categoria: "pagamento", valor: 1000 }),
-        lancamento({ id: 2, origem: "manual", categoria: "pagamento_contrato", valor: 800 }),
-      ],
-    );
+  it("inclui apenas entradas de contrato assinado", () => {
+    const entradas = buildDreEntradas([
+      {
+        acceptedAt: "2026-07-05T15:30:00.000Z",
+        clienteNome: "Maria",
+        contractId: 10,
+        eventoId: 3,
+        id: 99,
+        valorEntrada: 5000,
+      },
+    ]);
 
-    expect(entradas).toHaveLength(2);
-    expect(entradas.some((item) => item.categoria === "entrada_contrato" && item.valor === 5000)).toBe(true);
+    expect(entradas).toHaveLength(1);
+    expect(entradas[0]).toMatchObject({
+      categoria: "entrada_contrato",
+      origem: "contrato",
+      valor: 5000,
+    });
+  });
+
+  it("nao inclui lancamentos manuais ou pagamentos de saldo", () => {
+    const entradas = buildDreEntradas([
+      {
+        acceptedAt: "2026-07-05T15:30:00.000Z",
+        clienteNome: "Maria",
+        contractId: 10,
+        eventoId: 3,
+        id: 99,
+        valorEntrada: 5000,
+      },
+    ]);
+
+    expect(entradas).toHaveLength(1);
+    expect(entradas.some((item) => item.categoria === "adicional_contratado")).toBe(false);
     expect(entradas.some((item) => item.origem === "pagamento")).toBe(false);
-    expect(entradas.some((item) => item.categoria === "pagamento_contrato" && item.valor === 800)).toBe(true);
+  });
+
+  it("separa entradas e saidas por origem festa vs empresa", () => {
+    const lancamentos = [
+      lancamento({ id: 1, tipo: "entrada", origem: "manual", evento_id: null, categoria: "outras_receitas", valor: 150 }),
+      lancamento({ id: 2, tipo: "entrada", origem: "manual", evento_id: 5, categoria: "adicional_contratado", valor: 800 }),
+      lancamento({ id: 3, tipo: "saida", evento_id: null, categoria: "gastos_fixos", valor: 200 }),
+      lancamento({ id: 4, tipo: "saida", evento_id: 5, categoria: "equipe", valor: 300 }),
+    ];
+
+    expect(buildEntradasManuaisGerais(lancamentos)).toHaveLength(1);
+    expect(buildSaidasGerais(lancamentos)).toHaveLength(1);
+    expect(buildSaidasFestas(lancamentos)).toHaveLength(1);
   });
 
   it("calcula resultado do DRE com contratos e saidas", () => {
-    const entradas = buildDreEntradas(
-      [{ acceptedAt: "2026-07-01T10:00:00.000Z", clienteNome: "Joao", contractId: 1, eventoId: 1, id: 1, valorEntrada: 1000 }],
-      [],
-    );
+    const entradas = buildDreEntradas([
+      {
+        acceptedAt: "2026-07-01T10:00:00.000Z",
+        clienteNome: "Joao",
+        contractId: 1,
+        eventoId: 1,
+        id: 1,
+        valorEntrada: 1000,
+      },
+    ]);
     const saidas = [{ categoria: "gastos_fixos", valor: 1200 }] as const;
 
     const summary = buildDrePeriodSummary(

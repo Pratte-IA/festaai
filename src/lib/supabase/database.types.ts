@@ -1339,10 +1339,12 @@ export type Database = {
           created_by: string | null
           data_evento: string | null
           data_limite_pagamento: string | null
+          data_primeiro_contato: string | null
           etapa: string
           executadas_transicao_em: string | null
           fechamento_confirmado_em: string | null
           followup_0_enviado_em: string | null
+          followup_0b_enviado_em: string | null
           followup_1_enviado_em: string | null
           followup_1_variante: string | null
           followup_2_enviado_em: string | null
@@ -1410,10 +1412,12 @@ export type Database = {
           created_by?: string | null
           data_evento?: string | null
           data_limite_pagamento?: string | null
+          data_primeiro_contato?: string | null
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
           followup_0_enviado_em?: string | null
+          followup_0b_enviado_em?: string | null
           followup_1_enviado_em?: string | null
           followup_1_variante?: string | null
           followup_2_enviado_em?: string | null
@@ -1481,10 +1485,12 @@ export type Database = {
           created_by?: string | null
           data_evento?: string | null
           data_limite_pagamento?: string | null
+          data_primeiro_contato?: string | null
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
           followup_0_enviado_em?: string | null
+          followup_0b_enviado_em?: string | null
           followup_1_enviado_em?: string | null
           followup_1_variante?: string | null
           followup_2_enviado_em?: string | null

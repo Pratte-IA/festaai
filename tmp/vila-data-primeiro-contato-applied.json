@@ -1,0 +1,4357 @@
+{
+  "applied_at": "2026-07-08T23:28:51.521245Z",
+  "field": "data_primeiro_contato",
+  "source": "vila.leads.data_entrada",
+  "scope": {
+    "tenant_id": 2,
+    "etapa": "perdido"
+  },
+  "perdidos_total": 621,
+  "updated_count": 618,
+  "skipped_count": 3,
+  "error_count": 0,
+  "post_with_data_primeiro_contato": "0-0/618",
+  "updated": [
+    {
+      "evento_id": 7,
+      "cliente": "👑",
+      "data_primeiro_contato": "2026-06-08",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2351
+    },
+    {
+      "evento_id": 8,
+      "cliente": "Larissa Adriano",
+      "data_primeiro_contato": "2026-06-08",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2350
+    },
+    {
+      "evento_id": 10,
+      "cliente": "Ana Paula Campos",
+      "data_primeiro_contato": "2026-06-02",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2348
+    },
+    {
+      "evento_id": 11,
+      "cliente": "Gabriela Ferreira",
+      "data_primeiro_contato": "2026-05-31",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2346
+    },
+    {
+      "evento_id": 12,
+      "cliente": "Scharline Albino",
+      "data_primeiro_contato": "2026-05-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2345
+    },
+    {
+      "evento_id": 13,
+      "cliente": "Mary Martins",
+      "data_primeiro_contato": "2026-05-26",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2343
+    },
+    {
+      "evento_id": 14,
+      "cliente": "❤Thalita e Thailla..❤️",
+      "data_primeiro_contato": "2026-05-26",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2341
+    },
+    {
+      "evento_id": 15,
+      "cliente": "Yes Natação",
+      "data_primeiro_contato": "2026-05-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2340
+    },
+    {
+      "evento_id": 16,
+      "cliente": "Alana Caroline",
+      "data_primeiro_contato": "2026-05-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2338
+    },
+    {
+      "evento_id": 17,
+      "cliente": "Pedro💙Lorenzo🩵",
+      "data_primeiro_contato": "2026-05-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2337
+    },
+    {
+      "evento_id": 18,
+      "cliente": "Fran Marques",
+      "data_primeiro_contato": "2026-05-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2336
+    },
+    {
+      "evento_id": 19,
+      "cliente": "Luisiana Lima",
+      "data_primeiro_contato": "2026-05-24",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2335
+    },
+    {
+      "evento_id": 20,
+      "cliente": "Mony",
+      "data_primeiro_contato": "2026-05-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2334
+    },
+    {
+      "evento_id": 21,
+      "cliente": "Joice",
+      "data_primeiro_contato": "2026-05-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2333
+    },
+    {
+      "evento_id": 22,
+      "cliente": "Mila Lima",
+      "data_primeiro_contato": "2026-05-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2332
+    },
+    {
+      "evento_id": 23,
+      "cliente": "Vitória Veber",
+      "data_primeiro_contato": "2026-05-22",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2331
+    },
+    {
+      "evento_id": 24,
+      "cliente": "Jaciara ☺️",
+      "data_primeiro_contato": "2026-05-21",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2329
+    },
+    {
+      "evento_id": 25,
+      "cliente": "Arq. Camilla Espezim",
+      "data_primeiro_contato": "2026-05-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2326
+    },
+    {
+      "evento_id": 26,
+      "cliente": "Denise",
+      "data_primeiro_contato": "2026-05-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2324
+    },
+    {
+      "evento_id": 27,
+      "cliente": "Priscila",
+      "data_primeiro_contato": "2026-05-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2323
+    },
+    {
+      "evento_id": 28,
+      "cliente": "Caroline Hames",
+      "data_primeiro_contato": "2026-05-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2322
+    },
+    {
+      "evento_id": 29,
+      "cliente": "Deiwid😎",
+      "data_primeiro_contato": "2026-05-07",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2321
+    },
+    {
+      "evento_id": 30,
+      "cliente": "Juliane Nascimento",
+      "data_primeiro_contato": "2026-05-07",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2320
+    },
+    {
+      "evento_id": 31,
+      "cliente": "Tatiany",
+      "data_primeiro_contato": "2026-05-06",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2319
+    },
+    {
+      "evento_id": 32,
+      "cliente": "Ana Caroline 📲",
+      "data_primeiro_contato": "2026-05-04",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2318
+    },
+    {
+      "evento_id": 33,
+      "cliente": "Letícia Martins",
+      "data_primeiro_contato": "2026-05-04",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2317
+    },
+    {
+      "evento_id": 34,
+      "cliente": "CEGDS",
+      "data_primeiro_contato": "2026-04-30",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2315
+    },
+    {
+      "evento_id": 35,
+      "cliente": "Jornal Fique Esperto",
+      "data_primeiro_contato": "2026-04-30",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2314
+    },
+    {
+      "evento_id": 37,
+      "cliente": "Juliana Cristina 💅🏻",
+      "data_primeiro_contato": "2026-04-28",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2311
+    },
+    {
+      "evento_id": 38,
+      "cliente": "Carina  Rocha",
+      "data_primeiro_contato": "2026-04-26",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2310
+    },
+    {
+      "evento_id": 39,
+      "cliente": "Fernanda Guesser Koch",
+      "data_primeiro_contato": "2026-04-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2309
+    },
+    {
+      "evento_id": 40,
+      "cliente": "Tatiane",
+      "data_primeiro_contato": "2026-04-22",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2308
+    },
+    {
+      "evento_id": 41,
+      "cliente": "Mayndra Paiva ⚡",
+      "data_primeiro_contato": "2026-04-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2300
+    },
+    {
+      "evento_id": 42,
+      "cliente": "Thalia Regina",
+      "data_primeiro_contato": "2026-04-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2299
+    },
+    {
+      "evento_id": 43,
+      "cliente": "Beatriz Schmitz",
+      "data_primeiro_contato": "2026-04-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2298
+    },
+    {
+      "evento_id": 44,
+      "cliente": "Jaqueline Souza",
+      "data_primeiro_contato": "2026-04-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2297
+    },
+    {
+      "evento_id": 45,
+      "cliente": "Flávia",
+      "data_primeiro_contato": "2026-04-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2295
+    },
+    {
+      "evento_id": 46,
+      "cliente": "Malu Pauli Interiores",
+      "data_primeiro_contato": "2026-04-17",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2287
+    },
+    {
+      "evento_id": 47,
+      "cliente": "Beatriz 🧠🗣️🌸",
+      "data_primeiro_contato": "2026-04-16",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2286
+    },
+    {
+      "evento_id": 48,
+      "cliente": "Gislene Quincor",
+      "data_primeiro_contato": "2026-04-16",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2285
+    },
+    {
+      "evento_id": 50,
+      "cliente": "Yago",
+      "data_primeiro_contato": "2026-04-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2283
+    },
+    {
+      "evento_id": 51,
+      "cliente": "Tay",
+      "data_primeiro_contato": "2026-04-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2282
+    },
+    {
+      "evento_id": 52,
+      "cliente": "Simone Santos",
+      "data_primeiro_contato": "2026-04-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2281
+    },
+    {
+      "evento_id": 53,
+      "cliente": "Suelen",
+      "data_primeiro_contato": "2026-04-13",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2279
+    },
+    {
+      "evento_id": 54,
+      "cliente": "Samara",
+      "data_primeiro_contato": "2026-04-13",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2278
+    },
+    {
+      "evento_id": 56,
+      "cliente": "Thaysa Azevedo",
+      "data_primeiro_contato": "2026-04-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2276
+    },
+    {
+      "evento_id": 57,
+      "cliente": "Amanda Kunz",
+      "data_primeiro_contato": "2026-04-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2275
+    },
+    {
+      "evento_id": 58,
+      "cliente": "Jonathas Osiel",
+      "data_primeiro_contato": "2026-04-08",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2273
+    },
+    {
+      "evento_id": 59,
+      "cliente": "Tay",
+      "data_primeiro_contato": "2026-04-06",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2272
+    },
+    {
+      "evento_id": 60,
+      "cliente": "Any Elise Pereira Saviti",
+      "data_primeiro_contato": "2026-04-06",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2271
+    },
+    {
+      "evento_id": 62,
+      "cliente": "GRAMAS Vendas Joice",
+      "data_primeiro_contato": "2026-04-03",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2267
+    },
+    {
+      "evento_id": 63,
+      "cliente": "Helena Paiva R. Petry",
+      "data_primeiro_contato": "2026-04-01",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2265
+    },
+    {
+      "evento_id": 64,
+      "cliente": "Lucineide Pitz",
+      "data_primeiro_contato": "2026-04-01",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2264
+    },
+    {
+      "evento_id": 65,
+      "cliente": "Anderson Besen",
+      "data_primeiro_contato": "2026-03-30",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2263
+    },
+    {
+      "evento_id": 66,
+      "cliente": "Grazy Maria",
+      "data_primeiro_contato": "2026-03-30",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2261
+    },
+    {
+      "evento_id": 67,
+      "cliente": "Quel Guarnieri",
+      "data_primeiro_contato": "2026-03-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2259
+    },
+    {
+      "evento_id": 68,
+      "cliente": "Jay",
+      "data_primeiro_contato": "2026-03-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2258
+    },
+    {
+      "evento_id": 69,
+      "cliente": "Camila Machado Vicente",
+      "data_primeiro_contato": "2026-03-28",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2257
+    },
+    {
+      "evento_id": 70,
+      "cliente": "Taisa Lamego",
+      "data_primeiro_contato": "2026-03-28",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2256
+    },
+    {
+      "evento_id": 71,
+      "cliente": "Daiane Marcelino 💕",
+      "data_primeiro_contato": "2026-03-27",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2255
+    },
+    {
+      "evento_id": 72,
+      "cliente": "Juliane",
+      "data_primeiro_contato": "2026-03-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2254
+    },
+    {
+      "evento_id": 73,
+      "cliente": "Cris👨‍👩‍👧‍👧",
+      "data_primeiro_contato": "2026-03-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2253
+    },
+    {
+      "evento_id": 74,
+      "cliente": "Thiago Fernandes",
+      "data_primeiro_contato": "2026-03-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2251
+    },
+    {
+      "evento_id": 75,
+      "cliente": "Alexandra",
+      "data_primeiro_contato": "2026-03-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2250
+    },
+    {
+      "evento_id": 76,
+      "cliente": "Lícia",
+      "data_primeiro_contato": "2026-03-24",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2249
+    },
+    {
+      "evento_id": 77,
+      "cliente": "Izabel Fernanda",
+      "data_primeiro_contato": "2026-03-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2247
+    },
+    {
+      "evento_id": 78,
+      "cliente": "izabelly galeguinha 🌹",
+      "data_primeiro_contato": "2026-03-22",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2246
+    },
+    {
+      "evento_id": 79,
+      "cliente": "Judi Nascimento",
+      "data_primeiro_contato": "2026-03-21",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2245
+    },
+    {
+      "evento_id": 80,
+      "cliente": "Pamela",
+      "data_primeiro_contato": "2026-03-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2243
+    },
+    {
+      "evento_id": 81,
+      "cliente": "Karoline",
+      "data_primeiro_contato": "2026-03-16",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2241
+    },
+    {
+      "evento_id": 82,
+      "cliente": "Fabiane Fernandes",
+      "data_primeiro_contato": "2026-03-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2240
+    },
+    {
+      "evento_id": 83,
+      "cliente": "Amo Minha 👪👼",
+      "data_primeiro_contato": "2026-03-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2239
+    },
+    {
+      "evento_id": 84,
+      "cliente": "Lisi",
+      "data_primeiro_contato": "2026-03-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2238
+    },
+    {
+      "evento_id": 85,
+      "cliente": "Marilene",
+      "data_primeiro_contato": "2026-03-13",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2237
+    },
+    {
+      "evento_id": 86,
+      "cliente": "Thaís Gelsleichter",
+      "data_primeiro_contato": "2026-03-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2236
+    },
+    {
+      "evento_id": 87,
+      "cliente": "Andressa",
+      "data_primeiro_contato": "2026-03-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2235
+    },
+    {
+      "evento_id": 88,
+      "cliente": "Ju 💕",
+      "data_primeiro_contato": "2026-03-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2234
+    },
+    {
+      "evento_id": 89,
+      "cliente": "Silene Feltz",
+      "data_primeiro_contato": "2026-03-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2232
+    },
+    {
+      "evento_id": 90,
+      "cliente": "Leonardo Richartz",
+      "data_primeiro_contato": "2026-03-09",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2231
+    },
+    {
+      "evento_id": 91,
+      "cliente": "Thayse",
+      "data_primeiro_contato": "2026-03-08",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2230
+    },
+    {
+      "evento_id": 92,
+      "cliente": "E✨️",
+      "data_primeiro_contato": "2026-03-04",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2229
+    },
+    {
+      "evento_id": 93,
+      "cliente": "Ana Karina",
+      "data_primeiro_contato": "2026-03-02",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2227
+    },
+    {
+      "evento_id": 94,
+      "cliente": "Rodrigo",
+      "data_primeiro_contato": "2026-03-02",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2226
+    },
+    {
+      "evento_id": 95,
+      "cliente": "Kin",
+      "data_primeiro_contato": "2026-03-02",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2225
+    },
+    {
+      "evento_id": 96,
+      "cliente": "Clarice",
+      "data_primeiro_contato": "2026-03-01",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2224
+    },
+    {
+      "evento_id": 97,
+      "cliente": "Maria Eduarda Schmitt",
+      "data_primeiro_contato": "2026-02-26",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2222
+    },
+    {
+      "evento_id": 98,
+      "cliente": "~Loh❤️",
+      "data_primeiro_contato": "2026-02-25",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2221
+    },
+    {
+      "evento_id": 99,
+      "cliente": "Sidney 😎",
+      "data_primeiro_contato": "2026-02-24",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2219
+    },
+    {
+      "evento_id": 100,
+      "cliente": "Helô 🌹",
+      "data_primeiro_contato": "2026-02-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2218
+    },
+    {
+      "evento_id": 101,
+      "cliente": "Ana",
+      "data_primeiro_contato": "2026-02-22",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2217
+    },
+    {
+      "evento_id": 102,
+      "cliente": "Ana",
+      "data_primeiro_contato": "2026-02-22",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2216
+    },
+    {
+      "evento_id": 103,
+      "cliente": "Pricila Amandio",
+      "data_primeiro_contato": "2026-02-21",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2214
+    },
+    {
+      "evento_id": 104,
+      "cliente": "😉",
+      "data_primeiro_contato": "2026-02-20",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2209
+    },
+    {
+      "evento_id": 105,
+      "cliente": "Michelle Silveira ❤️",
+      "data_primeiro_contato": "2026-02-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2206
+    },
+    {
+      "evento_id": 106,
+      "cliente": "Jéssica",
+      "data_primeiro_contato": "2026-02-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2205
+    },
+    {
+      "evento_id": 108,
+      "cliente": "Fran Weber",
+      "data_primeiro_contato": "2026-02-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2201
+    },
+    {
+      "evento_id": 109,
+      "cliente": "Amanda",
+      "data_primeiro_contato": "2026-02-09",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2184
+    },
+    {
+      "evento_id": 110,
+      "cliente": "Gustavo Lopes",
+      "data_primeiro_contato": "2026-02-09",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2182
+    },
+    {
+      "evento_id": 111,
+      "cliente": "Ariely Vonvossen",
+      "data_primeiro_contato": "2026-02-09",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2181
+    },
+    {
+      "evento_id": 112,
+      "cliente": "Nathy",
+      "data_primeiro_contato": "2026-02-08",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2177
+    },
+    {
+      "evento_id": 113,
+      "cliente": "Edxander Rocha",
+      "data_primeiro_contato": "2026-02-01",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2173
+    },
+    {
+      "evento_id": 114,
+      "cliente": "Divertilandia",
+      "data_primeiro_contato": "2026-01-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2155
+    },
+    {
+      "evento_id": 115,
+      "cliente": "Fer 💞",
+      "data_primeiro_contato": "2026-01-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2153
+    },
+    {
+      "evento_id": 116,
+      "cliente": "Sítio Mannes",
+      "data_primeiro_contato": "2026-01-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2152
+    },
+    {
+      "evento_id": 117,
+      "cliente": "Gá Souza",
+      "data_primeiro_contato": "2026-01-28",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2150
+    },
+    {
+      "evento_id": 118,
+      "cliente": "Gabi",
+      "data_primeiro_contato": "2026-01-27",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2149
+    },
+    {
+      "evento_id": 119,
+      "cliente": "Bianca Meurer Schmitz",
+      "data_primeiro_contato": "2026-01-27",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2148
+    },
+    {
+      "evento_id": 120,
+      "cliente": "Maria Julia✨",
+      "data_primeiro_contato": "2026-01-27",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2147
+    },
+    {
+      "evento_id": 122,
+      "cliente": "Fernanda Silveira",
+      "data_primeiro_contato": "2026-01-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2143
+    },
+    {
+      "evento_id": 123,
+      "cliente": "Caroline B. da Silveira",
+      "data_primeiro_contato": "2026-01-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2142
+    },
+    {
+      "evento_id": 124,
+      "cliente": "Adriana Petri Guesser",
+      "data_primeiro_contato": "2026-01-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2141
+    },
+    {
+      "evento_id": 125,
+      "cliente": "Solange Pereira",
+      "data_primeiro_contato": "2026-01-23",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2140
+    },
+    {
+      "evento_id": 126,
+      "cliente": "Renata",
+      "data_primeiro_contato": "2026-01-20",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2129
+    },
+    {
+      "evento_id": 127,
+      "cliente": "Lúcia Odin🌷",
+      "data_primeiro_contato": "2026-01-20",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2128
+    },
+    {
+      "evento_id": 128,
+      "cliente": "Luciane Decker",
+      "data_primeiro_contato": "2026-01-20",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2127
+    },
+    {
+      "evento_id": 129,
+      "cliente": "Machado Filho Construcões",
+      "data_primeiro_contato": "2026-01-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2126
+    },
+    {
+      "evento_id": 130,
+      "cliente": "Isabel Schmitt Petry",
+      "data_primeiro_contato": "2026-01-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2124
+    },
+    {
+      "evento_id": 131,
+      "cliente": "Francielle",
+      "data_primeiro_contato": "2026-01-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2121
+    },
+    {
+      "evento_id": 132,
+      "cliente": "Greissy",
+      "data_primeiro_contato": "2026-01-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2112
+    },
+    {
+      "evento_id": 133,
+      "cliente": "Margarete",
+      "data_primeiro_contato": "2026-01-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2110
+    },
+    {
+      "evento_id": 134,
+      "cliente": "Tati Junkes",
+      "data_primeiro_contato": "2026-01-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2106
+    },
+    {
+      "evento_id": 135,
+      "cliente": "Nair Decker Koch",
+      "data_primeiro_contato": "2026-01-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2105
+    },
+    {
+      "evento_id": 136,
+      "cliente": "Gabriela",
+      "data_primeiro_contato": "2026-01-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2104
+    },
+    {
+      "evento_id": 137,
+      "cliente": "Alessandra Paganeli",
+      "data_primeiro_contato": "2026-01-18",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2086
+    },
+    {
+      "evento_id": 138,
+      "cliente": "Raquel",
+      "data_primeiro_contato": "2026-01-17",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2085
+    },
+    {
+      "evento_id": 139,
+      "cliente": "Ana",
+      "data_primeiro_contato": "2026-01-16",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2083
+    },
+    {
+      "evento_id": 140,
+      "cliente": "💕💕Fernanda Guesser",
+      "data_primeiro_contato": "2026-01-16",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2081
+    },
+    {
+      "evento_id": 141,
+      "cliente": "Fernando Cristóvão",
+      "data_primeiro_contato": "2026-01-16",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2078
+    },
+    {
+      "evento_id": 142,
+      "cliente": "Juliana Galigiuri",
+      "data_primeiro_contato": "2026-01-16",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2077
+    },
+    {
+      "evento_id": 143,
+      "cliente": "Luzia -LCK - Asp e Hot",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2072
+    },
+    {
+      "evento_id": 144,
+      "cliente": "Joice",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2071
+    },
+    {
+      "evento_id": 145,
+      "cliente": "Danny",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2069
+    },
+    {
+      "evento_id": 146,
+      "cliente": "linda andrea",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2067
+    },
+    {
+      "evento_id": 147,
+      "cliente": "samantha schutz",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2066
+    },
+    {
+      "evento_id": 148,
+      "cliente": "Marina Da Silveira Pauli",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2065
+    },
+    {
+      "evento_id": 149,
+      "cliente": "Camila Meurer Jacob",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2063
+    },
+    {
+      "evento_id": 150,
+      "cliente": "Gi",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2062
+    },
+    {
+      "evento_id": 151,
+      "cliente": "Juliana",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2061
+    },
+    {
+      "evento_id": 152,
+      "cliente": "Bruna",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2059
+    },
+    {
+      "evento_id": 153,
+      "cliente": "Jane",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2058
+    },
+    {
+      "evento_id": 154,
+      "cliente": "Poly",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2041
+    },
+    {
+      "evento_id": 156,
+      "cliente": "☺️",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2038
+    },
+    {
+      "evento_id": 157,
+      "cliente": "Érika Baranovski",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2037
+    },
+    {
+      "evento_id": 158,
+      "cliente": "Lidiane Ventura Fraga",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2017
+    },
+    {
+      "evento_id": 159,
+      "cliente": "Jhullia Coutinho",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2013
+    },
+    {
+      "evento_id": 160,
+      "cliente": "Débora e Fabiano",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1994
+    },
+    {
+      "evento_id": 161,
+      "cliente": "Jenifer",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1962
+    },
+    {
+      "evento_id": 162,
+      "cliente": "Ana - Terapeuta",
+      "data_primeiro_contato": "2026-01-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1961
+    },
+    {
+      "evento_id": 163,
+      "cliente": "Marcieli",
+      "data_primeiro_contato": "2026-01-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1959
+    },
+    {
+      "evento_id": 164,
+      "cliente": "Mª Eduarda Med Coelho",
+      "data_primeiro_contato": "2026-01-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1958
+    },
+    {
+      "evento_id": 165,
+      "cliente": "Carla Palazzi",
+      "data_primeiro_contato": "2026-01-13",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1957
+    },
+    {
+      "evento_id": 166,
+      "cliente": "Daniel",
+      "data_primeiro_contato": "2026-01-13",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1956
+    },
+    {
+      "evento_id": 167,
+      "cliente": "Jéssica Yara",
+      "data_primeiro_contato": "2026-01-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1950
+    },
+    {
+      "evento_id": 168,
+      "cliente": "Mayara",
+      "data_primeiro_contato": "2026-01-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1310
+    },
+    {
+      "evento_id": 169,
+      "cliente": "Kelly C. Schmitz Gallo",
+      "data_primeiro_contato": "2026-01-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1308
+    },
+    {
+      "evento_id": 170,
+      "cliente": "Bruna Ribeiro Ferrarini",
+      "data_primeiro_contato": "2026-01-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1307
+    },
+    {
+      "evento_id": 171,
+      "cliente": "Vanessa",
+      "data_primeiro_contato": "2026-01-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1306
+    },
+    {
+      "evento_id": 172,
+      "cliente": "Kelly Padovan",
+      "data_primeiro_contato": "2026-01-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1304
+    },
+    {
+      "evento_id": 173,
+      "cliente": "Psicóloga Crp 12607",
+      "data_primeiro_contato": "2026-01-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1300
+    },
+    {
+      "evento_id": 174,
+      "cliente": "Tuane",
+      "data_primeiro_contato": "2026-01-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1299
+    },
+    {
+      "evento_id": 175,
+      "cliente": "‎Tayná",
+      "data_primeiro_contato": "2026-01-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1298
+    },
+    {
+      "evento_id": 176,
+      "cliente": "Raquel Lohn",
+      "data_primeiro_contato": "2026-01-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1296
+    },
+    {
+      "evento_id": 177,
+      "cliente": "Monique Hoffmann",
+      "data_primeiro_contato": "2026-01-09",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1295
+    },
+    {
+      "evento_id": 178,
+      "cliente": "Vanessa",
+      "data_primeiro_contato": "2026-01-09",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1294
+    },
+    {
+      "evento_id": 179,
+      "cliente": "SEM NOME",
+      "data_primeiro_contato": "2026-01-08",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1287
+    },
+    {
+      "evento_id": 180,
+      "cliente": "CARLINHA",
+      "data_primeiro_contato": "2026-01-06",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1282
+    },
+    {
+      "evento_id": 181,
+      "cliente": "Beatriz",
+      "data_primeiro_contato": "2026-01-05",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1281
+    },
+    {
+      "evento_id": 183,
+      "cliente": "Ana Paula Neis🌻🍃",
+      "data_primeiro_contato": "2026-01-04",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1279
+    },
+    {
+      "evento_id": 184,
+      "cliente": "Mari",
+      "data_primeiro_contato": "2026-01-03",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1278
+    },
+    {
+      "evento_id": 185,
+      "cliente": "Fisio Giselle",
+      "data_primeiro_contato": "2025-12-26",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1276
+    },
+    {
+      "evento_id": 186,
+      "cliente": "Mariana Rodrigues",
+      "data_primeiro_contato": "2025-12-22",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1273
+    },
+    {
+      "evento_id": 188,
+      "cliente": "LILIAN",
+      "data_primeiro_contato": "2025-12-14",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1269
+    },
+    {
+      "evento_id": 189,
+      "cliente": "lorrany 🩷 kevin 🩵",
+      "data_primeiro_contato": "2025-12-13",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1267
+    },
+    {
+      "evento_id": 190,
+      "cliente": "Aline Praz",
+      "data_primeiro_contato": "2025-12-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1266
+    },
+    {
+      "evento_id": 191,
+      "cliente": "Adry🌪",
+      "data_primeiro_contato": "2025-12-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1265
+    },
+    {
+      "evento_id": 192,
+      "cliente": "Vivi",
+      "data_primeiro_contato": "2025-12-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1264
+    },
+    {
+      "evento_id": 193,
+      "cliente": "Alice",
+      "data_primeiro_contato": "2025-12-09",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1263
+    },
+    {
+      "evento_id": 194,
+      "cliente": "Protocolo Antônio Carlos",
+      "data_primeiro_contato": "2025-12-08",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1262
+    },
+    {
+      "evento_id": 195,
+      "cliente": "⚡Paloma 🦋",
+      "data_primeiro_contato": "2025-12-06",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1261
+    },
+    {
+      "evento_id": 196,
+      "cliente": "Ana",
+      "data_primeiro_contato": "2025-11-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1159
+    },
+    {
+      "evento_id": 197,
+      "cliente": "sayranny",
+      "data_primeiro_contato": "2025-11-28",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1112
+    },
+    {
+      "evento_id": 198,
+      "cliente": "551130425619",
+      "data_primeiro_contato": "2025-11-27",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1111
+    },
+    {
+      "evento_id": 199,
+      "cliente": "Eduardo José Mendes",
+      "data_primeiro_contato": "2025-11-21",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1108
+    },
+    {
+      "evento_id": 200,
+      "cliente": "Katrin",
+      "data_primeiro_contato": "2025-11-21",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1104
+    },
+    {
+      "evento_id": 201,
+      "cliente": "Joana",
+      "data_primeiro_contato": "2025-11-19",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1101
+    },
+    {
+      "evento_id": 202,
+      "cliente": "contato",
+      "data_primeiro_contato": "2025-11-17",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1100
+    },
+    {
+      "evento_id": 203,
+      "cliente": "Ari Farias",
+      "data_primeiro_contato": "2025-11-13",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1065
+    },
+    {
+      "evento_id": 204,
+      "cliente": "Cauany Correa",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 762
+    },
+    {
+      "evento_id": 205,
+      "cliente": "JOYCE A. HOFFMANN HANG",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 356
+    },
+    {
+      "evento_id": 206,
+      "cliente": "TAINARA DA SILVA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 642
+    },
+    {
+      "evento_id": 207,
+      "cliente": "KAUAN",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 624
+    },
+    {
+      "evento_id": 208,
+      "cliente": "ANDERSON COELHO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 578
+    },
+    {
+      "evento_id": 209,
+      "cliente": "Mara",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 567
+    },
+    {
+      "evento_id": 210,
+      "cliente": "ANA LUIZA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 554
+    },
+    {
+      "evento_id": 211,
+      "cliente": "MANOELLA SOUZA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 509
+    },
+    {
+      "evento_id": 212,
+      "cliente": "RAFAELLA FERNANDES",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 505
+    },
+    {
+      "evento_id": 213,
+      "cliente": "KAUANY DO NASCIMENTO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 498
+    },
+    {
+      "evento_id": 214,
+      "cliente": "SUIANY",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 490
+    },
+    {
+      "evento_id": 215,
+      "cliente": "PRISCILA VARGAS",
+      "data_primeiro_contato": "2026-01-05",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1280
+    },
+    {
+      "evento_id": 216,
+      "cliente": "FABIANA SIMAS",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 427
+    },
+    {
+      "evento_id": 217,
+      "cliente": "JOANA BERNARDOM",
+      "data_primeiro_contato": "2025-12-29",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 1277
+    },
+    {
+      "evento_id": 218,
+      "cliente": "ANGELA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 346
+    },
+    {
+      "evento_id": 219,
+      "cliente": "BEATRIZ VIEIRA RODRIGUES",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 306
+    },
+    {
+      "evento_id": 220,
+      "cliente": "MAYARA VIEIRA MEDEIROS",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 305
+    },
+    {
+      "evento_id": 221,
+      "cliente": "ALINE",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 608
+    },
+    {
+      "evento_id": 222,
+      "cliente": "TATIANE",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 258
+    },
+    {
+      "evento_id": 223,
+      "cliente": "GABRIELLA SPONTON",
+      "data_primeiro_contato": "2026-01-15",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 2039
+    },
+    {
+      "evento_id": 224,
+      "cliente": "Nanda",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 238
+    },
+    {
+      "evento_id": 225,
+      "cliente": "Aline Guesser",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 235
+    },
+    {
+      "evento_id": 226,
+      "cliente": "Débora de Souza C Kretzer",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 232
+    },
+    {
+      "evento_id": 227,
+      "cliente": "Damaris",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 759
+    },
+    {
+      "evento_id": 228,
+      "cliente": "Aline",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 991
+    },
+    {
+      "evento_id": 229,
+      "cliente": "Rebeka Souza",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 214
+    },
+    {
+      "evento_id": 230,
+      "cliente": "Naraliz",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 212
+    },
+    {
+      "evento_id": 231,
+      "cliente": "Taina Silveira",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 208
+    },
+    {
+      "evento_id": 232,
+      "cliente": "Camila",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 206
+    },
+    {
+      "evento_id": 233,
+      "cliente": "Evelyn",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 204
+    },
+    {
+      "evento_id": 234,
+      "cliente": "Carla",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 197
+    },
+    {
+      "evento_id": 235,
+      "cliente": "Jaqueline Bitencourt",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 188
+    },
+    {
+      "evento_id": 236,
+      "cliente": "Jaine Mannes",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 187
+    },
+    {
+      "evento_id": 237,
+      "cliente": "Felipe  Santos",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 183
+    },
+    {
+      "evento_id": 238,
+      "cliente": "Bebidas Andrade",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 182
+    },
+    {
+      "evento_id": 239,
+      "cliente": "Karla",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 179
+    },
+    {
+      "evento_id": 240,
+      "cliente": "☀️Boas energias 💫✨",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 176
+    },
+    {
+      "evento_id": 241,
+      "cliente": "Joice Cardoso",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 175
+    },
+    {
+      "evento_id": 242,
+      "cliente": "Fran",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 174
+    },
+    {
+      "evento_id": 243,
+      "cliente": "Jéssica",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 173
+    },
+    {
+      "evento_id": 244,
+      "cliente": "Tainara",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 172
+    },
+    {
+      "evento_id": 245,
+      "cliente": "Nara Martins",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 756
+    },
+    {
+      "evento_id": 246,
+      "cliente": "Deisi",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 170
+    },
+    {
+      "evento_id": 247,
+      "cliente": "Marlise",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-17",
+      "legacy_lead_id": 165
+    },
+    {
+      "evento_id": 249,
+      "cliente": "Taisy❣️",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1064
+    },
+    {
+      "evento_id": 250,
+      "cliente": "FERNANDA KOCH DECKER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1053
+    },
+    {
+      "evento_id": 251,
+      "cliente": "LUANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1052
+    },
+    {
+      "evento_id": 252,
+      "cliente": "LEH",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1051
+    },
+    {
+      "evento_id": 253,
+      "cliente": "FABIOLA PERES",
+      "data_primeiro_contato": "2026-05-16",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 2325
+    },
+    {
+      "evento_id": 254,
+      "cliente": "ANA PAULA 1",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1049
+    },
+    {
+      "evento_id": 255,
+      "cliente": "CAMILA FISIOTERAPEUTA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1048
+    },
+    {
+      "evento_id": 256,
+      "cliente": "SEM NOME 8",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1047
+    },
+    {
+      "evento_id": 257,
+      "cliente": "KELLY ADAM LUCCA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1046
+    },
+    {
+      "evento_id": 258,
+      "cliente": "TAINARA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1045
+    },
+    {
+      "evento_id": 259,
+      "cliente": "ANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1044
+    },
+    {
+      "evento_id": 260,
+      "cliente": "VANESSA DE OLIVEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1043
+    },
+    {
+      "evento_id": 261,
+      "cliente": "ANDREIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1042
+    },
+    {
+      "evento_id": 262,
+      "cliente": "Vanessa Schmitz Quintino",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1041
+    },
+    {
+      "evento_id": 263,
+      "cliente": "JULIANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1040
+    },
+    {
+      "evento_id": 264,
+      "cliente": "ANA PAULA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1039
+    },
+    {
+      "evento_id": 265,
+      "cliente": "BRUNA ARAUJO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1038
+    },
+    {
+      "evento_id": 266,
+      "cliente": "KATIA SOUZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1037
+    },
+    {
+      "evento_id": 267,
+      "cliente": "LUIZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1036
+    },
+    {
+      "evento_id": 268,
+      "cliente": "MARCOS FOLTRAN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1035
+    },
+    {
+      "evento_id": 269,
+      "cliente": "Gisely Gonçalves Alexandre Pereira",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1034
+    },
+    {
+      "evento_id": 270,
+      "cliente": "EMILLY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1033
+    },
+    {
+      "evento_id": 271,
+      "cliente": "LETICIA CHAYARA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1032
+    },
+    {
+      "evento_id": 273,
+      "cliente": "DUDAH",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1030
+    },
+    {
+      "evento_id": 274,
+      "cliente": "VANESSA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1029
+    },
+    {
+      "evento_id": 275,
+      "cliente": "THIAGO LINO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1028
+    },
+    {
+      "evento_id": 276,
+      "cliente": "GABRIELA JUTTEL",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1027
+    },
+    {
+      "evento_id": 277,
+      "cliente": "ISABEL",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1026
+    },
+    {
+      "evento_id": 279,
+      "cliente": "CRIS GUEDES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1024
+    },
+    {
+      "evento_id": 280,
+      "cliente": "VANESSA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1023
+    },
+    {
+      "evento_id": 281,
+      "cliente": "DAYSE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1022
+    },
+    {
+      "evento_id": 282,
+      "cliente": "NATASHA BLANKE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1021
+    },
+    {
+      "evento_id": 283,
+      "cliente": "INDI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1020
+    },
+    {
+      "evento_id": 284,
+      "cliente": "ARQ MARIA CECILIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1019
+    },
+    {
+      "evento_id": 285,
+      "cliente": "TAI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1018
+    },
+    {
+      "evento_id": 286,
+      "cliente": "TATIANE MARTINS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1017
+    },
+    {
+      "evento_id": 287,
+      "cliente": "MIRIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1016
+    },
+    {
+      "evento_id": 288,
+      "cliente": "JOICE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1015
+    },
+    {
+      "evento_id": 289,
+      "cliente": "MAYRA FERNANDES ANDRIANI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1014
+    },
+    {
+      "evento_id": 290,
+      "cliente": "VANESSA PERFEITO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1013
+    },
+    {
+      "evento_id": 292,
+      "cliente": "AMANDA HOFFMANN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1011
+    },
+    {
+      "evento_id": 293,
+      "cliente": "GABI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1010
+    },
+    {
+      "evento_id": 294,
+      "cliente": "PAOLA ISABEL",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1009
+    },
+    {
+      "evento_id": 295,
+      "cliente": "TAISE S. SILVEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1008
+    },
+    {
+      "evento_id": 296,
+      "cliente": "ELIZA RAQUEL",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1007
+    },
+    {
+      "evento_id": 297,
+      "cliente": "Brunna Manchein",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1006
+    },
+    {
+      "evento_id": 298,
+      "cliente": "HELIA BUENO DA LUZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1005
+    },
+    {
+      "evento_id": 299,
+      "cliente": "MARCELA WEBER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1004
+    },
+    {
+      "evento_id": 300,
+      "cliente": "BRUNA KUHN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1003
+    },
+    {
+      "evento_id": 301,
+      "cliente": "FRAN MARTINS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1002
+    },
+    {
+      "evento_id": 302,
+      "cliente": "GABRIEL KOCHE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1001
+    },
+    {
+      "evento_id": 303,
+      "cliente": "JULIANA MARTENDAL RODEN",
+      "data_primeiro_contato": "2025-11-24",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1109
+    },
+    {
+      "evento_id": 304,
+      "cliente": "LUCINEIDE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 999
+    },
+    {
+      "evento_id": 306,
+      "cliente": "TAY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 997
+    },
+    {
+      "evento_id": 307,
+      "cliente": "Gábriela Schèttz",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 996
+    },
+    {
+      "evento_id": 308,
+      "cliente": "PRISCILA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 995
+    },
+    {
+      "evento_id": 310,
+      "cliente": "MAIRA AMORIM",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 993
+    },
+    {
+      "evento_id": 311,
+      "cliente": "RENATA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 992
+    },
+    {
+      "evento_id": 313,
+      "cliente": "JULIANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 990
+    },
+    {
+      "evento_id": 315,
+      "cliente": "Alexandre",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 988
+    },
+    {
+      "evento_id": 319,
+      "cliente": "VANIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 984
+    },
+    {
+      "evento_id": 320,
+      "cliente": "SUZANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 983
+    },
+    {
+      "evento_id": 321,
+      "cliente": "CLEIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 982
+    },
+    {
+      "evento_id": 322,
+      "cliente": "BRUNA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 981
+    },
+    {
+      "evento_id": 324,
+      "cliente": "TAYNA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 979
+    },
+    {
+      "evento_id": 325,
+      "cliente": "JULIANA RIBEIRO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 978
+    },
+    {
+      "evento_id": 327,
+      "cliente": "SCHEILA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 976
+    },
+    {
+      "evento_id": 328,
+      "cliente": "NICOLLY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 975
+    },
+    {
+      "evento_id": 329,
+      "cliente": "MARIA NAILS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 974
+    },
+    {
+      "evento_id": 330,
+      "cliente": "JOICE PRIM",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 973
+    },
+    {
+      "evento_id": 331,
+      "cliente": "ALAN M WILVERT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 972
+    },
+    {
+      "evento_id": 332,
+      "cliente": "GABRIELA CANTARELLI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 971
+    },
+    {
+      "evento_id": 333,
+      "cliente": "LARI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 970
+    },
+    {
+      "evento_id": 334,
+      "cliente": "Valeria Petry Schvambach",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 969
+    },
+    {
+      "evento_id": 335,
+      "cliente": "JULEIDE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 968
+    },
+    {
+      "evento_id": 336,
+      "cliente": "DANI DE BEM",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 967
+    },
+    {
+      "evento_id": 338,
+      "cliente": "DJEINI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 965
+    },
+    {
+      "evento_id": 339,
+      "cliente": "EDUARDA ZIMMERMANN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 964
+    },
+    {
+      "evento_id": 340,
+      "cliente": "LUANA SOUZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 963
+    },
+    {
+      "evento_id": 341,
+      "cliente": "CAROLINE WEBER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 962
+    },
+    {
+      "evento_id": 342,
+      "cliente": "LUCIANA CAMARGO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 961
+    },
+    {
+      "evento_id": 343,
+      "cliente": "MARCOS SILVA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 960
+    },
+    {
+      "evento_id": 344,
+      "cliente": "CAMILA JUNCKES PETRY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 959
+    },
+    {
+      "evento_id": 345,
+      "cliente": "TAMIRES VEBER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 958
+    },
+    {
+      "evento_id": 346,
+      "cliente": "TATIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 957
+    },
+    {
+      "evento_id": 347,
+      "cliente": "FERNANDA BRAND",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 956
+    },
+    {
+      "evento_id": 348,
+      "cliente": "MARIZETE MELO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 955
+    },
+    {
+      "evento_id": 349,
+      "cliente": "KATIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 953
+    },
+    {
+      "evento_id": 350,
+      "cliente": "JESSICA RIBEIRO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 952
+    },
+    {
+      "evento_id": 351,
+      "cliente": "ANDRESSA CACENOT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 951
+    },
+    {
+      "evento_id": 352,
+      "cliente": "SUANI COSTA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 950
+    },
+    {
+      "evento_id": 353,
+      "cliente": "ANA PAULA - KAKA BRINQUEDOS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 949
+    },
+    {
+      "evento_id": 355,
+      "cliente": "ELAINE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 947
+    },
+    {
+      "evento_id": 356,
+      "cliente": "KAROL",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 946
+    },
+    {
+      "evento_id": 357,
+      "cliente": "ALEXANDRA SILVA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 945
+    },
+    {
+      "evento_id": 358,
+      "cliente": "DAIANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 944
+    },
+    {
+      "evento_id": 359,
+      "cliente": "GISELE BEATRIZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 943
+    },
+    {
+      "evento_id": 360,
+      "cliente": "CARLA DAL LAGO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 942
+    },
+    {
+      "evento_id": 361,
+      "cliente": "ALINE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 941
+    },
+    {
+      "evento_id": 362,
+      "cliente": "SEM NOME 5",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 940
+    },
+    {
+      "evento_id": 363,
+      "cliente": "DANIELA JAQUELINE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 939
+    },
+    {
+      "evento_id": 364,
+      "cliente": "JUH SOUZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 938
+    },
+    {
+      "evento_id": 365,
+      "cliente": "MARCELA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 937
+    },
+    {
+      "evento_id": 366,
+      "cliente": "JESSICA RATIERE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 936
+    },
+    {
+      "evento_id": 367,
+      "cliente": "MARA W",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 935
+    },
+    {
+      "evento_id": 368,
+      "cliente": "AMANDA MENDONÇA OLIVEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 934
+    },
+    {
+      "evento_id": 370,
+      "cliente": "SABRINA SCHMITT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 932
+    },
+    {
+      "evento_id": 371,
+      "cliente": "Eduardo Pauli",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 931
+    },
+    {
+      "evento_id": 372,
+      "cliente": "IZABEL LEITE CRISTOVAO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 930
+    },
+    {
+      "evento_id": 373,
+      "cliente": "NARA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 929
+    },
+    {
+      "evento_id": 374,
+      "cliente": "MICHELA STRUCKER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 928
+    },
+    {
+      "evento_id": 375,
+      "cliente": "CAROLINE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 927
+    },
+    {
+      "evento_id": 376,
+      "cliente": "Priscila Nicollas",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 926
+    },
+    {
+      "evento_id": 377,
+      "cliente": "Mayara C. Pereira",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 925
+    },
+    {
+      "evento_id": 379,
+      "cliente": "PATY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 923
+    },
+    {
+      "evento_id": 380,
+      "cliente": "AMANDA BORBA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 922
+    },
+    {
+      "evento_id": 381,
+      "cliente": "CAROL VIEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 921
+    },
+    {
+      "evento_id": 382,
+      "cliente": "ANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 920
+    },
+    {
+      "evento_id": 384,
+      "cliente": "ALVA VEIGA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 917
+    },
+    {
+      "evento_id": 385,
+      "cliente": "SEM NOME 7",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 916
+    },
+    {
+      "evento_id": 386,
+      "cliente": "SABRINA S DE SOUZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 915
+    },
+    {
+      "evento_id": 387,
+      "cliente": "REGIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 914
+    },
+    {
+      "evento_id": 388,
+      "cliente": "NETA BRITO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 913
+    },
+    {
+      "evento_id": 389,
+      "cliente": "PAULA BARCELOS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 912
+    },
+    {
+      "evento_id": 390,
+      "cliente": "MARIA EDUARDA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 391,
+      "cliente": "ANA PAULA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 910
+    },
+    {
+      "evento_id": 393,
+      "cliente": "BEATRIZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 908
+    },
+    {
+      "evento_id": 394,
+      "cliente": "NIC",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 907
+    },
+    {
+      "evento_id": 395,
+      "cliente": "KAMILA MENDES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 906
+    },
+    {
+      "evento_id": 396,
+      "cliente": "FERNANDA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 905
+    },
+    {
+      "evento_id": 397,
+      "cliente": "NATALIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 904
+    },
+    {
+      "evento_id": 399,
+      "cliente": "MAYARA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 902
+    },
+    {
+      "evento_id": 400,
+      "cliente": "MARIANA MACHADO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 901
+    },
+    {
+      "evento_id": 401,
+      "cliente": "TATIANE DE SOUZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 900
+    },
+    {
+      "evento_id": 402,
+      "cliente": "BRUNA JUNCKES RIOS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 899
+    },
+    {
+      "evento_id": 403,
+      "cliente": "VILMAR",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 898
+    },
+    {
+      "evento_id": 404,
+      "cliente": "VANESSA GROTHE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 897
+    },
+    {
+      "evento_id": 406,
+      "cliente": "CHRISCHELLE WEBER MENDES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 895
+    },
+    {
+      "evento_id": 407,
+      "cliente": "STEFANI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 894
+    },
+    {
+      "evento_id": 408,
+      "cliente": "POLI RIBEIRO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 893
+    },
+    {
+      "evento_id": 409,
+      "cliente": "VANILLIS STOLK",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 892
+    },
+    {
+      "evento_id": 410,
+      "cliente": "MATHEUS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 891
+    },
+    {
+      "evento_id": 411,
+      "cliente": "ALINE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 890
+    },
+    {
+      "evento_id": 412,
+      "cliente": "ROSANE GODINHO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 889
+    },
+    {
+      "evento_id": 413,
+      "cliente": "DEYSE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 888
+    },
+    {
+      "evento_id": 414,
+      "cliente": "DAYSE SOUZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 887
+    },
+    {
+      "evento_id": 415,
+      "cliente": "PODOLOGA MANOELA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 886
+    },
+    {
+      "evento_id": 416,
+      "cliente": "BIANCA KAUFMANN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 885
+    },
+    {
+      "evento_id": 417,
+      "cliente": "ALINE CECILIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 884
+    },
+    {
+      "evento_id": 418,
+      "cliente": "DANIELLI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 883
+    },
+    {
+      "evento_id": 419,
+      "cliente": "NATALIA E. R. WEISS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 882
+    },
+    {
+      "evento_id": 422,
+      "cliente": "MARIANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 879
+    },
+    {
+      "evento_id": 424,
+      "cliente": "SAMANTHA VOLTOLINI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 877
+    },
+    {
+      "evento_id": 425,
+      "cliente": "DANI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 876
+    },
+    {
+      "evento_id": 427,
+      "cliente": "JESSICA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 874
+    },
+    {
+      "evento_id": 428,
+      "cliente": "GABI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 873
+    },
+    {
+      "evento_id": 429,
+      "cliente": "SARA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 872
+    },
+    {
+      "evento_id": 430,
+      "cliente": "CINTIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 871
+    },
+    {
+      "evento_id": 431,
+      "cliente": "MARI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 870
+    },
+    {
+      "evento_id": 432,
+      "cliente": "KERLIN SILVANA FRAGA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 869
+    },
+    {
+      "evento_id": 433,
+      "cliente": "LILI 3 RIACHOS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 868
+    },
+    {
+      "evento_id": 434,
+      "cliente": "HELOISA BORGES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 867
+    },
+    {
+      "evento_id": 435,
+      "cliente": "MILEINE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 866
+    },
+    {
+      "evento_id": 436,
+      "cliente": "DOUGLAS DUTRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 865
+    },
+    {
+      "evento_id": 438,
+      "cliente": "ANA CAROLINE PEREIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 863
+    },
+    {
+      "evento_id": 439,
+      "cliente": "PATRICIA SCHMITT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 862
+    },
+    {
+      "evento_id": 440,
+      "cliente": "CRISTIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 861
+    },
+    {
+      "evento_id": 441,
+      "cliente": "FRANCIELI MELO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 860
+    },
+    {
+      "evento_id": 442,
+      "cliente": "DANI HAIR CABELEIREIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 859
+    },
+    {
+      "evento_id": 443,
+      "cliente": "FERNANDA BICHELS",
+      "data_primeiro_contato": "2026-05-21",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 2328
+    },
+    {
+      "evento_id": 444,
+      "cliente": "PAULA GOULART",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 857
+    },
+    {
+      "evento_id": 446,
+      "cliente": "AMANDA SCHMITT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 855
+    },
+    {
+      "evento_id": 447,
+      "cliente": "JAINE NONNEMACHER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 854
+    },
+    {
+      "evento_id": 448,
+      "cliente": "DANIELA PETRY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 853
+    },
+    {
+      "evento_id": 449,
+      "cliente": "JOICE POZZA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 852
+    },
+    {
+      "evento_id": 450,
+      "cliente": "RAYSSA ALVES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 851
+    },
+    {
+      "evento_id": 451,
+      "cliente": "ELISANDRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 850
+    },
+    {
+      "evento_id": 452,
+      "cliente": "SUELLEN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 849
+    },
+    {
+      "evento_id": 454,
+      "cliente": "JOCELENE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 847
+    },
+    {
+      "evento_id": 455,
+      "cliente": "MARIA ANTONIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 846
+    },
+    {
+      "evento_id": 456,
+      "cliente": "CARLA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 845
+    },
+    {
+      "evento_id": 457,
+      "cliente": "ARTUR SILVEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 844
+    },
+    {
+      "evento_id": 458,
+      "cliente": "HELEN AVILA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 843
+    },
+    {
+      "evento_id": 459,
+      "cliente": "ADRI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 842
+    },
+    {
+      "evento_id": 460,
+      "cliente": "JULIANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 841
+    },
+    {
+      "evento_id": 461,
+      "cliente": "MARIANE",
+      "data_primeiro_contato": "2025-12-06",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1260
+    },
+    {
+      "evento_id": 462,
+      "cliente": "RAFAELA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 839
+    },
+    {
+      "evento_id": 463,
+      "cliente": "CARLA PALAZZI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 838
+    },
+    {
+      "evento_id": 464,
+      "cliente": "FERNANDA 1",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 837
+    },
+    {
+      "evento_id": 465,
+      "cliente": "WANESSA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 836
+    },
+    {
+      "evento_id": 466,
+      "cliente": "SENSEI PALOMA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 835
+    },
+    {
+      "evento_id": 467,
+      "cliente": "LUCIANA ALMEIDA DA SILVA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 834
+    },
+    {
+      "evento_id": 468,
+      "cliente": "LUCIMERE JUNKES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 833
+    },
+    {
+      "evento_id": 470,
+      "cliente": "ANDRI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 831
+    },
+    {
+      "evento_id": 471,
+      "cliente": "MONIQUE LINO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 830
+    },
+    {
+      "evento_id": 472,
+      "cliente": "SANDRA VIEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 829
+    },
+    {
+      "evento_id": 473,
+      "cliente": "GABI KIDS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 828
+    },
+    {
+      "evento_id": 474,
+      "cliente": "ANA CARLA PRIM",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 827
+    },
+    {
+      "evento_id": 475,
+      "cliente": "MARIA EDUARDA PEREIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 826
+    },
+    {
+      "evento_id": 476,
+      "cliente": "ELIZE ALFLEN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 825
+    },
+    {
+      "evento_id": 478,
+      "cliente": "KELEN RIBEIRO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 823
+    },
+    {
+      "evento_id": 480,
+      "cliente": "VIVIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 821
+    },
+    {
+      "evento_id": 481,
+      "cliente": "AMANDA BATISTA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 820
+    },
+    {
+      "evento_id": 482,
+      "cliente": "JAQUELINE TOMAZONI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 819
+    },
+    {
+      "evento_id": 483,
+      "cliente": "TAMARA PACHECO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 818
+    },
+    {
+      "evento_id": 484,
+      "cliente": "MAGÁLI DUARTE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 485,
+      "cliente": "VIVIANE DALMASO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 989
+    },
+    {
+      "evento_id": 486,
+      "cliente": "ELIZABETE CRISTINA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 815
+    },
+    {
+      "evento_id": 487,
+      "cliente": "JAQUELINE MANNES GUESSER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 814
+    },
+    {
+      "evento_id": 488,
+      "cliente": "BEATRIZ CARVALHO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 489,
+      "cliente": "SABRINA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 490,
+      "cliente": "ANA JULIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 811
+    },
+    {
+      "evento_id": 491,
+      "cliente": "AMANDA RICHARTZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 810
+    },
+    {
+      "evento_id": 492,
+      "cliente": "ELISA PINHO SCHLICHTING",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 809
+    },
+    {
+      "evento_id": 493,
+      "cliente": "SILVANA OLIVEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 808
+    },
+    {
+      "evento_id": 494,
+      "cliente": "VANESSA 3",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 495,
+      "cliente": "MAYARA S",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 496,
+      "cliente": "ELENICE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 497,
+      "cliente": "AMANDA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 804
+    },
+    {
+      "evento_id": 498,
+      "cliente": "MARLI WEIRICH",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 803
+    },
+    {
+      "evento_id": 499,
+      "cliente": "LUCIANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 802
+    },
+    {
+      "evento_id": 500,
+      "cliente": "JULIANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 801
+    },
+    {
+      "evento_id": 501,
+      "cliente": "JULIANA - B&G STORE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 502,
+      "cliente": "ELIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 799
+    },
+    {
+      "evento_id": 503,
+      "cliente": "VANESSA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 798
+    },
+    {
+      "evento_id": 505,
+      "cliente": "LILIAN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 796
+    },
+    {
+      "evento_id": 506,
+      "cliente": "Daiany Rothstein",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 795
+    },
+    {
+      "evento_id": 507,
+      "cliente": "SIMONE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 794
+    },
+    {
+      "evento_id": 508,
+      "cliente": "Amábile Beatrice",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 793
+    },
+    {
+      "evento_id": 509,
+      "cliente": "KARINE PSICOPEDAGOGA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 792
+    },
+    {
+      "evento_id": 510,
+      "cliente": "Andriely Sousa",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 791
+    },
+    {
+      "evento_id": 511,
+      "cliente": "Sabrina Schmitz",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 790
+    },
+    {
+      "evento_id": 512,
+      "cliente": "EMANUELLE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 986
+    },
+    {
+      "evento_id": 513,
+      "cliente": "ANA PAULA PAZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 788
+    },
+    {
+      "evento_id": 514,
+      "cliente": "ANA PAULA VIEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 787
+    },
+    {
+      "evento_id": 516,
+      "cliente": "ANDREIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 785
+    },
+    {
+      "evento_id": 517,
+      "cliente": "IRENE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 784
+    },
+    {
+      "evento_id": 518,
+      "cliente": "THASI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 783
+    },
+    {
+      "evento_id": 519,
+      "cliente": "ALINE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 782
+    },
+    {
+      "evento_id": 520,
+      "cliente": "EDILEIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 781
+    },
+    {
+      "evento_id": 521,
+      "cliente": "GABRIELLE VAZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 780
+    },
+    {
+      "evento_id": 522,
+      "cliente": "MARIELLE LORENZI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 779
+    },
+    {
+      "evento_id": 523,
+      "cliente": "Ariany Hauptli",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 778
+    },
+    {
+      "evento_id": 524,
+      "cliente": "HÉLLEN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 777
+    },
+    {
+      "evento_id": 525,
+      "cliente": "POLLY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 776
+    },
+    {
+      "evento_id": 526,
+      "cliente": "ADRIANA BIANCHINI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 775
+    },
+    {
+      "evento_id": 527,
+      "cliente": "VERONIKA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 774
+    },
+    {
+      "evento_id": 528,
+      "cliente": "SEM NOME",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 773
+    },
+    {
+      "evento_id": 529,
+      "cliente": "JULIANE HOFFMANN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 772
+    },
+    {
+      "evento_id": 530,
+      "cliente": "BRENDA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 771
+    },
+    {
+      "evento_id": 531,
+      "cliente": "BRENDA SCHMITT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 770
+    },
+    {
+      "evento_id": 532,
+      "cliente": "GABRIELA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 769
+    },
+    {
+      "evento_id": 533,
+      "cliente": "BRUNA NAU MALAGOLI 2",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 534,
+      "cliente": "THAINARA HOFFMANN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 767
+    },
+    {
+      "evento_id": 536,
+      "cliente": "ALINE WEBER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 765
+    },
+    {
+      "evento_id": 537,
+      "cliente": "NATHALIA REITZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 764
+    },
+    {
+      "evento_id": 540,
+      "cliente": "ISAKEILA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 761
+    },
+    {
+      "evento_id": 541,
+      "cliente": "EVANDRO DUARTE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 760
+    },
+    {
+      "evento_id": 543,
+      "cliente": "CAMILA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 758
+    },
+    {
+      "evento_id": 544,
+      "cliente": "SUELEN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 757
+    },
+    {
+      "evento_id": 546,
+      "cliente": "PAMELLA MONTEIRO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 755
+    },
+    {
+      "evento_id": 547,
+      "cliente": "JULIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 754
+    },
+    {
+      "evento_id": 548,
+      "cliente": "MICHELLE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 753
+    },
+    {
+      "evento_id": 549,
+      "cliente": "TATIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 752
+    },
+    {
+      "evento_id": 550,
+      "cliente": "ANA CAROLINE MARTINS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 751
+    },
+    {
+      "evento_id": 551,
+      "cliente": "Danielli Boing Fernandes",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 750
+    },
+    {
+      "evento_id": 552,
+      "cliente": "LAVANDA FIOS E LUZES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 749
+    },
+    {
+      "evento_id": 553,
+      "cliente": "Eduarda Paulina Egert",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 748
+    },
+    {
+      "evento_id": 554,
+      "cliente": "MARY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 747
+    },
+    {
+      "evento_id": 556,
+      "cliente": "Gabriella S.P Kuhn",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 745
+    },
+    {
+      "evento_id": 558,
+      "cliente": "JULIETE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 743
+    },
+    {
+      "evento_id": 559,
+      "cliente": "Lu Manes Bittencourt",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 742
+    },
+    {
+      "evento_id": 560,
+      "cliente": "ANDREA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 741
+    },
+    {
+      "evento_id": 561,
+      "cliente": "GRACIELLA CALEGARI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 740
+    },
+    {
+      "evento_id": 562,
+      "cliente": "BRESSAN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 739
+    },
+    {
+      "evento_id": 563,
+      "cliente": "TATIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 738
+    },
+    {
+      "evento_id": 564,
+      "cliente": "DYANA DAMASIO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 737
+    },
+    {
+      "evento_id": 565,
+      "cliente": "DUANE VEBER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 736
+    },
+    {
+      "evento_id": 566,
+      "cliente": "FRAN MULLER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 735
+    },
+    {
+      "evento_id": 567,
+      "cliente": "JANAINA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 734
+    },
+    {
+      "evento_id": 568,
+      "cliente": "KARINA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 733
+    },
+    {
+      "evento_id": 569,
+      "cliente": "FRANCINE WESLING",
+      "data_primeiro_contato": "2026-06-17",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 2352
+    },
+    {
+      "evento_id": 570,
+      "cliente": "SEM NOME",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 731
+    },
+    {
+      "evento_id": 571,
+      "cliente": "TATIANE SCHMITT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 730
+    },
+    {
+      "evento_id": 572,
+      "cliente": "PATRICIA TAVARES",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 729
+    },
+    {
+      "evento_id": 573,
+      "cliente": "VANESSA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 728
+    },
+    {
+      "evento_id": 574,
+      "cliente": "DANY",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 727
+    },
+    {
+      "evento_id": 575,
+      "cliente": "LARISSA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 726
+    },
+    {
+      "evento_id": 576,
+      "cliente": "RAQUEL M MENEGUINI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 725
+    },
+    {
+      "evento_id": 577,
+      "cliente": "JULIANA CORRÊA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 724
+    },
+    {
+      "evento_id": 578,
+      "cliente": "ALINE SILVA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 723
+    },
+    {
+      "evento_id": 579,
+      "cliente": "EMELY MISTURINII",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 722
+    },
+    {
+      "evento_id": 580,
+      "cliente": "AMANDA P. J. DUARTE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 721
+    },
+    {
+      "evento_id": 582,
+      "cliente": "IVANA CORDOVA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 719
+    },
+    {
+      "evento_id": 584,
+      "cliente": "VANESSA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 717
+    },
+    {
+      "evento_id": 585,
+      "cliente": "TAMARA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 716
+    },
+    {
+      "evento_id": 586,
+      "cliente": "LUANA SILLVA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 715
+    },
+    {
+      "evento_id": 587,
+      "cliente": "FERNANDA DINIZ PASQUALETT",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 714
+    },
+    {
+      "evento_id": 588,
+      "cliente": "RAFAELA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 713
+    },
+    {
+      "evento_id": 591,
+      "cliente": "GELI COELHO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 710
+    },
+    {
+      "evento_id": 592,
+      "cliente": "ANDRESA SCHMITZ",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 709
+    },
+    {
+      "evento_id": 593,
+      "cliente": "DINAMICA POS OBRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 708
+    },
+    {
+      "evento_id": 594,
+      "cliente": "MARCIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 911
+    },
+    {
+      "evento_id": 595,
+      "cliente": "CAMILLA REITZ FRANCENER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 706
+    },
+    {
+      "evento_id": 596,
+      "cliente": "ANA BESEN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 705
+    },
+    {
+      "evento_id": 597,
+      "cliente": "THAYANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 704
+    },
+    {
+      "evento_id": 598,
+      "cliente": "CRISTINA MELO",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 703
+    },
+    {
+      "evento_id": 599,
+      "cliente": "JEEH SILVA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 702
+    },
+    {
+      "evento_id": 600,
+      "cliente": "KELLY CRISTINA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 701
+    },
+    {
+      "evento_id": 601,
+      "cliente": "GISELLE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 700
+    },
+    {
+      "evento_id": 602,
+      "cliente": "WIVIANE CAMPOS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 699
+    },
+    {
+      "evento_id": 603,
+      "cliente": "HELENA SCHERER PRIM",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 698
+    },
+    {
+      "evento_id": 604,
+      "cliente": "PRISCILA QUINTANILHA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 697
+    },
+    {
+      "evento_id": 605,
+      "cliente": "ANA CAROLINA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 696
+    },
+    {
+      "evento_id": 606,
+      "cliente": "HELEN MACIEL",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 695
+    },
+    {
+      "evento_id": 607,
+      "cliente": "SEM NOME",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 694
+    },
+    {
+      "evento_id": 608,
+      "cliente": "ELAINE LOHN",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 693
+    },
+    {
+      "evento_id": 609,
+      "cliente": "LUANA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 692
+    },
+    {
+      "evento_id": 610,
+      "cliente": "CARINA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 691
+    },
+    {
+      "evento_id": 611,
+      "cliente": "PATRICIA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 690
+    },
+    {
+      "evento_id": 612,
+      "cliente": "CARIPUNA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 689
+    },
+    {
+      "evento_id": 613,
+      "cliente": "ANANDA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 688
+    },
+    {
+      "evento_id": 614,
+      "cliente": "KARINE MARTINS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 687
+    },
+    {
+      "evento_id": 615,
+      "cliente": "MICHELLE - ALFORABEMESTAR",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 686
+    },
+    {
+      "evento_id": 616,
+      "cliente": "CRIS",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 685
+    },
+    {
+      "evento_id": 617,
+      "cliente": "ALEXANDRE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 684
+    },
+    {
+      "evento_id": 618,
+      "cliente": "LARI",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 744
+    },
+    {
+      "evento_id": 619,
+      "cliente": "RAYANNE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 682
+    },
+    {
+      "evento_id": 620,
+      "cliente": "FRAN - SALAO BELLA MULHER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 681
+    },
+    {
+      "evento_id": 621,
+      "cliente": "ELISETE DECKER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 680
+    },
+    {
+      "evento_id": 622,
+      "cliente": "ANDREIA GORGES GUESSER",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 679
+    },
+    {
+      "evento_id": 624,
+      "cliente": "SEM NOME 10",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 677
+    },
+    {
+      "evento_id": 625,
+      "cliente": "ELIANE",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 676
+    },
+    {
+      "evento_id": 626,
+      "cliente": "BEATRIZ VIEIRA",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 675
+    },
+    {
+      "evento_id": 627,
+      "cliente": "PAOLA ANTONIO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 657
+    },
+    {
+      "evento_id": 628,
+      "cliente": "VIVI",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 656
+    },
+    {
+      "evento_id": 631,
+      "cliente": "GABRIELA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 644
+    },
+    {
+      "evento_id": 632,
+      "cliente": "KENIA GUILHERME",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 614
+    },
+    {
+      "evento_id": 634,
+      "cliente": "LARI AMANCIO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 591
+    },
+    {
+      "evento_id": 635,
+      "cliente": "FILHO1234",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 590
+    },
+    {
+      "evento_id": 636,
+      "cliente": "MONIQUE",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 588
+    },
+    {
+      "evento_id": 637,
+      "cliente": "BRUNA SCHMITT",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 582
+    },
+    {
+      "evento_id": 638,
+      "cliente": "DANIELA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 580
+    },
+    {
+      "evento_id": 639,
+      "cliente": "NATHY",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 568
+    },
+    {
+      "evento_id": 640,
+      "cliente": "MARIA HELENA - VIZINHA BARRACAO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 564
+    },
+    {
+      "evento_id": 641,
+      "cliente": "EVA ASSUNCAO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 545
+    },
+    {
+      "evento_id": 642,
+      "cliente": "DANIELLE",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 540
+    },
+    {
+      "evento_id": 643,
+      "cliente": "SABRINA BESEN HASKEL",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 522
+    },
+    {
+      "evento_id": 644,
+      "cliente": "VALCELI LEAL JUNIOR",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 518
+    },
+    {
+      "evento_id": 646,
+      "cliente": "TIAGO FELIPE",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 495
+    },
+    {
+      "evento_id": 647,
+      "cliente": "MELO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 486
+    },
+    {
+      "evento_id": 648,
+      "cliente": "CAROL NECKEL",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 482
+    },
+    {
+      "evento_id": 649,
+      "cliente": "JULIA LIMA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 475
+    },
+    {
+      "evento_id": 650,
+      "cliente": "MARI",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 448
+    },
+    {
+      "evento_id": 651,
+      "cliente": "AMANDA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 433
+    },
+    {
+      "evento_id": 652,
+      "cliente": "ELOISA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 425
+    },
+    {
+      "evento_id": 653,
+      "cliente": "LARISSA GUIMARAES",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 413
+    },
+    {
+      "evento_id": 654,
+      "cliente": "ALINE LOPES",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 401
+    },
+    {
+      "evento_id": 655,
+      "cliente": "FRANCIELE KLEIN GUESSER",
+      "data_primeiro_contato": "2026-04-06",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 2269
+    },
+    {
+      "evento_id": 656,
+      "cliente": "GILMARA",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 354
+    },
+    {
+      "evento_id": 657,
+      "cliente": "DANI BORB",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 344
+    },
+    {
+      "evento_id": 659,
+      "cliente": "FRAN",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 322
+    },
+    {
+      "evento_id": 660,
+      "cliente": "SANDRA HOFFMANN",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 286
+    },
+    {
+      "evento_id": 662,
+      "cliente": "CAMILA RIBEIRO",
+      "data_primeiro_contato": "2025-11-11",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 264
+    },
+    {
+      "evento_id": 663,
+      "cliente": "Solange",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1025
+    },
+    {
+      "evento_id": 664,
+      "cliente": "Karla Dos Anjos Machado",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 231
+    },
+    {
+      "evento_id": 665,
+      "cliente": "𝒥𝑜𝑠𝑖",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 226
+    },
+    {
+      "evento_id": 666,
+      "cliente": "Grasi🌹Neci🌹lucas💙Karol💕Ni",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 225
+    },
+    {
+      "evento_id": 667,
+      "cliente": "Matusalém",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 224
+    },
+    {
+      "evento_id": 668,
+      "cliente": "Jéssica 🌺",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 223
+    },
+    {
+      "evento_id": 669,
+      "cliente": "Ana",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 222
+    },
+    {
+      "evento_id": 670,
+      "cliente": "CRIS DECKER",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 219
+    },
+    {
+      "evento_id": 671,
+      "cliente": "554884808864",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 215
+    },
+    {
+      "evento_id": 672,
+      "cliente": "Danieley Lucca",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 213
+    },
+    {
+      "evento_id": 673,
+      "cliente": "Arq. Amanda Richartz",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 211
+    },
+    {
+      "evento_id": 674,
+      "cliente": "Ariadinis Barata",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 210
+    },
+    {
+      "evento_id": 675,
+      "cliente": "Thainara Nogueira",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 987
+    },
+    {
+      "evento_id": 676,
+      "cliente": "Ianka Silveira",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 198
+    },
+    {
+      "evento_id": 677,
+      "cliente": "Ceila",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 195
+    },
+    {
+      "evento_id": 678,
+      "cliente": "Jessica",
+      "data_primeiro_contato": "2025-11-12",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 1031
+    },
+    {
+      "evento_id": 679,
+      "cliente": "Roviller Personalizados",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 186
+    },
+    {
+      "evento_id": 681,
+      "cliente": "Gih 🍀",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 184
+    },
+    {
+      "evento_id": 682,
+      "cliente": "Marcelini👱🏻‍♀️",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 181
+    },
+    {
+      "evento_id": 683,
+      "cliente": "Priscila",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 178
+    },
+    {
+      "evento_id": 684,
+      "cliente": "Rosimere",
+      "data_primeiro_contato": "2025-11-10",
+      "created_at_festa": "2026-06-18",
+      "legacy_lead_id": 177
+    },
+    {
+      "evento_id": 794,
+      "cliente": "Maria Eduarda",
+      "data_primeiro_contato": "2026-07-02",
+      "created_at_festa": "2026-07-03",
+      "legacy_lead_id": 2361
+    },
+    {
+      "evento_id": 798,
+      "cliente": "Carla Carvalho",
+      "data_primeiro_contato": "2026-06-19",
+      "created_at_festa": "2026-07-03",
+      "legacy_lead_id": 2355
+    }
+  ],
+  "skipped": [
+    {
+      "evento_id": 826,
+      "reason": "no_legacy_match"
+    },
+    {
+      "evento_id": 827,
+      "reason": "no_legacy_match"
+    },
+    {
+      "evento_id": 828,
+      "reason": "no_legacy_match"
+    }
+  ],
+  "errors": []
+}

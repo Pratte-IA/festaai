@@ -11,11 +11,28 @@ export {
   buildDreEntradas,
   buildDrePeriodSummary,
   buildDreSaidas,
+  buildEntradasFestasAutomaticas,
+  buildEntradasManuaisGerais,
+  buildSaidasFestas,
+  buildSaidasGerais,
   mapContratoEntradaToDisplay,
   mapLancamentoToDisplay,
   sumDisplayItems,
 } from "./build-dre-entradas";
-export type { DrePeriodSummary, FinanceiroContratoEntrada, FinanceiroDisplayItem } from "./display-types";
+export { buildDreStatement } from "./build-dre-statement";
+export {
+  buildFinanceiroReportCsv,
+  downloadFinanceiroReport,
+  getFinanceiroReportFilename,
+} from "./export-financeiro-report";
+export type { FinanceiroExportData } from "./export-financeiro-report";
+export type {
+  DrePeriodSummary,
+  DreStatement,
+  DreStatementLine,
+  FinanceiroContratoEntrada,
+  FinanceiroDisplayItem,
+} from "./display-types";
 export {
   buildDashboardDescricaoRows,
   buildDashboardEntradaRows,
@@ -33,6 +50,7 @@ export {
   buildEventoFinanceiroSummary,
   buildTenantFinanceiroPeriodSummary,
   computeEventMarginPercent,
+  computeEventReceivableTotal,
   computeEventResult,
   computeEventRevenueTotal,
   sumUpsellEntradas,

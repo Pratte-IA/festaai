@@ -48,7 +48,7 @@ const defaultCategoriaByMode: Record<LancamentoFormMode, string> = {
   despesa_evento: "",
   despesa_geral: "",
   entrada_evento: "pagamento_contrato",
-  entrada_geral: "pagamento_contrato",
+  entrada_geral: "outras_receitas",
 };
 
 export const LancamentoFormDialog = ({

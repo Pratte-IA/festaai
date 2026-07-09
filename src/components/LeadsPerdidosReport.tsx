@@ -12,7 +12,13 @@ import {
   ReportComponentProps,
   useReportData,
 } from "@/features/reports";
-import { Evento } from "@/features/eventos";
+import {
+  Evento,
+  getEventoDataEntradaInstant,
+  getEventoDataEntradaIso,
+  isArchivedCrmEvento,
+} from "@/features/eventos";
+import { formatDateBR } from "@/lib/date";
 
 interface LostLead {
   event: Evento;
@@ -33,11 +39,13 @@ const LeadsPerdidosReport = ({ period }: ReportComponentProps) => {
     return (data?.eventos ?? [])
       .filter((e) => {
         if (e.funil !== "vendas") return false;
-        if (!isDateInPeriod(e.created_at.split("T")[0], period)) return false;
-        return daysBetween(e.created_at) >= 7;
+        if (e.etapa !== "perdido") return false;
+        if (isArchivedCrmEvento(e)) return false;
+        if (!isDateInPeriod(getEventoDataEntradaIso(e), period)) return false;
+        return daysBetween(getEventoDataEntradaInstant(e)) >= 7;
       })
       .map((event) => {
-        const daysSinceEntry = daysBetween(event.created_at);
+        const daysSinceEntry = daysBetween(getEventoDataEntradaInstant(event));
         const daysSinceUpdate = daysBetween(event.updated_at);
 
         let priority: Priority = "baixa";
@@ -149,7 +157,7 @@ const LeadsPerdidosReport = ({ period }: ReportComponentProps) => {
               {filtered.map((l) => (
                 <TableRow key={l.event.id} className={l.priority === "alta" ? "bg-coral/5" : ""}>
                   <TableCell className="font-medium">{l.event.cliente_nome}</TableCell>
-                  <TableCell>{new Date(l.event.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell>{formatDateBR(getEventoDataEntradaIso(l.event))}</TableCell>
                   <TableCell className="text-center">{l.event.quantidade_convidados ?? 0}</TableCell>
                   <TableCell className="text-center font-semibold">{l.daysSinceUpdate}d</TableCell>
                   <TableCell>

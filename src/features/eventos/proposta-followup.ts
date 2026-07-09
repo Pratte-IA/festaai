@@ -12,6 +12,14 @@ export const PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_END = 18;
 
 export const PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL = "follow-up-proposta-0-contato-inicial";
 
+export const PROPOSTA_FOLLOWUP_0B_DELAY_HOURS = 6;
+
+export const PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO =
+  "follow-up-proposta-0b-encerramento";
+
+export const PROPOSTA_FOLLOWUP_0B_LOSS_MOTIVO =
+  "Sem retorno após follow-ups de contato inicial";
+
 export const PROPOSTA_FOLLOWUP_1_DELAY_HOURS = 48;
 
 export const PROPOSTA_FOLLOWUP_2_DELAY_HOURS = 72;
@@ -61,6 +69,12 @@ export const DEFAULT_PROPOSTA_FOLLOWUP_0_CONTATO_INICIAL = `Oiii, {{primeiro_nom
 Passando aqui para saber se ficou alguma dúvida — a gente adoraria te ajudar com tudo o que você precisar para planejar essa festa especial. 🎉
 
 Ficamos no aguardo do seu retorno para darmos sequência no atendimento e cuidar de cada detalhe com muito carinho. 💛✨`;
+
+export const DEFAULT_PROPOSTA_FOLLOWUP_0B_ENCERRAMENTO = `Oiii, {{primeiro_nome}}! 😊
+
+Você ainda mantém interesse em fazer uma festa na {{nome_empresa}}? 🎉
+
+Ficamos no aguardo do seu retorno por aqui — será um prazer te ajudar a planejar esse dia especial. 💛✨`;
 
 export const DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
@@ -129,6 +143,7 @@ export const getPropostaFollowupKanbanBadge = (evento: {
   created_at?: string | null;
   etapa: string;
   followup_0_enviado_em?: string | null;
+  followup_0b_enviado_em?: string | null;
   followup_1_enviado_em?: string | null;
   followup_2_enviado_em?: string | null;
   followup_3_enviado_em?: string | null;
@@ -139,7 +154,11 @@ export const getPropostaFollowupKanbanBadge = (evento: {
 }): { className: string; label: string } | null => {
   if (evento.etapa === "contato_inicial") {
     if (evento.followup_0_enviado_em) {
-      return { className: "bg-success/15 text-success", label: "FU0 ✓" };
+      // Se o cliente já respondeu após o FU0, o marco é zerado — mostra FU0 ✓.
+      if (!evento.contato_inicial_ultima_mensagem_em) {
+        return { className: "bg-success/15 text-success", label: "FU0 ✓" };
+      }
+      return { className: "bg-muted text-muted-foreground", label: "Aguard. FU0b" };
     }
 
     // Referência para "parado há +2h": preferimos o marco da nossa última
@@ -157,6 +176,10 @@ export const getPropostaFollowupKanbanBadge = (evento: {
     }
 
     return null;
+  }
+
+  if (evento.etapa === "perdido" && evento.followup_0b_enviado_em) {
+    return { className: "bg-success/15 text-success", label: "FU0b ✓" };
   }
 
   if (evento.etapa !== "proposta_enviada") return null;

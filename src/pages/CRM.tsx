@@ -9,6 +9,7 @@ import {
   FunnelType,
   filterEventosBySearch,
   funnelTabs,
+  isArchivedCrmEvento,
   stageMap,
   useCreateEvento,
   useEventos,
@@ -26,10 +27,10 @@ const CRM = () => {
   const { data: eventos = [], error, isLoading } = useEventos({ funnel: activeFunnel });
   const createEvento = useCreateEvento();
   const stages = stageMap[activeFunnel];
-  const filteredEventos = useMemo(
-    () => filterEventosBySearch(eventos, searchTerm),
-    [eventos, searchTerm],
-  );
+  const filteredEventos = useMemo(() => {
+    const visible = eventos.filter((evento) => !isArchivedCrmEvento(evento));
+    return filterEventosBySearch(visible, searchTerm);
+  }, [eventos, searchTerm]);
   const hasActiveSearch = searchTerm.trim().length > 0;
 
   const handleCreateEvento = async (values: EventoFormValues) => {

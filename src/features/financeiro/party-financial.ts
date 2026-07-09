@@ -36,6 +36,20 @@ export const computeEventRevenueTotal = (
   upsellTotal: number,
 ) => Number(event.valor_total || 0) + upsellTotal;
 
+export const computeEventReceivableTotal = (
+  event: Pick<Evento, "valor_total">,
+  lancamentos: Pick<FinanceiroLancamento, "categoria" | "origem" | "tipo" | "valor">[],
+) => {
+  const adicionaisTotal = sumEntradasAdicionais(lancamentos);
+  const descontoTotal = sumDescontos(lancamentos);
+
+  return {
+    adicionaisTotal,
+    descontoTotal,
+    receivableTotal: computeEventRevenueTotal(event, adicionaisTotal) + descontoTotal,
+  };
+};
+
 export const computeEventResult = (entradaTotal: number, saidaTotal: number) => entradaTotal - saidaTotal;
 
 export const computeEventMarginPercent = (entradaTotal: number, resultado: number) => {
@@ -50,19 +64,18 @@ export const buildEventoFinanceiroSummary = (
   event: Pick<Evento, "valor_total">,
   lancamentos: Pick<FinanceiroLancamento, "categoria" | "origem" | "tipo" | "valor">[],
 ) => {
-  const upsellTotal = sumEntradasAdicionais(lancamentos);
-  const descontoTotal = sumDescontos(lancamentos);
-  const entradaTotal = computeEventRevenueTotal(event, upsellTotal) + descontoTotal;
+  const { adicionaisTotal, descontoTotal, receivableTotal } = computeEventReceivableTotal(event, lancamentos);
   const saidaTotal = sumLancamentosByTipo(lancamentos, "saida");
-  const resultadoFesta = computeEventResult(entradaTotal, saidaTotal);
-  const margemPercent = computeEventMarginPercent(entradaTotal, resultadoFesta);
+  const resultadoFesta = computeEventResult(receivableTotal, saidaTotal);
+  const margemPercent = computeEventMarginPercent(receivableTotal, resultadoFesta);
 
   return {
-    entradaTotal,
+    descontoTotal,
+    entradaTotal: receivableTotal,
     margemPercent,
     resultadoFesta,
     saidaTotal,
-    upsellTotal,
+    upsellTotal: adicionaisTotal,
   };
 };
 

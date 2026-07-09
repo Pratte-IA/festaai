@@ -1,52 +1,120 @@
+import { type ReactNode, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { FinanceiroLancamentosList } from "@/components/financeiro/FinanceiroLancamentosList";
+import { LancamentoGeralInlineForm } from "@/components/financeiro/LancamentoGeralInlineForm";
 import { formatFinanceiroCurrency } from "@/components/financeiro/FinanceiroSummaryStats";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FinanceiroDisplayItem, sumDisplayItems } from "@/features/financeiro";
 
 interface FinanceiroEntradasTabProps {
-  entradas: FinanceiroDisplayItem[];
+  entradasFestas: FinanceiroDisplayItem[];
+  entradasManuais: FinanceiroDisplayItem[];
   isLoading: boolean;
-  onAddEntrada: () => void;
   onDelete?: (item: FinanceiroDisplayItem) => void;
 }
 
 export const FinanceiroEntradasTab = ({
-  entradas,
+  entradasFestas,
+  entradasManuais,
   isLoading,
-  onAddEntrada,
   onDelete,
-}: FinanceiroEntradasTabProps) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between gap-3 pb-3">
-      <div>
-        <CardTitle className="text-base font-semibold">Entradas do periodo</CardTitle>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Receitas de contrato pela data de assinatura (valor da entrada), vendas extras e entradas manuais.
-          O saldo da festa deve ser lançado manualmente na semana do evento.
-        </p>
-      </div>
-      <Button variant="outline" className="shrink-0 gap-2" onClick={onAddEntrada}>
-        <Plus className="h-4 w-4" />
-        Nova entrada
-      </Button>
-    </CardHeader>
-    <CardContent className="space-y-4">
-      <div className="rounded-lg border border-border/40 bg-muted/20 p-3">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">Total de entradas</p>
-        <p className="mt-1 text-xl font-bold text-foreground">
-          {formatFinanceiroCurrency(sumDisplayItems(entradas))}
-        </p>
-      </div>
+}: FinanceiroEntradasTabProps) => {
+  const [showEntradaForm, setShowEntradaForm] = useState(false);
 
-      <FinanceiroLancamentosList
-        emptyMessage="Nenhuma entrada registrada neste periodo."
-        isLoading={isLoading}
-        items={entradas}
-        onDelete={onDelete}
-      />
-    </CardContent>
-  </Card>
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-semibold">Entradas do periodo</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <LedgerSection
+          emptyMessage="Nenhuma entrada de reserva registrada neste periodo."
+          isLoading={isLoading}
+          items={entradasFestas}
+          subtitle="Informacoes atualizadas automaticamente com base no registro por festa."
+          title="Festas — automatico"
+          total={sumDisplayItems(entradasFestas)}
+        />
+
+        <LedgerSection
+          action={
+            <Button
+              className="gap-2"
+              size="sm"
+              variant={showEntradaForm ? "secondary" : "outline"}
+              onClick={() => setShowEntradaForm((current) => !current)}
+            >
+              <Plus className="h-4 w-4" />
+              Nova entrada avulsa
+            </Button>
+          }
+          emptyMessage="Nenhuma entrada avulsa registrada neste periodo."
+          isLoading={isLoading}
+          items={entradasManuais}
+          onDelete={onDelete}
+          subtitle="Receitas da operacao fora do fluxo de festas."
+          title="Empresa — manual"
+          total={sumDisplayItems(entradasManuais)}
+        >
+          {showEntradaForm ? (
+            <LancamentoGeralInlineForm
+              mode="entrada_geral"
+              onCancel={() => setShowEntradaForm(false)}
+              onSuccess={() => setShowEntradaForm(false)}
+            />
+          ) : null}
+        </LedgerSection>
+      </CardContent>
+    </Card>
+  );
+};
+
+const LedgerSection = ({
+  action,
+  children,
+  emptyMessage,
+  isLoading,
+  items,
+  onDelete,
+  subtitle,
+  title,
+  total,
+}: {
+  action?: ReactNode;
+  children?: ReactNode;
+  emptyMessage: string;
+  isLoading: boolean;
+  items: FinanceiroDisplayItem[];
+  onDelete?: (item: FinanceiroDisplayItem) => void;
+  subtitle: string;
+  title: string;
+  total: number;
+}) => (
+  <section className="space-y-3 rounded-lg border border-border/40 bg-muted/10 p-4">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <p className="text-xs text-muted-foreground">{subtitle}</p>
+      </div>
+      {action}
+    </div>
+
+    {children}
+
+    <div className="rounded-lg border border-border/40 bg-background/60 p-3">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">Subtotal</p>
+      <p className="mt-1 text-lg font-bold tabular-nums text-foreground">
+        {isLoading ? "..." : formatFinanceiroCurrency(total)}
+      </p>
+    </div>
+
+    <FinanceiroLancamentosList
+      emptyMessage={emptyMessage}
+      isLoading={isLoading}
+      items={items}
+      onDelete={onDelete}
+    />
+  </section>
 );

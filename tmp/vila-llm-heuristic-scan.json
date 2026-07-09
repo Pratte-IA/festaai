@@ -1,0 +1,447 @@
+{
+  "method": "advanced_heuristic_no_llm_key",
+  "generated_at": "2026-07-08T23:15:16.564757Z",
+  "targets": 381,
+  "proposals": 33,
+  "alta": [
+    {
+      "evento_id": 32,
+      "cliente": "Ana Caroline 📲",
+      "tel": "554899911282",
+      "proposed": {
+        "aniversariante_data_nascimento": "2025-07-09"
+      },
+      "confidence": "alta",
+      "evidence": [
+        "label_nasc:09/07/2025"
+      ],
+      "msgs": 29
+    },
+    {
+      "evento_id": 58,
+      "cliente": "Jonathas Osiel",
+      "tel": "554488582958",
+      "proposed": {
+        "aniversariante_data_nascimento": "2025-06-04"
+      },
+      "confidence": "alta",
+      "evidence": [
+        "label_nome:Olivia",
+        "label_nasc:04/06/2025"
+      ],
+      "msgs": 43
+    }
+  ],
+  "media": [
+    {
+      "evento_id": 10,
+      "cliente": "Ana Paula Campos",
+      "tel": "554884636087",
+      "proposed": {
+        "aniversariante_nome": "Bella"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Bella"
+      ],
+      "msgs": 46
+    },
+    {
+      "evento_id": 13,
+      "cliente": "Mary Martins",
+      "tel": "554885007972",
+      "proposed": {
+        "aniversariante_nome": "Henry"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_name:Henry, 15/11/2025"
+      ],
+      "msgs": 36
+    },
+    {
+      "evento_id": 22,
+      "cliente": "Mila Lima",
+      "tel": "554891261722",
+      "proposed": {
+        "aniversariante_data_nascimento": "2018-12-11"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Mileny Lima Marques",
+        "line_dates:11/12/18"
+      ],
+      "msgs": 23
+    },
+    {
+      "evento_id": 27,
+      "cliente": "Priscila",
+      "tel": "552174998989",
+      "proposed": {
+        "aniversariante_nome": "Davi"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Davi"
+      ],
+      "msgs": 16
+    },
+    {
+      "evento_id": 28,
+      "cliente": "Caroline Hames",
+      "tel": "554898499294",
+      "proposed": {
+        "aniversariante_nome": "Oiiii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oiiii"
+      ],
+      "msgs": 47
+    },
+    {
+      "evento_id": 30,
+      "cliente": "Juliane Nascimento",
+      "tel": "554899063969",
+      "proposed": {
+        "aniversariante_nome": "Básico"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Básico"
+      ],
+      "msgs": 18
+    },
+    {
+      "evento_id": 31,
+      "cliente": "Tatiany",
+      "tel": "554888182410",
+      "proposed": {
+        "aniversariante_nome": "Luísa"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Luísa",
+        "line_dates:04/06/2019 - 7 anos"
+      ],
+      "msgs": 56
+    },
+    {
+      "evento_id": 35,
+      "cliente": "Jornal Fique Esperto",
+      "tel": "554884041733",
+      "proposed": {
+        "aniversariante_nome": "Tadeu Soares"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Tadeu Soares"
+      ],
+      "msgs": 12
+    },
+    {
+      "evento_id": 44,
+      "cliente": "Jaqueline Souza",
+      "tel": "554899371422",
+      "proposed": {
+        "aniversariante_nome": "José Miguel"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:José Miguel",
+        "line_dates:23/05/21"
+      ],
+      "msgs": 9
+    },
+    {
+      "evento_id": 45,
+      "cliente": "Flávia",
+      "tel": "554884351640",
+      "proposed": {
+        "aniversariante_nome": "Manuela"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Manuela",
+        "line_dates:07/04/2017"
+      ],
+      "msgs": 12
+    },
+    {
+      "evento_id": 94,
+      "cliente": "Rodrigo",
+      "tel": "554896720321",
+      "proposed": {
+        "aniversariante_data_nascimento": "2020-03-13"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Benjamim Koch Silveira",
+        "line_dates:DN: 13/03/2020"
+      ],
+      "msgs": 60
+    },
+    {
+      "evento_id": 96,
+      "cliente": "Clarice",
+      "tel": "554884107587",
+      "proposed": {
+        "aniversariante_nome": "Anthony"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_name:Anthony 7 anos com tema de futebol. Para dia 14/06"
+      ],
+      "msgs": 19
+    },
+    {
+      "evento_id": 110,
+      "cliente": "Gustavo Lopes",
+      "tel": "554898611512",
+      "proposed": {
+        "aniversariante_nome": "Henrique Lopes"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Henrique Lopes"
+      ],
+      "msgs": 27
+    },
+    {
+      "evento_id": 113,
+      "cliente": "Edxander Rocha",
+      "tel": "554884181787",
+      "proposed": {
+        "aniversariante_data_nascimento": "2024-02-14"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_dates:14/02/2024"
+      ],
+      "msgs": 18
+    },
+    {
+      "evento_id": 120,
+      "cliente": "Maria Julia✨",
+      "tel": "554898450813",
+      "proposed": {
+        "aniversariante_nome": "José Antônio"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:José Antônio"
+      ],
+      "msgs": 16
+    },
+    {
+      "evento_id": 125,
+      "cliente": "Solange Pereira",
+      "tel": "554899888439",
+      "proposed": {
+        "aniversariante_nome": "Otto Pereira Junckes"
+      },
+      "confidence": "media",
+      "evidence": [
+        "label_nasc:08/06/2022",
+        "line_only:Otto Pereira Junckes"
+      ],
+      "msgs": 38
+    },
+    {
+      "evento_id": 128,
+      "cliente": "Luciane Decker",
+      "tel": "554896404934",
+      "proposed": {
+        "aniversariante_nome": "Oiii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oiii"
+      ],
+      "msgs": 5
+    },
+    {
+      "evento_id": 139,
+      "cliente": "Ana",
+      "tel": "554899826312",
+      "proposed": {
+        "aniversariante_nome": "Oii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oii"
+      ],
+      "msgs": 17
+    },
+    {
+      "evento_id": 178,
+      "cliente": "Vanessa",
+      "tel": "554896545274",
+      "proposed": {
+        "aniversariante_nome": "Legal"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Legal"
+      ],
+      "msgs": 24
+    },
+    {
+      "evento_id": 181,
+      "cliente": "Beatriz",
+      "tel": "554884186173",
+      "proposed": {
+        "aniversariante_nome": "Josué"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Josué"
+      ],
+      "msgs": 22
+    },
+    {
+      "evento_id": 186,
+      "cliente": "Mariana Rodrigues",
+      "tel": "554898306273",
+      "proposed": {
+        "aniversariante_nome": "Bernardo Rodrigues Krauss"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Bernardo Rodrigues Krauss",
+        "line_dates:12/08/2023"
+      ],
+      "msgs": 36
+    },
+    {
+      "evento_id": 190,
+      "cliente": "Aline Praz",
+      "tel": "554896033890",
+      "proposed": {
+        "aniversariante_nome": "Oi"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oi"
+      ],
+      "msgs": 8
+    },
+    {
+      "evento_id": 192,
+      "cliente": "Vivi",
+      "tel": "554884865237",
+      "proposed": {
+        "aniversariante_nome": "Joaquim"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Joaquim"
+      ],
+      "msgs": 28
+    },
+    {
+      "evento_id": 194,
+      "cliente": "Protocolo Antônio Carlos",
+      "tel": "554836657761",
+      "proposed": {
+        "aniversariante_nome": "Vídeos Tutorias"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Vídeos Tutorias"
+      ],
+      "msgs": 14
+    },
+    {
+      "evento_id": 200,
+      "cliente": "Katrin",
+      "tel": "554891014112",
+      "proposed": {
+        "aniversariante_nome": "Esse"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Esse"
+      ],
+      "msgs": 28
+    },
+    {
+      "evento_id": 202,
+      "cliente": "contato",
+      "tel": "554892170274",
+      "proposed": {
+        "aniversariante_nome": "Oi"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oi"
+      ],
+      "msgs": 6
+    },
+    {
+      "evento_id": 331,
+      "cliente": "ALAN M WILVERT",
+      "tel": "554884657890",
+      "proposed": {
+        "aniversariante_nome": "Oi"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oi"
+      ],
+      "msgs": 5
+    },
+    {
+      "evento_id": 348,
+      "cliente": "MARIZETE MELO",
+      "tel": "554892008030",
+      "proposed": {
+        "aniversariante_nome": "Oi"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oi"
+      ],
+      "msgs": 5
+    },
+    {
+      "evento_id": 441,
+      "cliente": "FRANCIELI MELO",
+      "tel": "554884233873",
+      "proposed": {
+        "aniversariante_nome": "Oi"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oi"
+      ],
+      "msgs": 28
+    },
+    {
+      "evento_id": 473,
+      "cliente": "GABI KIDS",
+      "tel": "554884790568",
+      "proposed": {
+        "aniversariante_nome": "Oii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oii"
+      ],
+      "msgs": 11
+    },
+    {
+      "evento_id": 480,
+      "cliente": "VIVIANE",
+      "tel": "554896255019",
+      "proposed": {
+        "aniversariante_nome": "Eloah"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Eloah"
+      ],
+      "msgs": 33
+    }
+  ]
+}

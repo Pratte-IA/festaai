@@ -49,7 +49,8 @@ export const EventoPublicFormLinkCard = ({ evento }: EventoPublicFormLinkCardPro
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">
           Envie este link para o cliente fechar a festa. O sistema vincula automaticamente a este
-          lead em Vendas. A migração para Festa → Boas Vindas ocorre somente após a assinatura do contrato.
+          lead em Vendas. Enquanto o contrato não for assinado, ele permanece em Negociação. A migração
+          para Festa → Boas Vindas ocorre somente após a assinatura do contrato.
         </p>
         <p className="text-xs font-mono text-foreground/80 break-all">{publicUrl}</p>
         <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => void handleCopy()}>

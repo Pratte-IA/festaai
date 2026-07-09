@@ -31,11 +31,17 @@ export interface EnsureVendasLeadResult {
 const isFu4PerdidoLead = (evento: {
   etapa: string;
   followup_4_enviado_em?: string | null;
-  followup_status?: string | null;
+}): boolean =>
+  evento.etapa === "perdido" && typeof evento.followup_4_enviado_em === "string";
+
+const isFu0bPerdidoLead = (evento: {
+  etapa: string;
+  followup_0b_enviado_em?: string | null;
+  followup_4_enviado_em?: string | null;
 }): boolean =>
   evento.etapa === "perdido" &&
-  (evento.followup_status === "concluido_perdido" ||
-    typeof evento.followup_4_enviado_em === "string");
+  typeof evento.followup_0b_enviado_em === "string" &&
+  typeof evento.followup_4_enviado_em !== "string";
 
 export const ensureVendasLeadFromWhatsapp = async (
   service: SupabaseClient,
@@ -48,7 +54,9 @@ export const ensureVendasLeadFromWhatsapp = async (
 
   const { data: vendasEventos, error: queryError } = await service
     .from("eventos")
-    .select("id, cliente_telefone, etapa, followup_4_enviado_em, followup_status")
+    .select(
+      "id, cliente_telefone, etapa, followup_0b_enviado_em, followup_4_enviado_em, followup_status",
+    )
     .eq("tenant_id", input.tenantId)
     .eq("funil", "vendas")
     .order("updated_at", { ascending: false });
@@ -106,6 +114,55 @@ export const ensureVendasLeadFromWhatsapp = async (
           eventoId: existingLead.id,
           reactivated: true,
           reactivationStage: "negociacao",
+        };
+      }
+
+      if (isFu0bPerdidoLead(existingLead)) {
+        const inbound = input.inboundMessage ?? { text: null, type: "unknown" };
+
+        if (isTrivialInboundReengagementMessage(inbound)) {
+          return {
+            created: false,
+            eventoId: existingLead.id,
+            skippedReason: "trivial_reengagement",
+          };
+        }
+
+        const reactivatedAt = new Date().toISOString();
+        const { error: updateError } = await service
+          .from("eventos")
+          .update({
+            etapa: "contato_inicial",
+            followup_status: null,
+            motivo_perda: null,
+            status_interno: "novo",
+          })
+          .eq("id", existingLead.id);
+
+        if (updateError) throw updateError;
+
+        const reactivatedBR = new Date(reactivatedAt).toLocaleString("pt-BR", {
+          timeZone: "America/Sao_Paulo",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+
+        await service.from("evento_notas").insert({
+          evento_id: existingLead.id,
+          tenant_id: input.tenantId,
+          texto:
+            `[Automação] Cliente retomou contato após follow-up de contato inicial (FU0b) — ${reactivatedBR}\n` +
+            "Lead movido de volta para Contato Inicial.",
+        });
+
+        return {
+          created: false,
+          eventoId: existingLead.id,
+          reactivated: true,
+          reactivationStage: "contato_inicial",
         };
       }
 

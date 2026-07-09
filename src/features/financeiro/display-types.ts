@@ -25,3 +25,32 @@ export interface DrePeriodSummary {
   resultado: number;
   saidas: number;
 }
+
+export type DreStatementLineKind =
+  | "deduction"
+  | "expense"
+  | "header"
+  | "revenue"
+  | "subtotal"
+  | "total";
+
+export interface DreStatementLine {
+  id: string;
+  kind: DreStatementLineKind;
+  label: string;
+  level: 0 | 1;
+  value: number;
+}
+
+export interface DreStatement {
+  adicionaisTotal: number;
+  descontosTotal: number;
+  despesasTotal: number;
+  lines: DreStatementLine[];
+  outrasReceitasTotal: number;
+  pagamentosSaldoTotal: number;
+  receitaBruta: number;
+  receitaLiquida: number;
+  reservasTotal: number;
+  resultadoLiquido: number;
+}

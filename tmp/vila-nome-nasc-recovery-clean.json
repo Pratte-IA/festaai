@@ -1,0 +1,1488 @@
+{
+  "summary": {
+    "clean_proposals": 56,
+    "nome_alta": 12,
+    "nome_media": 38,
+    "nasc_alta": 11,
+    "nasc_media": 13,
+    "both": 18
+  },
+  "alta": [
+    {
+      "evento_id": 11,
+      "cliente": "Gabriela Ferreira",
+      "tel": "554884970974",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_data_nascimento": "2022-11-22"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nasc:22/11/22 ctx~Oii, gostaria de saber valores 22/11/22 21/11/2026 25/30 con"
+      ],
+      "msgs": 19,
+      "humans": 6,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_data_nascimento": "2022-11-22"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 29,
+      "cliente": "Deiwid😎",
+      "tel": "554899705785",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Lucas"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Lucas"
+      ],
+      "msgs": 5,
+      "humans": 1,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Lucas"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 31,
+      "cliente": "Tatiany",
+      "tel": "554888182410",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Tema",
+        "aniversariante_data_nascimento": "2019-06-04"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do tema",
+        "nasc:04/06/2019 ctx~zer no dia mesmo, uma quinta-feira à tarde. Luísa 04/06/2019"
+      ],
+      "msgs": 56,
+      "humans": 17,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_data_nascimento": "2019-06-04"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 44,
+      "cliente": "Jaqueline Souza",
+      "tel": "554899371422",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_data_nascimento": "2021-05-23"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nasc:23/05/21 ctx~ dia  Gostaria de fazer um orçamento José Miguel  23/05/21 2"
+      ],
+      "msgs": 9,
+      "humans": 3,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_data_nascimento": "2021-05-23"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 45,
+      "cliente": "Flávia",
+      "tel": "554884351640",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_data_nascimento": "2017-04-07"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nasc:07/04/2017 ctx~Manuela 07/04/2017 10/04/2027 100 pessoas Conheço mas gostar"
+      ],
+      "msgs": 12,
+      "humans": 4,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_data_nascimento": "2017-04-07"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 46,
+      "cliente": "Malu Pauli Interiores",
+      "tel": "554884844965",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Santiago",
+        "aniversariante_data_nascimento": "2026-02-23"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Santiago",
+        "nasc:23/02/2026 ctx~sta de 1 ano do meu filho, a data de nascimento é 23/02/2026"
+      ],
+      "msgs": 30,
+      "humans": 9,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Santiago"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 47,
+      "cliente": "Beatriz 🧠🗣️🌸",
+      "tel": "554888164848",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Mathias",
+        "aniversariante_data_nascimento": "2019-07-06"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Mathias",
+        "nasc:06/07/2019 ctx~ do aniversariante: Mathias 📅 Data de nascimento: 06/07/2019"
+      ],
+      "msgs": 16,
+      "humans": 4,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Mathias",
+        "aniversariante_data_nascimento": "2019-07-06"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 53,
+      "cliente": "Suelen",
+      "tel": "554896272704",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Benício Vicenzo Bilharva",
+        "aniversariante_data_nascimento": "2021-11-30"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante : Benício Vicenzo Bilharva",
+        "nasc:30/11/21 ctx~ício Vicenzo Bilharva Leite 📅 Data de nascimento  30/11/21 🎉"
+      ],
+      "msgs": 33,
+      "humans": 10,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Benício Vicenzo Bilharva",
+        "aniversariante_data_nascimento": "2021-11-30"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 54,
+      "cliente": "Samara",
+      "tel": "554888753384",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Maria Cecília"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Maria Cecília"
+      ],
+      "msgs": 55,
+      "humans": 15,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Maria Cecília"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 58,
+      "cliente": "Jonathas Osiel",
+      "tel": "554488582958",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Olivia",
+        "aniversariante_data_nascimento": "2025-06-04"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Olivia",
+        "nasc:04/06/25 ctx~Olivia  04/06/25 11/06 30 convidados Pode me mostrar Simm Pa"
+      ],
+      "msgs": 43,
+      "humans": 11,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Olivia"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 106,
+      "cliente": "Jéssica",
+      "tel": "554891870076",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Bernardo",
+        "aniversariante_data_nascimento": "2021-06-08"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Bernardo",
+        "nasc:08/06/2021 ctx~o aniversariante: Bernardo  📅 Data de nascimento: 08/06/2021"
+      ],
+      "msgs": 53,
+      "humans": 13,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Bernardo",
+        "aniversariante_data_nascimento": "2021-06-08"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 109,
+      "cliente": "Amanda",
+      "tel": "554888592058",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Olívia"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Olívia"
+      ],
+      "msgs": 36,
+      "humans": 8,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Olívia"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 111,
+      "cliente": "Ariely Vonvossen",
+      "tel": "554820039077",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Leonardo",
+        "aniversariante_data_nascimento": "2022-10-17"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Leonardo",
+        "nasc:17/10/22 ctx~Boa noite Leonardo  17/10/22  Vou verificar a quantidade de "
+      ],
+      "msgs": 14,
+      "humans": 4,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Leonardo",
+        "aniversariante_data_nascimento": "2022-10-17"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 118,
+      "cliente": "Gabi",
+      "tel": "554899268319",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Clara",
+        "aniversariante_data_nascimento": "2025-02-27"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Clara",
+        "nasc:27/02/25 ctx~Oiii 28/02 45/50 pessoas  27/02/2025 Clara 27/02/25  Isso Nã"
+      ],
+      "msgs": 39,
+      "humans": 10,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Clara"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 125,
+      "cliente": "Solange Pereira",
+      "tel": "554899888439",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_data_nascimento": "2022-06-08"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nasc:08/06/2022 ctx~viar os pacotes? Otto Pereira Junckes  Nascimento 08/06/2022"
+      ],
+      "msgs": 38,
+      "humans": 9,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_data_nascimento": "2022-06-08"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 175,
+      "cliente": "‎Tayná",
+      "tel": "554891524065",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Luca",
+        "aniversariante_data_nascimento": "2023-08-08"
+      },
+      "confidence": "alta",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Luca",
+        "nasc:08/08/2023 ctx~te: Luca  📅 Data de nascimento do aniversariante: 08/08/2023"
+      ],
+      "msgs": 33,
+      "humans": 10,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Luca",
+        "aniversariante_data_nascimento": "2023-08-08"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 186,
+      "cliente": "Mariana Rodrigues",
+      "tel": "554898306273",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Aniversário",
+        "aniversariante_data_nascimento": "2023-08-12"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa de aniversário",
+        "nasc:12/08/2023 ctx~e, tudo bem? 💜 system: Bernardo Rodrigues Krauss  12/08/2023"
+      ],
+      "msgs": 36,
+      "humans": 9,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_data_nascimento": "2023-08-12"
+      },
+      "confidence_clean": "alta"
+    },
+    {
+      "evento_id": 199,
+      "cliente": "Eduardo José Mendes",
+      "tel": "554884464127",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Heitor José",
+        "aniversariante_data_nascimento": "2026-08-29"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:Nome do aniversariante: Heitor José",
+        "nasc:29/08/2026 ctx~im já consigo verificar a disponibilidade da data 29/08/2026"
+      ],
+      "msgs": 44,
+      "humans": 5,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Heitor José"
+      },
+      "confidence_clean": "alta"
+    }
+  ],
+  "media": [
+    {
+      "evento_id": 7,
+      "cliente": "👑",
+      "tel": "554884573420",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Josué"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Josué"
+      ],
+      "msgs": 10,
+      "humans": 3,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Josué"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 8,
+      "cliente": "Larissa Adriano",
+      "tel": "554884581182",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Helena"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Helena"
+      ],
+      "msgs": 22,
+      "humans": 7,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Helena"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 12,
+      "cliente": "Scharline Albino",
+      "tel": "554898618849",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Helena"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Helena"
+      ],
+      "msgs": 19,
+      "humans": 4,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Helena"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 14,
+      "cliente": "❤Thalita e Thailla..❤️",
+      "tel": "554884227189",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Thailla",
+        "aniversariante_data_nascimento": "2026-03-09"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Thailla",
+        "nasc:09/03/2026 ctx~Oi Oii  Thailla Vitória meurer  09/03/2026  Quantidade e dat"
+      ],
+      "msgs": 35,
+      "humans": 9,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Thailla"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 18,
+      "cliente": "Fran Marques",
+      "tel": "554899459092",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Liz"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Liz"
+      ],
+      "msgs": 26,
+      "humans": 7,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Liz"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 22,
+      "cliente": "Mila Lima",
+      "tel": "554891261722",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Mileny"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário da Mileny"
+      ],
+      "msgs": 23,
+      "humans": 8,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Mileny"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 25,
+      "cliente": "Arq. Camilla Espezim",
+      "tel": "554896551732",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Ravi",
+        "aniversariante_data_nascimento": "2020-06-07"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Ravi",
+        "nasc:07/06/2020 ctx~rçamento de valores  Pra festinha de 7 anos Ravi  07/06/2020"
+      ],
+      "msgs": 25,
+      "humans": 5,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Ravi",
+        "aniversariante_data_nascimento": "2020-06-07"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 40,
+      "cliente": "Tatiane",
+      "tel": "554884471941",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Théo Henrique"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário do Théo Henrique"
+      ],
+      "msgs": 38,
+      "humans": 12,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Théo Henrique"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 41,
+      "cliente": "Mayndra Paiva ⚡",
+      "tel": "554891959400",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Esther",
+        "aniversariante_data_nascimento": "2021-07-10"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Esther",
+        "nasc:10/07/2021 ctx~ e queria mais informações, por favor. 🎂 Esther 📆 10/07/2021"
+      ],
+      "msgs": 12,
+      "humans": 4,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Esther",
+        "aniversariante_data_nascimento": "2021-07-10"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 57,
+      "cliente": "Amanda Kunz",
+      "tel": "554884088029",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Antônio",
+        "aniversariante_data_nascimento": "2022-06-17"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Antônio",
+        "nasc:17/06/2022 ctx~nvidados   Me envia por favor? 💜✨ system: Antônio 17/06/2022"
+      ],
+      "msgs": 27,
+      "humans": 8,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Antônio",
+        "aniversariante_data_nascimento": "2022-06-17"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 67,
+      "cliente": "Quel Guarnieri",
+      "tel": "554884126772",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Rafaelly"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário da Rafaelly"
+      ],
+      "msgs": 19,
+      "humans": 4,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Rafaelly"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 88,
+      "cliente": "Ju 💕",
+      "tel": "554888063266",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Maria Alice",
+        "aniversariante_data_nascimento": "2026-01-23"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário da Maria Alice",
+        "nasc:23/01/2026 ctx~ias na Vila Encantada! Olha só:  📅 **Data:** 19 a 23/01/2026"
+      ],
+      "msgs": 21,
+      "humans": 7,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Maria Alice"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 92,
+      "cliente": "E✨️",
+      "tel": "552188654334",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Mirella",
+        "aniversariante_data_nascimento": "2022-03-14"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Mirella",
+        "nasc:14/03/2022 ctx~Oi Mirella barbosa  14/03/2022  21/03/2022  100 04/04/2026 s"
+      ],
+      "msgs": 18,
+      "humans": 5,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Mirella",
+        "aniversariante_data_nascimento": "2022-03-14"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 94,
+      "cliente": "Rodrigo",
+      "tel": "554896720321",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Benjamim"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário do Benjamim"
+      ],
+      "msgs": 60,
+      "humans": 15,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Benjamim"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 97,
+      "cliente": "Maria Eduarda Schmitt",
+      "tel": "554884466378",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Cecília"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Cecília"
+      ],
+      "msgs": 25,
+      "humans": 7,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Cecília"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 98,
+      "cliente": "~Loh❤️",
+      "tel": "554892033606",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Heloísa"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário da Heloísa"
+      ],
+      "msgs": 13,
+      "humans": 4,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Heloísa"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 99,
+      "cliente": "Sidney 😎",
+      "tel": "554898112585",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Dominick"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Dominick"
+      ],
+      "msgs": 9,
+      "humans": 3,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Dominick"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 101,
+      "cliente": "Ana",
+      "tel": "554899048603",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Alyffer",
+        "aniversariante_data_nascimento": "2022-05-12"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Alyffer",
+        "nasc:12/05/2022 ctx~Boa tarde! Alyffer Gabriel  12/05/2022  16/05/2026 100 pesso"
+      ],
+      "msgs": 17,
+      "humans": 5,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Alyffer",
+        "aniversariante_data_nascimento": "2022-05-12"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 108,
+      "cliente": "Fran Weber",
+      "tel": "554884659851",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Derek"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Derek"
+      ],
+      "msgs": 45,
+      "humans": 11,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Derek"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 112,
+      "cliente": "Nathy",
+      "tel": "554888528303",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Luiz Miguel"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário do Luiz Miguel"
+      ],
+      "msgs": 15,
+      "humans": 5,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Luiz Miguel"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 119,
+      "cliente": "Bianca Meurer Schmitz",
+      "tel": "554896360565",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Helena"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Helena"
+      ],
+      "msgs": 113,
+      "humans": 28,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Helena"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 122,
+      "cliente": "Fernanda Silveira",
+      "tel": "554899953899",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Vicente",
+        "aniversariante_data_nascimento": "2016-02-13"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Vicente",
+        "nasc:13/02/2016 ctx~  Colônia de férias  Vicente da Silveira Machado  13/02/2016"
+      ],
+      "msgs": 23,
+      "humans": 4,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Vicente",
+        "aniversariante_data_nascimento": "2016-02-13"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 129,
+      "cliente": "Machado Filho Construcões",
+      "tel": "554891650094",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "João"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do João"
+      ],
+      "msgs": 10,
+      "humans": 3,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "João"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 164,
+      "cliente": "Mª Eduarda Med Coelho",
+      "tel": "554899085153",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Laís"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário da Laís"
+      ],
+      "msgs": 82,
+      "humans": 16,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Laís"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 165,
+      "cliente": "Carla Palazzi",
+      "tel": "554896574047",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Estella",
+        "aniversariante_data_nascimento": "2026-04-12"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Estella",
+        "nasc:12/04/2026 ctx~idade dela para você!  E só para confirmar, o dia 12/04/2026"
+      ],
+      "msgs": 25,
+      "humans": 7,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Estella"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 168,
+      "cliente": "Mayara",
+      "tel": "554891545677",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Henrique",
+        "aniversariante_data_nascimento": "2022-09-13"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário do Henrique",
+        "nasc:13/09/2022 ctx~de 4 anos para mais ou menos 35 pessoas Henrique  13/09/2022"
+      ],
+      "msgs": 17,
+      "humans": 5,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Henrique",
+        "aniversariante_data_nascimento": "2022-09-13"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 169,
+      "cliente": "Kelly C. Schmitz Gallo",
+      "tel": "554888696898",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Igor",
+        "aniversariante_data_nascimento": "2016-01-25"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário do Igor",
+        "nasc:25/01/2016 ctx~es  sobre os pacotes de vocês de aniversário Igor 25/01/2016"
+      ],
+      "msgs": 34,
+      "humans": 10,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Igor",
+        "aniversariante_data_nascimento": "2016-01-25"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 174,
+      "cliente": "Tuane",
+      "tel": "554884874841",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Anthony",
+        "aniversariante_data_nascimento": "2018-02-14"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário do Anthony",
+        "nasc:14/02/2018 ctx~ona o espaço de vocês ! Anthony Alexandre Vieira  14/02/2018"
+      ],
+      "msgs": 27,
+      "humans": 8,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Anthony",
+        "aniversariante_data_nascimento": "2018-02-14"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 184,
+      "cliente": "Mari",
+      "tel": "554899082258",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Davi",
+        "aniversariante_data_nascimento": "2020-02-13"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Davi",
+        "nasc:13/02/2020 ctx~ante Davi  📅 Data de nascimento do aniversariante 13/02/2020"
+      ],
+      "msgs": 31,
+      "humans": 9,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Davi",
+        "aniversariante_data_nascimento": "2020-02-13"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 191,
+      "cliente": "Adry🌪",
+      "tel": "554899679969",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Valentina",
+        "aniversariante_data_nascimento": "2026-05-09"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário da Valentina",
+        "nasc:09/05/2026 ctx~al a quantidade estimada de convidados para o dia 09/05/2026"
+      ],
+      "msgs": 31,
+      "humans": 9,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Valentina"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 193,
+      "cliente": "Alice",
+      "tel": "554884553062",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Maria"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Maria"
+      ],
+      "msgs": 52,
+      "humans": 12,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Maria"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 197,
+      "cliente": "sayranny",
+      "tel": "554898552430",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Yuna"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Yuna"
+      ],
+      "msgs": 39,
+      "humans": 3,
+      "signals": {
+        "name": true,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Yuna"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 201,
+      "cliente": "Joana",
+      "tel": "554898630332",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Catarina"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa da Catarina"
+      ],
+      "msgs": 43,
+      "humans": 12,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Catarina"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 205,
+      "cliente": "JOYCE A. HOFFMANN HANG",
+      "tel": "554884791283",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Benjamim",
+        "aniversariante_data_nascimento": "2024-01-07"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:aniversário do Benjamim",
+        "nasc:07/01/24 ctx~Oiii  Bom dia 😃  Tudo bem? Benjamim   07/01/24  10/01/27  80"
+      ],
+      "msgs": 28,
+      "humans": 8,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Benjamim",
+        "aniversariante_data_nascimento": "2024-01-07"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 249,
+      "cliente": "Taisy❣️",
+      "tel": "554899206840",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Jeitinho"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do jeitinho"
+      ],
+      "msgs": 27,
+      "humans": 6,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Jeitinho"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 344,
+      "cliente": "CAMILA JUNCKES PETRY",
+      "tel": "554896460123",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Henrique",
+        "aniversariante_data_nascimento": "2021-05-29"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Henrique",
+        "nasc:29/05/2021 ctx~amento então  Nome: Henrique  Data de nascimento: 29/05/2021"
+      ],
+      "msgs": 40,
+      "humans": 9,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Henrique",
+        "aniversariante_data_nascimento": "2021-05-29"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 416,
+      "cliente": "BIANCA KAUFMANN",
+      "tel": "554896194197",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "Vicente"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do Vicente"
+      ],
+      "msgs": 33,
+      "humans": 9,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "Vicente"
+      },
+      "confidence_clean": "media"
+    },
+    {
+      "evento_id": 475,
+      "cliente": "MARIA EDUARDA PEREIRA",
+      "tel": "554899066398",
+      "need_nome": true,
+      "need_nasc": true,
+      "proposed": {
+        "aniversariante_nome": "João",
+        "aniversariante_data_nascimento": "2019-06-27"
+      },
+      "confidence": "media",
+      "source": "chat_strict_regex",
+      "evidence": [
+        "nome:festa do João",
+        "nasc:27/06/2019 ctx~isponível dia 27/06/2026? João vitor de Oliveira  27/06/2019"
+      ],
+      "msgs": 40,
+      "humans": 9,
+      "signals": {
+        "name": false,
+        "nasc": true
+      },
+      "proposed_clean": {
+        "aniversariante_nome": "João",
+        "aniversariante_data_nascimento": "2019-06-27"
+      },
+      "confidence_clean": "media"
+    }
+  ]
+}

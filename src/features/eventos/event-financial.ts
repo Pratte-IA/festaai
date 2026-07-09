@@ -21,6 +21,26 @@ export const getEventBalance = (
     ? 0
     : Math.max(event.valor_total - getEventRecordedPaid(event, additionalPayments), 0);
 
+export const getEventBalanceFromReceivable = (
+  event: Pick<Evento, "funil" | "valor_entrada">,
+  receivableTotal: number,
+  additionalPayments = 0,
+) =>
+  isEventFullySettled(event)
+    ? 0
+    : Math.max(receivableTotal - getEventRecordedPaid(event, additionalPayments), 0);
+
 /** Saldo devedor do formulário de fechamento: total menos entrada (campo derivado). */
 export const computeClosingFormValorSaldo = (valorTotal: number, valorEntrada: number) =>
   Math.max(Number(valorTotal || 0) - Number(valorEntrada || 0), 0);
+
+export const getEventoEntradaReferenceDate = (
+  event: Pick<Evento, "fechamento_confirmado_em" | "created_at">,
+) => (event.fechamento_confirmado_em ?? event.created_at).slice(0, 10);
+
+export const getEventoEntradaDescricao = (
+  event: Pick<Evento, "forma_pagamento_entrada">,
+) => {
+  const metodo = event.forma_pagamento_entrada?.trim();
+  return metodo ? `Entrada · ${metodo}` : "Entrada";
+};

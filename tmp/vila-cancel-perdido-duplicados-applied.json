@@ -1,0 +1,288 @@
+{
+  "applied_at": "2026-07-08T23:57:57.244467+00:00",
+  "requested": 35,
+  "applied": 35,
+  "errors": [],
+  "records": [
+    {
+      "cancel_id": 123,
+      "canonical_id": 731,
+      "merge": {
+        "data_primeiro_contato": "2026-01-23"
+      },
+      "motivo_perda": "Lead consolidado no evento #731 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 142,
+      "canonical_id": 741,
+      "merge": {
+        "data_primeiro_contato": "2026-01-16"
+      },
+      "motivo_perda": "Lead consolidado no evento #741 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 132,
+      "canonical_id": 760,
+      "merge": {
+        "data_primeiro_contato": "2026-01-18"
+      },
+      "motivo_perda": "Lead consolidado no evento #760 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 136,
+      "canonical_id": 734,
+      "merge": {
+        "data_primeiro_contato": "2026-01-18"
+      },
+      "motivo_perda": "Lead consolidado no evento #734 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 137,
+      "canonical_id": 735,
+      "merge": {
+        "data_primeiro_contato": "2026-01-18"
+      },
+      "motivo_perda": "Lead consolidado no evento #735 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 163,
+      "canonical_id": 780,
+      "merge": {
+        "data_primeiro_contato": "2026-01-14"
+      },
+      "motivo_perda": "Lead consolidado no evento #780 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 135,
+      "canonical_id": 779,
+      "merge": {
+        "data_primeiro_contato": "2026-01-18"
+      },
+      "motivo_perda": "Lead consolidado no evento #779 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 655,
+      "canonical_id": 686,
+      "merge": {
+        "data_primeiro_contato": "2026-04-06"
+      },
+      "motivo_perda": "Lead consolidado no evento #686 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 158,
+      "canonical_id": 743,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #743 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 443,
+      "canonical_id": 698,
+      "merge": {
+        "data_primeiro_contato": "2026-05-21"
+      },
+      "motivo_perda": "Lead consolidado no evento #698 (festa/planejamento). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 145,
+      "canonical_id": 778,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #778 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 217,
+      "canonical_id": 785,
+      "merge": {
+        "data_primeiro_contato": "2025-12-29"
+      },
+      "motivo_perda": "Lead consolidado no evento #785 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 154,
+      "canonical_id": 717,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #717 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 130,
+      "canonical_id": 754,
+      "merge": {
+        "data_primeiro_contato": "2026-01-19"
+      },
+      "motivo_perda": "Lead consolidado no evento #754 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 160,
+      "canonical_id": 716,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #716 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 173,
+      "canonical_id": 784,
+      "merge": {
+        "data_primeiro_contato": "2026-01-12"
+      },
+      "motivo_perda": "Lead consolidado no evento #784 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 134,
+      "canonical_id": 750,
+      "merge": {
+        "data_primeiro_contato": "2026-01-18"
+      },
+      "motivo_perda": "Lead consolidado no evento #750 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 151,
+      "canonical_id": 748,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #748 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 79,
+      "canonical_id": 691,
+      "merge": {
+        "data_primeiro_contato": "2026-03-21"
+      },
+      "motivo_perda": "Lead consolidado no evento #691 (festa/festa_pronta). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 153,
+      "canonical_id": 756,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #756 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 143,
+      "canonical_id": 737,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #737 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 253,
+      "canonical_id": 695,
+      "merge": {
+        "data_primeiro_contato": "2026-05-16"
+      },
+      "motivo_perda": "Lead consolidado no evento #695 (festa/planejamento). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 150,
+      "canonical_id": 753,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #753 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 148,
+      "canonical_id": 765,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #765 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 170,
+      "canonical_id": 725,
+      "merge": {
+        "data_primeiro_contato": "2026-01-12"
+      },
+      "motivo_perda": "Lead consolidado no evento #725 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 157,
+      "canonical_id": 746,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #746 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 146,
+      "canonical_id": 749,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #749 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 196,
+      "canonical_id": 744,
+      "merge": {
+        "data_primeiro_contato": "2025-11-29"
+      },
+      "motivo_perda": "Lead consolidado no evento #744 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 156,
+      "canonical_id": 747,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #747 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 149,
+      "canonical_id": 772,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #772 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 152,
+      "canonical_id": 721,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #721 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 159,
+      "canonical_id": 722,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #722 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 140,
+      "canonical_id": 740,
+      "merge": {
+        "data_primeiro_contato": "2026-01-16"
+      },
+      "motivo_perda": "Lead consolidado no evento #740 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 133,
+      "canonical_id": 758,
+      "merge": {
+        "data_primeiro_contato": "2026-01-18"
+      },
+      "motivo_perda": "Lead consolidado no evento #758 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    },
+    {
+      "cancel_id": 144,
+      "canonical_id": 759,
+      "merge": {
+        "data_primeiro_contato": "2026-01-15"
+      },
+      "motivo_perda": "Lead consolidado no evento #759 (executadas/oportunidade_futura). Duplicata vendas/perdido removida."
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { persistAgentOutboundAutomationMessage } from "./agent-memory.ts";
 import { resolveAutomationConnectionId } from "./automation-bindings.ts";
 import { formatCompanyDisplayName } from "./company-display-name.ts";
+import { resolveContatoInicialAwaitingReplySince } from "./contato-inicial-followup.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
 import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
 import {
@@ -151,9 +152,21 @@ export const dispatchPropostaFollowup0 = async (
     };
   }
 
-  // O marco só existe enquanto aguardamos o retorno do cliente após a nossa
-  // última mensagem. Se o cliente respondeu, o webhook zera este campo.
-  if (!evento.contato_inicial_ultima_mensagem_em) {
+  // Preferência: coluna sincronizada pelo cron; fallback = histórico n8n
+  // (respostas da IA não ecoam como fromMe no Evolution).
+  let awaitingSince =
+    typeof evento.contato_inicial_ultima_mensagem_em === "string"
+      ? evento.contato_inicial_ultima_mensagem_em
+      : null;
+
+  if (!awaitingSince) {
+    awaitingSince = await resolveContatoInicialAwaitingReplySince(admin, {
+      customerPhone: typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : null,
+      tenantId: input.tenant.id,
+    });
+  }
+
+  if (!awaitingSince) {
     return {
       dispatched: false,
       errorMessage: null,

@@ -14,6 +14,9 @@ import {
   PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_START,
   PROPOSTA_FOLLOWUP_0_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
+  PROPOSTA_FOLLOWUP_0B_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_0B_LOSS_MOTIVO,
+  PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO,
   PROPOSTA_FOLLOWUP_1_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
@@ -29,6 +32,7 @@ import {
 } from "@/features/eventos/proposta-followup";
 import {
   buildPropostaFollowup0PreviewMessage,
+  buildPropostaFollowup0bPreviewMessage,
   buildPropostaFollowup1PreviewMessage,
   buildPropostaFollowup2PreviewMessage,
   buildPropostaFollowup3PreviewMessage,
@@ -167,6 +171,10 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
     PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
     "Follow-up 0 — retomada de contato inicial",
   );
+  const fu0bTemplate = getTemplate(
+    PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO,
+    "Follow-up 0b — 2ª tentativa / encerramento",
+  );
   const dataLivreTemplate = getTemplate(
     PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
     "Follow-up 1 — data livre",
@@ -200,6 +208,16 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
         templateBody: fu0Template.body,
       }),
     [companyLegalName, fu0Template.body],
+  );
+
+  const previewFu0b = useMemo(
+    () =>
+      buildPropostaFollowup0bPreviewMessage({
+        clienteNome: PROPOSTA_FOLLOWUP_PREVIEW.clienteNome,
+        companyLegalName,
+        templateBody: fu0bTemplate.body,
+      }),
+    [companyLegalName, fu0bTemplate.body],
   );
 
   const previewDataLivre = useMemo(
@@ -304,10 +322,11 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
           description={SETTINGS_PAGE_META["followup-proposta"].description}
           stats={
             <>
-              <SettingsStatChip>FU0 + Sequência FU1–FU4 ativa</SettingsStatChip>
+              <SettingsStatChip>FU0 + FU0b + Sequência FU1–FU4</SettingsStatChip>
               <SettingsStatChip>
-                FU0 {PROPOSTA_FOLLOWUP_0_DELAY_HOURS}h · FU1 {PROPOSTA_FOLLOWUP_1_DELAY_HOURS}h ·
-                FU2/FU3 {PROPOSTA_FOLLOWUP_2_DELAY_HOURS}h · FU4 {PROPOSTA_FOLLOWUP_4_DELAY_HOURS}h
+                FU0 {PROPOSTA_FOLLOWUP_0_DELAY_HOURS}h · FU0b {PROPOSTA_FOLLOWUP_0B_DELAY_HOURS}h ·
+                FU1 {PROPOSTA_FOLLOWUP_1_DELAY_HOURS}h · FU2/FU3 {PROPOSTA_FOLLOWUP_2_DELAY_HOURS}h ·
+                FU4 {PROPOSTA_FOLLOWUP_4_DELAY_HOURS}h
               </SettingsStatChip>
             </>
           }
@@ -347,7 +366,46 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
               </li>
               <li>Lead ainda em Contato Inicial e sem retorno após a nossa mensagem</li>
               <li>Se o cliente responder, o timer é zerado automaticamente e o FU0 não é enviado</li>
+              <li>
+                Após o FU0, se ainda sem retorno em{" "}
+                <span className="text-foreground">{PROPOSTA_FOLLOWUP_0B_DELAY_HOURS}h</span>, o
+                sistema envia a 2ª tentativa (FU0b) e move o lead para Perdido
+              </li>
               <li>É uma mensagem única — não substitui a sequência FU1–FU4 da proposta</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-4 space-y-3">
+        <div className="flex items-start gap-3">
+          <Clock className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              Regra de disparo — Follow-up 0b (2ª tentativa)
+            </p>
+            <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground list-disc pl-4">
+              <li>
+                <span className="text-foreground">{PROPOSTA_FOLLOWUP_0B_DELAY_HOURS} horas</span>{" "}
+                após o envio do Follow-up 0
+              </li>
+              <li>Lead ainda em Contato Inicial e sem retorno no WhatsApp</li>
+              <li>
+                Enviado apenas dentro do horário comercial (
+                <span className="text-foreground">
+                  {PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_START}h às{" "}
+                  {PROPOSTA_FOLLOWUP_0_BUSINESS_HOUR_END}h
+                </span>
+                )
+              </li>
+              <li>
+                Após o envio, o lead vai para <strong>Perdido</strong> (
+                {PROPOSTA_FOLLOWUP_0B_LOSS_MOTIVO.toLowerCase()})
+              </li>
+              <li>
+                Se o cliente responder depois, o lead volta automaticamente para{" "}
+                <strong>Contato Inicial</strong>
+              </li>
             </ul>
           </div>
         </div>
@@ -482,6 +540,22 @@ export const PropostaFollowupConfig = ({ showSettingsHeader }: PropostaFollowupC
         previewMessage={previewFu0}
         template={fu0Template}
         title="Follow-up 0 — retomada de contato inicial"
+        variables={FU0_TEMPLATE_VARIABLES}
+      />
+
+      <FollowupTemplateEditor
+        description="Enviada 6h após o FU0 — 2ª tentativa curta. Após o envio, o lead vai para Perdido. Se o cliente responder, volta para Contato Inicial."
+        isSaving={savingKey === PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO}
+        onChange={(body) =>
+          setDrafts((current) => ({
+            ...current,
+            [PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO]: body,
+          }))
+        }
+        onSave={() => void handleSave(fu0bTemplate)}
+        previewMessage={previewFu0b}
+        template={fu0bTemplate}
+        title="Follow-up 0b — 2ª tentativa / encerramento"
         variables={FU0_TEMPLATE_VARIABLES}
       />
 

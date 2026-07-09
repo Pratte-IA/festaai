@@ -16,6 +16,33 @@ interface CreateEventoPagamentoInput {
   valor: number;
 }
 
+interface UpdateEventoPagamentoInput {
+  data_pagamento?: string;
+  eventoId: number;
+  id: number;
+  observacao?: string | null;
+  valor?: number;
+}
+
+interface DeleteEventoPagamentoInput {
+  eventoId: number;
+  id: number;
+}
+
+const invalidateEventoPagamentoQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  tenantId: number | null,
+  eventoId: number,
+) => {
+  void queryClient.invalidateQueries({
+    queryKey: eventosQueryKeys.payments(tenantId, eventoId),
+  });
+  void queryClient.invalidateQueries({ queryKey: financeiroQueryKeys.all(tenantId) });
+  void queryClient.invalidateQueries({
+    queryKey: financeiroQueryKeys.eventoSummary(tenantId, eventoId),
+  });
+};
+
 const fetchEventoPagamentos = async (
   tenantId: number,
   eventoId: number,
@@ -79,13 +106,72 @@ export const useCreateEventoPagamento = () => {
       return data;
     },
     onSuccess: (_pagamento, input) => {
-      void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.payments(currentTenantId, input.eventoId),
-      });
-      void queryClient.invalidateQueries({ queryKey: financeiroQueryKeys.all(currentTenantId) });
-      void queryClient.invalidateQueries({
-        queryKey: financeiroQueryKeys.eventoSummary(currentTenantId, input.eventoId),
-      });
+      invalidateEventoPagamentoQueries(queryClient, currentTenantId, input.eventoId);
+    },
+  });
+};
+
+export const useUpdateEventoPagamento = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (input: UpdateEventoPagamentoInput): Promise<EventoPagamento> => {
+      if (!currentTenantId || !user) {
+        throw new Error("Sessao ou tenant atual indisponivel.");
+      }
+
+      const { data, error } = await supabase
+        .from("evento_pagamentos")
+        .update({
+          ...(input.data_pagamento != null ? { data_pagamento: input.data_pagamento } : {}),
+          ...(input.observacao !== undefined ? { observacao: input.observacao } : {}),
+          ...(input.valor != null ? { valor: input.valor } : {}),
+          updated_by: user.id,
+        })
+        .eq("tenant_id", currentTenantId)
+        .eq("evento_id", input.eventoId)
+        .eq("id", input.id)
+        .select("*")
+        .single()
+        .returns<EventoPagamento>();
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    },
+    onSuccess: (_pagamento, input) => {
+      invalidateEventoPagamentoQueries(queryClient, currentTenantId, input.eventoId);
+    },
+  });
+};
+
+export const useDeleteEventoPagamento = () => {
+  const queryClient = useQueryClient();
+  const { currentTenantId } = useCurrentTenant();
+
+  return useMutation({
+    mutationFn: async (input: DeleteEventoPagamentoInput) => {
+      if (!currentTenantId) {
+        throw new Error("Tenant atual indisponivel.");
+      }
+
+      const { error } = await supabase
+        .from("evento_pagamentos")
+        .delete()
+        .eq("tenant_id", currentTenantId)
+        .eq("evento_id", input.eventoId)
+        .eq("id", input.id);
+
+      if (error) {
+        throw error;
+      }
+    },
+    onSuccess: (_data, input) => {
+      invalidateEventoPagamentoQueries(queryClient, currentTenantId, input.eventoId);
     },
   });
 };

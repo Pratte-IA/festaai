@@ -5,6 +5,7 @@ import {
   isStageValidForFunnel,
   resolveFunnelStageAfterClientForm,
   resolveFunnelStageForImport,
+  resolveFunnelStagePendingContractSignature,
 } from "./stage-validation";
 import type { Stage } from "./types";
 
@@ -52,5 +53,13 @@ describe("stage-validation", () => {
       status_interno: "ativo",
     });
     expect(resolveFunnelStageAfterClientForm("festa")).toBeNull();
+  });
+
+  it("mantem formulario publico em vendas / negociacao ate assinatura do contrato", () => {
+    expect(resolveFunnelStagePendingContractSignature()).toEqual({
+      etapa: "negociacao",
+      funil: "vendas",
+      status_interno: "ativo",
+    });
   });
 });

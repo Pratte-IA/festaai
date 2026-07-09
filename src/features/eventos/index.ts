@@ -9,9 +9,13 @@ export { eventosQueryKeys } from "./query-keys";
 export { filterExecutadasFunnelEvents, filterExecutadasFunnelEventsByPartyDate } from "./filter-executadas-funnel-events";
 export { filterEventosBySearch, matchesEventoSearch } from "./filter-eventos-by-search";
 export { getEventoPackageDisplay } from "./evento-package-display";
+export { getEventoDataEntradaInstant, getEventoDataEntradaIso } from "./get-evento-data-entrada";
 export {
   getEventBalance,
+  getEventBalanceFromReceivable,
   getEventDisplayTotalPaid,
+  getEventoEntradaDescricao,
+  getEventoEntradaReferenceDate,
   getEventRecordedPaid,
   isEventFullySettled,
 } from "./event-financial";
@@ -19,6 +23,7 @@ export {
   isCalendarOrcamentoEvento,
   isCalendarVisitaEvento,
   isClosedPartyEvento,
+  isArchivedCrmEvento,
   isInactiveEvento,
   isScheduledPartyEvento,
 } from "./is-closed-party-event";
@@ -87,7 +92,12 @@ export { useBulkCreateEventos } from "./use-bulk-create-eventos";
 export { useCreateEvento } from "./use-create-evento";
 export { useEvento } from "./use-evento";
 export { useCreateEventoNota, useEventoNotas } from "./use-evento-notas";
-export { useCreateEventoPagamento, useEventoPagamentos } from "./use-evento-pagamentos";
+export {
+  useCreateEventoPagamento,
+  useDeleteEventoPagamento,
+  useEventoPagamentos,
+  useUpdateEventoPagamento,
+} from "./use-evento-pagamentos";
 export { useCreateEventoTarefa, useDeleteEventoTarefa, useEventoTarefas, useToggleEventoTarefa, useUpdateEventoTarefa } from "./use-evento-tarefas";
 export { useEventos } from "./use-eventos";
 export { useDeleteEvento } from "./use-delete-evento";

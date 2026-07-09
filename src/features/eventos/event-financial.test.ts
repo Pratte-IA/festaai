@@ -5,7 +5,10 @@ import { Evento } from "@/features/eventos";
 import {
   computeClosingFormValorSaldo,
   getEventBalance,
+  getEventBalanceFromReceivable,
   getEventDisplayTotalPaid,
+  getEventoEntradaDescricao,
+  getEventoEntradaReferenceDate,
   isEventFullySettled,
 } from "./event-financial";
 
@@ -34,9 +37,27 @@ describe("event-financial", () => {
     expect(getEventBalance(event, 500)).toBe(3500);
   });
 
+  it("calcula saldo com total a receber ajustado por desconto", () => {
+    const event = baseEvento();
+
+    expect(getEventBalanceFromReceivable(event, 4700, 1000)).toBe(2700);
+  });
+
   it("calcula saldo devedor do formulário como total menos entrada", () => {
     expect(computeClosingFormValorSaldo(5779, 500)).toBe(5279);
     expect(computeClosingFormValorSaldo(500, 500)).toBe(0);
     expect(computeClosingFormValorSaldo(1990, 0)).toBe(1990);
+  });
+
+  it("monta descrição e data de referência da entrada do contrato", () => {
+    const event = baseEvento({
+      created_at: "2026-01-10T08:00:00.000Z",
+      fechamento_confirmado_em: "2026-03-15T10:00:00.000Z",
+      forma_pagamento_entrada: "Pix",
+    });
+
+    expect(getEventoEntradaReferenceDate(event)).toBe("2026-03-15");
+    expect(getEventoEntradaDescricao(event)).toBe("Entrada · Pix");
+    expect(getEventoEntradaDescricao(baseEvento({ forma_pagamento_entrada: null }))).toBe("Entrada");
   });
 });

@@ -68,7 +68,10 @@ export const buildDashboardDescricaoRows = (
 
 export const buildDashboardEntradaRows = (
   items: Pick<FinanceiroDisplayItem, "categoria" | "valor">[],
-) => buildDashboardDescricaoRows(items, FINANCEIRO_CATEGORIAS_ENTRADA);
+) =>
+  buildDashboardDescricaoRows(items, {
+    entrada_contrato: FINANCEIRO_CATEGORIAS_ENTRADA.entrada_contrato,
+  });
 
 export const buildDashboardSaidaRows = (
   items: Pick<FinanceiroDisplayItem, "categoria" | "valor">[],

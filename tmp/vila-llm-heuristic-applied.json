@@ -1,0 +1,329 @@
+{
+  "method": "advanced_heuristic_pass2",
+  "applied_at": "2026-07-08T23:15:27.437021Z",
+  "scanned": 381,
+  "proposals_found": 33,
+  "applied": 28,
+  "skipped": 5,
+  "errors": 0,
+  "post_both": "0-0/248",
+  "post_missing": "0-0/373",
+  "updated": [
+    {
+      "evento_id": 32,
+      "cliente": "Ana Caroline 📲",
+      "applied": {
+        "aniversariante_data_nascimento": "2025-07-09"
+      },
+      "confidence": "alta",
+      "evidence": [
+        "label_nasc:09/07/2025"
+      ]
+    },
+    {
+      "evento_id": 58,
+      "cliente": "Jonathas Osiel",
+      "applied": {
+        "aniversariante_data_nascimento": "2025-06-04"
+      },
+      "confidence": "alta",
+      "evidence": [
+        "label_nome:Olivia",
+        "label_nasc:04/06/2025"
+      ]
+    },
+    {
+      "evento_id": 10,
+      "cliente": "Ana Paula Campos",
+      "applied": {
+        "aniversariante_nome": "Bella"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Bella"
+      ]
+    },
+    {
+      "evento_id": 13,
+      "cliente": "Mary Martins",
+      "applied": {
+        "aniversariante_nome": "Henry"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_name:Henry, 15/11/2025"
+      ]
+    },
+    {
+      "evento_id": 22,
+      "cliente": "Mila Lima",
+      "applied": {
+        "aniversariante_data_nascimento": "2018-12-11"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Mileny Lima Marques",
+        "line_dates:11/12/18"
+      ]
+    },
+    {
+      "evento_id": 27,
+      "cliente": "Priscila",
+      "applied": {
+        "aniversariante_nome": "Davi"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Davi"
+      ]
+    },
+    {
+      "evento_id": 28,
+      "cliente": "Caroline Hames",
+      "applied": {
+        "aniversariante_nome": "Oiiii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oiiii"
+      ]
+    },
+    {
+      "evento_id": 30,
+      "cliente": "Juliane Nascimento",
+      "applied": {
+        "aniversariante_nome": "Básico"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Básico"
+      ]
+    },
+    {
+      "evento_id": 31,
+      "cliente": "Tatiany",
+      "applied": {
+        "aniversariante_nome": "Luísa"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Luísa",
+        "line_dates:04/06/2019 - 7 anos"
+      ]
+    },
+    {
+      "evento_id": 35,
+      "cliente": "Jornal Fique Esperto",
+      "applied": {
+        "aniversariante_nome": "Tadeu Soares"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Tadeu Soares"
+      ]
+    },
+    {
+      "evento_id": 44,
+      "cliente": "Jaqueline Souza",
+      "applied": {
+        "aniversariante_nome": "José Miguel"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:José Miguel",
+        "line_dates:23/05/21"
+      ]
+    },
+    {
+      "evento_id": 45,
+      "cliente": "Flávia",
+      "applied": {
+        "aniversariante_nome": "Manuela"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Manuela",
+        "line_dates:07/04/2017"
+      ]
+    },
+    {
+      "evento_id": 94,
+      "cliente": "Rodrigo",
+      "applied": {
+        "aniversariante_data_nascimento": "2020-03-13"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Benjamim Koch Silveira",
+        "line_dates:DN: 13/03/2020"
+      ]
+    },
+    {
+      "evento_id": 96,
+      "cliente": "Clarice",
+      "applied": {
+        "aniversariante_nome": "Anthony"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_name:Anthony 7 anos com tema de futebol. Para dia 14/06"
+      ]
+    },
+    {
+      "evento_id": 110,
+      "cliente": "Gustavo Lopes",
+      "applied": {
+        "aniversariante_nome": "Henrique Lopes"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Henrique Lopes"
+      ]
+    },
+    {
+      "evento_id": 113,
+      "cliente": "Edxander Rocha",
+      "applied": {
+        "aniversariante_data_nascimento": "2024-02-14"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_dates:14/02/2024"
+      ]
+    },
+    {
+      "evento_id": 120,
+      "cliente": "Maria Julia✨",
+      "applied": {
+        "aniversariante_nome": "José Antônio"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:José Antônio"
+      ]
+    },
+    {
+      "evento_id": 125,
+      "cliente": "Solange Pereira",
+      "applied": {
+        "aniversariante_nome": "Otto Pereira Junckes"
+      },
+      "confidence": "media",
+      "evidence": [
+        "label_nasc:08/06/2022",
+        "line_only:Otto Pereira Junckes"
+      ]
+    },
+    {
+      "evento_id": 128,
+      "cliente": "Luciane Decker",
+      "applied": {
+        "aniversariante_nome": "Oiii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oiii"
+      ]
+    },
+    {
+      "evento_id": 139,
+      "cliente": "Ana",
+      "applied": {
+        "aniversariante_nome": "Oii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oii"
+      ]
+    },
+    {
+      "evento_id": 178,
+      "cliente": "Vanessa",
+      "applied": {
+        "aniversariante_nome": "Legal"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Legal"
+      ]
+    },
+    {
+      "evento_id": 181,
+      "cliente": "Beatriz",
+      "applied": {
+        "aniversariante_nome": "Josué"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Josué"
+      ]
+    },
+    {
+      "evento_id": 186,
+      "cliente": "Mariana Rodrigues",
+      "applied": {
+        "aniversariante_nome": "Bernardo Rodrigues Krauss"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Bernardo Rodrigues Krauss",
+        "line_dates:12/08/2023"
+      ]
+    },
+    {
+      "evento_id": 192,
+      "cliente": "Vivi",
+      "applied": {
+        "aniversariante_nome": "Joaquim"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Joaquim"
+      ]
+    },
+    {
+      "evento_id": 194,
+      "cliente": "Protocolo Antônio Carlos",
+      "applied": {
+        "aniversariante_nome": "Vídeos Tutorias"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Vídeos Tutorias"
+      ]
+    },
+    {
+      "evento_id": 200,
+      "cliente": "Katrin",
+      "applied": {
+        "aniversariante_nome": "Esse"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Esse"
+      ]
+    },
+    {
+      "evento_id": 473,
+      "cliente": "GABI KIDS",
+      "applied": {
+        "aniversariante_nome": "Oii"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Oii"
+      ]
+    },
+    {
+      "evento_id": 480,
+      "cliente": "VIVIANE",
+      "applied": {
+        "aniversariante_nome": "Eloah"
+      },
+      "confidence": "media",
+      "evidence": [
+        "line_only:Eloah"
+      ]
+    }
+  ]
+}

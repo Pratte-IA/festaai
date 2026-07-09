@@ -1,0 +1,426 @@
+{
+  "applied_at": "2026-07-08T23:12:35.210554Z",
+  "batch": "chat_media_nome_nasc",
+  "requested": 38,
+  "updated_count": 38,
+  "skipped_count": 0,
+  "rejected_filter_count": 0,
+  "error_count": 0,
+  "post_nome_nasc": "0-0/240",
+  "post_missing_either": "0-0/381",
+  "updated": [
+    {
+      "evento_id": 7,
+      "cliente": "👑",
+      "applied": {
+        "aniversariante_nome": "Josué"
+      },
+      "evidence": [
+        "nome:festa do Josué"
+      ]
+    },
+    {
+      "evento_id": 8,
+      "cliente": "Larissa Adriano",
+      "applied": {
+        "aniversariante_nome": "Helena"
+      },
+      "evidence": [
+        "nome:festa da Helena"
+      ]
+    },
+    {
+      "evento_id": 12,
+      "cliente": "Scharline Albino",
+      "applied": {
+        "aniversariante_nome": "Helena"
+      },
+      "evidence": [
+        "nome:festa da Helena"
+      ]
+    },
+    {
+      "evento_id": 14,
+      "cliente": "❤Thalita e Thailla..❤️",
+      "applied": {
+        "aniversariante_nome": "Thailla"
+      },
+      "evidence": [
+        "nome:festa da Thailla",
+        "nasc:09/03/2026 ctx~Oi Oii  Thailla Vitória meurer  09/03/2026  Quantidade e dat"
+      ]
+    },
+    {
+      "evento_id": 18,
+      "cliente": "Fran Marques",
+      "applied": {
+        "aniversariante_nome": "Liz"
+      },
+      "evidence": [
+        "nome:festa da Liz"
+      ]
+    },
+    {
+      "evento_id": 22,
+      "cliente": "Mila Lima",
+      "applied": {
+        "aniversariante_nome": "Mileny"
+      },
+      "evidence": [
+        "nome:aniversário da Mileny"
+      ]
+    },
+    {
+      "evento_id": 25,
+      "cliente": "Arq. Camilla Espezim",
+      "applied": {
+        "aniversariante_nome": "Ravi",
+        "aniversariante_data_nascimento": "2020-06-07"
+      },
+      "evidence": [
+        "nome:festa do Ravi",
+        "nasc:07/06/2020 ctx~rçamento de valores  Pra festinha de 7 anos Ravi  07/06/2020"
+      ]
+    },
+    {
+      "evento_id": 40,
+      "cliente": "Tatiane",
+      "applied": {
+        "aniversariante_nome": "Théo Henrique"
+      },
+      "evidence": [
+        "nome:aniversário do Théo Henrique"
+      ]
+    },
+    {
+      "evento_id": 41,
+      "cliente": "Mayndra Paiva ⚡",
+      "applied": {
+        "aniversariante_nome": "Esther",
+        "aniversariante_data_nascimento": "2021-07-10"
+      },
+      "evidence": [
+        "nome:festa da Esther",
+        "nasc:10/07/2021 ctx~ e queria mais informações, por favor. 🎂 Esther 📆 10/07/2021"
+      ]
+    },
+    {
+      "evento_id": 57,
+      "cliente": "Amanda Kunz",
+      "applied": {
+        "aniversariante_nome": "Antônio",
+        "aniversariante_data_nascimento": "2022-06-17"
+      },
+      "evidence": [
+        "nome:festa do Antônio",
+        "nasc:17/06/2022 ctx~nvidados   Me envia por favor? 💜✨ system: Antônio 17/06/2022"
+      ]
+    },
+    {
+      "evento_id": 67,
+      "cliente": "Quel Guarnieri",
+      "applied": {
+        "aniversariante_nome": "Rafaelly"
+      },
+      "evidence": [
+        "nome:aniversário da Rafaelly"
+      ]
+    },
+    {
+      "evento_id": 88,
+      "cliente": "Ju 💕",
+      "applied": {
+        "aniversariante_nome": "Maria Alice"
+      },
+      "evidence": [
+        "nome:aniversário da Maria Alice",
+        "nasc:23/01/2026 ctx~ias na Vila Encantada! Olha só:  📅 **Data:** 19 a 23/01/2026"
+      ]
+    },
+    {
+      "evento_id": 92,
+      "cliente": "E✨️",
+      "applied": {
+        "aniversariante_nome": "Mirella",
+        "aniversariante_data_nascimento": "2022-03-14"
+      },
+      "evidence": [
+        "nome:festa da Mirella",
+        "nasc:14/03/2022 ctx~Oi Mirella barbosa  14/03/2022  21/03/2022  100 04/04/2026 s"
+      ]
+    },
+    {
+      "evento_id": 94,
+      "cliente": "Rodrigo",
+      "applied": {
+        "aniversariante_nome": "Benjamim"
+      },
+      "evidence": [
+        "nome:aniversário do Benjamim"
+      ]
+    },
+    {
+      "evento_id": 97,
+      "cliente": "Maria Eduarda Schmitt",
+      "applied": {
+        "aniversariante_nome": "Cecília"
+      },
+      "evidence": [
+        "nome:festa da Cecília"
+      ]
+    },
+    {
+      "evento_id": 98,
+      "cliente": "~Loh❤️",
+      "applied": {
+        "aniversariante_nome": "Heloísa"
+      },
+      "evidence": [
+        "nome:aniversário da Heloísa"
+      ]
+    },
+    {
+      "evento_id": 99,
+      "cliente": "Sidney 😎",
+      "applied": {
+        "aniversariante_nome": "Dominick"
+      },
+      "evidence": [
+        "nome:festa do Dominick"
+      ]
+    },
+    {
+      "evento_id": 101,
+      "cliente": "Ana",
+      "applied": {
+        "aniversariante_nome": "Alyffer",
+        "aniversariante_data_nascimento": "2022-05-12"
+      },
+      "evidence": [
+        "nome:festa do Alyffer",
+        "nasc:12/05/2022 ctx~Boa tarde! Alyffer Gabriel  12/05/2022  16/05/2026 100 pesso"
+      ]
+    },
+    {
+      "evento_id": 108,
+      "cliente": "Fran Weber",
+      "applied": {
+        "aniversariante_nome": "Derek"
+      },
+      "evidence": [
+        "nome:festa do Derek"
+      ]
+    },
+    {
+      "evento_id": 112,
+      "cliente": "Nathy",
+      "applied": {
+        "aniversariante_nome": "Luiz Miguel"
+      },
+      "evidence": [
+        "nome:aniversário do Luiz Miguel"
+      ]
+    },
+    {
+      "evento_id": 119,
+      "cliente": "Bianca Meurer Schmitz",
+      "applied": {
+        "aniversariante_nome": "Helena"
+      },
+      "evidence": [
+        "nome:festa da Helena"
+      ]
+    },
+    {
+      "evento_id": 122,
+      "cliente": "Fernanda Silveira",
+      "applied": {
+        "aniversariante_nome": "Vicente",
+        "aniversariante_data_nascimento": "2016-02-13"
+      },
+      "evidence": [
+        "nome:festa do Vicente",
+        "nasc:13/02/2016 ctx~  Colônia de férias  Vicente da Silveira Machado  13/02/2016"
+      ]
+    },
+    {
+      "evento_id": 129,
+      "cliente": "Machado Filho Construcões",
+      "applied": {
+        "aniversariante_nome": "João"
+      },
+      "evidence": [
+        "nome:festa do João"
+      ]
+    },
+    {
+      "evento_id": 164,
+      "cliente": "Mª Eduarda Med Coelho",
+      "applied": {
+        "aniversariante_nome": "Laís"
+      },
+      "evidence": [
+        "nome:aniversário da Laís"
+      ]
+    },
+    {
+      "evento_id": 165,
+      "cliente": "Carla Palazzi",
+      "applied": {
+        "aniversariante_nome": "Estella"
+      },
+      "evidence": [
+        "nome:festa da Estella",
+        "nasc:12/04/2026 ctx~idade dela para você!  E só para confirmar, o dia 12/04/2026"
+      ]
+    },
+    {
+      "evento_id": 168,
+      "cliente": "Mayara",
+      "applied": {
+        "aniversariante_nome": "Henrique",
+        "aniversariante_data_nascimento": "2022-09-13"
+      },
+      "evidence": [
+        "nome:aniversário do Henrique",
+        "nasc:13/09/2022 ctx~de 4 anos para mais ou menos 35 pessoas Henrique  13/09/2022"
+      ]
+    },
+    {
+      "evento_id": 169,
+      "cliente": "Kelly C. Schmitz Gallo",
+      "applied": {
+        "aniversariante_nome": "Igor",
+        "aniversariante_data_nascimento": "2016-01-25"
+      },
+      "evidence": [
+        "nome:aniversário do Igor",
+        "nasc:25/01/2016 ctx~es  sobre os pacotes de vocês de aniversário Igor 25/01/2016"
+      ]
+    },
+    {
+      "evento_id": 174,
+      "cliente": "Tuane",
+      "applied": {
+        "aniversariante_nome": "Anthony",
+        "aniversariante_data_nascimento": "2018-02-14"
+      },
+      "evidence": [
+        "nome:aniversário do Anthony",
+        "nasc:14/02/2018 ctx~ona o espaço de vocês ! Anthony Alexandre Vieira  14/02/2018"
+      ]
+    },
+    {
+      "evento_id": 184,
+      "cliente": "Mari",
+      "applied": {
+        "aniversariante_nome": "Davi",
+        "aniversariante_data_nascimento": "2020-02-13"
+      },
+      "evidence": [
+        "nome:festa do Davi",
+        "nasc:13/02/2020 ctx~ante Davi  📅 Data de nascimento do aniversariante 13/02/2020"
+      ]
+    },
+    {
+      "evento_id": 191,
+      "cliente": "Adry🌪",
+      "applied": {
+        "aniversariante_nome": "Valentina"
+      },
+      "evidence": [
+        "nome:aniversário da Valentina",
+        "nasc:09/05/2026 ctx~al a quantidade estimada de convidados para o dia 09/05/2026"
+      ]
+    },
+    {
+      "evento_id": 193,
+      "cliente": "Alice",
+      "applied": {
+        "aniversariante_nome": "Maria"
+      },
+      "evidence": [
+        "nome:festa da Maria"
+      ]
+    },
+    {
+      "evento_id": 197,
+      "cliente": "sayranny",
+      "applied": {
+        "aniversariante_nome": "Yuna"
+      },
+      "evidence": [
+        "nome:festa da Yuna"
+      ]
+    },
+    {
+      "evento_id": 201,
+      "cliente": "Joana",
+      "applied": {
+        "aniversariante_nome": "Catarina"
+      },
+      "evidence": [
+        "nome:festa da Catarina"
+      ]
+    },
+    {
+      "evento_id": 205,
+      "cliente": "JOYCE A. HOFFMANN HANG",
+      "applied": {
+        "aniversariante_nome": "Benjamim",
+        "aniversariante_data_nascimento": "2024-01-07"
+      },
+      "evidence": [
+        "nome:aniversário do Benjamim",
+        "nasc:07/01/24 ctx~Oiii  Bom dia 😃  Tudo bem? Benjamim   07/01/24  10/01/27  80"
+      ]
+    },
+    {
+      "evento_id": 249,
+      "cliente": "Taisy❣️",
+      "applied": {
+        "aniversariante_nome": "Jeitinho"
+      },
+      "evidence": [
+        "nome:festa do jeitinho"
+      ]
+    },
+    {
+      "evento_id": 344,
+      "cliente": "CAMILA JUNCKES PETRY",
+      "applied": {
+        "aniversariante_nome": "Henrique",
+        "aniversariante_data_nascimento": "2021-05-29"
+      },
+      "evidence": [
+        "nome:festa do Henrique",
+        "nasc:29/05/2021 ctx~amento então  Nome: Henrique  Data de nascimento: 29/05/2021"
+      ]
+    },
+    {
+      "evento_id": 416,
+      "cliente": "BIANCA KAUFMANN",
+      "applied": {
+        "aniversariante_nome": "Vicente"
+      },
+      "evidence": [
+        "nome:festa do Vicente"
+      ]
+    },
+    {
+      "evento_id": 475,
+      "cliente": "MARIA EDUARDA PEREIRA",
+      "applied": {
+        "aniversariante_nome": "João",
+        "aniversariante_data_nascimento": "2019-06-27"
+      },
+      "evidence": [
+        "nome:festa do João",
+        "nasc:27/06/2019 ctx~isponível dia 27/06/2026? João vitor de Oliveira  27/06/2019"
+      ]
+    }
+  ],
+  "skipped": [],
+  "rejected_filter": [],
+  "errors": []
+}

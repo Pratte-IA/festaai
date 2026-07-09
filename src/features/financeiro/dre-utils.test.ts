@@ -6,9 +6,8 @@ describe("buildDashboardDescricaoRows", () => {
   it("lista todas as descricoes de entrada com zero quando vazias", () => {
     const rows = buildDashboardEntradaRows([]);
 
-    expect(rows).toHaveLength(3);
+    expect(rows).toHaveLength(1);
     expect(rows.find((row) => row.label === "Entrada Contrato")?.total).toBe(0);
-    expect(rows.find((row) => row.label === "Pagamento Contrato")?.total).toBe(0);
   });
 
   it("preenche totais por descricao de saida", () => {

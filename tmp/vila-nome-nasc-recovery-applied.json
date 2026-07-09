@@ -1,0 +1,227 @@
+{
+  "applied_at": "2026-07-08T23:11:06.153487Z",
+  "batch": "chat_alta_nome_nasc",
+  "target_project": "nuhnbqerbaqazkvmqufg",
+  "requested": 18,
+  "updated_count": 18,
+  "skipped_count": 0,
+  "error_count": 0,
+  "updated": [
+    {
+      "evento_id": 11,
+      "cliente": "Gabriela Ferreira",
+      "applied": {
+        "aniversariante_data_nascimento": "2022-11-22"
+      },
+      "evidence": [
+        "nasc:22/11/22 ctx~Oii, gostaria de saber valores 22/11/22 21/11/2026 25/30 con"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 29,
+      "cliente": "Deiwid😎",
+      "applied": {
+        "aniversariante_nome": "Lucas"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Lucas"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 31,
+      "cliente": "Tatiany",
+      "applied": {
+        "aniversariante_data_nascimento": "2019-06-04"
+      },
+      "evidence": [
+        "nome:festa do tema",
+        "nasc:04/06/2019 ctx~zer no dia mesmo, uma quinta-feira à tarde. Luísa 04/06/2019"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 44,
+      "cliente": "Jaqueline Souza",
+      "applied": {
+        "aniversariante_data_nascimento": "2021-05-23"
+      },
+      "evidence": [
+        "nasc:23/05/21 ctx~ dia  Gostaria de fazer um orçamento José Miguel  23/05/21 2"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 45,
+      "cliente": "Flávia",
+      "applied": {
+        "aniversariante_data_nascimento": "2017-04-07"
+      },
+      "evidence": [
+        "nasc:07/04/2017 ctx~Manuela 07/04/2017 10/04/2027 100 pessoas Conheço mas gostar"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 46,
+      "cliente": "Malu Pauli Interiores",
+      "applied": {
+        "aniversariante_nome": "Santiago"
+      },
+      "evidence": [
+        "nome:festa do Santiago",
+        "nasc:23/02/2026 ctx~sta de 1 ano do meu filho, a data de nascimento é 23/02/2026"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 47,
+      "cliente": "Beatriz 🧠🗣️🌸",
+      "applied": {
+        "aniversariante_nome": "Mathias",
+        "aniversariante_data_nascimento": "2019-07-06"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Mathias",
+        "nasc:06/07/2019 ctx~ do aniversariante: Mathias 📅 Data de nascimento: 06/07/2019"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 53,
+      "cliente": "Suelen",
+      "applied": {
+        "aniversariante_nome": "Benício Vicenzo Bilharva",
+        "aniversariante_data_nascimento": "2021-11-30"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante : Benício Vicenzo Bilharva",
+        "nasc:30/11/21 ctx~ício Vicenzo Bilharva Leite 📅 Data de nascimento  30/11/21 🎉"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 54,
+      "cliente": "Samara",
+      "applied": {
+        "aniversariante_nome": "Maria Cecília"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Maria Cecília"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 58,
+      "cliente": "Jonathas Osiel",
+      "applied": {
+        "aniversariante_nome": "Olivia"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Olivia",
+        "nasc:04/06/25 ctx~Olivia  04/06/25 11/06 30 convidados Pode me mostrar Simm Pa"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 106,
+      "cliente": "Jéssica",
+      "applied": {
+        "aniversariante_nome": "Bernardo",
+        "aniversariante_data_nascimento": "2021-06-08"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Bernardo",
+        "nasc:08/06/2021 ctx~o aniversariante: Bernardo  📅 Data de nascimento: 08/06/2021"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 109,
+      "cliente": "Amanda",
+      "applied": {
+        "aniversariante_nome": "Olívia"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Olívia"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 111,
+      "cliente": "Ariely Vonvossen",
+      "applied": {
+        "aniversariante_nome": "Leonardo",
+        "aniversariante_data_nascimento": "2022-10-17"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Leonardo",
+        "nasc:17/10/22 ctx~Boa noite Leonardo  17/10/22  Vou verificar a quantidade de "
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 118,
+      "cliente": "Gabi",
+      "applied": {
+        "aniversariante_nome": "Clara"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Clara",
+        "nasc:27/02/25 ctx~Oiii 28/02 45/50 pessoas  27/02/2025 Clara 27/02/25  Isso Nã"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 125,
+      "cliente": "Solange Pereira",
+      "applied": {
+        "aniversariante_data_nascimento": "2022-06-08"
+      },
+      "evidence": [
+        "nasc:08/06/2022 ctx~viar os pacotes? Otto Pereira Junckes  Nascimento 08/06/2022"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 175,
+      "cliente": "‎Tayná",
+      "applied": {
+        "aniversariante_nome": "Luca",
+        "aniversariante_data_nascimento": "2023-08-08"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Luca",
+        "nasc:08/08/2023 ctx~te: Luca  📅 Data de nascimento do aniversariante: 08/08/2023"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 186,
+      "cliente": "Mariana Rodrigues",
+      "applied": {
+        "aniversariante_data_nascimento": "2023-08-12"
+      },
+      "evidence": [
+        "nome:festa de aniversário",
+        "nasc:12/08/2023 ctx~e, tudo bem? 💜 system: Bernardo Rodrigues Krauss  12/08/2023"
+      ],
+      "source": "chat_alta"
+    },
+    {
+      "evento_id": 199,
+      "cliente": "Eduardo José Mendes",
+      "applied": {
+        "aniversariante_nome": "Heitor José"
+      },
+      "evidence": [
+        "nome:Nome do aniversariante: Heitor José",
+        "nasc:29/08/2026 ctx~im já consigo verificar a disponibilidade da data 29/08/2026"
+      ],
+      "source": "chat_alta"
+    }
+  ],
+  "skipped": [],
+  "errors": []
+}

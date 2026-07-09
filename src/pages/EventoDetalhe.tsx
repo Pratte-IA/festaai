@@ -248,13 +248,14 @@ const EventoDetalhe = () => {
     if (!validEventoId) return;
 
     const guestCount = values.quantidade_convidados ?? 0;
+    const pacoteId = values.pacote_id ?? event.pacote_id;
     const pricingUpdates =
-      guestCount > 0 && event.pacote_id
+      guestCount > 0 && pacoteId
         ? recalculateEventoGuestPricing({
             adicionaisSnapshot: event.adicionais_snapshot,
             dataEvento: values.data_evento,
             guestCount,
-            pacoteId: event.pacote_id,
+            pacoteId,
             packages,
             valorAdicionais: values.valor_adicionais,
             valorPacote: values.valor_pacote,

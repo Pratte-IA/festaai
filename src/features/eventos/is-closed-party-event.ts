@@ -1,5 +1,9 @@
 import { Evento } from "./types";
 
+/** Lead arquivado (ex.: duplicata consolidada) — oculto no Kanban do CRM. */
+export const isArchivedCrmEvento = (evento: Evento): boolean =>
+  evento.status_interno === "cancelado";
+
 export const isInactiveEvento = (evento: Evento): boolean =>
   evento.etapa === "perdido" ||
   evento.status_interno === "perdido" ||

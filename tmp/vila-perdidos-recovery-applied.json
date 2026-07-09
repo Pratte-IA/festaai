@@ -1,0 +1,2198 @@
+{
+  "applied_at": "2026-07-08T14:20:43.633748Z",
+  "target_project": "nuhnbqerbaqazkvmqufg",
+  "tenant_id": 2,
+  "confidence": "alta",
+  "requested": 98,
+  "updated_count": 98,
+  "skipped_count": 0,
+  "error_count": 0,
+  "updated": [
+    {
+      "evento_id": 16,
+      "cliente_nome": "Alana Caroline",
+      "applied": {
+        "aniversariante_nome": "CAIO",
+        "data_evento": "2025-04-05",
+        "aniversariante_data_nascimento": "2024-04-04"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 766,
+        "nome_lead": "ALANA CAROLINE",
+        "nome_aniversariante": "CAIO",
+        "data_festa": "2025-04-05",
+        "data_nascimento": "2024-04-04",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 21,
+      "cliente_nome": "Joice",
+      "applied": {
+        "data_evento": "2025-10-01"
+      },
+      "sources": [
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 645,
+        "nome_lead": "JOICE SILVESTRE",
+        "nome_aniversariante": null,
+        "data_festa": "2025-10-01",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 23,
+      "cliente_nome": "Vitória Veber",
+      "applied": {
+        "aniversariante_nome": "GETULIO",
+        "data_evento": "2025-08-23",
+        "aniversariante_data_nascimento": "2020-08-20"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 712,
+        "nome_lead": "VITORIA VEBER",
+        "nome_aniversariante": "GETULIO",
+        "data_festa": "2025-08-23",
+        "data_nascimento": "2020-08-20",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 24,
+      "cliente_nome": "Jaciara ☺️",
+      "applied": {
+        "aniversariante_nome": "iris",
+        "data_evento": "2025-07-06",
+        "aniversariante_data_nascimento": "2021-07-06"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 720,
+        "nome_lead": "Jaciara",
+        "nome_aniversariante": "iris",
+        "data_festa": "2025-07-06",
+        "data_nascimento": "2021-07-06",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 33,
+      "cliente_nome": "Letícia Martins",
+      "applied": {
+        "aniversariante_nome": "VICENTE FELIPE MACHADO",
+        "data_evento": "2025-08-23",
+        "aniversariante_data_nascimento": "2019-08-22"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 280,
+        "nome_lead": "LETICIA MARTINS",
+        "nome_aniversariante": "VICENTE FELIPE MACHADO",
+        "data_festa": "2025-08-23",
+        "data_nascimento": "2019-08-22",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 37,
+      "cliente_nome": "Juliana Cristina 💅🏻",
+      "applied": {
+        "aniversariante_nome": "ANNA VITORIA E ALICE FLORA",
+        "data_evento": "2025-08-17"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 718,
+        "nome_lead": "SEM NOME 9",
+        "nome_aniversariante": "ANNA VITORIA E ALICE FLORA",
+        "data_festa": "2025-08-17",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 39,
+      "cliente_nome": "Fernanda Guesser Koch",
+      "applied": {
+        "aniversariante_nome": "Na",
+        "data_evento": "2024-05-25"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "chat.aniversariante_nome"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 994,
+        "nome_lead": "Fernanda Guesser Koch",
+        "nome_aniversariante": null,
+        "data_festa": "2024-05-25",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 42,
+      "cliente_nome": "Thalia Regina",
+      "applied": {
+        "aniversariante_nome": "ANTHONY NEIS FERNANDES",
+        "data_evento": "2025-07-27",
+        "aniversariante_data_nascimento": "2022-07-27"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 832,
+        "nome_lead": "THALIA REGINA",
+        "nome_aniversariante": "ANTHONY NEIS FERNANDES",
+        "data_festa": "2025-07-27",
+        "data_nascimento": "2022-07-27",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 43,
+      "cliente_nome": "Beatriz Schmitz",
+      "applied": {
+        "aniversariante_nome": "CECILIA",
+        "data_evento": "2024-06-30"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 797,
+        "nome_lead": "BEATRIZ SCHMITZ",
+        "nome_aniversariante": "CECILIA",
+        "data_festa": "2024-06-30",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 48,
+      "cliente_nome": "Gislene Quincor",
+      "applied": {
+        "aniversariante_nome": "HEITOR E THOR",
+        "data_evento": "2024-05-11"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 948,
+        "nome_lead": "Gislene Quincor",
+        "nome_aniversariante": "HEITOR E THOR",
+        "data_festa": "2024-05-11",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 60,
+      "cliente_nome": "Any Elise Pereira Saviti",
+      "applied": {
+        "aniversariante_nome": "Na",
+        "data_evento": "2025-05-03"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "chat.aniversariante_nome"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 856,
+        "nome_lead": "ANY ELISE PEREIRA SAVITI",
+        "nome_aniversariante": null,
+        "data_festa": "2025-05-03",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 64,
+      "cliente_nome": "Lucineide Pitz",
+      "applied": {
+        "aniversariante_nome": "JOSE LUIZ",
+        "data_evento": "2026-01-23",
+        "aniversariante_data_nascimento": "2022-02-03"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_nascimento",
+        "chat.data_evento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 966,
+        "nome_lead": "LUCINEIDE PITZ",
+        "nome_aniversariante": "JOSE LUIZ",
+        "data_festa": null,
+        "data_nascimento": "2022-02-03",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 70,
+      "cliente_nome": "Taisa Lamego",
+      "applied": {
+        "aniversariante_nome": "Pietra Oliveira B Lamego",
+        "data_evento": "2026-04-12",
+        "aniversariante_data_nascimento": "2024-04-12"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 2244,
+        "nome_lead": "Heitor Baraúna Lamego ",
+        "nome_aniversariante": "Pietra Oliveira B Lamego ",
+        "data_festa": "2026-04-12",
+        "data_nascimento": "2024-04-12",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 79,
+      "cliente_nome": "Judi Nascimento",
+      "applied": {
+        "aniversariante_nome": "Maria Clara prim do nascimento",
+        "data_evento": "2026-07-11",
+        "aniversariante_data_nascimento": "2025-07-08"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 2183,
+        "nome_lead": "Judi cristina prim do nascimento ",
+        "nome_aniversariante": "Maria Clara prim do nascimento ",
+        "data_festa": "2026-07-11",
+        "data_nascimento": "2025-07-08",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 87,
+      "cliente_nome": "Andressa",
+      "applied": {
+        "aniversariante_nome": "ANA JULIA",
+        "data_evento": "2025-06-08"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 711,
+        "nome_lead": "ANDRESSA",
+        "nome_aniversariante": "ANA JULIA",
+        "data_festa": "2025-06-08",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 93,
+      "cliente_nome": "Ana Karina",
+      "applied": {
+        "aniversariante_nome": "GEOVANA RIBEIRO PRESTES",
+        "data_evento": "2025-05-17",
+        "aniversariante_data_nascimento": "2022-05-14"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 980,
+        "nome_lead": "ANA KARINA RIBEIRO LEAL",
+        "nome_aniversariante": "GEOVANA RIBEIRO PRESTES",
+        "data_festa": "2025-05-17",
+        "data_nascimento": "2022-05-14",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 100,
+      "cliente_nome": "Helô 🌹",
+      "applied": {
+        "aniversariante_nome": "Bernardo",
+        "data_evento": "2025-10-04",
+        "aniversariante_data_nascimento": "2011-03-24"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "chat.aniversariante_nome",
+        "chat.aniversariante_data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 335,
+        "nome_lead": "HELO",
+        "nome_aniversariante": null,
+        "data_festa": "2025-10-04",
+        "data_nascimento": null,
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 105,
+      "cliente_nome": "Michelle Silveira ❤️",
+      "applied": {
+        "aniversariante_nome": "Arthur",
+        "data_evento": "2025-08-09",
+        "aniversariante_data_nascimento": "2023-08-08"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 864,
+        "nome_lead": "MICHELLE SILVEIRA",
+        "nome_aniversariante": "Arthur",
+        "data_festa": "2025-08-09",
+        "data_nascimento": "2023-08-08",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 123,
+      "cliente_nome": "Caroline B. da Silveira",
+      "applied": {
+        "aniversariante_nome": "ELLA STUCK",
+        "data_evento": "2024-08-24",
+        "aniversariante_data_nascimento": "2015-08-23"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1071,
+        "nome_lead": "CAROLINE BESEN DA SILVEIRA",
+        "nome_aniversariante": "ELLA STUCK",
+        "data_festa": "2024-08-24",
+        "data_nascimento": "2015-08-23",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 130,
+      "cliente_nome": "Isabel Schmitt Petry",
+      "applied": {
+        "aniversariante_nome": "Mathias, Antônio e Joaquim",
+        "data_evento": "2025-04-19",
+        "aniversariante_data_nascimento": "2024-04-18"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 163,
+        "nome_lead": "Isabel Schmitt Petry",
+        "nome_aniversariante": "Mathias, Antônio e Joaquim",
+        "data_festa": "2025-04-19",
+        "data_nascimento": "2024-04-18",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 132,
+      "cliente_nome": "Greissy",
+      "applied": {
+        "aniversariante_nome": "NATHAN",
+        "data_evento": "2025-06-15",
+        "aniversariante_data_nascimento": "2023-06-16"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 138,
+        "nome_lead": "Greissy de amorim",
+        "nome_aniversariante": "NATHAN",
+        "data_festa": "2025-06-15",
+        "data_nascimento": "2023-06-16",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 133,
+      "cliente_nome": "Margarete",
+      "applied": {
+        "aniversariante_nome": "EUCARISTIA",
+        "data_evento": "2025-05-25"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 147,
+        "nome_lead": "Margarete Schvambach Petry",
+        "nome_aniversariante": "EUCARISTIA",
+        "data_festa": "2025-05-25",
+        "data_nascimento": null,
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 134,
+      "cliente_nome": "Tati Junkes",
+      "applied": {
+        "aniversariante_nome": "NICOLAS",
+        "data_evento": "2025-03-08",
+        "aniversariante_data_nascimento": "2024-02-29"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 144,
+        "nome_lead": "TATIANA JUNKES SCHMITT",
+        "nome_aniversariante": "NICOLAS",
+        "data_festa": "2025-03-08",
+        "data_nascimento": "2024-02-29",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 135,
+      "cliente_nome": "Nair Decker Koch",
+      "applied": {
+        "aniversariante_nome": "Encontro de família celebrando o Natal",
+        "data_evento": "2025-12-14",
+        "aniversariante_data_nascimento": "2025-11-14"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 673,
+        "nome_lead": "Nair Decker koch",
+        "nome_aniversariante": "Encontro de família celebrando  o Natal ",
+        "data_festa": "2025-12-14",
+        "data_nascimento": "2025-11-14",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 136,
+      "cliente_nome": "Gabriela",
+      "applied": {
+        "aniversariante_nome": "LIZ SERPA FREITAS",
+        "data_evento": "2024-10-20",
+        "aniversariante_data_nascimento": "2019-10-21"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1080,
+        "nome_lead": "GABRIELA VITORINO SERPA FREITAS",
+        "nome_aniversariante": "LIZ SERPA FREITAS",
+        "data_festa": "2024-10-20",
+        "data_nascimento": "2019-10-21",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 137,
+      "cliente_nome": "Alessandra Paganeli",
+      "applied": {
+        "aniversariante_nome": "Mariana",
+        "data_evento": "2024-11-03",
+        "aniversariante_data_nascimento": "2016-11-07"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 110,
+        "nome_lead": "ALESSANDRA PAGANELLI",
+        "nome_aniversariante": "Mariana",
+        "data_festa": "2024-11-03",
+        "data_nascimento": "2016-11-07",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 140,
+      "cliente_nome": "💕💕Fernanda Guesser",
+      "applied": {
+        "aniversariante_nome": "Théo Guesser Dias",
+        "data_evento": "2024-12-08",
+        "aniversariante_data_nascimento": "2019-12-03"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 127,
+        "nome_lead": "FERNANDA MARLENE GUESSER",
+        "nome_aniversariante": "Théo Guesser Dias",
+        "data_festa": "2024-12-08",
+        "data_nascimento": "2019-12-03",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 142,
+      "cliente_nome": "Juliana Galigiuri",
+      "applied": {
+        "aniversariante_nome": "Théo Galigiuri Giatti Silva",
+        "data_evento": "2024-12-22",
+        "aniversariante_data_nascimento": "2019-12-19"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 130,
+        "nome_lead": "JULIANA GALIGIURI SILVA",
+        "nome_aniversariante": "Théo Galigiuri Giatti Silva",
+        "data_festa": "2024-12-22",
+        "data_nascimento": "2019-12-19",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 143,
+      "cliente_nome": "Luzia -LCK - Asp e Hot",
+      "applied": {
+        "aniversariante_nome": "Layla Caroni Kupka",
+        "data_evento": "2024-11-23",
+        "aniversariante_data_nascimento": "2017-11-18"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 128,
+        "nome_lead": "LUZIA CARONI",
+        "nome_aniversariante": "Layla Caroni Kupka",
+        "data_festa": "2024-11-23",
+        "data_nascimento": "2017-11-18",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 144,
+      "cliente_nome": "Joice",
+      "applied": {
+        "aniversariante_nome": "LAURA",
+        "data_evento": "2025-06-07",
+        "aniversariante_data_nascimento": "2021-06-01"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 137,
+        "nome_lead": "Joice Macedo da Cunha",
+        "nome_aniversariante": "LAURA",
+        "data_festa": "2025-06-07",
+        "data_nascimento": "2021-06-01",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 145,
+      "cliente_nome": "Danny",
+      "applied": {
+        "aniversariante_nome": "Betina de Souza Bittencourt",
+        "data_evento": "2025-12-13",
+        "aniversariante_data_nascimento": "2025-12-13"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 105,
+        "nome_lead": "Danielly Cassiani de Souza Bittencourt",
+        "nome_aniversariante": "Betina de Souza Bittencourt",
+        "data_festa": "2025-12-13",
+        "data_nascimento": "2025-12-13",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 146,
+      "cliente_nome": "linda andrea",
+      "applied": {
+        "aniversariante_nome": "THEO COUTINHO ALENCAR",
+        "data_evento": "2025-02-15",
+        "aniversariante_data_nascimento": "2020-02-17"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 164,
+        "nome_lead": "LINDA ANDREA COUTINHO DA CUNHA",
+        "nome_aniversariante": "THEO COUTINHO ALENCAR",
+        "data_festa": "2025-02-15",
+        "data_nascimento": "2020-02-17",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 147,
+      "cliente_nome": "samantha schutz",
+      "applied": {
+        "aniversariante_nome": "Lia ferreira Schütz",
+        "data_evento": "2025-02-16",
+        "aniversariante_data_nascimento": "2021-02-15"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1063,
+        "nome_lead": "SAMANTHA SCHUTZ",
+        "nome_aniversariante": "Lia ferreira Schütz",
+        "data_festa": "2025-02-16",
+        "data_nascimento": "2021-02-15",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 148,
+      "cliente_nome": "Marina Da Silveira Pauli",
+      "applied": {
+        "aniversariante_nome": "Gabriel da Silveira pauli",
+        "data_evento": "2025-07-04",
+        "aniversariante_data_nascimento": "2021-07-06"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 134,
+        "nome_lead": "Marina da Silveira Pauli",
+        "nome_aniversariante": "Gabriel da Silveira pauli",
+        "data_festa": "2025-07-04",
+        "data_nascimento": "2021-07-06",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 149,
+      "cliente_nome": "Camila Meurer Jacob",
+      "applied": {
+        "aniversariante_nome": "Caio Meurer Jacob",
+        "data_evento": "2025-10-11",
+        "aniversariante_data_nascimento": "2024-10-09"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 101,
+        "nome_lead": "Camila Meurer Jacob",
+        "nome_aniversariante": "Caio Meurer Jacob",
+        "data_festa": "2025-10-11",
+        "data_nascimento": "2024-10-09",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 150,
+      "cliente_nome": "Gi",
+      "applied": {
+        "aniversariante_nome": "Rafaela Petriu Rodrigues",
+        "data_evento": "2025-04-12",
+        "aniversariante_data_nascimento": "2018-04-15"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 161,
+        "nome_lead": "Gislaine Cristina Petriu Rodrigues",
+        "nome_aniversariante": "Rafaela Petriu Rodrigues",
+        "data_festa": "2025-04-12",
+        "data_nascimento": "2018-04-15",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 151,
+      "cliente_nome": "Juliana",
+      "applied": {
+        "aniversariante_nome": "ALICE ANTUNES CRUZ",
+        "data_evento": "2025-02-08",
+        "aniversariante_data_nascimento": "2018-02-08"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 160,
+        "nome_lead": "JULIANA DOS PASSOS CRUZ",
+        "nome_aniversariante": "ALICE ANTUNES CRUZ",
+        "data_festa": "2025-02-08",
+        "data_nascimento": "2018-02-08",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 152,
+      "cliente_nome": "Bruna",
+      "applied": {
+        "aniversariante_nome": "ALINE NAU MALAGOLI",
+        "data_evento": "2024-05-11",
+        "aniversariante_data_nascimento": "2023-05-11"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 117,
+        "nome_lead": "BRUNA NAU MALAGOLI",
+        "nome_aniversariante": "ALINE NAU MALAGOLI",
+        "data_festa": "2024-05-11",
+        "data_nascimento": "2023-05-11",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 153,
+      "cliente_nome": "Jane",
+      "applied": {
+        "aniversariante_nome": "JOAO DANIEL DA ROSA",
+        "data_evento": "2025-05-18",
+        "aniversariante_data_nascimento": "2020-05-13"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 142,
+        "nome_lead": "Jane Vanilda Daniel da Rosa",
+        "nome_aniversariante": "JOAO DANIEL DA ROSA",
+        "data_festa": "2025-05-18",
+        "data_nascimento": "2020-05-13",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 154,
+      "cliente_nome": "Poly",
+      "applied": {
+        "aniversariante_nome": "NOAH COSTA",
+        "data_evento": "2022-06-13",
+        "aniversariante_data_nascimento": "2022-06-10"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 136,
+        "nome_lead": "POLY",
+        "nome_aniversariante": "NOAH COSTA",
+        "data_festa": "2022-06-13",
+        "data_nascimento": "2022-06-10",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 156,
+      "cliente_nome": "☺️",
+      "applied": {
+        "aniversariante_nome": "DANIEL",
+        "data_evento": "2025-01-25",
+        "aniversariante_data_nascimento": "2019-01-26"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 157,
+        "nome_lead": "LORRANI MESTRE",
+        "nome_aniversariante": "DANIEL",
+        "data_festa": "2025-01-25",
+        "data_nascimento": "2019-01-26",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 157,
+      "cliente_nome": "Érika Baranovski",
+      "applied": {
+        "aniversariante_nome": "Analice Baranovski Machado",
+        "data_evento": "2025-01-12",
+        "aniversariante_data_nascimento": "2020-01-07"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 154,
+        "nome_lead": "ERIKA MATOS BARANOVSKI MACHADO",
+        "nome_aniversariante": "Analice Baranovski Machado",
+        "data_festa": "2025-01-12",
+        "data_nascimento": "2020-01-07",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 158,
+      "cliente_nome": "Lidiane Ventura Fraga",
+      "applied": {
+        "aniversariante_nome": "Lívia Ventura Fraga",
+        "data_evento": "2025-01-09",
+        "aniversariante_data_nascimento": "2016-01-02"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1082,
+        "nome_lead": "LIDIANE VENTURA FRAGA",
+        "nome_aniversariante": "Lívia Ventura Fraga",
+        "data_festa": "2025-01-09",
+        "data_nascimento": "2016-01-02",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 159,
+      "cliente_nome": "Jhullia Coutinho",
+      "applied": {
+        "aniversariante_nome": "MATEUS",
+        "data_evento": "2024-05-25",
+        "aniversariante_data_nascimento": "2023-05-21"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 125,
+        "nome_lead": "JHULLIA COUTINHO",
+        "nome_aniversariante": "MATEUS",
+        "data_festa": "2024-05-25",
+        "data_nascimento": "2023-05-21",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 160,
+      "cliente_nome": "Débora e Fabiano",
+      "applied": {
+        "aniversariante_nome": "ARTHUR",
+        "data_evento": "2024-06-11",
+        "aniversariante_data_nascimento": "2019-06-12"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1077,
+        "nome_lead": "DÉBORA SOUZA",
+        "nome_aniversariante": "ARTHUR",
+        "data_festa": "2024-06-11",
+        "data_nascimento": "2019-06-12",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 163,
+      "cliente_nome": "Marcieli",
+      "applied": {
+        "aniversariante_nome": "Antônio Koerich Scherer",
+        "data_evento": "2025-12-16",
+        "aniversariante_data_nascimento": "2019-12-18"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 166,
+        "nome_lead": "Marcieli koerich",
+        "nome_aniversariante": "Antônio Koerich Scherer",
+        "data_festa": "2025-12-16",
+        "data_nascimento": "2019-12-18",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 170,
+      "cliente_nome": "Bruna Ribeiro Ferrarini",
+      "applied": {
+        "aniversariante_nome": "Ravi Ribeiro Ferrarini",
+        "data_evento": "2024-06-16",
+        "aniversariante_data_nascimento": "2020-06-19"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 118,
+        "nome_lead": "BRUNA RIBEIRO FERRARINI",
+        "nome_aniversariante": "Ravi Ribeiro Ferrarini",
+        "data_festa": "2024-06-16",
+        "data_nascimento": "2020-06-19",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 173,
+      "cliente_nome": "Psicóloga Crp 12607",
+      "applied": {
+        "aniversariante_nome": "Beatrice koppicz Elias",
+        "data_evento": "2026-01-10",
+        "aniversariante_data_nascimento": "2020-01-11"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1275,
+        "nome_lead": "Ana Paula Koppicz ",
+        "nome_aniversariante": "Beatrice koppicz Elias ",
+        "data_festa": "2026-01-10",
+        "data_nascimento": "2020-01-11",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 176,
+      "cliente_nome": "Raquel Lohn",
+      "applied": {
+        "aniversariante_nome": "BETINA LOHN",
+        "data_evento": "2025-02-08",
+        "aniversariante_data_nascimento": "2020-02-08"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 985,
+        "nome_lead": "RAQUEL PETRY",
+        "nome_aniversariante": "BETINA LOHN",
+        "data_festa": "2025-02-08",
+        "data_nascimento": "2020-02-08",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 183,
+      "cliente_nome": "Ana Paula Neis🌻🍃",
+      "applied": {
+        "aniversariante_nome": "GAEL PAULO",
+        "data_evento": "2025-01-26",
+        "aniversariante_data_nascimento": "2025-01-24"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 919,
+        "nome_lead": "ANA PAULA NEIS",
+        "nome_aniversariante": "GAEL PAULO",
+        "data_festa": "2025-01-26",
+        "data_nascimento": "2025-01-24",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 185,
+      "cliente_nome": "Fisio Giselle",
+      "applied": {
+        "aniversariante_nome": "LAURA",
+        "data_evento": "2025-01-25",
+        "aniversariante_data_nascimento": "2015-01-22"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 924,
+        "nome_lead": "FISIO GISELLE",
+        "nome_aniversariante": "LAURA",
+        "data_festa": "2025-01-25",
+        "data_nascimento": "2015-01-22",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 196,
+      "cliente_nome": "Ana",
+      "applied": {
+        "aniversariante_nome": "ETHAN AZZOLINI MARTINS",
+        "data_evento": "2025-01-10",
+        "aniversariante_data_nascimento": "2020-01-10"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 155,
+        "nome_lead": "ANA CAROLINA AZZOLINI MARTINS",
+        "nome_aniversariante": "ETHAN AZZOLINI MARTINS",
+        "data_festa": "2025-01-10",
+        "data_nascimento": "2020-01-10",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 204,
+      "cliente_nome": "Cauany Correa",
+      "applied": {
+        "aniversariante_nome": "ANTHONY",
+        "data_evento": "2024-11-30",
+        "aniversariante_data_nascimento": "2023-11-29"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 762,
+        "nome_lead": "CAUANY",
+        "nome_aniversariante": "ANTHONY",
+        "data_festa": "2024-11-30",
+        "data_nascimento": "2023-11-29",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 207,
+      "cliente_nome": "KAUAN",
+      "applied": {
+        "aniversariante_nome": "Seu",
+        "data_evento": "2026-02-01"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "chat.aniversariante_nome"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 624,
+        "nome_lead": "KAUAN",
+        "nome_aniversariante": null,
+        "data_festa": "2026-02-01",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 208,
+      "cliente_nome": "ANDERSON COELHO",
+      "applied": {
+        "aniversariante_nome": "Está",
+        "data_evento": "2025-12-06"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "chat.aniversariante_nome"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 578,
+        "nome_lead": "ANDERSON COELHO",
+        "nome_aniversariante": null,
+        "data_festa": "2025-12-06",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 209,
+      "cliente_nome": "Mara",
+      "applied": {
+        "aniversariante_nome": "Laura",
+        "data_evento": "2026-05-16",
+        "aniversariante_data_nascimento": "2021-05-12"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 567,
+        "nome_lead": "Mara",
+        "nome_aniversariante": "Laura",
+        "data_festa": "2026-05-16",
+        "data_nascimento": "2021-05-12",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 210,
+      "cliente_nome": "ANA LUIZA",
+      "applied": {
+        "aniversariante_nome": "Agatha",
+        "data_evento": "2026-05-09",
+        "aniversariante_data_nascimento": "2025-05-08"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 554,
+        "nome_lead": "ANA LUIZA",
+        "nome_aniversariante": "Agatha",
+        "data_festa": "2026-05-09",
+        "data_nascimento": "2025-05-08",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 212,
+      "cliente_nome": "RAFAELLA FERNANDES",
+      "applied": {
+        "aniversariante_nome": "CHA DE BEBE",
+        "data_evento": "2026-02-15"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 505,
+        "nome_lead": "RAFAELLA FERNANDES",
+        "nome_aniversariante": "CHA DE BEBE",
+        "data_festa": "2026-02-15",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 213,
+      "cliente_nome": "KAUANY DO NASCIMENTO",
+      "applied": {
+        "aniversariante_nome": "GAEL, MICHEL E BRAYAN",
+        "data_evento": "2026-02-07"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 498,
+        "nome_lead": "KAUANY DO NASCIMENTO",
+        "nome_aniversariante": "GAEL, MICHEL E BRAYAN",
+        "data_festa": "2026-02-07",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 214,
+      "cliente_nome": "SUIANY",
+      "applied": {
+        "aniversariante_nome": "BENICIO",
+        "data_evento": "2026-02-01",
+        "aniversariante_data_nascimento": "2025-01-31"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 490,
+        "nome_lead": "SUIANY",
+        "nome_aniversariante": "BENICIO",
+        "data_festa": "2026-02-01",
+        "data_nascimento": "2025-01-31",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 215,
+      "cliente_nome": "PRISCILA VARGAS",
+      "applied": {
+        "aniversariante_nome": "LAURA",
+        "data_evento": "2026-02-22",
+        "aniversariante_data_nascimento": "2019-02-20"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 449,
+        "nome_lead": "PRISCILA VARGAS",
+        "nome_aniversariante": "LAURA",
+        "data_festa": "2026-02-22",
+        "data_nascimento": "2019-02-20",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 216,
+      "cliente_nome": "FABIANA SIMAS",
+      "applied": {
+        "aniversariante_nome": "PEDRO",
+        "data_evento": "2026-02-07",
+        "aniversariante_data_nascimento": "2023-02-07"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 427,
+        "nome_lead": "FABIANA SIMAS",
+        "nome_aniversariante": "PEDRO",
+        "data_festa": "2026-02-07",
+        "data_nascimento": "2023-02-07",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 217,
+      "cliente_nome": "JOANA BERNARDOM",
+      "applied": {
+        "aniversariante_nome": "Lívia Machado Munich",
+        "data_evento": "2026-01-16",
+        "aniversariante_data_nascimento": "2018-01-18"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1277,
+        "nome_lead": "Joana Bernardo Machado Munich",
+        "nome_aniversariante": "Lívia Machado Munich",
+        "data_festa": "2026-01-16",
+        "data_nascimento": "2018-01-18",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 219,
+      "cliente_nome": "BEATRIZ VIEIRA RODRIGUES",
+      "applied": {
+        "aniversariante_nome": "JOANA",
+        "data_evento": "2026-06-13",
+        "aniversariante_data_nascimento": "2024-06-13"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 306,
+        "nome_lead": "BEATRIZ VIEIRA RODRIGUES",
+        "nome_aniversariante": "JOANA",
+        "data_festa": "2026-06-13",
+        "data_nascimento": "2024-06-13",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 220,
+      "cliente_nome": "MAYARA VIEIRA MEDEIROS",
+      "applied": {
+        "aniversariante_nome": "Na",
+        "data_evento": "2026-02-21",
+        "aniversariante_data_nascimento": "2025-02-21"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "legacy.data_nascimento",
+        "chat.aniversariante_nome"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 305,
+        "nome_lead": "MAYARA VIEIRA MEDEIROS",
+        "nome_aniversariante": null,
+        "data_festa": "2026-02-21",
+        "data_nascimento": "2025-02-21",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 221,
+      "cliente_nome": "ALINE",
+      "applied": {
+        "aniversariante_nome": "GABRIELLY",
+        "data_evento": "2026-03-08",
+        "aniversariante_data_nascimento": "2025-03-08"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 291,
+        "nome_lead": "ALINE",
+        "nome_aniversariante": "GABRIELLY",
+        "data_festa": "2026-03-08",
+        "data_nascimento": "2025-03-08",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 222,
+      "cliente_nome": "TATIANE",
+      "applied": {
+        "aniversariante_nome": "NOAH",
+        "data_evento": "2026-02-15",
+        "aniversariante_data_nascimento": "2025-02-11"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 258,
+        "nome_lead": "TATIANE",
+        "nome_aniversariante": "NOAH",
+        "data_festa": "2026-02-15",
+        "data_nascimento": "2025-02-11",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 223,
+      "cliente_nome": "GABRIELLA SPONTON",
+      "applied": {
+        "aniversariante_nome": "MANUELA",
+        "data_evento": "2025-12-19",
+        "aniversariante_data_nascimento": "2021-12-19"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 243,
+        "nome_lead": "GABRIELLA SPONTON",
+        "nome_aniversariante": "MANUELA",
+        "data_festa": "2025-12-19",
+        "data_nascimento": "2021-12-19",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 226,
+      "cliente_nome": "Débora de Souza C Kretzer",
+      "applied": {
+        "aniversariante_nome": "BENICIO",
+        "data_evento": "2026-06-07",
+        "aniversariante_data_nascimento": "2025-06-07"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 232,
+        "nome_lead": "Débora de Souza C Kretzer",
+        "nome_aniversariante": "BENICIO",
+        "data_festa": "2026-06-07",
+        "data_nascimento": "2025-06-07",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 227,
+      "cliente_nome": "Damaris",
+      "applied": {
+        "aniversariante_nome": "NOAH",
+        "data_evento": "2025-09-06",
+        "aniversariante_data_nascimento": "2024-09-01"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 759,
+        "nome_lead": "DAMARIS",
+        "nome_aniversariante": "NOAH",
+        "data_festa": "2025-09-06",
+        "data_nascimento": "2024-09-01",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 228,
+      "cliente_nome": "Aline",
+      "applied": {
+        "data_evento": "2026-05-24"
+      },
+      "sources": [
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 221,
+        "nome_lead": "Aline",
+        "nome_aniversariante": "",
+        "data_festa": "2026-05-24",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 229,
+      "cliente_nome": "Rebeka Souza",
+      "applied": {
+        "aniversariante_nome": "Noah",
+        "data_evento": "2026-02-28",
+        "aniversariante_data_nascimento": "2024-03-04"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 214,
+        "nome_lead": "Rebeka Souza",
+        "nome_aniversariante": "Noah",
+        "data_festa": "2026-02-28",
+        "data_nascimento": "2024-03-04",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 230,
+      "cliente_nome": "Naraliz",
+      "applied": {
+        "aniversariante_nome": "Na",
+        "data_evento": "2026-07-12"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "chat.aniversariante_nome"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 212,
+        "nome_lead": "Naraliz",
+        "nome_aniversariante": "",
+        "data_festa": "2026-07-12",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 231,
+      "cliente_nome": "Taina Silveira",
+      "applied": {
+        "aniversariante_nome": "Anthony",
+        "data_evento": "2025-12-28",
+        "aniversariante_data_nascimento": "2024-12-26"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 208,
+        "nome_lead": "Taina Silveira",
+        "nome_aniversariante": "Anthony",
+        "data_festa": "2025-12-28",
+        "data_nascimento": "2024-12-26",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 232,
+      "cliente_nome": "Camila",
+      "applied": {
+        "aniversariante_nome": "Pietra",
+        "data_evento": "2026-04-12"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 206,
+        "nome_lead": "Camila",
+        "nome_aniversariante": "Pietra",
+        "data_festa": "2026-04-12",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 233,
+      "cliente_nome": "Evelyn",
+      "applied": {
+        "aniversariante_nome": "Arthur Alves",
+        "data_evento": "2026-05-16",
+        "aniversariante_data_nascimento": "2023-05-17"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 204,
+        "nome_lead": "Evelyn",
+        "nome_aniversariante": "Arthur Alves",
+        "data_festa": "2026-05-16",
+        "data_nascimento": "2023-05-17",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 235,
+      "cliente_nome": "Jaqueline Bitencourt",
+      "applied": {
+        "aniversariante_nome": "Cecilia",
+        "data_evento": "2026-03-15",
+        "aniversariante_data_nascimento": "2025-03-12"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 188,
+        "nome_lead": "Jaqueline Bitencourt",
+        "nome_aniversariante": "Cecilia",
+        "data_festa": "2026-03-15",
+        "data_nascimento": "2025-03-12",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 236,
+      "cliente_nome": "Jaine Mannes",
+      "applied": {
+        "data_evento": "2026-09-12"
+      },
+      "sources": [
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 187,
+        "nome_lead": "Jaine Mannes",
+        "nome_aniversariante": "",
+        "data_festa": "2026-09-12",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 238,
+      "cliente_nome": "Bebidas Andrade",
+      "applied": {
+        "data_evento": "2026-02-07"
+      },
+      "sources": [
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 182,
+        "nome_lead": "Bebidas Andrade",
+        "nome_aniversariante": "",
+        "data_festa": "2026-02-07",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 240,
+      "cliente_nome": "☀️Boas energias 💫✨",
+      "applied": {
+        "aniversariante_nome": "JOSE",
+        "data_evento": "2026-05-16",
+        "aniversariante_data_nascimento": "2024-05-14"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 176,
+        "nome_lead": "☀️Boas energias 💫✨",
+        "nome_aniversariante": "JOSE",
+        "data_festa": "2026-05-16",
+        "data_nascimento": "2024-05-14",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 241,
+      "cliente_nome": "Joice Cardoso",
+      "applied": {
+        "aniversariante_nome": "Arthur",
+        "data_evento": "2026-03-29"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 175,
+        "nome_lead": "Joice Cardoso",
+        "nome_aniversariante": "Arthur",
+        "data_festa": "2026-03-29",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 242,
+      "cliente_nome": "Fran",
+      "applied": {
+        "aniversariante_nome": "BENICIO",
+        "data_evento": "2026-01-31",
+        "aniversariante_data_nascimento": "2021-02-03"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 174,
+        "nome_lead": "Fran",
+        "nome_aniversariante": "BENICIO",
+        "data_festa": "2026-01-31",
+        "data_nascimento": "2021-02-03",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 243,
+      "cliente_nome": "Jéssica",
+      "applied": {
+        "data_evento": "2026-03-14"
+      },
+      "sources": [
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 173,
+        "nome_lead": "Jéssica",
+        "nome_aniversariante": "",
+        "data_festa": "2026-03-14",
+        "data_nascimento": null,
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 244,
+      "cliente_nome": "Tainara",
+      "applied": {
+        "aniversariante_nome": "Olivia",
+        "data_evento": "2026-07-25",
+        "aniversariante_data_nascimento": "2020-07-24"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 172,
+        "nome_lead": "Tainara",
+        "nome_aniversariante": "Olivia",
+        "data_festa": "2026-07-25",
+        "data_nascimento": "2020-07-24",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 245,
+      "cliente_nome": "Nara Martins",
+      "applied": {
+        "aniversariante_nome": "ANTONIA",
+        "data_evento": "2024-12-14",
+        "aniversariante_data_nascimento": "2022-12-13"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 756,
+        "nome_lead": "NARA MARTINS",
+        "nome_aniversariante": "ANTONIA",
+        "data_festa": "2024-12-14",
+        "data_nascimento": "2022-12-13",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 247,
+      "cliente_nome": "Marlise",
+      "applied": {
+        "aniversariante_nome": "Diana",
+        "data_evento": "2026-03-07",
+        "aniversariante_data_nascimento": "2025-03-07"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 165,
+        "nome_lead": "Marlise",
+        "nome_aniversariante": "Diana",
+        "data_festa": "2026-03-07",
+        "data_nascimento": "2025-03-07",
+        "etapa": "followup"
+      }
+    },
+    {
+      "evento_id": 256,
+      "cliente_nome": "SEM NOME 8",
+      "applied": {
+        "aniversariante_data_nascimento": "2023-07-20"
+      },
+      "sources": [
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 998,
+        "nome_lead": "SEM NOME 9",
+        "nome_aniversariante": null,
+        "data_festa": "2025-07-20",
+        "data_nascimento": "2023-07-20",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 299,
+      "cliente_nome": "MARCELA WEBER",
+      "applied": {
+        "data_evento": "2026-04-18"
+      },
+      "sources": [
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 189,
+        "nome_lead": "Marcela Weber ",
+        "nome_aniversariante": "Maria Cecília Weber ",
+        "data_festa": "2026-04-18",
+        "data_nascimento": "2023-04-22",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 443,
+      "cliente_nome": "FERNANDA BICHELS",
+      "applied": {
+        "aniversariante_nome": "Beatriz Roussenq Algarve",
+        "data_evento": "2026-08-07",
+        "aniversariante_data_nascimento": "2016-08-11"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 2328,
+        "nome_lead": "Fernanda Roussenq Bichels",
+        "nome_aniversariante": "Beatriz Roussenq Algarve",
+        "data_festa": "2026-08-07",
+        "data_nascimento": "2016-08-11",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 461,
+      "cliente_nome": "MARIANE",
+      "applied": {
+        "aniversariante_nome": "Arthur e Anthoni",
+        "data_evento": "2026-06-14",
+        "aniversariante_data_nascimento": "2017-06-19"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 1260,
+        "nome_lead": "Mariane bruch",
+        "nome_aniversariante": "Arthur e Anthoni ",
+        "data_festa": "2026-06-14",
+        "data_nascimento": "2017-06-19",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 484,
+      "cliente_nome": "MAGÁLI DUARTE",
+      "applied": {
+        "aniversariante_nome": "HENRI",
+        "data_evento": "2025-10-11",
+        "aniversariante_data_nascimento": "2023-10-06"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 911,
+        "nome_lead": "MARIA EDUARDA",
+        "nome_aniversariante": "HENRI",
+        "data_festa": "2025-10-11",
+        "data_nascimento": "2023-10-06",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 488,
+      "cliente_nome": "BEATRIZ CARVALHO",
+      "applied": {
+        "aniversariante_nome": "HENRI",
+        "data_evento": "2025-10-11",
+        "aniversariante_data_nascimento": "2023-10-06"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 911,
+        "nome_lead": "MARIA EDUARDA",
+        "nome_aniversariante": "HENRI",
+        "data_festa": "2025-10-11",
+        "data_nascimento": "2023-10-06",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 494,
+      "cliente_nome": "VANESSA 3",
+      "applied": {
+        "aniversariante_nome": "HENRI",
+        "data_evento": "2025-10-11"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_festa"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 911,
+        "nome_lead": "MARIA EDUARDA",
+        "nome_aniversariante": "HENRI",
+        "data_festa": "2025-10-11",
+        "data_nascimento": "2023-10-06",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 495,
+      "cliente_nome": "MAYARA S",
+      "applied": {
+        "aniversariante_nome": "HENRI",
+        "aniversariante_data_nascimento": "2023-10-06"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 911,
+        "nome_lead": "MARIA EDUARDA",
+        "nome_aniversariante": "HENRI",
+        "data_festa": "2025-10-11",
+        "data_nascimento": "2023-10-06",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 533,
+      "cliente_nome": "BRUNA NAU MALAGOLI 2",
+      "applied": {
+        "data_evento": "2025-10-11",
+        "aniversariante_data_nascimento": "2023-10-06"
+      },
+      "sources": [
+        "legacy.data_festa",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 911,
+        "nome_lead": "MARIA EDUARDA",
+        "nome_aniversariante": "HENRI",
+        "data_festa": "2025-10-11",
+        "data_nascimento": "2023-10-06",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 618,
+      "cliente_nome": "LARI",
+      "applied": {
+        "aniversariante_nome": "ARYEL",
+        "aniversariante_data_nascimento": "2024-08-11"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 744,
+        "nome_lead": "LARISSA",
+        "nome_aniversariante": "ARYEL",
+        "data_festa": "2025-08-09",
+        "data_nascimento": "2024-08-11",
+        "etapa": "perdido"
+      }
+    },
+    {
+      "evento_id": 655,
+      "cliente_nome": "FRANCIELE KLEIN GUESSER",
+      "applied": {
+        "aniversariante_data_nascimento": "2025-06-27"
+      },
+      "sources": [
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 2269,
+        "nome_lead": "Franciele Klein Guesser ",
+        "nome_aniversariante": "Aurora Klein Guesser ",
+        "data_festa": "2026-06-27",
+        "data_nascimento": "2025-06-27",
+        "etapa": "vendido"
+      }
+    },
+    {
+      "evento_id": 675,
+      "cliente_nome": "Thainara Nogueira",
+      "applied": {
+        "aniversariante_nome": "BEATRIZ",
+        "aniversariante_data_nascimento": "2022-03-09"
+      },
+      "sources": [
+        "legacy.nome_aniversariante",
+        "legacy.data_nascimento"
+      ],
+      "legacy": {
+        "source": "vila.leads",
+        "id": 987,
+        "nome_lead": "THAINARA NOGUEIRA",
+        "nome_aniversariante": "BEATRIZ",
+        "data_festa": "2025-03-09",
+        "data_nascimento": "2022-03-09",
+        "etapa": "perdido"
+      }
+    }
+  ],
+  "skipped": [],
+  "errors": []
+}

@@ -10,10 +10,19 @@ import { formatIsoDateBR } from "@/lib/date";
 
 interface EventoContratoFinanceiroInfoProps {
   contract?: EventoContract | null;
+  descontoTotal?: number;
   event: Evento;
+  receivableTotal?: number;
+  upsellTotal?: number;
 }
 
-export const EventoContratoFinanceiroInfo = ({ contract, event }: EventoContratoFinanceiroInfoProps) => {
+export const EventoContratoFinanceiroInfo = ({
+  contract,
+  descontoTotal = 0,
+  event,
+  receivableTotal,
+  upsellTotal = 0,
+}: EventoContratoFinanceiroInfoProps) => {
   const history = parseConvidadosAlteracoesHistorico(event.convidados_alteracoes_historico);
   const signedSnapshot = getSignedContractFinancialSnapshot(
     contract?.status === "accepted" ? contract.contractSnapshot.evento : undefined,
@@ -22,6 +31,9 @@ export const EventoContratoFinanceiroInfo = ({ contract, event }: EventoContrato
     contract?.status === "accepted" &&
     signedSnapshot.quantidadeConvidados != null &&
     signedSnapshot.valorTotal != null;
+
+  const hasReceivableAdjustments = upsellTotal > 0 || descontoTotal < 0;
+  const totalAReceber = receivableTotal ?? event.valor_total;
 
   return (
     <div className="rounded-lg border border-border/40 bg-muted/20 p-3 space-y-3">
@@ -54,9 +66,25 @@ export const EventoContratoFinanceiroInfo = ({ contract, event }: EventoContrato
         <InfoItem
           label="Total interno (atual)"
           value={formatFinanceiroCurrency(event.valor_total)}
-          highlight
+          highlight={!hasReceivableAdjustments}
         />
       </div>
+
+      {hasReceivableAdjustments ? (
+        <div className="grid gap-2 sm:grid-cols-3 border-t border-border/30 pt-3">
+          {upsellTotal > 0 ? (
+            <InfoItem label="Novos adicionais" value={formatFinanceiroCurrency(upsellTotal)} />
+          ) : null}
+          {descontoTotal < 0 ? (
+            <InfoItem
+              label="Descontos"
+              negative
+              value={formatFinanceiroCurrency(descontoTotal)}
+            />
+          ) : null}
+          <InfoItem label="Total a receber" highlight value={formatFinanceiroCurrency(totalAReceber)} />
+        </div>
+      ) : null}
 
       {hasSignedContract && history.length > 0 ? (
         <p className="text-xs text-muted-foreground border-t border-border/30 pt-3">
@@ -78,14 +106,22 @@ const HistoricoAlteracaoLine = ({ entry }: { entry: ConvidadosAlteracaoHistorico
 const InfoItem = ({
   highlight = false,
   label,
+  negative = false,
   value,
 }: {
   highlight?: boolean;
   label: string;
+  negative?: boolean;
   value: string;
 }) => (
   <div>
     <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-    <p className={`mt-1 text-sm font-medium ${highlight ? "text-primary" : ""}`}>{value}</p>
+    <p
+      className={`mt-1 text-sm font-medium ${
+        negative ? "text-destructive" : highlight ? "text-primary" : ""
+      }`}
+    >
+      {value}
+    </p>
   </div>
 );

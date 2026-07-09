@@ -1,0 +1,46 @@
+---
+description: Isola o Supabase do FestaAI do projeto legado da Vila Encantada — proíbe migrations/DDL no banco antigo
+alwaysApply: true
+---
+
+# Isolamento de projetos Supabase
+
+## Projetos
+
+| Papel | Ref / URL | Uso permitido |
+|-------|-----------|---------------|
+| **FestaAI (canônico)** | `nuhnbqerbaqazkvmqufg` → `https://nuhnbqerbaqazkvmqufg.supabase.co` | App, Edge Functions, `supabase/` migrations, MCP default, CLI |
+| **Vila legado (somente leitura)** | `jlnwoapaeiywehihilua` → `https://jlnwoapaeiywehihilua.supabase.co` | Scripts de recuperação de histórico (`VILA_LEGACY_*`) |
+
+## Proibido no projeto legado (`jlnwoapaeiywehihilua`)
+
+- `supabase db push`, `supabase migration`, `apply_migration` (MCP)
+- Qualquer DDL (`CREATE` / `ALTER` / `DROP` / `TRUNCATE`)
+- `INSERT` / `UPDATE` / `DELETE` (exceto se o usuário pedir **explicitamente** e o script assertar a URL legada)
+- Apontar `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / CLI `project_id` para o legado
+- Usar `VITE_SUPABASE_*` com a URL do legado
+
+## Obrigatório em scripts que leem o legado
+
+- Credenciais **somente** via `VILA_LEGACY_SUPABASE_URL` e `VILA_LEGACY_SUPABASE_SERVICE_ROLE_KEY`
+- No bootstrap do script: fazer assert de que a URL contém `jlnwoapaeiywehihilua` (falhar se for o ref do FestaAI)
+- Cliente FestaAI: `SUPABASE_URL` / `FESTAAI_SUPABASE_*` — assert de que a URL contém `nuhnbqerbaqazkvmqufg`
+- Default de operação no legado: **SELECT only**
+
+## MCP Supabase
+
+- Antes de `execute_sql` / `apply_migration`, conferir o `project_id` / URL do projeto alvo
+- Nunca aplicar migration no `project_id` do legado
+- Preferir `execute_sql` somente-leitura no legado; escrita só no FestaAI e com confirmação do usuário
+
+## Variáveis (`.env.local`, não commitado)
+
+```env
+# FestaAI
+SUPABASE_URL="https://nuhnbqerbaqazkvmqufg.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="..."
+
+# Vila legado — SOMENTE leitura / recuperação de memória antiga
+VILA_LEGACY_SUPABASE_URL="https://jlnwoapaeiywehihilua.supabase.co"
+VILA_LEGACY_SUPABASE_SERVICE_ROLE_KEY="..."
+```

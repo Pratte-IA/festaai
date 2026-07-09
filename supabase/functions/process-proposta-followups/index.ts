@@ -1,6 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
+import {
+  resolveContatoInicialAwaitingReplySince,
+  syncContatoInicialUltimaMensagemMarco,
+} from "../_shared/contato-inicial-followup.ts";
 import { dispatchPropostaFollowup0 } from "../_shared/dispatch-proposta-followup-0.ts";
+import { dispatchPropostaFollowup0b } from "../_shared/dispatch-proposta-followup-0b.ts";
 import { dispatchPropostaFollowup1 } from "../_shared/dispatch-proposta-followup-1.ts";
 import { dispatchPropostaFollowup2 } from "../_shared/dispatch-proposta-followup-2.ts";
 import { dispatchPropostaFollowup3 } from "../_shared/dispatch-proposta-followup-3.ts";
@@ -8,6 +13,7 @@ import { dispatchPropostaFollowup4 } from "../_shared/dispatch-proposta-followup
 import {
   isWithinPropostaFollowup0BusinessHours,
   PROPOSTA_FOLLOWUP_0_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_0B_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_1_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_2_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_3_DELAY_HOURS,
@@ -65,7 +71,14 @@ type Fu0DispatchResult = {
   skippedReason: string | null;
 };
 
-type FollowupStep = "fu0" | "fu1" | "fu2" | "fu3" | "fu4";
+type Fu0bDispatchResult = {
+  dispatched: boolean;
+  eventoId: number;
+  movedToPerdido: boolean;
+  skippedReason: string | null;
+};
+
+type FollowupStep = "fu0" | "fu0b" | "fu1" | "fu2" | "fu3" | "fu4";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -92,6 +105,7 @@ Deno.serve(async (req) => {
 
     const tenantCache = new Map<number, TenantInfo | null>();
     const fu0Results: Fu0DispatchResult[] = [];
+    const fu0bResults: Fu0bDispatchResult[] = [];
     const fu1Results: DispatchResult[] = [];
     const fu2Results: DispatchResult[] = [];
     const fu3Results: Fu3DispatchResult[] = [];
@@ -114,12 +128,14 @@ Deno.serve(async (req) => {
     };
 
     // FU0 (retomada de contato inicial): leads que não retornaram após a nossa
-    // última mensagem. Só é disparado dentro do horário comercial (08h–18h) e
-    // 12h após a nossa última mensagem (marco em contato_inicial_ultima_mensagem_em).
+    // última mensagem. Só é disparado dentro do horário comercial (08h–18h).
+    // O timer de 12h usa o histórico do agente (n8n_chat_histories), porque as
+    // respostas da IA via n8n não ecoam no webhook Evolution como fromMe.
     const fu0WithinBusinessHours = isWithinPropostaFollowup0BusinessHours(new Date(now));
     let fu0Candidates: Array<{
       id: number;
       tenant_id: number;
+      cliente_telefone: string | null;
       contato_inicial_ultima_mensagem_em: string | null;
       status_interno?: string;
     }> = [];
@@ -127,10 +143,11 @@ Deno.serve(async (req) => {
     if (fu0WithinBusinessHours) {
       const { data, error: fu0ListError } = await supabase
         .from("eventos")
-        .select("id, tenant_id, contato_inicial_ultima_mensagem_em, status_interno")
+        .select(
+          "id, tenant_id, cliente_telefone, contato_inicial_ultima_mensagem_em, status_interno",
+        )
         .eq("funil", "vendas")
         .eq("etapa", "contato_inicial")
-        .not("contato_inicial_ultima_mensagem_em", "is", null)
         .is("followup_0_enviado_em", null);
 
       if (fu0ListError) throw fu0ListError;
@@ -142,13 +159,35 @@ Deno.serve(async (req) => {
       return !status || !inactiveStatuses.has(status);
     });
 
-    const fu0Eligible = fu0Active.filter((evento) => {
-      if (typeof evento.contato_inicial_ultima_mensagem_em !== "string") return false;
-      return hoursSince(evento.contato_inicial_ultima_mensagem_em) >= PROPOSTA_FOLLOWUP_0_DELAY_HOURS;
-    });
-
-    for (const evento of fu0Eligible) {
+    for (const evento of fu0Active) {
       try {
+        const awaitingSince = await resolveContatoInicialAwaitingReplySince(supabase, {
+          customerPhone:
+            typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : null,
+          tenantId: evento.tenant_id,
+        });
+
+        // Mantém a coluna sincronizada (Kanban / auditoria), inclusive zerando
+        // quando a última mensagem do histórico for do cliente.
+        if (awaitingSince !== evento.contato_inicial_ultima_mensagem_em) {
+          try {
+            await syncContatoInicialUltimaMensagemMarco(supabase, {
+              awaitingSince,
+              eventoId: evento.id,
+              tenantId: evento.tenant_id,
+            });
+          } catch (syncError) {
+            console.error(
+              "[process-proposta-followups] sync marco FU0 failed:",
+              syncError instanceof Error ? syncError.message : syncError,
+            );
+          }
+        }
+
+        if (!awaitingSince || hoursSince(awaitingSince) < PROPOSTA_FOLLOWUP_0_DELAY_HOURS) {
+          continue;
+        }
+
         const tenant = await loadTenant(evento.tenant_id);
         if (!tenant) {
           fu0Results.push({
@@ -182,6 +221,79 @@ Deno.serve(async (req) => {
               ? dispatchError.message
               : "Erro ao disparar follow-up 0.",
           step: "fu0",
+        });
+      }
+    }
+
+    // FU0b (2ª tentativa): 6h após o FU0, ainda sem retorno do cliente.
+    // Envia mensagem curta e move o lead para Perdido. Mesmo horário comercial.
+    let fu0bCandidates: Array<{
+      id: number;
+      tenant_id: number;
+      followup_0_enviado_em: string | null;
+      status_interno?: string;
+    }> = [];
+
+    if (fu0WithinBusinessHours) {
+      const { data, error: fu0bListError } = await supabase
+        .from("eventos")
+        .select("id, tenant_id, followup_0_enviado_em, status_interno")
+        .eq("funil", "vendas")
+        .eq("etapa", "contato_inicial")
+        .not("followup_0_enviado_em", "is", null)
+        .is("followup_0b_enviado_em", null);
+
+      if (fu0bListError) throw fu0bListError;
+      fu0bCandidates = data ?? [];
+    }
+
+    const fu0bActive = fu0bCandidates.filter((evento) => {
+      const status = evento.status_interno;
+      return !status || !inactiveStatuses.has(status);
+    });
+
+    const fu0bEligible = fu0bActive.filter((evento) => {
+      if (typeof evento.followup_0_enviado_em !== "string") return false;
+      return hoursSince(evento.followup_0_enviado_em) >= PROPOSTA_FOLLOWUP_0B_DELAY_HOURS;
+    });
+
+    for (const evento of fu0bEligible) {
+      try {
+        const tenant = await loadTenant(evento.tenant_id);
+        if (!tenant) {
+          fu0bResults.push({
+            dispatched: false,
+            eventoId: evento.id,
+            movedToPerdido: false,
+            skippedReason: "Tenant não encontrado para follow-up.",
+          });
+          continue;
+        }
+
+        const result = await dispatchPropostaFollowup0b(supabase, {
+          eventoId: evento.id,
+          tenant,
+          triggeredAt: now,
+        });
+
+        fu0bResults.push({
+          dispatched: result.dispatched,
+          eventoId: evento.id,
+          movedToPerdido: result.movedToPerdido,
+          skippedReason: result.skippedReason,
+        });
+
+        if (result.errorMessage) {
+          errors.push({ eventoId: evento.id, message: result.errorMessage, step: "fu0b" });
+        }
+      } catch (dispatchError) {
+        errors.push({
+          eventoId: evento.id,
+          message:
+            dispatchError instanceof Error
+              ? dispatchError.message
+              : "Erro ao disparar follow-up 0b.",
+          step: "fu0b",
         });
       }
     }
@@ -445,7 +557,14 @@ Deno.serve(async (req) => {
         candidates: fu0Candidates.length,
         delayHours: PROPOSTA_FOLLOWUP_0_DELAY_HOURS,
         dispatchResults: fu0Results,
-        eligible: fu0Eligible.length,
+        eligible: fu0Results.length,
+        withinBusinessHours: fu0WithinBusinessHours,
+      },
+      fu0b: {
+        candidates: fu0bCandidates.length,
+        delayHours: PROPOSTA_FOLLOWUP_0B_DELAY_HOURS,
+        dispatchResults: fu0bResults,
+        eligible: fu0bEligible.length,
         withinBusinessHours: fu0WithinBusinessHours,
       },
       fu1: {

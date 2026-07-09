@@ -25,6 +25,17 @@ export const resolveFunnelStageForImport = (
   return { funnel, stage };
 };
 
+/** Enquanto o contrato aguarda assinatura após envio do formulário público. */
+export const resolveFunnelStagePendingContractSignature = (): {
+  etapa: Stage;
+  funil: FunnelType;
+  status_interno: "ativo";
+} => ({
+  etapa: "negociacao",
+  funil: "vendas",
+  status_interno: "ativo",
+});
+
 /** Após assinatura do contrato: migração de Vendas para Festa / Boas Vindas. */
 export const resolveFunnelStageAfterClientForm = (
   funnel: FunnelType,

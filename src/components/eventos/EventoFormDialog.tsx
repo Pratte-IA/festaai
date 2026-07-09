@@ -1,7 +1,8 @@
-import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
 import { PackageData } from "@/data/packagesData";
+import { useTenantPackages } from "@/features/configuracoes";
 import {
   Evento,
   EventType,
@@ -10,9 +11,11 @@ import {
   getDefaultStageForFunnel,
   isStageValidForFunnel,
   recalculateEventoGuestPricing,
+  resolvePackageByName,
   stageMap,
   Stage,
 } from "@/features/eventos";
+import { buildPackageEventoUpdates } from "@/features/eventos/closing-form-runtime";
 import { normalizeBrazilMobilePhoneForStorage, toBrazilPhoneInputValue } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +50,8 @@ export interface EventoFormValues {
   hora_evento: string | null;
   observacoes: string | null;
   origem: string | null;
+  pacote_convidados_inclusos: number | null;
+  pacote_id: number | null;
   pacote_nome: string | null;
   quantidade_convidados: number | null;
   status_interno: "novo" | "ativo" | "pendente" | "finalizado" | "perdido" | "cancelado";
@@ -79,6 +84,7 @@ interface EventoFormState {
   hora_evento: string;
   observacoes: string;
   origem: string;
+  pacote_id: string;
   pacote_nome: string;
   quantidade_convidados: string;
   tipo_evento: EventType;
@@ -125,9 +131,28 @@ const eventoFormSchema = z
     }
   });
 
+const resolveInitialPackageId = (
+  initialEvento: Evento | null | undefined,
+  packages: PackageData[],
+): string => {
+  if (initialEvento?.pacote_id) {
+    return String(initialEvento.pacote_id);
+  }
+
+  if (initialEvento?.pacote_nome && packages.length > 0) {
+    const matched = resolvePackageByName(initialEvento.pacote_nome, packages);
+    if (matched) {
+      return matched.id;
+    }
+  }
+
+  return "";
+};
+
 const getInitialFormState = (
   initialEvento?: Evento | null,
   initialFunnel: FunnelType = "vendas",
+  packages: PackageData[] = [],
 ): EventoFormState => {
   const funil = initialEvento?.funil ?? initialFunnel;
 
@@ -143,6 +168,7 @@ const getInitialFormState = (
     hora_evento: initialEvento?.hora_evento?.slice(0, 5) ?? "",
     observacoes: initialEvento?.observacoes ?? "",
     origem: initialEvento?.origem ?? "",
+    pacote_id: resolveInitialPackageId(initialEvento, packages),
     pacote_nome: initialEvento?.pacote_nome ?? "",
     quantidade_convidados: initialEvento?.quantidade_convidados?.toString() ?? "",
     tipo_evento: initialEvento?.tipo_evento ?? "festa",
@@ -168,21 +194,58 @@ export const EventoFormDialog = ({
   onOpenChange,
   onSubmit,
   open,
-  packages = [],
+  packages: packagesProp = [],
 }: EventoFormDialogProps) => {
-  const [form, setForm] = useState<EventoFormState>(() => getInitialFormState(initialEvento, initialFunnel));
+  const { data: tenantPackages = [] } = useTenantPackages();
+  const availablePackages = useMemo(
+    () =>
+      (packagesProp.length > 0 ? packagesProp : tenantPackages)
+        .filter((pkg) => pkg.active !== false)
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || Number(a.id) - Number(b.id)),
+    [packagesProp, tenantPackages],
+  );
+
+  const [form, setForm] = useState<EventoFormState>(() =>
+    getInitialFormState(initialEvento, initialFunnel, availablePackages),
+  );
   const [formError, setFormError] = useState<string | null>(null);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
-    if (open) {
-      setForm(getInitialFormState(initialEvento, initialFunnel));
-      setFormError(null);
+    const justOpened = open && !wasOpenRef.current;
+    wasOpenRef.current = open;
+
+    if (!justOpened) {
+      return;
     }
-  }, [initialEvento, initialFunnel, open]);
+
+    setForm(getInitialFormState(initialEvento, initialFunnel, availablePackages));
+    setFormError(null);
+  }, [availablePackages, initialEvento, initialFunnel, open]);
+
+  useEffect(() => {
+    if (!open || availablePackages.length === 0) {
+      return;
+    }
+
+    setForm((currentForm) => {
+      if (currentForm.pacote_id) {
+        return currentForm;
+      }
+
+      const resolvedPackageId = resolveInitialPackageId(initialEvento, availablePackages);
+      if (!resolvedPackageId) {
+        return currentForm;
+      }
+
+      return { ...currentForm, pacote_id: resolvedPackageId };
+    });
+  }, [availablePackages, initialEvento, open]);
 
   const stages = useMemo(() => stageMap[form.funil], [form.funil]);
   const totalValue = moneyValue(form.valor_pacote) + moneyValue(form.valor_adicionais);
-  const hasLinkedPackagePricing = Boolean(initialEvento?.pacote_id && packages.length > 0);
+  const linkedPacoteId = form.pacote_id ? Number(form.pacote_id) : initialEvento?.pacote_id ?? null;
+  const hasLinkedPackagePricing = Boolean(linkedPacoteId && availablePackages.length > 0);
 
   const updateForm = (values: Partial<EventoFormState>) => {
     setForm((currentForm) => ({ ...currentForm, ...values }));
@@ -196,7 +259,8 @@ export const EventoFormDialog = ({
         ...(eventDate !== undefined ? { data_evento: eventDate } : {}),
       };
 
-      if (!initialEvento?.pacote_id || packages.length === 0) {
+      const pacoteId = currentForm.pacote_id ? Number(currentForm.pacote_id) : initialEvento?.pacote_id ?? null;
+      if (!pacoteId || availablePackages.length === 0) {
         return nextForm;
       }
 
@@ -206,11 +270,11 @@ export const EventoFormDialog = ({
       }
 
       const pricing = recalculateEventoGuestPricing({
-        adicionaisSnapshot: initialEvento.adicionais_snapshot,
+        adicionaisSnapshot: initialEvento?.adicionais_snapshot,
         dataEvento: (eventDate ?? currentForm.data_evento) || null,
         guestCount,
-        pacoteId: initialEvento.pacote_id,
-        packages,
+        pacoteId,
+        packages: availablePackages,
         valorAdicionais: moneyValue(currentForm.valor_adicionais),
         valorPacote: moneyValue(currentForm.valor_pacote),
       });
@@ -221,8 +285,38 @@ export const EventoFormDialog = ({
         valor_pacote: pricing.valor_pacote?.toString() ?? nextForm.valor_pacote,
       };
     },
-    [initialEvento, packages],
+    [availablePackages, initialEvento],
   );
+
+  const handlePackageSelect = (packageId: string) => {
+    if (!packageId) {
+      setForm((currentForm) => ({
+        ...currentForm,
+        pacote_id: "",
+        pacote_nome: "",
+      }));
+      return;
+    }
+
+    const selectedPackage = availablePackages.find((pkg) => pkg.id === packageId);
+    if (!selectedPackage) {
+      return;
+    }
+
+    const guestCount = form.quantidade_convidados.trim() ? Number(form.quantidade_convidados) : 0;
+    const packageUpdates = buildPackageEventoUpdates(
+      selectedPackage,
+      guestCount,
+      form.data_evento || null,
+    );
+
+    setForm((currentForm) => ({
+      ...currentForm,
+      pacote_id: packageId,
+      pacote_nome: selectedPackage.name,
+      valor_pacote: packageUpdates.valor_pacote?.toString() ?? currentForm.valor_pacote,
+    }));
+  };
 
   const handleGuestCountChange = (value: string) => {
     setForm((currentForm) => applyGuestPricing(currentForm, value));
@@ -264,6 +358,10 @@ export const EventoFormDialog = ({
       hora_evento: optionalString(values.hora_evento),
       observacoes: optionalString(values.observacoes),
       origem: optionalString(values.origem),
+      pacote_convidados_inclusos: form.pacote_id
+        ? (availablePackages.find((pkg) => pkg.id === form.pacote_id)?.includedGuests ?? null)
+        : null,
+      pacote_id: form.pacote_id ? Number(form.pacote_id) : null,
       pacote_nome: optionalString(values.pacote_nome),
       quantidade_convidados: optionalNumber(values.quantidade_convidados),
       status_interno: values.etapa === "perdido" ? "perdido" : "ativo",
@@ -415,11 +513,29 @@ export const EventoFormDialog = ({
             </Field>
 
             <Field label="Pacote">
-              <Input
-                value={form.pacote_nome}
-                onChange={(event) => updateForm({ pacote_nome: event.target.value })}
-                placeholder="Pacote Ouro"
-              />
+              {availablePackages.length > 0 ? (
+                <Select value={form.pacote_id || undefined} onValueChange={handlePackageSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um pacote" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePackages.map((pkg) => (
+                      <SelectItem key={pkg.id} value={pkg.id}>
+                        {pkg.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Nenhum pacote ativo cadastrado na central de controle.
+                </p>
+              )}
+              {form.pacote_nome && !form.pacote_id ? (
+                <p className="text-xs text-muted-foreground">
+                  Pacote atual (legado): {form.pacote_nome}
+                </p>
+              ) : null}
             </Field>
           </div>
 

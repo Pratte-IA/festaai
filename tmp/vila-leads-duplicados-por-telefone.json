@@ -1,0 +1,3385 @@
+{
+  "summary": {
+    "tenant_id": 2,
+    "tenant_slug": "vila-encantada",
+    "total_eventos": 746,
+    "com_telefone_valido": 734,
+    "telefones_unicos": 688,
+    "grupos_duplicados": 42,
+    "eventos_em_duplicata": 88,
+    "eventos_duplicados_excedentes": 46,
+    "duplicatas_mesmo_funil": 3,
+    "duplicatas_entre_funis": 39,
+    "sem_telefone": 0,
+    "telefone_invalido": 12
+  },
+  "cross_funil_duplicates": [
+    {
+      "phone_key": "554884151102",
+      "count": 3,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 136,
+          "cliente_nome": "Gabriela",
+          "telefone": "554884151102",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2024-10-20",
+          "aniversariante_nome": "LIZ SERPA FREITAS"
+        },
+        {
+          "id": 734,
+          "cliente_nome": "GABRIELA VITORINO SERPA FREITAS",
+          "telefone": "554884151102",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-10-20",
+          "aniversariante_nome": "LIZ SERPA FREITAS"
+        },
+        {
+          "id": 773,
+          "cliente_nome": "Gabriela Vitorino Serpa Freitas",
+          "telefone": "554884151102",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-10-13",
+          "aniversariante_nome": "Liz Serpa Freitas"
+        }
+      ]
+    },
+    {
+      "phone_key": "554891647676",
+      "count": 3,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 160,
+          "cliente_nome": "Débora e Fabiano",
+          "telefone": "554891647676",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-06-11",
+          "aniversariante_nome": "ARTHUR"
+        },
+        {
+          "id": 716,
+          "cliente_nome": "Débora Souza",
+          "telefone": "554891647676",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-08",
+          "aniversariante_nome": "ARTHUR"
+        },
+        {
+          "id": 723,
+          "cliente_nome": "DÉBORA SOUZA",
+          "telefone": "554891647676",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-06-11",
+          "aniversariante_nome": "ARTHUR"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899474885",
+      "count": 3,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 140,
+          "cliente_nome": "💕💕Fernanda Guesser",
+          "telefone": "554899474885",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-16",
+          "data_evento": "2024-12-08",
+          "aniversariante_nome": "Théo Guesser Dias"
+        },
+        {
+          "id": 740,
+          "cliente_nome": "FERNANDA MARLENE GUESSER",
+          "telefone": "554899474885",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-12-08",
+          "aniversariante_nome": "Théo Guesser Dias"
+        },
+        {
+          "id": 777,
+          "cliente_nome": "Fernanda Guesser",
+          "telefone": "554899474885",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-07",
+          "aniversariante_nome": "Théo"
+        }
+      ]
+    },
+    {
+      "phone_key": "551745168000",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 123,
+          "cliente_nome": "Caroline B. da Silveira",
+          "telefone": "551745168000",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-23",
+          "data_evento": "2024-08-24",
+          "aniversariante_nome": "ELLA STUCK"
+        },
+        {
+          "id": 731,
+          "cliente_nome": "CAROLINE BESEN DA SILVEIRA",
+          "telefone": "551745168000",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-08-24",
+          "aniversariante_nome": "ELLA STUCK"
+        }
+      ]
+    },
+    {
+      "phone_key": "554799257209",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 142,
+          "cliente_nome": "Juliana Galigiuri",
+          "telefone": "554799257209",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-16",
+          "data_evento": "2024-12-22",
+          "aniversariante_nome": "Théo Galigiuri Giatti Silva"
+        },
+        {
+          "id": 741,
+          "cliente_nome": "JULIANA GALIGIURI SILVA",
+          "telefone": "554799257209",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-12-22",
+          "aniversariante_nome": "Théo Galigiuri Giatti Silva"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884003009",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 132,
+          "cliente_nome": "Greissy",
+          "telefone": "554884003009",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-06-15",
+          "aniversariante_nome": "NATHAN"
+        },
+        {
+          "id": 760,
+          "cliente_nome": "Greissy de amorim",
+          "telefone": "554884003009",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-15",
+          "aniversariante_nome": "NATHAN"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884157255",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 137,
+          "cliente_nome": "Alessandra Paganeli",
+          "telefone": "554884157255",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2024-11-03",
+          "aniversariante_nome": "Mariana"
+        },
+        {
+          "id": 735,
+          "cliente_nome": "ALESSANDRA PAGANELLI",
+          "telefone": "554884157255",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-11-03",
+          "aniversariante_nome": "Mariana"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884312099",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 163,
+          "cliente_nome": "Marcieli",
+          "telefone": "554884312099",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-14",
+          "data_evento": "2025-12-16",
+          "aniversariante_nome": "Antônio Koerich Scherer"
+        },
+        {
+          "id": 780,
+          "cliente_nome": "Marcieli koerich",
+          "telefone": "554884312099",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-16",
+          "aniversariante_nome": "Antônio Koerich Scherer"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884381483",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 135,
+          "cliente_nome": "Nair Decker Koch",
+          "telefone": "554884381483",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-12-14",
+          "aniversariante_nome": "Encontro de família celebrando o Natal"
+        },
+        {
+          "id": 779,
+          "cliente_nome": "Nair Decker koch",
+          "telefone": "554884381483",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-14",
+          "aniversariante_nome": "Encontro de família celebrando  o Natal"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884518650",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 701,
+          "cliente_nome": "Eduarda de Barcelos Schmitt",
+          "telefone": "554884518650",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-08-29",
+          "aniversariante_nome": "Rafael de Barcelos Schmitt"
+        },
+        {
+          "id": 724,
+          "cliente_nome": "EDUARDA DE BARCELOS SCHMITT",
+          "telefone": "554884518650",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-06-15",
+          "aniversariante_nome": "LAURA DE BARCELLOS SCHMITT"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888031348",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 655,
+          "cliente_nome": "FRANCIELE KLEIN GUESSER",
+          "telefone": "554888031348",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-18",
+          "data_primeiro_contato": "2026-04-06",
+          "data_evento": "2024-09-07",
+          "aniversariante_nome": "MENINO"
+        },
+        {
+          "id": 686,
+          "cliente_nome": "Franciele Klein Guesser",
+          "telefone": "554888031348",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-06-27",
+          "aniversariante_nome": "Aurora Klein Guesser"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888098101",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 158,
+          "cliente_nome": "Lidiane Ventura Fraga",
+          "telefone": "554888098101",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-01-09",
+          "aniversariante_nome": "Lívia Ventura Fraga"
+        },
+        {
+          "id": 743,
+          "cliente_nome": "LIDIANE VENTURA FRAGA",
+          "telefone": "554888098101",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-09",
+          "aniversariante_nome": "Lívia Ventura Fraga"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888145963",
+      "count": 2,
+      "funis": [
+        "festa",
+        "vendas"
+      ],
+      "etapas": [
+        "perdido",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 443,
+          "cliente_nome": "FERNANDA BICHELS",
+          "telefone": "554888145963",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-18",
+          "data_primeiro_contato": "2026-05-21",
+          "data_evento": "2026-08-07",
+          "aniversariante_nome": "Beatriz Roussenq Algarve"
+        },
+        {
+          "id": 698,
+          "cliente_nome": "Fernanda Roussenq Bichels",
+          "telefone": "554888145963",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-08-07",
+          "aniversariante_nome": "Beatriz Roussenq Algarve"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888178521",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 145,
+          "cliente_nome": "Danny",
+          "telefone": "554888178521",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-12-13",
+          "aniversariante_nome": "Betina de Souza Bittencourt"
+        },
+        {
+          "id": 778,
+          "cliente_nome": "Danielly Cassiani de Souza Bittencourt",
+          "telefone": "554888178521",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-13",
+          "aniversariante_nome": "Betina de Souza Bittencourt"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888190867",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 700,
+          "cliente_nome": "Karlize Bressan Gelsleister",
+          "telefone": "554888190867",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-08-14",
+          "aniversariante_nome": "José Miguel Bressan Gelsleister"
+        },
+        {
+          "id": 720,
+          "cliente_nome": "KARLIZE BRESSAN GELSLEISTER",
+          "telefone": "554888190867",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-05-04",
+          "aniversariante_nome": "Maria Heloísa"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888225184",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 217,
+          "cliente_nome": "JOANA BERNARDOM",
+          "telefone": "554888225184",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2025-12-29",
+          "data_evento": "2026-01-16",
+          "aniversariante_nome": "Lívia Machado Munich"
+        },
+        {
+          "id": 785,
+          "cliente_nome": "Joana Bernardo Machado Munich",
+          "telefone": "554888225184",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-01-16",
+          "aniversariante_nome": "Lívia Machado Munich"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888477510",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 154,
+          "cliente_nome": "Poly",
+          "telefone": "554888477510",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2022-06-13",
+          "aniversariante_nome": "NOAH COSTA"
+        },
+        {
+          "id": 717,
+          "cliente_nome": "POLY",
+          "telefone": "554888477510",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2022-06-13",
+          "aniversariante_nome": "NOAH COSTA"
+        }
+      ]
+    },
+    {
+      "phone_key": "554891088245",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 130,
+          "cliente_nome": "Isabel Schmitt Petry",
+          "telefone": "554891088245",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-19",
+          "data_evento": "2025-04-19",
+          "aniversariante_nome": "Mathias, Antônio e Joaquim"
+        },
+        {
+          "id": 754,
+          "cliente_nome": "Isabel Schmitt Petry",
+          "telefone": "554891088245",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-04-19",
+          "aniversariante_nome": "Mathias, Antônio e Joaquim"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896003561",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 173,
+          "cliente_nome": "Psicóloga Crp 12607",
+          "telefone": "554896003561",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-12",
+          "data_evento": "2026-01-10",
+          "aniversariante_nome": "Beatrice koppicz Elias"
+        },
+        {
+          "id": 784,
+          "cliente_nome": "Ana Paula Koppicz",
+          "telefone": "554896003561",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-01-10",
+          "aniversariante_nome": "Beatrice koppicz Elias"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896011578",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 134,
+          "cliente_nome": "Tati Junkes",
+          "telefone": "554896011578",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-03-08",
+          "aniversariante_nome": "NICOLAS"
+        },
+        {
+          "id": 750,
+          "cliente_nome": "TATIANA JUNKES SCHMITT",
+          "telefone": "554896011578",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-03-08",
+          "aniversariante_nome": "NICOLAS"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896019580",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 151,
+          "cliente_nome": "Juliana",
+          "telefone": "554896019580",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-02-08",
+          "aniversariante_nome": "ALICE ANTUNES CRUZ"
+        },
+        {
+          "id": 748,
+          "cliente_nome": "JULIANA DOS PASSOS CRUZ",
+          "telefone": "554896019580",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-02-08",
+          "aniversariante_nome": "ALICE ANTUNES CRUZ"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896125122",
+      "count": 2,
+      "funis": [
+        "festa",
+        "vendas"
+      ],
+      "etapas": [
+        "festa_pronta",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 79,
+          "cliente_nome": "Judi Nascimento",
+          "telefone": "554896125122",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-03-21",
+          "data_evento": "2026-07-11",
+          "aniversariante_nome": "Maria Clara prim do nascimento"
+        },
+        {
+          "id": 691,
+          "cliente_nome": "Judi cristina prim do nascimento",
+          "telefone": "554896125122",
+          "funil": "festa",
+          "etapa": "festa_pronta",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-11",
+          "aniversariante_nome": "Maria Clara prim do nascimento"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896198286",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 153,
+          "cliente_nome": "Jane",
+          "telefone": "554896198286",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-05-18",
+          "aniversariante_nome": "JOAO DANIEL DA ROSA"
+        },
+        {
+          "id": 756,
+          "cliente_nome": "Jane Vanilda Daniel da Rosa",
+          "telefone": "554896198286",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-05-18",
+          "aniversariante_nome": "JOAO DANIEL DA ROSA"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896212857",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 143,
+          "cliente_nome": "Luzia -LCK - Asp e Hot",
+          "telefone": "554896212857",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-11-23",
+          "aniversariante_nome": "Layla Caroni Kupka"
+        },
+        {
+          "id": 737,
+          "cliente_nome": "LUZIA CARONI",
+          "telefone": "554896212857",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-11-23",
+          "aniversariante_nome": "Layla Caroni Kupka"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896353625",
+      "count": 2,
+      "funis": [
+        "festa",
+        "vendas"
+      ],
+      "etapas": [
+        "perdido",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 253,
+          "cliente_nome": "FABIOLA PERES",
+          "telefone": "554896353625",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-18",
+          "data_primeiro_contato": "2026-05-16",
+          "data_evento": "2025-07-26",
+          "aniversariante_nome": "FERNANDA PERES LOHN"
+        },
+        {
+          "id": 695,
+          "cliente_nome": "Fabíola da Silva Peres",
+          "telefone": "554896353625",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-26",
+          "aniversariante_nome": "Fernanda Peres Lohn"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896397120",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 150,
+          "cliente_nome": "Gi",
+          "telefone": "554896397120",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-04-12",
+          "aniversariante_nome": "Rafaela Petriu Rodrigues"
+        },
+        {
+          "id": 753,
+          "cliente_nome": "Gislaine Cristina Petriu Rodrigues",
+          "telefone": "554896397120",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-04-12",
+          "aniversariante_nome": "Rafaela Petriu Rodrigues"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896719731",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 148,
+          "cliente_nome": "Marina Da Silveira Pauli",
+          "telefone": "554896719731",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-07-04",
+          "aniversariante_nome": "Gabriel da Silveira pauli"
+        },
+        {
+          "id": 765,
+          "cliente_nome": "Marina da Silveira Pauli",
+          "telefone": "554896719731",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-07-04",
+          "aniversariante_nome": "Gabriel da Silveira pauli"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896807698",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 170,
+          "cliente_nome": "Bruna Ribeiro Ferrarini",
+          "telefone": "554896807698",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-12",
+          "data_evento": "2024-06-16",
+          "aniversariante_nome": "Ravi Ribeiro Ferrarini"
+        },
+        {
+          "id": 725,
+          "cliente_nome": "BRUNA RIBEIRO FERRARINI",
+          "telefone": "554896807698",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-06-16",
+          "aniversariante_nome": "Ravi Ribeiro Ferrarini"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896875943",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 157,
+          "cliente_nome": "Érika Baranovski",
+          "telefone": "554896875943",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-01-12",
+          "aniversariante_nome": "Analice Baranovski Machado"
+        },
+        {
+          "id": 746,
+          "cliente_nome": "ERIKA MATOS BARANOVSKI MACHADO",
+          "telefone": "554896875943",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-12",
+          "aniversariante_nome": "Analice Baranovski Machado"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896894139",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 146,
+          "cliente_nome": "linda andrea",
+          "telefone": "554896894139",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-02-15",
+          "aniversariante_nome": "THEO COUTINHO ALENCAR"
+        },
+        {
+          "id": 749,
+          "cliente_nome": "LINDA ANDREA COUTINHO DA CUNHA",
+          "telefone": "554896894139",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-02-15",
+          "aniversariante_nome": "THEO COUTINHO ALENCAR"
+        }
+      ]
+    },
+    {
+      "phone_key": "554898134687",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 196,
+          "cliente_nome": "Ana",
+          "telefone": "554898134687",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2025-11-29",
+          "data_evento": "2025-01-10",
+          "aniversariante_nome": "ETHAN AZZOLINI MARTINS"
+        },
+        {
+          "id": 744,
+          "cliente_nome": "ANA CAROLINA AZZOLINI MARTINS",
+          "telefone": "554898134687",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-10",
+          "aniversariante_nome": "ETHAN AZZOLINI MARTINS"
+        }
+      ]
+    },
+    {
+      "phone_key": "554898463064",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 156,
+          "cliente_nome": "☺️",
+          "telefone": "554898463064",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-01-25",
+          "aniversariante_nome": "DANIEL"
+        },
+        {
+          "id": 747,
+          "cliente_nome": "LORRANI MESTRE",
+          "telefone": "554898463064",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-25",
+          "aniversariante_nome": "DANIEL"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899111098",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "boas_vindas",
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 55,
+          "cliente_nome": "Bruna Joelma de Souza ",
+          "telefone": "554899111098",
+          "funil": "festa",
+          "etapa": "boas_vindas",
+          "status_interno": "ativo",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-29",
+          "aniversariante_nome": "Julia "
+        },
+        {
+          "id": 755,
+          "cliente_nome": "Bruna Joelma de Souza - FESTA 2",
+          "telefone": "554899111098",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-04-27",
+          "aniversariante_nome": "Joana"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899222569",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 149,
+          "cliente_nome": "Camila Meurer Jacob",
+          "telefone": "554899222569",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-10-11",
+          "aniversariante_nome": "Caio Meurer Jacob"
+        },
+        {
+          "id": 772,
+          "cliente_nome": "Camila Meurer Jacob",
+          "telefone": "554899222569",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-10-11",
+          "aniversariante_nome": "Caio Meurer Jacob"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899297419",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 152,
+          "cliente_nome": "Bruna",
+          "telefone": "554899297419",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-05-11",
+          "aniversariante_nome": "ALINE NAU MALAGOLI"
+        },
+        {
+          "id": 721,
+          "cliente_nome": "BRUNA NAU MALAGOLI",
+          "telefone": "554899297419",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-05-11",
+          "aniversariante_nome": "ALINE NAU MALAGOLI"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899410598",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 159,
+          "cliente_nome": "Jhullia Coutinho",
+          "telefone": "554899410598",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-05-25",
+          "aniversariante_nome": "MATEUS"
+        },
+        {
+          "id": 722,
+          "cliente_nome": "JHULLIA COUTINHO",
+          "telefone": "554899410598",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-05-25",
+          "aniversariante_nome": "MATEUS"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899501558",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 696,
+          "cliente_nome": "Luana Weber Guesser",
+          "telefone": "554899501558",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-31",
+          "aniversariante_nome": "Laura Guesser"
+        },
+        {
+          "id": 769,
+          "cliente_nome": "LUANA WEBER GUESSER",
+          "telefone": "554899501558",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-08-02",
+          "aniversariante_nome": "Laura Guesser"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899565285",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 133,
+          "cliente_nome": "Margarete",
+          "telefone": "554899565285",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-05-25",
+          "aniversariante_nome": "EUCARISTIA"
+        },
+        {
+          "id": 758,
+          "cliente_nome": "Margarete Schvambach Petry",
+          "telefone": "554899565285",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-05-25",
+          "aniversariante_nome": "EUCARISTIA"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899878697",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 144,
+          "cliente_nome": "Joice",
+          "telefone": "554899878697",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-06-07",
+          "aniversariante_nome": "LAURA"
+        },
+        {
+          "id": 759,
+          "cliente_nome": "Joice Macedo da Cunha",
+          "telefone": "554899878697",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-07",
+          "aniversariante_nome": "LAURA"
+        }
+      ]
+    }
+  ],
+  "same_funil_duplicates": [
+    {
+      "phone_key": "554884838497",
+      "count": 3,
+      "funis": [
+        "executadas"
+      ],
+      "etapas": [
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 729,
+          "cliente_nome": "SANDRA MARA BESEN NAU DA SILVA",
+          "telefone": "554884838497",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-08-09",
+          "aniversariante_nome": "RAFAEL BESEN NAU DA SILVA"
+        },
+        {
+          "id": 739,
+          "cliente_nome": "SANDRA MARA BESEN NAU DA SILVA",
+          "telefone": "554884838497",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-12-06",
+          "aniversariante_nome": "Davi"
+        },
+        {
+          "id": 775,
+          "cliente_nome": "Sandra mara Besen nau da Silva",
+          "telefone": "554884838497",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-05",
+          "aniversariante_nome": "Davi Besen nau da Silva"
+        }
+      ]
+    },
+    {
+      "phone_key": "554891118000",
+      "count": 2,
+      "funis": [
+        "executadas"
+      ],
+      "etapas": [
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 688,
+          "cliente_nome": "Gabriela da Rosa Zimermann",
+          "telefone": "554891118000",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-03",
+          "aniversariante_nome": "Pedro Zimermann Kuhn"
+        },
+        {
+          "id": 766,
+          "cliente_nome": "GABRIELA DA ROSA ZIMERMANN",
+          "telefone": "554891118000",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-07-05",
+          "aniversariante_nome": "Pedro Zimermann Kuhn"
+        }
+      ]
+    },
+    {
+      "phone_key": "554898178260",
+      "count": 2,
+      "funis": [
+        "executadas"
+      ],
+      "etapas": [
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 687,
+          "cliente_nome": "Cristiane Gonçalves Uliana",
+          "telefone": "554898178260",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-06-28",
+          "aniversariante_nome": "Isabel Uliana Veppo"
+        },
+        {
+          "id": 764,
+          "cliente_nome": "Cristiane Gonçalves Uliana",
+          "telefone": "554898178260",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-29",
+          "aniversariante_nome": "ISABEL ULIANA VEPPO"
+        }
+      ]
+    }
+  ],
+  "all_duplicate_groups": [
+    {
+      "phone_key": "554884151102",
+      "count": 3,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 136,
+          "cliente_nome": "Gabriela",
+          "telefone": "554884151102",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2024-10-20",
+          "aniversariante_nome": "LIZ SERPA FREITAS"
+        },
+        {
+          "id": 734,
+          "cliente_nome": "GABRIELA VITORINO SERPA FREITAS",
+          "telefone": "554884151102",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-10-20",
+          "aniversariante_nome": "LIZ SERPA FREITAS"
+        },
+        {
+          "id": 773,
+          "cliente_nome": "Gabriela Vitorino Serpa Freitas",
+          "telefone": "554884151102",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-10-13",
+          "aniversariante_nome": "Liz Serpa Freitas"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884838497",
+      "count": 3,
+      "funis": [
+        "executadas"
+      ],
+      "etapas": [
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 729,
+          "cliente_nome": "SANDRA MARA BESEN NAU DA SILVA",
+          "telefone": "554884838497",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-08-09",
+          "aniversariante_nome": "RAFAEL BESEN NAU DA SILVA"
+        },
+        {
+          "id": 739,
+          "cliente_nome": "SANDRA MARA BESEN NAU DA SILVA",
+          "telefone": "554884838497",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-12-06",
+          "aniversariante_nome": "Davi"
+        },
+        {
+          "id": 775,
+          "cliente_nome": "Sandra mara Besen nau da Silva",
+          "telefone": "554884838497",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-05",
+          "aniversariante_nome": "Davi Besen nau da Silva"
+        }
+      ]
+    },
+    {
+      "phone_key": "554891647676",
+      "count": 3,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 160,
+          "cliente_nome": "Débora e Fabiano",
+          "telefone": "554891647676",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-06-11",
+          "aniversariante_nome": "ARTHUR"
+        },
+        {
+          "id": 716,
+          "cliente_nome": "Débora Souza",
+          "telefone": "554891647676",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-08",
+          "aniversariante_nome": "ARTHUR"
+        },
+        {
+          "id": 723,
+          "cliente_nome": "DÉBORA SOUZA",
+          "telefone": "554891647676",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-06-11",
+          "aniversariante_nome": "ARTHUR"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899474885",
+      "count": 3,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 140,
+          "cliente_nome": "💕💕Fernanda Guesser",
+          "telefone": "554899474885",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-16",
+          "data_evento": "2024-12-08",
+          "aniversariante_nome": "Théo Guesser Dias"
+        },
+        {
+          "id": 740,
+          "cliente_nome": "FERNANDA MARLENE GUESSER",
+          "telefone": "554899474885",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-12-08",
+          "aniversariante_nome": "Théo Guesser Dias"
+        },
+        {
+          "id": 777,
+          "cliente_nome": "Fernanda Guesser",
+          "telefone": "554899474885",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-07",
+          "aniversariante_nome": "Théo"
+        }
+      ]
+    },
+    {
+      "phone_key": "551745168000",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 123,
+          "cliente_nome": "Caroline B. da Silveira",
+          "telefone": "551745168000",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-23",
+          "data_evento": "2024-08-24",
+          "aniversariante_nome": "ELLA STUCK"
+        },
+        {
+          "id": 731,
+          "cliente_nome": "CAROLINE BESEN DA SILVEIRA",
+          "telefone": "551745168000",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-08-24",
+          "aniversariante_nome": "ELLA STUCK"
+        }
+      ]
+    },
+    {
+      "phone_key": "554799257209",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 142,
+          "cliente_nome": "Juliana Galigiuri",
+          "telefone": "554799257209",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-16",
+          "data_evento": "2024-12-22",
+          "aniversariante_nome": "Théo Galigiuri Giatti Silva"
+        },
+        {
+          "id": 741,
+          "cliente_nome": "JULIANA GALIGIURI SILVA",
+          "telefone": "554799257209",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-12-22",
+          "aniversariante_nome": "Théo Galigiuri Giatti Silva"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884003009",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 132,
+          "cliente_nome": "Greissy",
+          "telefone": "554884003009",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-06-15",
+          "aniversariante_nome": "NATHAN"
+        },
+        {
+          "id": 760,
+          "cliente_nome": "Greissy de amorim",
+          "telefone": "554884003009",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-15",
+          "aniversariante_nome": "NATHAN"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884157255",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 137,
+          "cliente_nome": "Alessandra Paganeli",
+          "telefone": "554884157255",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2024-11-03",
+          "aniversariante_nome": "Mariana"
+        },
+        {
+          "id": 735,
+          "cliente_nome": "ALESSANDRA PAGANELLI",
+          "telefone": "554884157255",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-11-03",
+          "aniversariante_nome": "Mariana"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884312099",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 163,
+          "cliente_nome": "Marcieli",
+          "telefone": "554884312099",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-14",
+          "data_evento": "2025-12-16",
+          "aniversariante_nome": "Antônio Koerich Scherer"
+        },
+        {
+          "id": 780,
+          "cliente_nome": "Marcieli koerich",
+          "telefone": "554884312099",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-16",
+          "aniversariante_nome": "Antônio Koerich Scherer"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884381483",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 135,
+          "cliente_nome": "Nair Decker Koch",
+          "telefone": "554884381483",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-12-14",
+          "aniversariante_nome": "Encontro de família celebrando o Natal"
+        },
+        {
+          "id": 779,
+          "cliente_nome": "Nair Decker koch",
+          "telefone": "554884381483",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-14",
+          "aniversariante_nome": "Encontro de família celebrando  o Natal"
+        }
+      ]
+    },
+    {
+      "phone_key": "554884518650",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 701,
+          "cliente_nome": "Eduarda de Barcelos Schmitt",
+          "telefone": "554884518650",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-08-29",
+          "aniversariante_nome": "Rafael de Barcelos Schmitt"
+        },
+        {
+          "id": 724,
+          "cliente_nome": "EDUARDA DE BARCELOS SCHMITT",
+          "telefone": "554884518650",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-06-15",
+          "aniversariante_nome": "LAURA DE BARCELLOS SCHMITT"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888031348",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 655,
+          "cliente_nome": "FRANCIELE KLEIN GUESSER",
+          "telefone": "554888031348",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-18",
+          "data_primeiro_contato": "2026-04-06",
+          "data_evento": "2024-09-07",
+          "aniversariante_nome": "MENINO"
+        },
+        {
+          "id": 686,
+          "cliente_nome": "Franciele Klein Guesser",
+          "telefone": "554888031348",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-06-27",
+          "aniversariante_nome": "Aurora Klein Guesser"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888098101",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 158,
+          "cliente_nome": "Lidiane Ventura Fraga",
+          "telefone": "554888098101",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-01-09",
+          "aniversariante_nome": "Lívia Ventura Fraga"
+        },
+        {
+          "id": 743,
+          "cliente_nome": "LIDIANE VENTURA FRAGA",
+          "telefone": "554888098101",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-09",
+          "aniversariante_nome": "Lívia Ventura Fraga"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888145963",
+      "count": 2,
+      "funis": [
+        "festa",
+        "vendas"
+      ],
+      "etapas": [
+        "perdido",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 443,
+          "cliente_nome": "FERNANDA BICHELS",
+          "telefone": "554888145963",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-18",
+          "data_primeiro_contato": "2026-05-21",
+          "data_evento": "2026-08-07",
+          "aniversariante_nome": "Beatriz Roussenq Algarve"
+        },
+        {
+          "id": 698,
+          "cliente_nome": "Fernanda Roussenq Bichels",
+          "telefone": "554888145963",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-08-07",
+          "aniversariante_nome": "Beatriz Roussenq Algarve"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888178521",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 145,
+          "cliente_nome": "Danny",
+          "telefone": "554888178521",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-12-13",
+          "aniversariante_nome": "Betina de Souza Bittencourt"
+        },
+        {
+          "id": 778,
+          "cliente_nome": "Danielly Cassiani de Souza Bittencourt",
+          "telefone": "554888178521",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-12-13",
+          "aniversariante_nome": "Betina de Souza Bittencourt"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888190867",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 700,
+          "cliente_nome": "Karlize Bressan Gelsleister",
+          "telefone": "554888190867",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-08-14",
+          "aniversariante_nome": "José Miguel Bressan Gelsleister"
+        },
+        {
+          "id": 720,
+          "cliente_nome": "KARLIZE BRESSAN GELSLEISTER",
+          "telefone": "554888190867",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-05-04",
+          "aniversariante_nome": "Maria Heloísa"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888225184",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 217,
+          "cliente_nome": "JOANA BERNARDOM",
+          "telefone": "554888225184",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2025-12-29",
+          "data_evento": "2026-01-16",
+          "aniversariante_nome": "Lívia Machado Munich"
+        },
+        {
+          "id": 785,
+          "cliente_nome": "Joana Bernardo Machado Munich",
+          "telefone": "554888225184",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-01-16",
+          "aniversariante_nome": "Lívia Machado Munich"
+        }
+      ]
+    },
+    {
+      "phone_key": "554888477510",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 154,
+          "cliente_nome": "Poly",
+          "telefone": "554888477510",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2022-06-13",
+          "aniversariante_nome": "NOAH COSTA"
+        },
+        {
+          "id": 717,
+          "cliente_nome": "POLY",
+          "telefone": "554888477510",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2022-06-13",
+          "aniversariante_nome": "NOAH COSTA"
+        }
+      ]
+    },
+    {
+      "phone_key": "554891088245",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 130,
+          "cliente_nome": "Isabel Schmitt Petry",
+          "telefone": "554891088245",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-19",
+          "data_evento": "2025-04-19",
+          "aniversariante_nome": "Mathias, Antônio e Joaquim"
+        },
+        {
+          "id": 754,
+          "cliente_nome": "Isabel Schmitt Petry",
+          "telefone": "554891088245",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-04-19",
+          "aniversariante_nome": "Mathias, Antônio e Joaquim"
+        }
+      ]
+    },
+    {
+      "phone_key": "554891118000",
+      "count": 2,
+      "funis": [
+        "executadas"
+      ],
+      "etapas": [
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 688,
+          "cliente_nome": "Gabriela da Rosa Zimermann",
+          "telefone": "554891118000",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-03",
+          "aniversariante_nome": "Pedro Zimermann Kuhn"
+        },
+        {
+          "id": 766,
+          "cliente_nome": "GABRIELA DA ROSA ZIMERMANN",
+          "telefone": "554891118000",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-07-05",
+          "aniversariante_nome": "Pedro Zimermann Kuhn"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896003561",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 173,
+          "cliente_nome": "Psicóloga Crp 12607",
+          "telefone": "554896003561",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-12",
+          "data_evento": "2026-01-10",
+          "aniversariante_nome": "Beatrice koppicz Elias"
+        },
+        {
+          "id": 784,
+          "cliente_nome": "Ana Paula Koppicz",
+          "telefone": "554896003561",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-01-10",
+          "aniversariante_nome": "Beatrice koppicz Elias"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896011578",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 134,
+          "cliente_nome": "Tati Junkes",
+          "telefone": "554896011578",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-03-08",
+          "aniversariante_nome": "NICOLAS"
+        },
+        {
+          "id": 750,
+          "cliente_nome": "TATIANA JUNKES SCHMITT",
+          "telefone": "554896011578",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-03-08",
+          "aniversariante_nome": "NICOLAS"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896019580",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 151,
+          "cliente_nome": "Juliana",
+          "telefone": "554896019580",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-02-08",
+          "aniversariante_nome": "ALICE ANTUNES CRUZ"
+        },
+        {
+          "id": 748,
+          "cliente_nome": "JULIANA DOS PASSOS CRUZ",
+          "telefone": "554896019580",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-02-08",
+          "aniversariante_nome": "ALICE ANTUNES CRUZ"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896125122",
+      "count": 2,
+      "funis": [
+        "festa",
+        "vendas"
+      ],
+      "etapas": [
+        "festa_pronta",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 79,
+          "cliente_nome": "Judi Nascimento",
+          "telefone": "554896125122",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-03-21",
+          "data_evento": "2026-07-11",
+          "aniversariante_nome": "Maria Clara prim do nascimento"
+        },
+        {
+          "id": 691,
+          "cliente_nome": "Judi cristina prim do nascimento",
+          "telefone": "554896125122",
+          "funil": "festa",
+          "etapa": "festa_pronta",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-11",
+          "aniversariante_nome": "Maria Clara prim do nascimento"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896198286",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 153,
+          "cliente_nome": "Jane",
+          "telefone": "554896198286",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-05-18",
+          "aniversariante_nome": "JOAO DANIEL DA ROSA"
+        },
+        {
+          "id": 756,
+          "cliente_nome": "Jane Vanilda Daniel da Rosa",
+          "telefone": "554896198286",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-05-18",
+          "aniversariante_nome": "JOAO DANIEL DA ROSA"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896212857",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 143,
+          "cliente_nome": "Luzia -LCK - Asp e Hot",
+          "telefone": "554896212857",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-11-23",
+          "aniversariante_nome": "Layla Caroni Kupka"
+        },
+        {
+          "id": 737,
+          "cliente_nome": "LUZIA CARONI",
+          "telefone": "554896212857",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-11-23",
+          "aniversariante_nome": "Layla Caroni Kupka"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896353625",
+      "count": 2,
+      "funis": [
+        "festa",
+        "vendas"
+      ],
+      "etapas": [
+        "perdido",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 253,
+          "cliente_nome": "FABIOLA PERES",
+          "telefone": "554896353625",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-18",
+          "data_primeiro_contato": "2026-05-16",
+          "data_evento": "2025-07-26",
+          "aniversariante_nome": "FERNANDA PERES LOHN"
+        },
+        {
+          "id": 695,
+          "cliente_nome": "Fabíola da Silva Peres",
+          "telefone": "554896353625",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-26",
+          "aniversariante_nome": "Fernanda Peres Lohn"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896397120",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 150,
+          "cliente_nome": "Gi",
+          "telefone": "554896397120",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-04-12",
+          "aniversariante_nome": "Rafaela Petriu Rodrigues"
+        },
+        {
+          "id": 753,
+          "cliente_nome": "Gislaine Cristina Petriu Rodrigues",
+          "telefone": "554896397120",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-04-12",
+          "aniversariante_nome": "Rafaela Petriu Rodrigues"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896719731",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 148,
+          "cliente_nome": "Marina Da Silveira Pauli",
+          "telefone": "554896719731",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-07-04",
+          "aniversariante_nome": "Gabriel da Silveira pauli"
+        },
+        {
+          "id": 765,
+          "cliente_nome": "Marina da Silveira Pauli",
+          "telefone": "554896719731",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-07-04",
+          "aniversariante_nome": "Gabriel da Silveira pauli"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896807698",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 170,
+          "cliente_nome": "Bruna Ribeiro Ferrarini",
+          "telefone": "554896807698",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-12",
+          "data_evento": "2024-06-16",
+          "aniversariante_nome": "Ravi Ribeiro Ferrarini"
+        },
+        {
+          "id": 725,
+          "cliente_nome": "BRUNA RIBEIRO FERRARINI",
+          "telefone": "554896807698",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-06-16",
+          "aniversariante_nome": "Ravi Ribeiro Ferrarini"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896875943",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 157,
+          "cliente_nome": "Érika Baranovski",
+          "telefone": "554896875943",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-01-12",
+          "aniversariante_nome": "Analice Baranovski Machado"
+        },
+        {
+          "id": 746,
+          "cliente_nome": "ERIKA MATOS BARANOVSKI MACHADO",
+          "telefone": "554896875943",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-12",
+          "aniversariante_nome": "Analice Baranovski Machado"
+        }
+      ]
+    },
+    {
+      "phone_key": "554896894139",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 146,
+          "cliente_nome": "linda andrea",
+          "telefone": "554896894139",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-02-15",
+          "aniversariante_nome": "THEO COUTINHO ALENCAR"
+        },
+        {
+          "id": 749,
+          "cliente_nome": "LINDA ANDREA COUTINHO DA CUNHA",
+          "telefone": "554896894139",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-02-15",
+          "aniversariante_nome": "THEO COUTINHO ALENCAR"
+        }
+      ]
+    },
+    {
+      "phone_key": "554898134687",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 196,
+          "cliente_nome": "Ana",
+          "telefone": "554898134687",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2025-11-29",
+          "data_evento": "2025-01-10",
+          "aniversariante_nome": "ETHAN AZZOLINI MARTINS"
+        },
+        {
+          "id": 744,
+          "cliente_nome": "ANA CAROLINA AZZOLINI MARTINS",
+          "telefone": "554898134687",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-10",
+          "aniversariante_nome": "ETHAN AZZOLINI MARTINS"
+        }
+      ]
+    },
+    {
+      "phone_key": "554898178260",
+      "count": 2,
+      "funis": [
+        "executadas"
+      ],
+      "etapas": [
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 687,
+          "cliente_nome": "Cristiane Gonçalves Uliana",
+          "telefone": "554898178260",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-06-28",
+          "aniversariante_nome": "Isabel Uliana Veppo"
+        },
+        {
+          "id": 764,
+          "cliente_nome": "Cristiane Gonçalves Uliana",
+          "telefone": "554898178260",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-29",
+          "aniversariante_nome": "ISABEL ULIANA VEPPO"
+        }
+      ]
+    },
+    {
+      "phone_key": "554898463064",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 156,
+          "cliente_nome": "☺️",
+          "telefone": "554898463064",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-01-25",
+          "aniversariante_nome": "DANIEL"
+        },
+        {
+          "id": 747,
+          "cliente_nome": "LORRANI MESTRE",
+          "telefone": "554898463064",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-01-25",
+          "aniversariante_nome": "DANIEL"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899111098",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "boas_vindas",
+        "oportunidade_futura"
+      ],
+      "eventos": [
+        {
+          "id": 55,
+          "cliente_nome": "Bruna Joelma de Souza ",
+          "telefone": "554899111098",
+          "funil": "festa",
+          "etapa": "boas_vindas",
+          "status_interno": "ativo",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-29",
+          "aniversariante_nome": "Julia "
+        },
+        {
+          "id": 755,
+          "cliente_nome": "Bruna Joelma de Souza - FESTA 2",
+          "telefone": "554899111098",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-04-27",
+          "aniversariante_nome": "Joana"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899222569",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 149,
+          "cliente_nome": "Camila Meurer Jacob",
+          "telefone": "554899222569",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-10-11",
+          "aniversariante_nome": "Caio Meurer Jacob"
+        },
+        {
+          "id": 772,
+          "cliente_nome": "Camila Meurer Jacob",
+          "telefone": "554899222569",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-10-11",
+          "aniversariante_nome": "Caio Meurer Jacob"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899297419",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 152,
+          "cliente_nome": "Bruna",
+          "telefone": "554899297419",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-05-11",
+          "aniversariante_nome": "ALINE NAU MALAGOLI"
+        },
+        {
+          "id": 721,
+          "cliente_nome": "BRUNA NAU MALAGOLI",
+          "telefone": "554899297419",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-05-11",
+          "aniversariante_nome": "ALINE NAU MALAGOLI"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899410598",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 159,
+          "cliente_nome": "Jhullia Coutinho",
+          "telefone": "554899410598",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2024-05-25",
+          "aniversariante_nome": "MATEUS"
+        },
+        {
+          "id": 722,
+          "cliente_nome": "JHULLIA COUTINHO",
+          "telefone": "554899410598",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2024-05-25",
+          "aniversariante_nome": "MATEUS"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899501558",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "festa"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "planejamento"
+      ],
+      "eventos": [
+        {
+          "id": 696,
+          "cliente_nome": "Luana Weber Guesser",
+          "telefone": "554899501558",
+          "funil": "festa",
+          "etapa": "planejamento",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2026-07-31",
+          "aniversariante_nome": "Laura Guesser"
+        },
+        {
+          "id": 769,
+          "cliente_nome": "LUANA WEBER GUESSER",
+          "telefone": "554899501558",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-08-02",
+          "aniversariante_nome": "Laura Guesser"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899565285",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 133,
+          "cliente_nome": "Margarete",
+          "telefone": "554899565285",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-18",
+          "data_evento": "2025-05-25",
+          "aniversariante_nome": "EUCARISTIA"
+        },
+        {
+          "id": 758,
+          "cliente_nome": "Margarete Schvambach Petry",
+          "telefone": "554899565285",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-05-25",
+          "aniversariante_nome": "EUCARISTIA"
+        }
+      ]
+    },
+    {
+      "phone_key": "554899878697",
+      "count": 2,
+      "funis": [
+        "executadas",
+        "vendas"
+      ],
+      "etapas": [
+        "oportunidade_futura",
+        "perdido"
+      ],
+      "eventos": [
+        {
+          "id": 144,
+          "cliente_nome": "Joice",
+          "telefone": "554899878697",
+          "funil": "vendas",
+          "etapa": "perdido",
+          "status_interno": "perdido",
+          "created_at": "2026-06-17",
+          "data_primeiro_contato": "2026-01-15",
+          "data_evento": "2025-06-07",
+          "aniversariante_nome": "LAURA"
+        },
+        {
+          "id": 759,
+          "cliente_nome": "Joice Macedo da Cunha",
+          "telefone": "554899878697",
+          "funil": "executadas",
+          "etapa": "oportunidade_futura",
+          "status_interno": "ativo",
+          "created_at": "2026-06-19",
+          "data_primeiro_contato": null,
+          "data_evento": "2025-06-07",
+          "aniversariante_nome": "LAURA"
+        }
+      ]
+    }
+  ],
+  "no_phone": [],
+  "invalid_phone": [
+    {
+      "id": 117,
+      "cliente_nome": "Gá Souza",
+      "telefone": "55120363419510795314",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 390,
+      "cliente_nome": "MARIA EDUARDA",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 484,
+      "cliente_nome": "MAGÁLI DUARTE",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 488,
+      "cliente_nome": "BEATRIZ CARVALHO",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 489,
+      "cliente_nome": "SABRINA",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 494,
+      "cliente_nome": "VANESSA 3",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 495,
+      "cliente_nome": "MAYARA S",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 496,
+      "cliente_nome": "ELENICE",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 501,
+      "cliente_nome": "JULIANA - B&G STORE",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 533,
+      "cliente_nome": "BRUNA NAU MALAGOLI 2",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 594,
+      "cliente_nome": "MARCIA",
+      "telefone": "55",
+      "funil": "vendas",
+      "etapa": "perdido"
+    },
+    {
+      "id": 738,
+      "cliente_nome": "THAIS SANTOS",
+      "telefone": "55351931315382",
+      "funil": "executadas",
+      "etapa": "oportunidade_futura"
+    }
+  ]
+}

@@ -3,14 +3,20 @@ import { useSearchParams } from "react-router-dom";
 
 import AppLayout from "@/components/AppLayout";
 import { FinanceiroDashboard } from "@/components/financeiro/FinanceiroDashboard";
+import { FinanceiroDreTab } from "@/components/financeiro/FinanceiroDreTab";
 import { FinanceiroEntradasTab } from "@/components/financeiro/FinanceiroEntradasTab";
+import { FinanceiroExportButton } from "@/components/financeiro/FinanceiroExportButton";
 import { FinanceiroMonthFilter } from "@/components/financeiro/FinanceiroMonthFilter";
 import { FinanceiroSaidasTab } from "@/components/financeiro/FinanceiroSaidasTab";
-import { LancamentoFormDialog } from "@/components/financeiro/LancamentoFormDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  buildDashboardSaidaRows,
   buildDreEntradas,
   buildDreSaidas,
+  buildDreStatement,
+  buildEntradasManuaisGerais,
+  buildSaidasFestas,
+  buildSaidasGerais,
   FinanceiroDisplayItem,
   getDefaultFinanceiroMonth,
   getMonthRange,
@@ -20,10 +26,10 @@ import {
 } from "@/features/financeiro";
 import { toast } from "@/hooks/use-toast";
 
-type FinanceiroTab = "dashboard" | "entradas" | "saidas";
+type FinanceiroTab = "dashboard" | "dre" | "entradas" | "saidas";
 
 const isFinanceiroTab = (value: string | null): value is FinanceiroTab =>
-  value === "dashboard" || value === "entradas" || value === "saidas";
+  value === "dashboard" || value === "dre" || value === "entradas" || value === "saidas";
 
 const Financeiro = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,20 +37,43 @@ const Financeiro = () => {
   const activeTab: FinanceiroTab = isFinanceiroTab(tabParam) ? tabParam : "dashboard";
 
   const [month, setMonth] = useState(getDefaultFinanceiroMonth);
-  const [despesaDialogOpen, setDespesaDialogOpen] = useState(false);
-  const [entradaDialogOpen, setEntradaDialogOpen] = useState(false);
 
   const { from, to } = useMemo(() => getMonthRange(month), [month]);
   const { data: lancamentos = [], isLoading: isLancamentosLoading } = useFinanceiroLancamentos({ from, to });
   const { data: contratoEntradas = [], isLoading: isContratoLoading } = useFinanceiroContratoEntradas(from, to);
   const deleteLancamento = useDeleteFinanceiroLancamento();
 
-  const dreEntradas = useMemo(
-    () => buildDreEntradas(contratoEntradas, lancamentos),
+  const entradasFestas = useMemo(() => buildDreEntradas(contratoEntradas), [contratoEntradas]);
+  const entradasManuais = useMemo(() => buildEntradasManuaisGerais(lancamentos), [lancamentos]);
+  const saidasGerais = useMemo(() => buildSaidasGerais(lancamentos), [lancamentos]);
+  const saidasFestas = useMemo(() => buildSaidasFestas(lancamentos), [lancamentos]);
+  const dreSaidas = useMemo(() => buildDreSaidas(lancamentos), [lancamentos]);
+  const dreStatement = useMemo(
+    () => buildDreStatement(contratoEntradas, lancamentos),
     [contratoEntradas, lancamentos],
   );
-  const dreSaidas = useMemo(() => buildDreSaidas(lancamentos), [lancamentos]);
+  const dashboardSaidaRows = useMemo(
+    () =>
+      buildDashboardSaidaRows(
+        dreSaidas.map((item) => ({ categoria: item.categoria, valor: item.valor })),
+      ),
+    [dreSaidas],
+  );
   const isLoading = isLancamentosLoading || isContratoLoading;
+
+  const exportData = useMemo(
+    () => ({
+      dreStatement,
+      entradasFestas,
+      entradasManuais,
+      from,
+      month,
+      saidasFestas,
+      saidasGerais,
+      to,
+    }),
+    [dreStatement, entradasFestas, entradasManuais, from, month, saidasFestas, saidasGerais, to],
+  );
 
   const handleTabChange = (value: string) => {
     if (!isFinanceiroTab(value)) {
@@ -80,30 +109,42 @@ const Financeiro = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">Financeiro</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Dashboard financeiro com totais do mes e detalhamento por descricao.
+            Visao executiva do mes com entradas, saidas, resultado e indicadores.
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <FinanceiroMonthFilter month={month} onMonthChange={setMonth} />
+          <FinanceiroExportButton data={exportData} disabled={isLoading} />
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsList className="grid h-auto w-full max-w-2xl grid-cols-2 gap-1 sm:grid-cols-4">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="dre">DRE</TabsTrigger>
             <TabsTrigger value="entradas">Entradas</TabsTrigger>
             <TabsTrigger value="saidas">Saidas</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
-            <FinanceiroDashboard entradas={dreEntradas} isLoading={isLoading} saidas={dreSaidas} />
+            <FinanceiroDashboard
+              contratoCount={contratoEntradas.length}
+              isLoading={isLoading}
+              month={month}
+              saidaRows={dashboardSaidaRows}
+              statement={dreStatement}
+            />
+          </TabsContent>
+
+          <TabsContent value="dre">
+            <FinanceiroDreTab isLoading={isLoading} month={month} statement={dreStatement} />
           </TabsContent>
 
           <TabsContent value="entradas">
             <FinanceiroEntradasTab
-              entradas={dreEntradas}
+              entradasFestas={entradasFestas}
+              entradasManuais={entradasManuais}
               isLoading={isLoading}
-              onAddEntrada={() => setEntradaDialogOpen(true)}
               onDelete={handleDelete}
             />
           </TabsContent>
@@ -111,16 +152,13 @@ const Financeiro = () => {
           <TabsContent value="saidas">
             <FinanceiroSaidasTab
               isLoading={isLoading}
-              onAddDespesa={() => setDespesaDialogOpen(true)}
               onDelete={handleDelete}
-              saidas={dreSaidas}
+              saidasFestas={saidasFestas}
+              saidasGerais={saidasGerais}
             />
           </TabsContent>
         </Tabs>
       </div>
-
-      <LancamentoFormDialog open={despesaDialogOpen} onOpenChange={setDespesaDialogOpen} mode="despesa_geral" />
-      <LancamentoFormDialog open={entradaDialogOpen} onOpenChange={setEntradaDialogOpen} mode="entrada_geral" />
     </AppLayout>
   );
 };

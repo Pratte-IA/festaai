@@ -8,6 +8,7 @@ export type FinanceiroTipo = FinanceiroLancamento["tipo"];
 export type FinanceiroOrigem = FinanceiroLancamento["origem"];
 
 export interface EventoFinanceiroSummary {
+  descontoTotal: number;
   entradaTotal: number;
   margemPercent: number | null;
   resultadoFesta: number;

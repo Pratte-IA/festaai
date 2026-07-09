@@ -7,6 +7,7 @@ import {
   Evento,
   FunnelType,
   getPropostaFollowupKanbanBadge,
+  getEventoDataEntradaIso,
   Stage,
   StageDefinition,
   sortEventosByPartyDateExecutionOrder,
@@ -15,7 +16,6 @@ import {
 import {
   compareIsoDateToToday,
   formatDateBR,
-  formatTimestampDateBR,
 } from "@/lib/date";
 import { toast } from "@/hooks/use-toast";
 
@@ -173,7 +173,7 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
                       {/* Linha 3: Data de entrada */}
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0" />
-                        Entrada: {formatTimestampDateBR(event.created_at)}
+                        Entrada: {formatDateBR(getEventoDataEntradaIso(event))}
                       </p>
 
                       {/* Linha 4: Data da festa + tempo restante */}

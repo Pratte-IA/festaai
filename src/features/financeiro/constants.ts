@@ -1,5 +1,7 @@
 export const FINANCEIRO_CATEGORIAS_ENTRADA = {
+  adicional_contratado: "Adicional contratado",
   entrada_contrato: "Entrada Contrato",
+  outras_receitas: "Outras receitas",
   pagamento_contrato: "Pagamento Contrato",
   desconto: "Desconto",
 } as const;
@@ -11,7 +13,11 @@ export const FINANCEIRO_CATEGORIAS_SAIDA = {
   decoracao: "Decoração",
   equipe: "Equipe",
   infraestrutura_investimentos: "Infraestrutura - Investimentos",
+  marketing: "Marketing",
   gastos_fixos: "Gastos Fixos",
+  impostos: "Impostos",
+  prolabore: "Pro-labore",
+  outros: "Outros",
 } as const;
 
 /** Rótulos legados para lançamentos já gravados com categorias antigas. */
@@ -20,10 +26,9 @@ const FINANCEIRO_CATEGORIAS_LEGADAS: Record<string, string> = {
   assinaturas: "Gastos Fixos",
   buffet: "Buffet - Salgados",
   contrato: "Entrada Contrato",
-  impostos: "Gastos Fixos",
   manutencao: "Infraestrutura - Investimentos",
-  marketing: "Gastos Fixos",
-  outros: "Gastos Fixos",
+  marketing: "Marketing",
+  outros: "Outros",
   pagamento: "Pagamento Contrato",
   produtos: "Buffet - Salgados",
   salarios: "Gastos Fixos",
