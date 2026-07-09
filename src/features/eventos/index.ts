@@ -88,6 +88,13 @@ export type {
   PropostaFollowup2Variante,
   PropostaFollowupStatus,
 } from "./proposta-followup";
+export {
+  CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_DELAY_HOURS,
+  CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE_DELAY_HOURS,
+  CONTRACT_SIGNATURE_FOLLOWUP_TEMPLATE_KEY,
+  getContractSignatureFollowupKanbanBadge,
+} from "./contract-signature-followup";
+export type { EventoContractSignatureFollowupSummary } from "./contract-signature-followup";
 export { useBulkCreateEventos } from "./use-bulk-create-eventos";
 export { useCreateEvento } from "./use-create-evento";
 export { useEvento } from "./use-evento";

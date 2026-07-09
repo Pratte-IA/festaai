@@ -19,6 +19,7 @@ export interface CheckoutRequest {
 }
 
 export interface CheckoutResponse {
+  billingChannel?: "asaas" | "manual";
   checkoutUrl: string | null;
   externalReference: string;
   maxSetupInstallments: number;
@@ -42,6 +43,7 @@ export interface CreateSetupPaymentResponse {
 }
 
 export interface PublicCheckoutStatus {
+  billingChannel: "asaas" | "manual";
   checkoutPhase: CheckoutPhase;
   checkoutUrl: string | null;
   externalReference: string;
@@ -65,6 +67,7 @@ export type CheckoutPhase =
   | "setup_pending"
   | "setup_paid"
   | "subscription_pending"
+  | "manual_payment"
   | "completed";
 
 export type PaymentKind = "setup" | "subscription";

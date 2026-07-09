@@ -94,6 +94,24 @@ const ContratarOferta = () => {
                 ))}
               </ul>
 
+              {offer.billing_channel === "manual" ? (
+                <div className="mt-6 space-y-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-zinc-200">
+                  <p className="font-medium text-white">Forma de pagamento negociada</p>
+                  {offer.setup_payment_methods ? (
+                    <p>
+                      <span className="text-zinc-400">Setup: </span>
+                      {offer.setup_payment_methods}
+                    </p>
+                  ) : null}
+                  {offer.subscription_payment_methods ? (
+                    <p>
+                      <span className="text-zinc-400">Mensalidade: </span>
+                      {offer.subscription_payment_methods}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
               <p className="mt-6 text-xs text-zinc-500">
                 Válida até{" "}
                 {new Date(offer.expires_at).toLocaleString("pt-BR", {

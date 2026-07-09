@@ -403,7 +403,10 @@ const generateEventoContractForPublicFlow = async (
   if (pendingGeneratedResult.data) {
     const { error: cancelError } = await admin
       .from("evento_contracts")
-      .update({ status: "cancelled" })
+      .update({
+        assinatura_followup_status: "cancelado",
+        status: "cancelled",
+      })
       .eq("tenant_id", tenantId)
       .eq("id", pendingGeneratedResult.data.id);
 
@@ -466,6 +469,7 @@ const generateEventoContractForPublicFlow = async (
   const { data: inserted, error: insertError } = await admin
     .from("evento_contracts")
     .insert({
+      assinatura_followup_status: "ativo",
       contract_hash: built.contractHash,
       contract_html: built.contractHtml,
       contract_number: contractNumber,
@@ -1001,6 +1005,7 @@ const handleAcceptContract = async (
     .from("evento_contracts")
     .update({
       accepted_at: acceptedAt,
+      assinatura_followup_status: "cancelado",
       status: "accepted",
     })
     .eq("tenant_id", tenant.id)

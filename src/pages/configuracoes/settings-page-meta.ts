@@ -47,17 +47,35 @@ export const SETTINGS_PAGE_META = {
     description:
       "Configure entrada, formas de pagamento do restante e limites de parcelamento padrão da casa.",
   },
-  "followup-proposta": {
-    breadcrumb: "Follow-ups de Proposta",
-    title: "Follow-ups de proposta",
+  followups: {
+    breadcrumb: "Follow-ups",
+    title: "Follow-ups automáticos",
     description:
-      "Configure as mensagens automáticas enviadas após a proposta — regras de disparo, validação de data e textos personalizáveis.",
+      "Escolha a área para configurar mensagens e regras de disparo — comercial, execução da festa ou pós-festa.",
+  },
+  "followups/comercial": {
+    breadcrumb: "Follow-ups · Comercial",
+    title: "Follow-ups comerciais",
+    description:
+      "Proposta (FU0–FU4), assinatura de contrato — regras de disparo, textos e prévia das mensagens.",
+  },
+  "followups/execucao": {
+    breadcrumb: "Follow-ups · Execução",
+    title: "Execução de festa",
+    description:
+      "Boas Vindas após assinatura do contrato e lembrete 7 dias antes da festa — regras e vínculo WhatsApp.",
+  },
+  "followups/pos-festa": {
+    breadcrumb: "Follow-ups · Pós Festa",
+    title: "Pós festa",
+    description:
+      "Envio da pesquisa de satisfação e lembrete automático quando a família não responde.",
   },
   "pesquisa-avaliacao": {
     breadcrumb: "Pesquisa de Avaliação",
     title: "Pesquisa de satisfação",
     description:
-      "Configure as perguntas enviadas após a festa para medir NPS, experiência e coletar depoimentos das famílias.",
+      "Monte as perguntas da pesquisa pós-festa e revise a prévia do envio inicial no WhatsApp.",
   },
   "integracoes/whatsapp": {
     breadcrumb: "WhatsApp",
@@ -81,6 +99,24 @@ export const SETTINGS_PAGE_META = {
 
 export type SettingsPageKey = keyof typeof SETTINGS_PAGE_META;
 
-export const getSettingsPageMeta = (relativePath: string): SettingsPageMeta | undefined =>
-  SETTINGS_PAGE_META[relativePath as SettingsPageKey] ??
-  SETTINGS_PAGE_META[relativePath.split("/")[0] as SettingsPageKey];
+const FOLLOWUPS_SUBPAGE_LABELS: Record<string, string> = {
+  comercial: "Comercial",
+  execucao: "Execução de Festa",
+  "pos-festa": "Pós Festa",
+};
+
+export const getSettingsPageMeta = (relativePath: string): SettingsPageMeta | undefined => {
+  const direct = SETTINGS_PAGE_META[relativePath as SettingsPageKey];
+  if (direct) return direct;
+
+  const followupsMatch = relativePath.match(/^followups\/([^/]+)$/);
+  if (followupsMatch) {
+    const subKey = `followups/${followupsMatch[1]}` as SettingsPageKey;
+    return SETTINGS_PAGE_META[subKey];
+  }
+
+  return SETTINGS_PAGE_META[relativePath.split("/")[0] as SettingsPageKey];
+};
+
+export const getFollowupsSubpageLabel = (segment: string): string | undefined =>
+  FOLLOWUPS_SUBPAGE_LABELS[segment];

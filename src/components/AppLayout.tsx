@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { PanelLeft } from "lucide-react";
 import { GuidedSetupBanner } from "@/components/guided-setup/GuidedSetupBanner";
 import { PlatformAdminViewingBanner } from "@/components/admin/PlatformAdminViewingBanner";
@@ -7,7 +7,10 @@ import { ReadOnlyModeGuard } from "@/components/guided-setup/ReadOnlyModeGuard";
 import { Button } from "@/components/ui/button";
 import AppSidebar from "./AppSidebar";
 
+const AppLayoutNestedContext = createContext(false);
+
 const AppLayout = ({ children }: { children: ReactNode }) => {
+  const isNested = useContext(AppLayoutNestedContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
@@ -21,8 +24,13 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [closeSidebar]);
 
+  if (isNested) {
+    return children;
+  }
+
   return (
-    <div className="min-h-screen gradient-dark">
+    <AppLayoutNestedContext.Provider value>
+      <div className="min-h-screen gradient-dark">
       {sidebarOpen && (
         <button
           type="button"
@@ -57,6 +65,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
         </ReadOnlyModeGuard>
       </main>
     </div>
+    </AppLayoutNestedContext.Provider>
   );
 };
 

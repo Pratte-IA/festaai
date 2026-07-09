@@ -65,7 +65,7 @@ export const ProtectedRoute = ({ children }: PropsWithChildren) => {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (isTenantLoading) {
+  if (isTenantLoading && !currentTenant) {
     return (
       <RouteState
         description="Carregando a empresa vinculada ao seu usuario..."

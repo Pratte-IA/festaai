@@ -1,8 +1,6 @@
-import { PropsWithChildren } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { Loader2, Sparkles } from "lucide-react";
 
-import { ProtectedRoute } from "./protected-route";
 import { useAuth } from "./use-auth";
 
 const RootLoading = () => (
@@ -20,7 +18,7 @@ const RootLoading = () => (
   </main>
 );
 
-export const RootEntry = ({ children }: PropsWithChildren) => {
+export const RootEntry = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -31,5 +29,5 @@ export const RootEntry = ({ children }: PropsWithChildren) => {
     return <Navigate to="/contratar" replace />;
   }
 
-  return <ProtectedRoute>{children}</ProtectedRoute>;
+  return <Outlet />;
 };

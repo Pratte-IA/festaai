@@ -26,6 +26,14 @@ export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
   },
   {
     bindingMode: "whatsapp_connection",
+    key: "follow-up-assinatura-contrato",
+    title: "Follow-up de Assinatura",
+    description:
+      "Lembra o cliente de assinar o contrato após preencher o formulário — primeiro envio em 3h e depois a cada 6h em horário comercial.",
+    direction: "outbound",
+  },
+  {
+    bindingMode: "whatsapp_connection",
     key: "sete-dias-antes",
     title: "7 dias Antes da Festa",
     description:

@@ -52,7 +52,7 @@ export const usePublicCheckoutStatus = (externalReference?: string | null) =>
     refetchInterval: (query) => {
       const phase = query.state.data?.checkoutPhase;
       const status = query.state.data?.status;
-      if (phase === "completed" || status === "canceled" || status === "failed") {
+      if (phase === "completed" || phase === "manual_payment" || status === "canceled" || status === "failed") {
         return false;
       }
       return 5000;

@@ -1,7 +1,6 @@
 import { Loader2 } from "lucide-react";
 
 import SatisfactionSurveyConfig from "@/components/SatisfactionSurveyConfig";
-import { SatisfactionSurveyDispatchPreview } from "@/components/pesquisa-avaliacao/SatisfactionSurveyDispatchPreview";
 import { GuidedSetupContinueBar } from "@/components/guided-setup/GuidedSetupContinueBar";
 import {
   useTenantSatisfactionSurvey,
@@ -54,7 +53,6 @@ export const PesquisaAvaliacaoSetupStep = ({ onCompleted }: PesquisaAvaliacaoSet
           adicione perguntas específicas da sua casa.
         </p>
       </div>
-      <SatisfactionSurveyDispatchPreview />
       <SatisfactionSurveyConfig />
       <GuidedSetupContinueBar
         description={

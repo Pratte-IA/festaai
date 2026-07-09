@@ -7,6 +7,14 @@ export type CommercialOfferStatus = (typeof COMMERCIAL_OFFER_STATUS_VALUES)[numb
 export const BASE_PLAN_SLUG_VALUES = ["avista", "parcelado", "fidelidade"] as const;
 export type BasePlanSlug = (typeof BASE_PLAN_SLUG_VALUES)[number];
 
+export const COMMERCIAL_BILLING_CHANNEL_VALUES = ["asaas", "manual"] as const;
+export type CommercialBillingChannel = (typeof COMMERCIAL_BILLING_CHANNEL_VALUES)[number];
+
+export const commercialBillingChannelLabels: Record<CommercialBillingChannel, string> = {
+  asaas: "Checkout Asaas (padrão)",
+  manual: "Pagamento negociado (sem Asaas)",
+};
+
 export const commercialLeadStatusLabels: Record<CommercialLeadStatus, string> = {
   convertido: "Convertido",
   descartado: "Descartado",

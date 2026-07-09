@@ -5,6 +5,7 @@ export type CommercialOffer = Tables<"commercial_offers">;
 
 export type PublicCommercialOffer = {
   base_plan_slug: string;
+  billing_channel: string;
   expires_at: string;
   id: number;
   loyalty_months: number | null;
@@ -13,7 +14,9 @@ export type PublicCommercialOffer = {
   recipient_company: string | null;
   recipient_email: string | null;
   setup_installments: number | null;
+  setup_payment_methods: string | null;
   setup_price: number;
+  subscription_payment_methods: string | null;
   token: string;
 };
 

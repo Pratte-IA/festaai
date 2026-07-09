@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase
       .from("billing_subscriptions")
       .select(
-        "status, checkout_url, external_reference, metadata, tenant_id, subscription_plans(name, monthly_price, setup_price)",
+        "status, checkout_url, external_reference, metadata, tenant_id, provider, subscription_plans(name, monthly_price, setup_price)",
       )
       .eq("external_reference", input.externalReference)
       .maybeSingle();
@@ -72,8 +72,12 @@ Deno.serve(async (req) => {
     } | null;
 
     const checkoutPhase = resolveCheckoutPhase(metadata, data.status);
+    const billingChannel = String(metadata.billing_channel ?? data.provider ?? "asaas") === "manual"
+      ? "manual"
+      : "asaas";
 
     return jsonResponse({
+      billingChannel,
       checkoutPhase,
       checkoutUrl: data.checkout_url,
       externalReference: data.external_reference,

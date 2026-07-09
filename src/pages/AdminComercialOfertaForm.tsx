@@ -10,14 +10,19 @@ import { Label } from "@/components/ui/label";
 import {
   BASE_PLAN_SLUG_VALUES,
   basePlanSlugLabels,
+  COMMERCIAL_BILLING_CHANNEL_VALUES,
+  commercialBillingChannelLabels,
   buildDefaultOfferFromPlan,
   buildOfferPublicUrl,
   type BasePlanSlug,
+  type CommercialBillingChannel,
   type CommercialOfferInput,
   useAdminCommercialOffer,
   useAdminSaveCommercialOffer,
   useAdminUpdateCommercialLeadStatus,
 } from "@/features/comercial";
+import { Textarea } from "@/components/ui/textarea";
+import { resolveCommercialBillingRule } from "@/features/comercial/commercial-billing-rules";
 import { toast } from "@/hooks/use-toast";
 
 const toDatetimeLocal = (iso: string) => {
@@ -56,6 +61,7 @@ const AdminComercialOfertaForm = () => {
     if (!existingOffer) return;
     setDraft({
       basePlanSlug: existingOffer.base_plan_slug as BasePlanSlug,
+      billingChannel: (existingOffer.billing_channel as CommercialBillingChannel) ?? "asaas",
       expiresAt: existingOffer.expires_at,
       leadId: existingOffer.lead_id,
       loyaltyMonths: existingOffer.loyalty_months,
@@ -64,8 +70,10 @@ const AdminComercialOfertaForm = () => {
       recipientCompany: existingOffer.recipient_company ?? "",
       recipientEmail: existingOffer.recipient_email ?? "",
       setupInstallments: existingOffer.setup_installments,
+      setupPaymentMethods: existingOffer.setup_payment_methods ?? "",
       setupPrice: Number(existingOffer.setup_price),
       status: existingOffer.status as CommercialOfferInput["status"],
+      subscriptionPaymentMethods: existingOffer.subscription_payment_methods ?? "",
       token: existingOffer.token,
     });
   }, [existingOffer]);
@@ -73,18 +81,54 @@ const AdminComercialOfertaForm = () => {
   const applyBasePlan = (basePlanSlug: BasePlanSlug) => {
     setDraft((current) => {
       const defaults = buildDefaultOfferFromPlan(basePlanSlug, {
+        billingChannel: current.billingChannel,
         expiresAt: current.expiresAt,
         leadId: current.leadId,
         name: current.name,
         recipientCompany: current.recipientCompany,
         recipientEmail: current.recipientEmail,
+        setupPaymentMethods:
+          current.billingChannel === "manual"
+            ? current.setupPaymentMethods
+            : undefined,
+        subscriptionPaymentMethods:
+          current.billingChannel === "manual"
+            ? current.subscriptionPaymentMethods
+            : undefined,
         token: current.token,
       });
       return { ...current, ...defaults, basePlanSlug };
     });
   };
 
+  const applyBillingChannel = (billingChannel: CommercialBillingChannel) => {
+    setDraft((current) => {
+      const rule = resolveCommercialBillingRule(current.basePlanSlug);
+      return {
+        ...current,
+        billingChannel,
+        setupPaymentMethods:
+          billingChannel === "manual" ? current.setupPaymentMethods : rule?.setup_payment_methods ?? "",
+        subscriptionPaymentMethods:
+          billingChannel === "manual"
+            ? current.subscriptionPaymentMethods
+            : rule?.subscription_payment_methods ?? "",
+      };
+    });
+  };
+
   const handleSave = async (activate: boolean) => {
+    if (draft.billingChannel === "manual") {
+      if (!draft.setupPaymentMethods.trim() || !draft.subscriptionPaymentMethods.trim()) {
+        toast({
+          title: "Informe as formas de pagamento",
+          description: "Para cobrança manual, descreva como o cliente paga o setup e a mensalidade.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     try {
       const values: CommercialOfferInput = {
         ...draft,
@@ -190,6 +234,26 @@ const AdminComercialOfertaForm = () => {
             />
           </div>
 
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="offer-billing-channel">Forma de cobrança</Label>
+            <select
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              id="offer-billing-channel"
+              onChange={(e) => applyBillingChannel(e.target.value as CommercialBillingChannel)}
+              value={draft.billingChannel}
+            >
+              {COMMERCIAL_BILLING_CHANNEL_VALUES.map((channel) => (
+                <option key={channel} value={channel}>
+                  {commercialBillingChannelLabels[channel]}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground">
+              Use &quot;Pagamento negociado&quot; quando o cliente paga fora do Asaas (ex.: PIX direto na
+              conta).
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="offer-monthly">Mensalidade (R$)</Label>
             <Input
@@ -239,6 +303,40 @@ const AdminComercialOfertaForm = () => {
               type="number"
               value={draft.loyaltyMonths ?? ""}
             />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="offer-setup-payment">Pagamento do setup</Label>
+            {draft.billingChannel === "manual" ? (
+              <Textarea
+                id="offer-setup-payment"
+                onChange={(e) => setDraft({ ...draft, setupPaymentMethods: e.target.value })}
+                placeholder="Ex.: PIX direto na conta FestaAI — chave CNPJ ..."
+                rows={3}
+                value={draft.setupPaymentMethods}
+              />
+            ) : (
+              <p className="rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+                {draft.setupPaymentMethods || "Conforme checkout Asaas do plano base"}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="offer-subscription-payment">Pagamento da mensalidade</Label>
+            {draft.billingChannel === "manual" ? (
+              <Textarea
+                id="offer-subscription-payment"
+                onChange={(e) => setDraft({ ...draft, subscriptionPaymentMethods: e.target.value })}
+                placeholder="Ex.: PIX mensal enviado todo dia 5 para a mesma conta"
+                rows={3}
+                value={draft.subscriptionPaymentMethods}
+              />
+            ) : (
+              <p className="rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+                {draft.subscriptionPaymentMethods || "Conforme checkout Asaas do plano base"}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2 md:col-span-2">

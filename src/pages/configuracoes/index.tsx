@@ -74,10 +74,10 @@ const cards: ConfigCardProps[] = [
     icon: Wallet,
   },
   {
-    to: "/configuracoes/followup-proposta",
-    title: "Follow-ups de Proposta",
+    to: "/configuracoes/followups",
+    title: "Follow-ups automáticos",
     description:
-      "Mensagens automáticas de retorno para leads em Proposta Enviada — regras, textos e prévia do FU1",
+      "Comercial, execução da festa e pós-festa — regras, textos e prévia das mensagens",
     icon: MessageSquare,
   },
   {

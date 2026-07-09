@@ -485,6 +485,7 @@ export const useAcceptEventoContract = () => {
         .from("evento_contracts")
         .update({
           accepted_at: acceptedAt,
+          assinatura_followup_status: "cancelado",
           status: "accepted",
           updated_by: user.id,
         })

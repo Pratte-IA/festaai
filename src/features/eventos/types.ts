@@ -1,5 +1,7 @@
 import { Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types";
 
+import type { EventoContractSignatureFollowupSummary } from "./contract-signature-followup";
+
 export type FunnelType = "vendas" | "festa" | "executadas";
 export type EventType = "festa" | "visita";
 
@@ -27,6 +29,7 @@ export type Evento = Omit<
   Tables<"eventos">,
   "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos"
 > & {
+  contract_signature_followup?: EventoContractSignatureFollowupSummary | null;
   etapa: Stage;
   funil: FunnelType;
   status_interno: InternalStatus;

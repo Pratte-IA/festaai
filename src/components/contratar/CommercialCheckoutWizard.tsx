@@ -22,6 +22,7 @@ import { contratarCtaGradientClass, formatContratarBRL } from "@/pages/contratar
 
 import { CheckoutStepIndicator } from "./CheckoutStepIndicator";
 import { InlinePaymentPanel } from "./InlinePaymentPanel";
+import { ManualPaymentInstructions } from "./ManualPaymentInstructions";
 
 interface CommercialCheckoutWizardProps {
   checkout: PublicCheckoutStatus;
@@ -31,7 +32,7 @@ interface CommercialCheckoutWizardProps {
 }
 
 const resolveWizardStep = (phase: PublicCheckoutStatus["checkoutPhase"]): 1 | 2 | 3 | 4 => {
-  if (phase === "completed") return 4;
+  if (phase === "completed" || phase === "manual_payment") return 4;
   if (phase === "subscription_pending") return 3;
   if (phase === "setup_paid") return 2;
   return 1;
@@ -117,6 +118,14 @@ export const CommercialCheckoutWizard = ({
       });
     });
   }, [activateSubscription, externalReference, hasTriggeredActivation, wizardStep]);
+
+  if (checkout.billingChannel === "manual" || checkout.checkoutPhase === "manual_payment") {
+    return (
+      <div className={cn("space-y-8", className)}>
+        <ManualPaymentInstructions checkout={checkout} />
+      </div>
+    );
+  }
 
   return (
     <div className={cn("space-y-8", className)}>

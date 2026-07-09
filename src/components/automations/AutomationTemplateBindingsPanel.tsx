@@ -267,15 +267,21 @@ export type AutomationTemplateBindingsManager = ReturnType<
 >;
 
 interface AutomationTemplateBindingsPanelProps {
+  filterKeys?: AutomationTemplateKey[];
   manager: AutomationTemplateBindingsManager;
   showCardHeader?: boolean;
   showSettingsWhatsappLink?: boolean;
+  title?: string;
+  description?: string;
 }
 
 export const AutomationTemplateBindingsPanel = ({
+  filterKeys,
   manager,
+  description,
   showCardHeader = true,
   showSettingsWhatsappLink = true,
+  title,
 }: AutomationTemplateBindingsPanelProps) => {
   const {
     connections,
@@ -289,17 +295,21 @@ export const AutomationTemplateBindingsPanel = ({
     localBindings,
   } = manager;
 
+  const visibleBindings = filterKeys
+    ? localBindings.filter((binding) => filterKeys.includes(binding.key))
+    : localBindings;
+
   return (
     <Card>
       {showCardHeader ? (
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Bot className="h-5 w-5 text-primary" />
-            Automações disponíveis
+            {title ?? "Automações disponíveis"}
           </CardTitle>
           <CardDescription>
-            Vincule cada automação ao WhatsApp da casa ou informe o celular particular do vendedor,
-            quando aplicável.
+            {description ??
+              "Vincule cada automação ao WhatsApp da casa ou informe o celular particular do vendedor, quando aplicável."}
           </CardDescription>
         </CardHeader>
       ) : null}
@@ -344,7 +354,7 @@ export const AutomationTemplateBindingsPanel = ({
             )}
 
             <div className="space-y-3">
-              {localBindings.map((binding) => (
+              {visibleBindings.map((binding) => (
                 <AutomationTemplateBindingRow
                   key={binding.key}
                   binding={binding}

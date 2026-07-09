@@ -7,6 +7,7 @@ import {
   COMMERCIAL_CONTRACT_VERSION,
 } from "../_shared/commercial-contract-v1.ts";
 import { resolveCommercialBillingRule } from "../_shared/commercial-billing-rules.ts";
+import { completeBillingFirstAccess } from "../_shared/billing-first-access.ts";
 import { resolveClientIp, resolveUserAgent } from "../_shared/resolve-client-ip.ts";
 
 const corsHeaders = {
@@ -31,14 +32,17 @@ const checkoutSchema = z.object({
 
 type CommercialOfferRow = {
   base_plan_slug: string;
+  billing_channel: string;
   expires_at: string;
   id: number;
   loyalty_months: number | null;
   monthly_price: number;
   name: string;
   setup_installments: number | null;
+  setup_payment_methods: string | null;
   setup_price: number;
   status: string;
+  subscription_payment_methods: string | null;
   token: string;
 };
 
@@ -52,13 +56,26 @@ const buildCommercialCondition = (
 
   if (!offer) return rule;
 
-  return resolveCommercialBillingRule(planSlug, {
+  const merged = resolveCommercialBillingRule(planSlug, {
     loyalty_months: offer.loyalty_months,
     monthly_price: Number(offer.monthly_price),
     name: offer.name,
     setup_installments: offer.setup_installments,
     setup_price: Number(offer.setup_price),
   });
+
+  if (!merged) return null;
+
+  if (offer.billing_channel === "manual") {
+    return {
+      ...merged,
+      setup_payment_methods: offer.setup_payment_methods?.trim() || merged.setup_payment_methods,
+      subscription_payment_methods:
+        offer.subscription_payment_methods?.trim() || merged.subscription_payment_methods,
+    };
+  }
+
+  return merged;
 };
 
 type AsaasCustomer = {
@@ -217,6 +234,156 @@ Deno.serve(async (req) => {
       plan = { ...fallback, slug: planSlug, id: fallback.id };
     }
 
+    const externalReference = `festaai:${crypto.randomUUID()}`;
+    const maxSetupInstallments = Math.max(1, Number(condition.setup_installments ?? 1));
+    const setupPrice = Number(condition.setup_price);
+    const monthlyPrice = Number(condition.monthly_price);
+    const subscriptionMaxPayments = condition.subscription_max_payments;
+    const loyaltyMonths = condition.loyalty_months;
+    const subscriptionCommitmentTotal =
+      subscriptionMaxPayments != null ? monthlyPrice * subscriptionMaxPayments : null;
+    const nextDueDate = new Date();
+    nextDueDate.setDate(nextDueDate.getDate() + 1);
+    const firstMonthlyDueDateISO = addMonths(nextDueDate, 1);
+
+    const appUrl = (Deno.env.get("APP_URL") ?? "https://festaai.com.br").replace(/\/$/, "");
+    const contractPackage = buildCommercialContractPackage(
+      {
+        basePlanSlug: planSlug,
+        commercialOfferId: commercialOffer?.id ?? null,
+        commercialOfferToken: commercialOffer?.token ?? null,
+        conditionName: condition.name,
+        contractReferenceId: externalReference,
+        loyaltyMonths: loyaltyMonths,
+        maxSetupInstallments,
+        monthlyPrice,
+        setupInstallments: maxSetupInstallments > 1 ? null : 1,
+        setupPrice,
+        subscriptionMaxPayments: subscriptionMaxPayments,
+      },
+      `${appUrl}/privacidade`,
+    );
+
+    const isManualBilling = commercialOffer?.billing_channel === "manual";
+
+    if (isManualBilling) {
+      const { data: billingCustomer, error: customerError } = await supabase
+        .from("billing_customers")
+        .insert({
+          company_name: input.companyName,
+          email: input.email,
+          metadata: {
+            billing_channel: "manual",
+            cpf_cnpj: input.cpfCnpj.replace(/\D/g, ""),
+            message: input.message,
+            requester_name: input.name,
+          },
+          name: input.name,
+          phone: input.phone,
+          provider: "manual",
+          provider_customer_id: null,
+          tenant_id: input.tenantId ?? null,
+        })
+        .select("*")
+        .single();
+
+      if (customerError) throw customerError;
+
+      const { data: billingSubscription, error: subscriptionError } = await supabase
+        .from("billing_subscriptions")
+        .insert({
+          checkout_url: null,
+          customer_id: billingCustomer.id,
+          external_reference: externalReference,
+          metadata: {
+            billing_channel: "manual",
+            checkout_phase: "manual_payment",
+            condition_slug: planSlug,
+            loyalty_months: loyaltyMonths,
+            max_setup_installments: maxSetupInstallments,
+            monthly_price: monthlyPrice,
+            plan_name: condition.name,
+            setup_installments: maxSetupInstallments,
+            setup_payment_methods: condition.setup_payment_methods,
+            setup_price: setupPrice,
+            subscription_commitment_total: subscriptionCommitmentTotal,
+            subscription_first_due_date: firstMonthlyDueDateISO,
+            subscription_max_payments: subscriptionMaxPayments,
+            subscription_payment_methods: condition.subscription_payment_methods,
+            ...(commercialOffer
+              ? { commercial_offer_id: commercialOffer.id, commercial_offer_token: commercialOffer.token }
+              : {}),
+          },
+          next_due_date: firstMonthlyDueDateISO,
+          plan_id: plan.id,
+          provider: "manual",
+          provider_subscription_id: null,
+          status: "trialing",
+          tenant_id: input.tenantId ?? null,
+        })
+        .select("id, status, checkout_url, external_reference")
+        .single();
+
+      if (subscriptionError) throw subscriptionError;
+
+      const { error: acceptanceError } = await supabase.from("billing_contract_acceptances").insert({
+        acceptance_declaration: contractPackage.acceptanceDeclaration,
+        accepted_by_company: input.companyName,
+        accepted_by_cpf_cnpj: input.cpfCnpj.replace(/\D/g, ""),
+        accepted_by_email: input.email,
+        accepted_by_name: input.name,
+        billing_subscription_id: billingSubscription.id,
+        commercial_annex_snapshot: contractPackage.commercialAnnex,
+        commercial_snapshot: contractPackage.commercialSnapshot,
+        contract_body_snapshot: contractPackage.contractBody,
+        contract_version: contractPackage.contractVersion,
+        external_reference: externalReference,
+        ip_address: resolveClientIp(req),
+        metadata: {
+          billing_channel: "manual",
+          checkout_phase: "manual_payment",
+          user_agent: resolveUserAgent(req),
+        },
+        user_agent: resolveUserAgent(req),
+      });
+
+      if (acceptanceError) throw acceptanceError;
+
+      if (commercialOffer) {
+        const { error: offerUpdateError } = await supabase
+          .from("commercial_offers")
+          .update({
+            billing_subscription_id: billingSubscription.id,
+            status: "accepted",
+          })
+          .eq("id", commercialOffer.id)
+          .eq("status", "active");
+
+        if (offerUpdateError) throw offerUpdateError;
+      }
+
+      await completeBillingFirstAccess(
+        supabase,
+        supabaseUrl,
+        serviceRoleKey,
+        billingSubscription.id,
+      );
+
+      return jsonResponse({
+        billingChannel: "manual",
+        checkoutUrl: null,
+        externalReference: billingSubscription.external_reference,
+        maxSetupInstallments,
+        monthlyPrice,
+        planName: condition.name,
+        setupPrice,
+        status: billingSubscription.status,
+        subscriptionCommitmentTotal,
+        subscriptionId: billingSubscription.id,
+        subscriptionMaxPayments,
+      });
+    }
+
     const customer = await asaasRequest<AsaasCustomer>("/customers", {
       body: JSON.stringify({
         cpfCnpj: input.cpfCnpj.replace(/\D/g, ""),
@@ -249,19 +416,6 @@ Deno.serve(async (req) => {
       .single();
 
     if (customerError) throw customerError;
-
-    const nextDueDate = new Date();
-    nextDueDate.setDate(nextDueDate.getDate() + 1);
-    const nextDueDateISO = nextDueDate.toISOString().slice(0, 10);
-    const firstMonthlyDueDateISO = addMonths(nextDueDate, 1);
-    const externalReference = `festaai:${crypto.randomUUID()}`;
-    const maxSetupInstallments = Math.max(1, Number(condition.setup_installments ?? 1));
-    const setupPrice = Number(condition.setup_price);
-    const monthlyPrice = Number(condition.monthly_price);
-    const subscriptionMaxPayments = condition.subscription_max_payments;
-    const loyaltyMonths = condition.loyalty_months;
-    const subscriptionCommitmentTotal =
-      subscriptionMaxPayments != null ? monthlyPrice * subscriptionMaxPayments : null;
 
     const checkoutUrl = null;
 
@@ -307,24 +461,6 @@ Deno.serve(async (req) => {
 
     if (subscriptionError) throw subscriptionError;
 
-    const appUrl = (Deno.env.get("APP_URL") ?? "https://festaai.com.br").replace(/\/$/, "");
-    const contractPackage = buildCommercialContractPackage(
-      {
-        basePlanSlug: planSlug,
-        commercialOfferId: commercialOffer?.id ?? null,
-        commercialOfferToken: commercialOffer?.token ?? null,
-        conditionName: condition.name,
-        contractReferenceId: externalReference,
-        loyaltyMonths: loyaltyMonths,
-        maxSetupInstallments,
-        monthlyPrice,
-        setupInstallments: maxSetupInstallments > 1 ? null : 1,
-        setupPrice,
-        subscriptionMaxPayments: subscriptionMaxPayments,
-      },
-      `${appUrl}/privacidade`,
-    );
-
     const { error: acceptanceError } = await supabase.from("billing_contract_acceptances").insert({
       acceptance_declaration: contractPackage.acceptanceDeclaration,
       accepted_by_company: input.companyName,
@@ -368,6 +504,7 @@ Deno.serve(async (req) => {
     });
 
     return jsonResponse({
+      billingChannel: "asaas",
       checkoutUrl: billingSubscription.checkout_url,
       externalReference: billingSubscription.external_reference,
       maxSetupInstallments,

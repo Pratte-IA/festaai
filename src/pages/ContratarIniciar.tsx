@@ -102,7 +102,10 @@ const ContratarIniciar = () => {
 
       toast({
         title: "Contratação iniciada",
-        description: "Continue na próxima tela para pagar a implementação e ativar sua mensalidade.",
+        description:
+          checkout.billingChannel === "manual"
+            ? "Contrato aceito. Veja as instruções de pagamento na próxima tela e confira seu e-mail de acesso."
+            : "Continue na próxima tela para pagar a implementação e ativar sua mensalidade.",
       });
 
       if (checkout.externalReference) {

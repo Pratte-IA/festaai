@@ -102,35 +102,50 @@ export const useAuthSession = (): UseAuthSessionResult => {
   useEffect(() => {
     let isMounted = true;
 
+    const applyProfile = async (user: User | null) => {
+      if (!user) {
+        if (isMounted) {
+          setProfile(null);
+        }
+        return;
+      }
+
+      const nextProfile = await fetchAuthProfile(user);
+      if (isMounted) {
+        setProfile(nextProfile);
+      }
+    };
+
     const loadSession = async () => {
       const { data, error: sessionError } = await supabase.auth.getSession();
-      const nextProfile = await fetchAuthProfile(data.session?.user ?? null);
 
       if (!isMounted) {
         return;
       }
 
       setSession(data.session);
-      setProfile(nextProfile);
       setError(sessionError);
       setIsLoading(false);
+
+      void applyProfile(data.session?.user ?? null);
     };
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setIsLoading(true);
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === "INITIAL_SESSION") {
+        return;
+      }
 
-      void fetchAuthProfile(nextSession?.user ?? null).then((nextProfile) => {
-        if (!isMounted) {
-          return;
-        }
-
+      if (event === "TOKEN_REFRESHED") {
         setSession(nextSession);
-        setProfile(nextProfile);
         setError(null);
-        setIsLoading(false);
-      });
+        return;
+      }
+
+      setSession(nextSession);
+      setError(null);
+      void applyProfile(nextSession?.user ?? null);
     });
 
     void loadSession();

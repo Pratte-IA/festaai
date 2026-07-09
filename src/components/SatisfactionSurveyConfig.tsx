@@ -5,6 +5,7 @@ import {
   SettingsPageHeader,
   SettingsStatChip,
 } from "@/components/configuracoes/SettingsPageHeader";
+import { SatisfactionSurveyMessagesSection } from "@/components/pesquisa-avaliacao/SatisfactionSurveyMessagesSection";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -354,6 +355,15 @@ const SatisfactionSurveyConfig = ({ showSettingsHeader = false }: SatisfactionSu
           }
         />
       ) : null}
+
+      <SatisfactionSurveyMessagesSection />
+
+      <div className="space-y-2">
+        <h2 className="text-base font-semibold text-foreground">Perguntas da pesquisa</h2>
+        <p className="text-sm text-muted-foreground">
+          O que o cliente responde ao abrir o link da pesquisa pós-festa.
+        </p>
+      </div>
 
       <div className="overflow-hidden rounded-xl border border-border/50 bg-card/40">
         {sortedQuestions.length === 0 ? (

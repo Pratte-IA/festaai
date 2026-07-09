@@ -32,7 +32,7 @@ export const FollowupPropostaSetupStep = ({ onCompleted }: FollowupPropostaSetup
       <PropostaFollowupConfig />
 
       <GuidedSetupContinueBar
-        description="Revise as mensagens dos Follow-ups 1 a 4. Você pode editá-las agora ou depois em Configurações → Follow-ups de Proposta."
+        description="Revise as mensagens dos Follow-ups 1 a 4. Você pode editá-las agora ou depois em Configurações → Follow-ups → Comercial."
         isPending={isPending}
         onContinue={handleContinue}
       />

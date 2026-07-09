@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "@/features/auth";
-import { findCommercialConditionBySlug } from "@/pages/contratar-commercial-data";
+import { resolveCommercialBillingRule } from "./commercial-billing-rules";
 import { TablesInsert, TablesUpdate } from "@/lib/supabase/database.types";
 import { supabase } from "@/lib/supabase/client";
 
 import {
   BasePlanSlug,
+  CommercialBillingChannel,
   CommercialOfferStatus,
   DEFAULT_OFFER_VALIDITY_DAYS,
   defaultOfferExpiresAt,
@@ -17,6 +18,7 @@ import { CommercialOffer } from "./types";
 
 export type CommercialOfferInput = {
   basePlanSlug: BasePlanSlug;
+  billingChannel: CommercialBillingChannel;
   expiresAt: string;
   leadId?: number | null;
   loyaltyMonths: number | null;
@@ -25,13 +27,16 @@ export type CommercialOfferInput = {
   recipientCompany: string;
   recipientEmail: string;
   setupInstallments: number | null;
+  setupPaymentMethods: string;
   setupPrice: number;
   status: CommercialOfferStatus;
+  subscriptionPaymentMethods: string;
   token: string;
 };
 
 const mapOfferInput = (input: CommercialOfferInput, userId: string): TablesInsert<"commercial_offers"> => ({
   base_plan_slug: input.basePlanSlug,
+  billing_channel: input.billingChannel,
   created_by: userId,
   expires_at: input.expiresAt,
   lead_id: input.leadId ?? null,
@@ -41,8 +46,10 @@ const mapOfferInput = (input: CommercialOfferInput, userId: string): TablesInser
   recipient_company: input.recipientCompany || null,
   recipient_email: input.recipientEmail || null,
   setup_installments: input.setupInstallments,
+  setup_payment_methods: input.setupPaymentMethods.trim() || null,
   setup_price: input.setupPrice,
   status: input.status,
+  subscription_payment_methods: input.subscriptionPaymentMethods.trim() || null,
   token: input.token,
 });
 
@@ -50,12 +57,13 @@ export const buildDefaultOfferFromPlan = (
   basePlanSlug: BasePlanSlug,
   overrides?: Partial<CommercialOfferInput>,
 ): CommercialOfferInput => {
-  const plan = findCommercialConditionBySlug(basePlanSlug);
+  const plan = resolveCommercialBillingRule(basePlanSlug);
   const setupInstallments =
     basePlanSlug === "avista" ? 1 : basePlanSlug === "fidelidade" || basePlanSlug === "parcelado" ? 6 : null;
 
   return {
     basePlanSlug,
+    billingChannel: "asaas",
     expiresAt: defaultOfferExpiresAt(),
     leadId: null,
     loyaltyMonths: basePlanSlug === "fidelidade" ? 12 : null,
@@ -66,9 +74,11 @@ export const buildDefaultOfferFromPlan = (
     recipientCompany: "",
     recipientEmail: "",
     setupInstallments,
+    setupPaymentMethods: plan?.setup_payment_methods ?? "",
     setupPrice:
       basePlanSlug === "avista" ? 2200 : basePlanSlug === "fidelidade" ? 2000 : basePlanSlug === "parcelado" ? 2500 : 0,
     status: "draft",
+    subscriptionPaymentMethods: plan?.subscription_payment_methods ?? "",
     token: generateOfferToken(overrides?.recipientCompany),
     ...overrides,
   };

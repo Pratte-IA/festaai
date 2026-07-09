@@ -1,30 +1,32 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppShell } from "@/components/AppShell";
 import { AuthProvider, PlatformAdminRoute, ProtectedRoute, RootEntry } from "@/features/auth";
 import { GuidedSetupProvider } from "@/features/guided-setup";
 import { TenantAdminRoute, TenantProvider } from "@/features/tenants";
+import Agenda from "./pages/Agenda.tsx";
+import CRM from "./pages/CRM.tsx";
+import Index from "./pages/Index.tsx";
+import Login from "./pages/Login.tsx";
+import Tarefas from "./pages/Tarefas.tsx";
 
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AdminTenantDetail = lazy(() => import("./pages/AdminTenantDetail.tsx"));
 const AdminTenantConfig = lazy(() => import("./pages/AdminTenantConfig.tsx"));
 const AdminTenantConfigSection = lazy(() => import("./pages/AdminTenantConfigSection.tsx"));
 const AdminTenantN8nConfig = lazy(() => import("./pages/AdminTenantN8nConfig.tsx"));
-const Index = lazy(() => import("./pages/Index.tsx"));
 const Usuarios = lazy(() => import("./pages/Usuarios.tsx"));
-const CRM = lazy(() => import("./pages/CRM.tsx"));
 const Contratos = lazy(() => import("./pages/Contratos.tsx"));
 const ContratoDetalhe = lazy(() => import("./pages/ContratoDetalhe.tsx"));
 const Formularios = lazy(() => import("./pages/Formularios.tsx"));
 const FormularioDetalhe = lazy(() => import("./pages/FormularioDetalhe.tsx"));
 const PesquisaAvaliacao = lazy(() => import("./pages/PesquisaAvaliacao.tsx"));
 const PesquisaAvaliacaoDetalhe = lazy(() => import("./pages/PesquisaAvaliacaoDetalhe.tsx"));
-const Agenda = lazy(() => import("./pages/Agenda.tsx"));
 const Relatorios = lazy(() => import("./pages/Relatorios.tsx"));
-const Tarefas = lazy(() => import("./pages/Tarefas.tsx"));
 const ConfiguracoesLayout = lazy(() => import("./pages/configuracoes/layout"));
 const ConfiguracoesHome = lazy(() => import("./pages/configuracoes/index"));
 const ConfiguracoesPacotes = lazy(() => import("./pages/configuracoes/Pacotes"));
@@ -35,7 +37,10 @@ const ConfiguracoesFormularioContratacao = lazy(
 );
 const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
 const ConfiguracoesPesquisaAvaliacao = lazy(() => import("./pages/configuracoes/PesquisaAvaliacao"));
-const ConfiguracoesFollowupProposta = lazy(() => import("./pages/configuracoes/FollowupProposta"));
+const ConfiguracoesFollowups = lazy(() => import("./pages/configuracoes/Followups"));
+const ConfiguracoesFollowupsComercial = lazy(() => import("./pages/configuracoes/FollowupsComercial"));
+const ConfiguracoesFollowupsExecucao = lazy(() => import("./pages/configuracoes/FollowupsExecucao"));
+const ConfiguracoesFollowupsPosFesta = lazy(() => import("./pages/configuracoes/FollowupsPosFesta"));
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
 const ConfiguracoesAdicionais = lazy(() => import("./pages/configuracoes/Adicionais"));
 const ConfiguracoesWhatsApp = lazy(() => import("./pages/configuracoes/WhatsApp"));
@@ -67,17 +72,29 @@ const SuporteAgente = lazy(() => import("./pages/SuporteAgente.tsx"));
 const SuporteErros = lazy(() => import("./pages/SuporteErros.tsx"));
 const SuporteNovo = lazy(() => import("./pages/SuporteNovo.tsx"));
 const SuporteDetalhe = lazy(() => import("./pages/SuporteDetalhe.tsx"));
-const Login = lazy(() => import("./pages/Login.tsx"));
 const NovaSenha = lazy(() => import("./pages/NovaSenha.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const ConfiguracaoInicial = lazy(() => import("./pages/ConfiguracaoInicial.tsx"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60,
+    },
+  },
+});
 
-const RouteLoader = () => (
+const PublicRouteLoader = () => (
   <main className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
     Carregando...
   </main>
+);
+
+const LazyPublicRoutes = () => (
+  <Suspense fallback={<PublicRouteLoader />}>
+    <Outlet />
+  </Suspense>
 );
 
 const App = () => (
@@ -89,383 +106,154 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <GuidedSetupProvider>
-              <Suspense fallback={<RouteLoader />}>
-                <Routes>
-                <Route
-                  path="/admin/comercial/leads"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminComercialLeads />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/comercial/ofertas/nova"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminComercialOfertaForm />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/comercial/ofertas/:id"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminComercialOfertaForm />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/comercial/ofertas"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminComercialOfertas />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/comercial/contratos/aceite/:id"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminComercialContratoAceiteDetalhe />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/comercial/contratos"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminComercialContratos />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/comercial"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminComercial />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/agent-requests/:id"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminAgentRequestDetail />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/agent-requests"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminAgentRequests />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/tenants/:id/n8n"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminTenantN8nConfig />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/tenants/:id/configuracao/:section"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminTenantConfigSection />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/tenants/:id/configuracao"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminTenantConfig />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/tenants/:id"
-                  element={
-                    <PlatformAdminRoute>
-                      <AdminTenantDetail />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <PlatformAdminRoute>
-                      <Admin />
-                    </PlatformAdminRoute>
-                  }
-                />
-                <Route
-                  path="/suporte/novo"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <SuporteNovo />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/suporte/agente"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <SuporteAgente />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/suporte/erros"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <SuporteErros />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/suporte/:id"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <SuporteDetalhe />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/suporte"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <Suporte />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/usuarios"
-                  element={
-                    <ProtectedRoute>
-                      <Usuarios />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/configuracao-inicial"
-                  element={
-                    <ProtectedRoute>
-                      <ConfiguracaoInicial />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/"
-                  element={
-                    <RootEntry>
-                      <Index />
-                    </RootEntry>
-                  }
-                />
-                <Route
-                  path="/crm"
-                  element={
-                    <ProtectedRoute>
-                      <CRM />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/crm/evento/:id/financeiro"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <EventoFinanceiro />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/crm/evento/:id"
-                  element={
-                    <ProtectedRoute>
-                      <EventoDetalhe />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/formularios/:eventoId"
-                  element={
-                    <ProtectedRoute>
-                      <FormularioDetalhe />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/formularios"
-                  element={
-                    <ProtectedRoute>
-                      <Formularios />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/pesquisa-avaliacao/:eventoId"
-                  element={
-                    <ProtectedRoute>
-                      <PesquisaAvaliacaoDetalhe />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/pesquisa-avaliacao"
-                  element={
-                    <ProtectedRoute>
-                      <PesquisaAvaliacao />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/contratos/:contractId"
-                  element={
-                    <ProtectedRoute>
-                      <ContratoDetalhe />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/contratos"
-                  element={
-                    <ProtectedRoute>
-                      <Contratos />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agenda"
-                  element={
-                    <ProtectedRoute>
-                      <Agenda />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/calendario" element={<Navigate to="/agenda" replace />} />
-                <Route
-                  path="/tarefas"
-                  element={
-                    <ProtectedRoute>
-                      <Tarefas />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/financeiro/lancamentos"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <FinanceiroLancamentos />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/financeiro"
-                  element={
-                    <ProtectedRoute>
-                      <TenantAdminRoute>
-                        <Financeiro />
-                      </TenantAdminRoute>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/relatorios"
-                  element={
-                    <ProtectedRoute>
-                      <Relatorios />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/conexoes"
-                  element={
-                    <ProtectedRoute>
-                      <Navigate to="/configuracoes/integracoes/whatsapp" replace />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/configuracoes"
-                  element={
-                    <ProtectedRoute>
-                      <ConfiguracoesLayout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<ConfiguracoesHome />} />
-                  <Route path="pacotes" element={<ConfiguracoesPacotes />} />
-                  <Route path="adicionais" element={<ConfiguracoesAdicionais />} />
-                  <Route path="estrutura" element={<ConfiguracoesEstrutura />} />
-                  <Route path="checklist" element={<ConfiguracoesChecklist />} />
-                  <Route path="contrato" element={<ConfiguracoesContrato />} />
-                  <Route
-                    path="formulario-contratacao"
-                    element={<ConfiguracoesFormularioContratacao />}
-                  />
-                  <Route
-                    path="formulario-fechamento"
-                    element={<Navigate to="/configuracoes/formulario-contratacao" replace />}
-                  />
-                  <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
-                  <Route path="followup-proposta" element={<ConfiguracoesFollowupProposta />} />
-                  <Route path="pesquisa-avaliacao" element={<ConfiguracoesPesquisaAvaliacao />} />
-                  <Route
-                    path="integracoes/whatsapp"
-                    element={
-                      <TenantAdminRoute>
-                        <ConfiguracoesWhatsApp />
-                      </TenantAdminRoute>
-                    }
-                  />
-                  <Route
-                    path="automacoes"
-                    element={
-                      <TenantAdminRoute>
-                        <ConfiguracoesAutomacoes />
-                      </TenantAdminRoute>
-                    }
-                  />
+              <Routes>
+                <Route element={<LazyPublicRoutes />}>
+                  <Route path="/admin/comercial/leads" element={<PlatformAdminRoute><AdminComercialLeads /></PlatformAdminRoute>} />
+                  <Route path="/admin/comercial/ofertas/nova" element={<PlatformAdminRoute><AdminComercialOfertaForm /></PlatformAdminRoute>} />
+                  <Route path="/admin/comercial/ofertas/:id" element={<PlatformAdminRoute><AdminComercialOfertaForm /></PlatformAdminRoute>} />
+                  <Route path="/admin/comercial/ofertas" element={<PlatformAdminRoute><AdminComercialOfertas /></PlatformAdminRoute>} />
+                  <Route path="/admin/comercial/contratos/aceite/:id" element={<PlatformAdminRoute><AdminComercialContratoAceiteDetalhe /></PlatformAdminRoute>} />
+                  <Route path="/admin/comercial/contratos" element={<PlatformAdminRoute><AdminComercialContratos /></PlatformAdminRoute>} />
+                  <Route path="/admin/comercial" element={<PlatformAdminRoute><AdminComercial /></PlatformAdminRoute>} />
+                  <Route path="/admin/agent-requests/:id" element={<PlatformAdminRoute><AdminAgentRequestDetail /></PlatformAdminRoute>} />
+                  <Route path="/admin/agent-requests" element={<PlatformAdminRoute><AdminAgentRequests /></PlatformAdminRoute>} />
+                  <Route path="/admin/tenants/:id/n8n" element={<PlatformAdminRoute><AdminTenantN8nConfig /></PlatformAdminRoute>} />
+                  <Route path="/admin/tenants/:id/configuracao/:section" element={<PlatformAdminRoute><AdminTenantConfigSection /></PlatformAdminRoute>} />
+                  <Route path="/admin/tenants/:id/configuracao" element={<PlatformAdminRoute><AdminTenantConfig /></PlatformAdminRoute>} />
+                  <Route path="/admin/tenants/:id" element={<PlatformAdminRoute><AdminTenantDetail /></PlatformAdminRoute>} />
+                  <Route path="/admin" element={<PlatformAdminRoute><Admin /></PlatformAdminRoute>} />
+                  <Route path="/privacidade" element={<Privacidade />} />
+                  <Route path="/contratar/pagamento" element={<ContratarPagamento />} />
+                  <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
+                  <Route path="/contratar/oferta/:token" element={<ContratarOferta />} />
+                  <Route path="/contratar" element={<Contratar />} />
+                  <Route path="/formulario/:tenantSlug" element={<FormularioCliente />} />
+                  <Route path="/pesquisa/:tenantSlug/:eventoId" element={<PesquisaCliente />} />
+                  <Route path="/nova-senha" element={<NovaSenha />} />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
-                <Route
-                  path="/minha-assinatura"
-                  element={
-                    <ProtectedRoute>
-                      <MinhaAssinatura />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/privacidade" element={<Privacidade />} />
-                <Route path="/contratar/pagamento" element={<ContratarPagamento />} />
-                <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
-                <Route path="/contratar/oferta/:token" element={<ContratarOferta />} />
-                <Route path="/contratar" element={<Contratar />} />
-                <Route path="/formulario/:tenantSlug" element={<FormularioCliente />} />
-                <Route path="/pesquisa/:tenantSlug/:eventoId" element={<PesquisaCliente />} />
+
                 <Route path="/login" element={<Login />} />
-                <Route path="/nova-senha" element={<NovaSenha />} />
-                <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
+
+                <Route element={<RootEntry />}>
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <AppShell />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route index element={<Index />} />
+                    <Route path="configuracao-inicial" element={<ConfiguracaoInicial />} />
+                    <Route path="usuarios" element={<Usuarios />} />
+                    <Route path="crm" element={<CRM />} />
+                    <Route
+                      path="crm/evento/:id/financeiro"
+                      element={
+                        <TenantAdminRoute>
+                          <EventoFinanceiro />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route path="crm/evento/:id" element={<EventoDetalhe />} />
+                    <Route path="formularios/:eventoId" element={<FormularioDetalhe />} />
+                    <Route path="formularios" element={<Formularios />} />
+                    <Route path="pesquisa-avaliacao/:eventoId" element={<PesquisaAvaliacaoDetalhe />} />
+                    <Route path="pesquisa-avaliacao" element={<PesquisaAvaliacao />} />
+                    <Route path="contratos/:contractId" element={<ContratoDetalhe />} />
+                    <Route path="contratos" element={<Contratos />} />
+                    <Route path="agenda" element={<Agenda />} />
+                    <Route path="calendario" element={<Navigate to="/agenda" replace />} />
+                    <Route path="tarefas" element={<Tarefas />} />
+                    <Route
+                      path="financeiro/lancamentos"
+                      element={
+                        <TenantAdminRoute>
+                          <FinanceiroLancamentos />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route
+                      path="financeiro"
+                      element={
+                        <TenantAdminRoute>
+                          <Financeiro />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route path="relatorios" element={<Relatorios />} />
+                    <Route path="conexoes" element={<Navigate to="/configuracoes/integracoes/whatsapp" replace />} />
+                    <Route path="configuracoes" element={<ConfiguracoesLayout />}>
+                      <Route index element={<ConfiguracoesHome />} />
+                      <Route path="pacotes" element={<ConfiguracoesPacotes />} />
+                      <Route path="adicionais" element={<ConfiguracoesAdicionais />} />
+                      <Route path="estrutura" element={<ConfiguracoesEstrutura />} />
+                      <Route path="checklist" element={<ConfiguracoesChecklist />} />
+                      <Route path="contrato" element={<ConfiguracoesContrato />} />
+                      <Route path="formulario-contratacao" element={<ConfiguracoesFormularioContratacao />} />
+                      <Route path="formulario-fechamento" element={<Navigate to="/configuracoes/formulario-contratacao" replace />} />
+                      <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
+                      <Route path="followups" element={<ConfiguracoesFollowups />} />
+                      <Route path="followups/comercial" element={<ConfiguracoesFollowupsComercial />} />
+                      <Route path="followups/execucao" element={<ConfiguracoesFollowupsExecucao />} />
+                      <Route path="followups/pos-festa" element={<ConfiguracoesFollowupsPosFesta />} />
+                      <Route path="followup-proposta" element={<Navigate to="/configuracoes/followups" replace />} />
+                      <Route path="followup-assinatura" element={<Navigate to="/configuracoes/followups/comercial" replace />} />
+                      <Route path="pesquisa-avaliacao" element={<ConfiguracoesPesquisaAvaliacao />} />
+                      <Route
+                        path="integracoes/whatsapp"
+                        element={
+                          <TenantAdminRoute>
+                            <ConfiguracoesWhatsApp />
+                          </TenantAdminRoute>
+                        }
+                      />
+                      <Route
+                        path="automacoes"
+                        element={
+                          <TenantAdminRoute>
+                            <ConfiguracoesAutomacoes />
+                          </TenantAdminRoute>
+                        }
+                      />
+                    </Route>
+                    <Route path="minha-assinatura" element={<MinhaAssinatura />} />
+                    <Route
+                      path="suporte/novo"
+                      element={
+                        <TenantAdminRoute>
+                          <SuporteNovo />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route
+                      path="suporte/agente"
+                      element={
+                        <TenantAdminRoute>
+                          <SuporteAgente />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route
+                      path="suporte/erros"
+                      element={
+                        <TenantAdminRoute>
+                          <SuporteErros />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route path="suporte/:id" element={<SuporteDetalhe />} />
+                    <Route
+                      path="suporte"
+                      element={
+                        <TenantAdminRoute>
+                          <Suporte />
+                        </TenantAdminRoute>
+                      }
+                    />
+                  </Route>
+                </Route>
+              </Routes>
             </GuidedSetupProvider>
           </BrowserRouter>
         </TooltipProvider>

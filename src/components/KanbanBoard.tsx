@@ -6,6 +6,7 @@ import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import {
   Evento,
   FunnelType,
+  getContractSignatureFollowupKanbanBadge,
   getPropostaFollowupKanbanBadge,
   getEventoDataEntradaIso,
   Stage,
@@ -129,7 +130,10 @@ const KanbanBoard = ({ events, funnel, stages }: KanbanBoardProps) => {
             <div className="space-y-2 min-h-[200px] p-2 rounded-xl bg-muted/20 border border-border/30">
               {stageEvents.map((event) => {
                 const followupBadge =
-                  funnel === "vendas" ? getPropostaFollowupKanbanBadge(event) : null;
+                  funnel === "vendas"
+                    ? getPropostaFollowupKanbanBadge(event) ??
+                      getContractSignatureFollowupKanbanBadge(event)
+                    : null;
                 const isCancelledParty = event.status_interno === "cancelado";
 
                 return (

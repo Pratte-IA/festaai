@@ -10,12 +10,26 @@ import {
 } from "./financial-settings-types";
 import { configuracoesQueryKeys } from "./query-keys";
 import {
+  DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_INICIAL,
+  DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE,
+  CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_TEMPLATE,
+  CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE_TEMPLATE,
+} from "@/features/eventos/contract-signature-followup";
+import {
+  DEFAULT_SATISFACTION_SURVEY_FOLLOWUP_MESSAGE,
+  SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY,
+} from "@/features/public-satisfaction-survey";
+import {
+  DEFAULT_PROPOSTA_FOLLOWUP_0_CONTATO_INICIAL,
+  DEFAULT_PROPOSTA_FOLLOWUP_0B_ENCERRAMENTO,
   DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE,
   DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE,
   DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA,
   DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO,
+  PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
+  PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
   PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_INDISPONIVEL,
@@ -43,6 +57,16 @@ export const defaultMessageTemplates: MessageTemplate[] = [
   { key: "proposta", title: "Proposta", body: "" },
   { key: "confirmacao", title: "Confirmacao", body: "" },
   { key: "pos-festa", title: "Pos-festa", body: "" },
+  {
+    body: "",
+    key: PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
+    title: "Follow-up Proposta 0 (contato inicial)",
+  },
+  {
+    body: "",
+    key: PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO,
+    title: "Follow-up Proposta 0b (encerramento)",
+  },
   {
     body: "",
     key: "follow-up-proposta-1-data-livre",
@@ -73,6 +97,21 @@ export const defaultMessageTemplates: MessageTemplate[] = [
     key: "follow-up-proposta-4-encerramento",
     title: "Follow-up Proposta 4 (encerramento)",
   },
+  {
+    body: "",
+    key: CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_TEMPLATE,
+    title: "Follow-up Assinatura (inicial)",
+  },
+  {
+    body: "",
+    key: CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE_TEMPLATE,
+    title: "Follow-up Assinatura (lembrete)",
+  },
+  {
+    body: "",
+    key: SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY,
+    title: "Lembrete da Pesquisa de Satisfação",
+  },
 ];
 
 export const useTenantMessageTemplates = () => {
@@ -94,7 +133,11 @@ export const useTenantMessageTemplates = () => {
       return defaultMessageTemplates.map((template) => {
         const row = rowsByKey.get(template.key);
         const defaultBody =
-          template.key === PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE
+          template.key === PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL
+            ? DEFAULT_PROPOSTA_FOLLOWUP_0_CONTATO_INICIAL
+            : template.key === PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO
+              ? DEFAULT_PROPOSTA_FOLLOWUP_0B_ENCERRAMENTO
+              : template.key === PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE
             ? DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE
             : template.key === PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL
               ? DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL
@@ -106,6 +149,12 @@ export const useTenantMessageTemplates = () => {
                     ? DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA
                     : template.key === PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO
                       ? DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO
+                      : template.key === CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_TEMPLATE
+                        ? DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_INICIAL
+                        : template.key === CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE_TEMPLATE
+                          ? DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE
+                          : template.key === SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY
+                            ? DEFAULT_SATISFACTION_SURVEY_FOLLOWUP_MESSAGE
                       : template.body;
 
         return {
