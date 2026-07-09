@@ -61,7 +61,7 @@ const ContratarPagamento = () => {
                 <>
                   <h1 className="text-2xl font-bold text-white sm:text-3xl">Concluir contratação</h1>
                   <p className="mt-2 text-sm text-zinc-400">
-                    {checkout.billingChannel === "manual"
+                    {checkout?.billingChannel === "manual"
                       ? "Contrato aceito. Veja abaixo as instruções de pagamento negociadas com nossa equipe."
                       : "Siga os passos abaixo para pagar a implementação, efetivar seu cadastro e ativar a mensalidade FestaAI."}
                   </p>

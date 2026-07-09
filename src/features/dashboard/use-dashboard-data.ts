@@ -3,7 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { countNewLeadsToday } from "./count-new-leads-today";
 import { sumFestaOpenBalance, sumFestaOverdueOpenBalance } from "./festa-open-balance";
 import { buildMonthRevenueBreakdown } from "./month-revenue";
+import { buildOperationalGuide, type DashboardOperationalGuide } from "./operational-guide";
+import {
+  buildTodaySystemActions,
+  buildTodaySystemSummary,
+  type DashboardGuideItem,
+} from "./today-guide";
 import { Evento, EventoPagamento } from "@/features/eventos";
+import type { TenantTarefaEvento, TenantTarefaListItem } from "@/features/tarefas/types";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 import { isIsoDateBeforeToday, parseIsoDateLocal } from "@/lib/date";
@@ -26,6 +33,22 @@ export interface DashboardParty {
   value: string;
 }
 
+interface DashboardTarefaRow {
+  assigned_to: string | null;
+  concluida: boolean;
+  created_at: string;
+  created_by: string | null;
+  data_limite: string | null;
+  evento_id: number;
+  eventos: TenantTarefaEvento | TenantTarefaEvento[] | null;
+  id: number;
+  ordem: number;
+  tenant_id: number;
+  titulo: string;
+  updated_at: string;
+  updated_by: string | null;
+}
+
 interface DashboardData {
   alerts: DashboardAlert[];
   metrics: {
@@ -43,7 +66,9 @@ interface DashboardData {
     toReceive: number;
     futureOpportunities: number;
   };
+  operationalGuide: DashboardOperationalGuide;
   upcomingParties: DashboardParty[];
+  systemActions: DashboardGuideItem[];
 }
 
 const dashboardQueryKeys = {
@@ -161,10 +186,31 @@ const shortDate = (date: string) => {
   return shortDateFormatter.format(parsed).replace(".", "");
 };
 
+const mapDashboardTarefa = (row: DashboardTarefaRow): TenantTarefaListItem => {
+  const evento = Array.isArray(row.eventos) ? (row.eventos[0] ?? null) : row.eventos;
+
+  return {
+    assigned_to: row.assigned_to,
+    concluida: row.concluida,
+    created_at: row.created_at,
+    created_by: row.created_by,
+    data_limite: row.data_limite,
+    evento,
+    evento_id: row.evento_id,
+    id: row.id,
+    ordem: row.ordem,
+    responsavelNome: "Usuario",
+    tenant_id: row.tenant_id,
+    titulo: row.titulo,
+    updated_at: row.updated_at,
+    updated_by: row.updated_by,
+  };
+};
+
 const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
   const { startIso, endIso, startDate, endDate } = getMonthRange();
 
-  const [eventsResult, paymentsResult] = await Promise.all([
+  const [eventsResult, paymentsResult, tarefasResult, contractsResult] = await Promise.all([
     supabase
       .from("eventos")
       .select("*")
@@ -176,6 +222,38 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       .select("*")
       .eq("tenant_id", tenantId)
       .returns<EventoPagamento[]>(),
+    supabase
+      .from("evento_tarefas")
+      .select(
+        `
+          id,
+          tenant_id,
+          evento_id,
+          titulo,
+          concluida,
+          ordem,
+          data_limite,
+          assigned_to,
+          created_at,
+          updated_at,
+          created_by,
+          updated_by,
+          eventos (
+            id,
+            cliente_nome,
+            aniversariante_nome,
+            data_evento
+          )
+        `,
+      )
+      .eq("tenant_id", tenantId)
+      .returns<DashboardTarefaRow[]>(),
+    supabase
+      .from("evento_contracts")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("status", "generated")
+      .eq("assinatura_followup_status", "ativo"),
   ]);
 
   if (eventsResult.error) {
@@ -186,8 +264,18 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
     throw paymentsResult.error;
   }
 
+  if (tarefasResult.error) {
+    throw tarefasResult.error;
+  }
+
+  if (contractsResult.error) {
+    throw contractsResult.error;
+  }
+
   const events = eventsResult.data ?? [];
   const payments = paymentsResult.data ?? [];
+  const tarefas = (tarefasResult.data ?? []).map(mapDashboardTarefa);
+  const pendingContractSignatures = contractsResult.data?.length ?? 0;
   const monthEvents = events.filter((event) => event.created_at >= startIso && event.created_at <= endIso);
   const closedEvents = monthEvents.filter(
     (event) => event.funil === "festa" || event.funil === "executadas",
@@ -223,8 +311,13 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       };
     });
 
+  const alerts = buildAlerts(events, payments);
+  const systemSummary = buildTodaySystemSummary(events, pendingContractSignatures);
+  const systemActions = buildTodaySystemActions(systemSummary);
+  const operationalGuide = buildOperationalGuide(events, payments, tarefas);
+
   return {
-    alerts: buildAlerts(events, payments),
+    alerts,
     metrics: {
       closedParties: closedEvents.length,
       conversionRate:
@@ -241,7 +334,9 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       soldValue: closedEvents.reduce((sum, event) => sum + event.valor_total, 0),
       toReceive,
     },
+    operationalGuide,
     upcomingParties,
+    systemActions,
   };
 };
 
