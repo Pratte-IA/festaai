@@ -210,6 +210,46 @@ export const EventoFormDialog = ({
   );
   const [formError, setFormError] = useState<string | null>(null);
   const wasOpenRef = useRef(false);
+  const packagesSyncedRef = useRef(false);
+
+  const applyPackagePricingToFormState = useCallback(
+    (currentForm: EventoFormState): EventoFormState => {
+      const pacoteId = currentForm.pacote_id
+        ? Number(currentForm.pacote_id)
+        : initialEvento?.pacote_id ?? null;
+
+      if (!pacoteId || availablePackages.length === 0) {
+        return currentForm;
+      }
+
+      const guestCountValue = currentForm.quantidade_convidados.trim();
+      if (!guestCountValue) {
+        return currentForm;
+      }
+
+      const guestCount = Number(guestCountValue);
+      if (!Number.isFinite(guestCount) || guestCount <= 0) {
+        return currentForm;
+      }
+
+      const pricing = recalculateEventoGuestPricing({
+        adicionaisSnapshot: initialEvento?.adicionais_snapshot,
+        dataEvento: currentForm.data_evento || null,
+        guestCount,
+        pacoteId,
+        packages: availablePackages,
+        valorAdicionais: moneyValue(currentForm.valor_adicionais),
+        valorPacote: moneyValue(currentForm.valor_pacote),
+      });
+
+      return {
+        ...currentForm,
+        valor_adicionais: pricing.valor_adicionais?.toString() ?? currentForm.valor_adicionais,
+        valor_pacote: pricing.valor_pacote?.toString() ?? currentForm.valor_pacote,
+      };
+    },
+    [availablePackages, initialEvento],
+  );
 
   useEffect(() => {
     const justOpened = open && !wasOpenRef.current;
@@ -219,28 +259,40 @@ export const EventoFormDialog = ({
       return;
     }
 
-    setForm(getInitialFormState(initialEvento, initialFunnel, availablePackages));
+    packagesSyncedRef.current = false;
+    setForm(
+      applyPackagePricingToFormState(
+        getInitialFormState(initialEvento, initialFunnel, availablePackages),
+      ),
+    );
     setFormError(null);
-  }, [availablePackages, initialEvento, initialFunnel, open]);
+  }, [applyPackagePricingToFormState, availablePackages, initialEvento, initialFunnel, open]);
 
   useEffect(() => {
-    if (!open || availablePackages.length === 0) {
+    if (!open) {
+      packagesSyncedRef.current = false;
       return;
     }
 
+    if (availablePackages.length === 0 || packagesSyncedRef.current) {
+      return;
+    }
+
+    packagesSyncedRef.current = true;
+
     setForm((currentForm) => {
-      if (currentForm.pacote_id) {
-        return currentForm;
+      let nextForm = currentForm;
+
+      if (!nextForm.pacote_id) {
+        const resolvedPackageId = resolveInitialPackageId(initialEvento, availablePackages);
+        if (resolvedPackageId) {
+          nextForm = { ...nextForm, pacote_id: resolvedPackageId };
+        }
       }
 
-      const resolvedPackageId = resolveInitialPackageId(initialEvento, availablePackages);
-      if (!resolvedPackageId) {
-        return currentForm;
-      }
-
-      return { ...currentForm, pacote_id: resolvedPackageId };
+      return applyPackagePricingToFormState(nextForm);
     });
-  }, [availablePackages, initialEvento, open]);
+  }, [applyPackagePricingToFormState, availablePackages, initialEvento, open]);
 
   const stages = useMemo(() => stageMap[form.funil], [form.funil]);
   const totalValue = moneyValue(form.valor_pacote) + moneyValue(form.valor_adicionais);
@@ -252,40 +304,13 @@ export const EventoFormDialog = ({
   };
 
   const applyGuestPricing = useCallback(
-    (currentForm: EventoFormState, guestCountValue: string, eventDate?: string) => {
-      const nextForm: EventoFormState = {
+    (currentForm: EventoFormState, guestCountValue: string, eventDate?: string) =>
+      applyPackagePricingToFormState({
         ...currentForm,
         quantidade_convidados: guestCountValue,
         ...(eventDate !== undefined ? { data_evento: eventDate } : {}),
-      };
-
-      const pacoteId = currentForm.pacote_id ? Number(currentForm.pacote_id) : initialEvento?.pacote_id ?? null;
-      if (!pacoteId || availablePackages.length === 0) {
-        return nextForm;
-      }
-
-      const guestCount = guestCountValue.trim() ? Number(guestCountValue) : 0;
-      if (!Number.isFinite(guestCount) || guestCount <= 0) {
-        return nextForm;
-      }
-
-      const pricing = recalculateEventoGuestPricing({
-        adicionaisSnapshot: initialEvento?.adicionais_snapshot,
-        dataEvento: (eventDate ?? currentForm.data_evento) || null,
-        guestCount,
-        pacoteId,
-        packages: availablePackages,
-        valorAdicionais: moneyValue(currentForm.valor_adicionais),
-        valorPacote: moneyValue(currentForm.valor_pacote),
-      });
-
-      return {
-        ...nextForm,
-        valor_adicionais: pricing.valor_adicionais?.toString() ?? nextForm.valor_adicionais,
-        valor_pacote: pricing.valor_pacote?.toString() ?? nextForm.valor_pacote,
-      };
-    },
-    [availablePackages, initialEvento],
+      }),
+    [applyPackagePricingToFormState],
   );
 
   const handlePackageSelect = (packageId: string) => {
@@ -345,6 +370,16 @@ export const EventoFormDialog = ({
     }
 
     const values = parsedForm.data;
+    const syncedForm = applyPackagePricingToFormState({
+      ...form,
+      ...values,
+      quantidade_convidados: values.quantidade_convidados,
+      valor_adicionais: values.valor_adicionais,
+      valor_entrada: values.valor_entrada,
+      valor_pacote: values.valor_pacote,
+    });
+    const syncedTotal =
+      moneyValue(syncedForm.valor_pacote) + moneyValue(syncedForm.valor_adicionais);
 
     await onSubmit({
       aniversariante_data_nascimento: optionalString(values.aniversariante_data_nascimento),
@@ -366,10 +401,10 @@ export const EventoFormDialog = ({
       quantidade_convidados: optionalNumber(values.quantidade_convidados),
       status_interno: values.etapa === "perdido" ? "perdido" : "ativo",
       tipo_evento: values.tipo_evento,
-      valor_adicionais: moneyValue(values.valor_adicionais),
+      valor_adicionais: moneyValue(syncedForm.valor_adicionais),
       valor_entrada: moneyValue(values.valor_entrada),
-      valor_pacote: moneyValue(values.valor_pacote),
-      valor_total: totalValue,
+      valor_pacote: moneyValue(syncedForm.valor_pacote),
+      valor_total: syncedTotal,
     });
   };
 
@@ -507,7 +542,10 @@ export const EventoFormDialog = ({
               />
               {hasLinkedPackagePricing ? (
                 <p className="text-xs text-muted-foreground">
-                  O valor do pacote é recalculado automaticamente conforme a tabela de preços.
+                  O valor do pacote é recalculado automaticamente conforme a tabela de preços
+                  {form.data_evento.trim()
+                    ? " e a data do evento (dia da semana/feriado)."
+                    : "; informe a data do evento para aplicar o preço de sábado, domingo ou feriado."}
                 </p>
               ) : null}
             </Field>
@@ -546,8 +584,20 @@ export const EventoFormDialog = ({
                 step="0.01"
                 type="number"
                 value={form.valor_pacote}
-                onChange={(event) => updateForm({ valor_pacote: event.target.value })}
+                readOnly={hasLinkedPackagePricing}
+                aria-readonly={hasLinkedPackagePricing}
+                className={hasLinkedPackagePricing ? "cursor-default bg-muted/50 text-foreground" : undefined}
+                onChange={(event) => {
+                  if (!hasLinkedPackagePricing) {
+                    updateForm({ valor_pacote: event.target.value });
+                  }
+                }}
               />
+              {hasLinkedPackagePricing ? (
+                <p className="text-xs text-muted-foreground">
+                  Calculado automaticamente pela tabela de preços do pacote selecionado.
+                </p>
+              ) : null}
             </Field>
 
             <Field label="Adicionais">

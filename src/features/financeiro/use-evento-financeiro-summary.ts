@@ -7,7 +7,10 @@ import { useFinanceiroLancamentos } from "./use-financeiro-lancamentos";
 
 export const useEventoFinanceiroSummary = (event: Pick<Evento, "id" | "valor_total"> | null | undefined) => {
   const eventoId = event?.id ?? null;
-  const { data: lancamentos = [], isLoading, error } = useFinanceiroLancamentos({ eventoId });
+  const { data: lancamentos = [], isLoading, error } = useFinanceiroLancamentos(
+    eventoId != null ? { eventoId } : {},
+    { enabled: eventoId != null },
+  );
 
   const summary = useMemo(() => {
     if (!event) {

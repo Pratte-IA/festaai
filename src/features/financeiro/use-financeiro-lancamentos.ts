@@ -56,11 +56,14 @@ const fetchFinanceiroLancamentos = async (
   return data ?? [];
 };
 
-export const useFinanceiroLancamentos = (filters: LancamentosFilters = {}) => {
+export const useFinanceiroLancamentos = (
+  filters: LancamentosFilters = {},
+  options: { enabled?: boolean } = {},
+) => {
   const { currentTenantId } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId) && (options.enabled ?? true),
     queryFn: () => fetchFinanceiroLancamentos(currentTenantId as number, filters),
     queryKey: financeiroQueryKeys.lancamentos(currentTenantId, filters),
     staleTime: 1000 * 30,

@@ -25,7 +25,7 @@ import { formatBrazilPhone } from "@/lib/phone";
 import { useTenantPackages } from "@/features/configuracoes";
 import {
   appendConvidadosAlteracaoHistorico,
-  getEventBalance,
+  getEventBalanceFromReceivable,
   getEventDisplayTotalPaid,
   recalculateEventoGuestPricing,
   useCreateEventoNota,
@@ -39,6 +39,7 @@ import {
   useUpdateEvento,
   useToggleEventoTarefa,
 } from "@/features/eventos";
+import { useEventoFinanceiroSummary } from "@/features/financeiro";
 import { formatCelebratingAge, formatCurrentAge } from "@/features/eventos/birthday-age";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { Json } from "@/lib/supabase/database.types";
@@ -130,6 +131,7 @@ const EventoDetalhe = () => {
   const { data: packages = [] } = useTenantPackages();
   const { data: contract } = useEventoContract(validEventoId);
   const { data: payments = [] } = useEventoPagamentos(validEventoId);
+  const { summary: financeiroSummary } = useEventoFinanceiroSummary(event);
   const { data: tasks = [], isLoading: isTasksLoading } = useEventoTarefas(validEventoId);
   const { data: notes = [], isLoading: isNotesLoading } = useEventoNotas(validEventoId);
   const createTarefa = useCreateEventoTarefa();
@@ -173,8 +175,11 @@ const EventoDetalhe = () => {
   }
 
   const additionalPayments = payments.reduce((sum, payment) => sum + payment.valor, 0);
+  const receivableTotal = financeiroSummary?.entradaTotal ?? event.valor_total;
+  const hasReceivableAdjustments =
+    (financeiroSummary?.upsellTotal ?? 0) > 0 || (financeiroSummary?.descontoTotal ?? 0) < 0;
   const totalPaid = getEventDisplayTotalPaid(event, additionalPayments);
-  const balance = getEventBalance(event, additionalPayments);
+  const balance = getEventBalanceFromReceivable(event, receivableTotal, additionalPayments);
 
   const addTask = async () => {
     const titulo = newTask.trim();
@@ -594,7 +599,11 @@ const EventoDetalhe = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <MiniStat label="Total contratado" value={formatCurrency(event.valor_total)} highlight />
+              <MiniStat
+                label={hasReceivableAdjustments ? "Total a receber" : "Total contratado"}
+                value={formatCurrency(receivableTotal)}
+                highlight
+              />
               <MiniStat label="Total pago" value={formatCurrency(totalPaid)} />
               <MiniStat
                 label="Saldo devedor"

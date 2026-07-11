@@ -32,8 +32,7 @@ const enrichLeadRowWithPackage = (
 
   const guestCount = row.quantidade_convidados ?? 0;
   const packageUpdates = buildPackageEventoUpdates(pkg, guestCount, row.data_evento);
-  const valor_pacote =
-    row.valor_pacote > 0 ? row.valor_pacote : packageUpdates.valor_pacote ?? row.valor_pacote;
+  const valor_pacote = packageUpdates.valor_pacote ?? row.valor_pacote;
   const valor_total = Math.round((valor_pacote + row.valor_adicionais) * 100) / 100;
 
   return {

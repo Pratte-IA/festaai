@@ -86,4 +86,58 @@ describe("evento-guest-pricing", () => {
   it("ignora historico invalido no parse", () => {
     expect(parseConvidadosAlteracoesHistorico([{ altered_at: "2026-07-07" }])).toEqual([]);
   });
+
+  it("aplica faixa e banda corretas para Pacote Carrossel", () => {
+    const carrossel = {
+      id: "5",
+      name: "Pacote Carrossel",
+      includedGuests: 120,
+      pricingSchedule: {
+        presetId: "seg_sex_fds_feriado",
+        holidayPolicy: "weekend_band",
+        bands: [
+          {
+            id: "band-weekdays",
+            label: "Segunda a sexta",
+            days: [1, 2, 3, 4, 5],
+            includesHolidays: false,
+          },
+          {
+            id: "band-weekend",
+            label: "Sáb, dom e feriados",
+            days: [6, 0],
+            includesHolidays: true,
+          },
+        ],
+      },
+      pricingTiers: [
+        {
+          id: "tier-50",
+          minGuests: 41,
+          maxGuests: 50,
+          bandPrices: { "band-weekdays": 5279, "band-weekend": 5779 },
+        },
+      ],
+    } as Parameters<typeof recalculateEventoGuestPricing>[0]["packages"][number];
+
+    const weekday = recalculateEventoGuestPricing({
+      guestCount: 50,
+      pacoteId: 5,
+      packages: [carrossel],
+      valorAdicionais: 0,
+      valorPacote: 0,
+    });
+
+    const weekend = recalculateEventoGuestPricing({
+      dataEvento: "2026-07-18",
+      guestCount: 50,
+      pacoteId: 5,
+      packages: [carrossel],
+      valorAdicionais: 0,
+      valorPacote: 0,
+    });
+
+    expect(weekday.valor_pacote).toBe(5279);
+    expect(weekend.valor_pacote).toBe(5779);
+  });
 });
