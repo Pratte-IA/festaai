@@ -19,6 +19,16 @@ const corsHeaders = {
 
 const COMPANY_PLACEHOLDER = "{{nome_empresa}}";
 
+/**
+ * Etapas do funil "executadas" em que a pesquisa permanece respondível enquanto
+ * ainda não foi preenchida. Inclui "redes_sociais" porque a equipe pode avançar
+ * o card manualmente no CRM antes de o cliente responder.
+ */
+const SURVEY_OPEN_STAGES = ["aguardando_feedback", "redes_sociais"];
+
+const isSurveyStageOpen = (funil: unknown, etapa: unknown): boolean =>
+  funil === "executadas" && typeof etapa === "string" && SURVEY_OPEN_STAGES.includes(etapa);
+
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -219,17 +229,17 @@ const handleLoad = async (
     return jsonResponse({ error: "Telefone não confere com o cadastro desta festa." }, 403);
   }
 
-  if (evento.funil !== "executadas" || evento.etapa !== "aguardando_feedback") {
-    if (evento.satisfaction_survey_preenchido_em) {
-      return jsonResponse({
-        alreadySubmitted: true,
-        clientName: evento.cliente_nome,
-        message: "Esta pesquisa já foi respondida. Obrigado!",
-        partyDate: evento.data_evento,
-        submittedAt: evento.satisfaction_survey_preenchido_em,
-      });
-    }
+  if (evento.satisfaction_survey_preenchido_em) {
+    return jsonResponse({
+      alreadySubmitted: true,
+      clientName: evento.cliente_nome,
+      message: "Esta pesquisa já foi respondida. Obrigado!",
+      partyDate: evento.data_evento,
+      submittedAt: evento.satisfaction_survey_preenchido_em,
+    });
+  }
 
+  if (!isSurveyStageOpen(evento.funil, evento.etapa)) {
     return jsonResponse({
       error: "Esta pesquisa ainda não está disponível para esta festa.",
     }, 400);
@@ -314,8 +324,8 @@ const handleSubmit = async (
     return jsonResponse({ error: "Esta pesquisa já foi respondida." }, 400);
   }
 
-  if (evento.funil !== "executadas" || evento.etapa !== "aguardando_feedback") {
-    return jsonResponse({ error: "Esta festa não está aguardando feedback." }, 400);
+  if (!isSurveyStageOpen(evento.funil, evento.etapa)) {
+    return jsonResponse({ error: "Esta pesquisa ainda não está disponível para esta festa." }, 400);
   }
 
   const { data: questionRows, error: questionsError } = await admin
@@ -366,7 +376,7 @@ const handleSubmit = async (
     })
     .eq("tenant_id", tenant.id)
     .eq("id", payload.eventoId)
-    .eq("etapa", "aguardando_feedback")
+    .in("etapa", SURVEY_OPEN_STAGES)
     .is("satisfaction_survey_preenchido_em", null);
 
   if (eventoUpdateError) throw eventoUpdateError;

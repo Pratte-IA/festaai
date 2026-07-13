@@ -1,3 +1,7 @@
+import {
+  buildEventoFinanceiroValores,
+  type EventoFinanceiroValores,
+} from "./event-financial.ts";
 import { forwardToN8n, N8N_PAYLOAD_VERSION } from "./n8n-client.ts";
 
 const BOAS_VINDAS_TEMPLATE_KEY = "boas-vindas";
@@ -176,6 +180,31 @@ export const dispatchBoasVindasAfterContractSigned = async (
     };
   });
 
+  // Recalcula os valores financeiros em tempo real, espelhando a UI (EventoDetalhe):
+  // - pagamentos adicionais vêm de evento_pagamentos
+  // - ajustes de recebível (upsell/desconto) vêm de financeiro_lancamentos
+  const { data: pagamentos, error: pagamentosError } = await admin
+    .from("evento_pagamentos")
+    .select("valor")
+    .eq("tenant_id", input.tenant.id)
+    .eq("evento_id", input.eventoId);
+
+  if (pagamentosError) throw pagamentosError;
+
+  const { data: lancamentos, error: lancamentosError } = await admin
+    .from("financeiro_lancamentos")
+    .select("tipo, categoria, origem, valor")
+    .eq("tenant_id", input.tenant.id)
+    .eq("evento_id", input.eventoId);
+
+  if (lancamentosError) throw lancamentosError;
+
+  const financeiro: EventoFinanceiroValores = buildEventoFinanceiroValores(
+    evento,
+    pagamentos ?? [],
+    lancamentos ?? [],
+  );
+
   const payload = {
     connection: connection
       ? {
@@ -190,6 +219,21 @@ export const dispatchBoasVindasAfterContractSigned = async (
       acceptedAt: input.acceptedAt,
       contractNumber: input.contractNumber,
       id: input.contractId,
+    },
+    dados: {
+      dataFesta: evento.data_evento,
+      horarioFesta: evento.hora_evento,
+      nomeAniversariante: evento.aniversariante_nome,
+      nomeCliente: evento.cliente_nome,
+      pacote: pacote?.name ?? evento.pacote_nome,
+      pacoteAutomacao: pacote?.name_automacao ?? null,
+      quantidadeConvidados: evento.quantidade_convidados,
+      // Valores recalculados em tempo real (pagamentos + ajustes). A coluna
+      // eventos.valor_saldo pode estar desatualizada e não deve alimentar a mensagem.
+      saldoAPagar: financeiro.saldoAPagar,
+      tema: evento.aniversariante_tema ?? null,
+      valorPago: financeiro.valorPago,
+      valorTotal: financeiro.valorTotal,
     },
     event: BOAS_VINDAS_EVENT,
     evento: {
@@ -249,7 +293,8 @@ export const dispatchBoasVindasAfterContractSigned = async (
       valorAdicionais: evento.valor_adicionais,
       valorEntrada: evento.valor_entrada,
       valorPacote: evento.valor_pacote,
-      valorSaldo: evento.valor_saldo,
+      // Saldo recalculado em tempo real; a coluna eventos.valor_saldo pode estar desatualizada.
+      valorSaldo: financeiro.saldoAPagar,
       valorTotal: evento.valor_total,
     },
     source: "festaai",
