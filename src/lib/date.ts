@@ -23,6 +23,8 @@ export const parseIsoDateLocal = (value: string): Date | null => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+const weekdayFormatter = new Intl.DateTimeFormat("pt-BR", { weekday: "long" });
+
 /** Formata YYYY-MM-DD para DD/MM/YYYY sem conversão de fuso horário. */
 export const formatIsoDateBR = (value: string | null | undefined): string => {
   if (!value) return "Nao informado";
@@ -32,6 +34,26 @@ export const formatIsoDateBR = (value: string | null | undefined): string => {
 
   const [, year, month, day] = match;
   return `${day}/${month}/${year}`;
+};
+
+/** Nome do dia da semana (pt-BR) para YYYY-MM-DD, com inicial maiúscula. */
+export const formatIsoWeekdayBR = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+
+  const parsed = parseIsoDateLocal(value);
+  if (!parsed) return null;
+
+  const weekday = weekdayFormatter.format(parsed);
+  return weekday.charAt(0).toUpperCase() + weekday.slice(1);
+};
+
+/** Formata YYYY-MM-DD como DD/MM/YYYY (Dia da semana). */
+export const formatIsoDateBRWithWeekday = (value: string | null | undefined): string => {
+  const formattedDate = formatIsoDateBR(value);
+  if (formattedDate === "Nao informado") return formattedDate;
+
+  const weekday = formatIsoWeekdayBR(value);
+  return weekday ? `${formattedDate} (${weekday})` : formattedDate;
 };
 
 /** Formata instante ISO (com hora) para DD/MM/YYYY no fuso local. */

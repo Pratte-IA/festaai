@@ -51,13 +51,19 @@ export const SETTINGS_PAGE_META = {
     breadcrumb: "Follow-ups",
     title: "Follow-ups automáticos",
     description:
-      "Escolha a área para configurar mensagens e regras de disparo — comercial, execução da festa ou pós-festa.",
+      "Escolha a área para configurar mensagens e regras de disparo — comercial, oportunidade, execução da festa ou pós-festa.",
   },
   "followups/comercial": {
     breadcrumb: "Follow-ups · Comercial",
     title: "Follow-ups comerciais",
     description:
       "Proposta (FU0–FU4), assinatura de contrato — regras de disparo, textos e prévia das mensagens.",
+  },
+  "followups/oportunidade": {
+    breadcrumb: "Follow-ups · Oportunidade",
+    title: "Follow-ups de oportunidade",
+    description:
+      "Reativação de leads perdidos — FUP1 (festa futura, 60 dias antes) e FOP1/FOP2/FOP3 (festa já realizada).",
   },
   "followups/execucao": {
     breadcrumb: "Follow-ups · Execução",
@@ -101,6 +107,7 @@ export type SettingsPageKey = keyof typeof SETTINGS_PAGE_META;
 
 const FOLLOWUPS_SUBPAGE_LABELS: Record<string, string> = {
   comercial: "Comercial",
+  oportunidade: "Oportunidade",
   execucao: "Execução de Festa",
   "pos-festa": "Pós Festa",
 };

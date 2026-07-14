@@ -3,6 +3,7 @@ import {
   compareIsoDateToToday,
   formatDateBR,
   formatIsoDateBR,
+  formatIsoDateBRWithWeekday,
   getTodayAtNoon,
   parseIsoDateLocal,
 } from "./date";
@@ -13,6 +14,11 @@ describe("date", () => {
     expect(formatIsoDateBR("2024-12-23")).toBe("23/12/2024");
     expect(formatIsoDateBR(null)).toBe("Nao informado");
     expect(formatDateBR("2026-12-20")).toBe("20/12/2026");
+  });
+
+  it("formata data ISO com dia da semana", () => {
+    expect(formatIsoDateBRWithWeekday("2026-11-20")).toBe("20/11/2026 (Sexta-feira)");
+    expect(formatIsoDateBRWithWeekday(null)).toBe("Nao informado");
   });
 
   it("interpreta data ISO no fuso local", () => {

@@ -69,6 +69,7 @@ export {
   DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA,
   DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO,
   getPropostaFollowupKanbanBadge,
+  getPropostaFollowupRespondedKanbanBadge,
   PROPOSTA_FOLLOWUP_1_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
@@ -88,6 +89,34 @@ export type {
   PropostaFollowup2Variante,
   PropostaFollowupStatus,
 } from "./proposta-followup";
+export {
+  DEFAULT_PERDIDO_REATIVACAO_FOP1,
+  DEFAULT_PERDIDO_REATIVACAO_FOP2,
+  DEFAULT_PERDIDO_REATIVACAO_FOP3,
+  getPerdidoReativacaoKanbanBadge,
+  getPerdidoReativacaoRespondedKanbanBadge,
+  PERDIDO_REATIVACAO_FOP1_TEMPLATE,
+  PERDIDO_REATIVACAO_FOP2_TEMPLATE,
+  PERDIDO_REATIVACAO_FOP3_TEMPLATE,
+  PERDIDO_REATIVACAO_TEMPLATE_KEY,
+} from "./perdido-reativacao-followup";
+export type { PerdidoReativacaoStatus } from "./perdido-reativacao-followup";
+export {
+  DEFAULT_PERDIDO_FUTURO_FUP1_DATA_INDISPONIVEL,
+  DEFAULT_PERDIDO_FUTURO_FUP1_DATA_LIVRE,
+  getPerdidoFuturoKanbanBadge,
+  getPerdidoOportunidadeKanbanBadge,
+  getPerdidoOportunidadeRespondedKanbanBadge,
+  PERDIDO_FUTURO_FUP1_TEMPLATE_DATA_INDISPONIVEL,
+  PERDIDO_FUTURO_FUP1_TEMPLATE_DATA_LIVRE,
+} from "./perdido-futuro-followup";
+export type { PerdidoFuturoFup1Variante } from "./perdido-futuro-followup";
+export { PERDIDO_FUTURO_FUP1_DAYS_BEFORE } from "./perdido-futuro-schedule";
+export {
+  PERDIDO_REATIVACAO_FOP1_MONTHS_BEFORE,
+  PERDIDO_REATIVACAO_FOP2_DELAY_DAYS,
+  PERDIDO_REATIVACAO_FOP3_DAYS_BEFORE,
+} from "./perdido-reativacao-schedule";
 export {
   CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_DELAY_HOURS,
   CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE_DELAY_HOURS,

@@ -5,6 +5,7 @@ export type AutomationTemplateKey =
   | "boas-vindas"
   | "follow-up-assinatura-contrato"
   | "follow-up-proposta"
+  | "follow-up-perdido-reativacao"
   | "sete-dias-antes"
   | "pesquisa-satisfacao"
   | "passar-para-vendedor";

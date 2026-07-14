@@ -26,6 +26,14 @@ export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
   },
   {
     bindingMode: "whatsapp_connection",
+    key: "follow-up-perdido-reativacao",
+    title: "Follow-up de Oportunidade",
+    description:
+      "Reativa leads perdidos cujo aniversário já passou — sequência FOP1/FOP2/FOP3 no ano seguinte.",
+    direction: "outbound",
+  },
+  {
+    bindingMode: "whatsapp_connection",
     key: "follow-up-assinatura-contrato",
     title: "Follow-up de Assinatura",
     description:

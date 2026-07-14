@@ -1343,6 +1343,13 @@ export type Database = {
           etapa: string
           executadas_transicao_em: string | null
           fechamento_confirmado_em: string | null
+          fup1_enviado_em: string | null
+          fup1_variante: string | null
+          fup_resposta_cliente_em: string | null
+          fop1_enviado_em: string | null
+          fop2_enviado_em: string | null
+          fop3_enviado_em: string | null
+          fop_resposta_cliente_em: string | null
           followup_0_enviado_em: string | null
           followup_0b_enviado_em: string | null
           followup_1_enviado_em: string | null
@@ -1372,6 +1379,8 @@ export type Database = {
           quantidade_adultos: number | null
           quantidade_convidados: number | null
           quantidade_crianas: number | null
+          reativacao_festa_alvo: string | null
+          reativacao_status: string | null
           satisfaction_survey_preenchido_em: string | null
           satisfaction_survey_whatsapp_enviado_em: string | null
           sete_dias_whatsapp_enviado_em: string | null
@@ -1416,6 +1425,13 @@ export type Database = {
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          fop1_enviado_em?: string | null
+          fop2_enviado_em?: string | null
+          fop3_enviado_em?: string | null
+          fop_resposta_cliente_em?: string | null
+          fup1_enviado_em?: string | null
+          fup1_variante?: string | null
+          fup_resposta_cliente_em?: string | null
           followup_0_enviado_em?: string | null
           followup_0b_enviado_em?: string | null
           followup_1_enviado_em?: string | null
@@ -1445,6 +1461,8 @@ export type Database = {
           quantidade_adultos?: number | null
           quantidade_convidados?: number | null
           quantidade_crianas?: number | null
+          reativacao_festa_alvo?: string | null
+          reativacao_status?: string | null
           satisfaction_survey_preenchido_em?: string | null
           satisfaction_survey_whatsapp_enviado_em?: string | null
           sete_dias_whatsapp_enviado_em?: string | null
@@ -1489,6 +1507,13 @@ export type Database = {
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          fop1_enviado_em?: string | null
+          fop2_enviado_em?: string | null
+          fop3_enviado_em?: string | null
+          fop_resposta_cliente_em?: string | null
+          fup1_enviado_em?: string | null
+          fup1_variante?: string | null
+          fup_resposta_cliente_em?: string | null
           followup_0_enviado_em?: string | null
           followup_0b_enviado_em?: string | null
           followup_1_enviado_em?: string | null
@@ -1518,6 +1543,8 @@ export type Database = {
           quantidade_adultos?: number | null
           quantidade_convidados?: number | null
           quantidade_crianas?: number | null
+          reativacao_festa_alvo?: string | null
+          reativacao_status?: string | null
           satisfaction_survey_preenchido_em?: string | null
           satisfaction_survey_whatsapp_enviado_em?: string | null
           sete_dias_whatsapp_enviado_em?: string | null

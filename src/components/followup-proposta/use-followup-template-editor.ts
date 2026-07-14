@@ -15,10 +15,15 @@ export const useFollowupTemplateEditor = () => {
 
   const templateByKey = useMemo(() => new Map(templates.map((t) => [t.key, t])), [templates]);
 
-  const getTemplate = (key: string, fallbackTitle: string): MessageTemplate => {
+  const getTemplate = (
+    key: string,
+    fallbackTitle: string,
+    defaultBody = "",
+  ): MessageTemplate => {
     const stored = templateByKey.get(key);
+    const storedBody = stored?.body?.trim() ? stored.body : undefined;
     return {
-      body: drafts[key] ?? stored?.body ?? "",
+      body: drafts[key] ?? storedBody ?? defaultBody,
       id: stored?.id,
       key,
       title: stored?.title ?? fallbackTitle,

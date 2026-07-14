@@ -7,7 +7,10 @@ import {
   Evento,
   FunnelType,
   getContractSignatureFollowupKanbanBadge,
+  getPerdidoOportunidadeKanbanBadge,
+  getPerdidoOportunidadeRespondedKanbanBadge,
   getPropostaFollowupKanbanBadge,
+  getPropostaFollowupRespondedKanbanBadge,
   getEventoDataEntradaIso,
   Stage,
   StageDefinition,
@@ -141,8 +144,14 @@ const KanbanBoard = ({ events, funnel, highlightStage, stages }: KanbanBoardProp
               {stageEvents.map((event) => {
                 const followupBadge =
                   funnel === "vendas"
-                    ? getPropostaFollowupKanbanBadge(event) ??
+                    ? getPerdidoOportunidadeKanbanBadge(event) ??
+                      getPropostaFollowupKanbanBadge(event) ??
                       getContractSignatureFollowupKanbanBadge(event)
+                    : null;
+                const respondedBadge =
+                  funnel === "vendas"
+                    ? getPerdidoOportunidadeRespondedKanbanBadge(event) ??
+                      getPropostaFollowupRespondedKanbanBadge(event)
                     : null;
                 const isCancelledParty = event.status_interno === "cancelado";
 
@@ -168,12 +177,23 @@ const KanbanBoard = ({ events, funnel, highlightStage, stages }: KanbanBoardProp
                             Festa Cancelada
                           </span>
                         ) : (
-                          followupBadge && (
-                            <span
-                              className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${followupBadge.className}`}
-                            >
-                              {followupBadge.label}
-                            </span>
+                          (followupBadge || respondedBadge) && (
+                            <div className="flex flex-col items-end gap-1 shrink-0">
+                              {followupBadge && (
+                                <span
+                                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${followupBadge.className}`}
+                                >
+                                  {followupBadge.label}
+                                </span>
+                              )}
+                              {respondedBadge && (
+                                <span
+                                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${respondedBadge.className}`}
+                                >
+                                  {respondedBadge.label}
+                                </span>
+                              )}
+                            </div>
                           )
                         )}
                       </div>

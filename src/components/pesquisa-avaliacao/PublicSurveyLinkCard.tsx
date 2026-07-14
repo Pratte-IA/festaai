@@ -49,7 +49,7 @@ export const PublicSurveyLinkCard = ({ eventoId }: PublicSurveyLinkCardProps) =>
           <p className="text-sm font-medium text-foreground">Pesquisa de avaliação pós-festa</p>
           <p className="text-sm text-muted-foreground">
             {automationActive
-              ? "Ao responder, o lead avança automaticamente para Redes Sociais."
+              ? "Ao responder, o lead avança automaticamente para Prova Social - Marketing."
               : `A pesquisa e a transição automática passam a valer em ${formatPostPartyAutomationEffectiveDateBR()}.`}
           </p>
           <p className="text-xs font-mono text-foreground/80 break-all">{publicUrl}</p>

@@ -39,6 +39,7 @@ const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Finance
 const ConfiguracoesPesquisaAvaliacao = lazy(() => import("./pages/configuracoes/PesquisaAvaliacao"));
 const ConfiguracoesFollowups = lazy(() => import("./pages/configuracoes/Followups"));
 const ConfiguracoesFollowupsComercial = lazy(() => import("./pages/configuracoes/FollowupsComercial"));
+const ConfiguracoesFollowupsOportunidade = lazy(() => import("./pages/configuracoes/FollowupsOportunidade"));
 const ConfiguracoesFollowupsExecucao = lazy(() => import("./pages/configuracoes/FollowupsExecucao"));
 const ConfiguracoesFollowupsPosFesta = lazy(() => import("./pages/configuracoes/FollowupsPosFesta"));
 const ConfiguracoesEstrutura = lazy(() => import("./pages/configuracoes/Estrutura"));
@@ -195,6 +196,7 @@ const App = () => (
                       <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
                       <Route path="followups" element={<ConfiguracoesFollowups />} />
                       <Route path="followups/comercial" element={<ConfiguracoesFollowupsComercial />} />
+                      <Route path="followups/oportunidade" element={<ConfiguracoesFollowupsOportunidade />} />
                       <Route path="followups/execucao" element={<ConfiguracoesFollowupsExecucao />} />
                       <Route path="followups/pos-festa" element={<ConfiguracoesFollowupsPosFesta />} />
                       <Route path="followup-proposta" element={<Navigate to="/configuracoes/followups" replace />} />

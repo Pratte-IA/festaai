@@ -20,7 +20,7 @@ import { EventoPublicFormLinkCard } from "@/components/eventos/EventoPublicFormL
 import { EventoPackageLabel } from "@/components/eventos/EventoPackageLabel";
 import { EventoChecklist } from "@/components/eventos/EventoChecklist";
 import { shouldShowEventChecklist } from "@/features/eventos";
-import { formatIsoDateBR, formatTimestampDateBR, getTodayAtNoon, parseIsoDateLocal } from "@/lib/date";
+import { formatIsoDateBR, formatIsoDateBRWithWeekday, formatTimestampDateBR, getTodayAtNoon, parseIsoDateLocal } from "@/lib/date";
 import { formatBrazilPhone } from "@/lib/phone";
 import { useTenantPackages } from "@/features/configuracoes";
 import {
@@ -111,7 +111,7 @@ const stageLabels: Record<string, string> = {
   planejamento: "Planejamento",
   festa_pronta: "Festa Pronta",
   aguardando_feedback: "Aguardando Feedback",
-  redes_sociais: "Redes Sociais",
+  redes_sociais: "Prova Social - Marketing",
   oportunidade_futura: "Oportunidade Futura",
 };
 
@@ -441,7 +441,7 @@ const EventoDetalhe = () => {
           <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
-              {formatIsoDateBR(event.data_evento)}
+              {formatIsoDateBRWithWeekday(event.data_evento)}
             </span>
             <Badge variant={getTimeRemainingBadge(event.data_evento)}>
               {getTimeRemaining(event.data_evento)}
@@ -523,7 +523,7 @@ const EventoDetalhe = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <InfoRow label="Data da festa" value={formatIsoDateBR(event.data_evento)} />
+              <InfoRow label="Data da festa" value={formatIsoDateBRWithWeekday(event.data_evento)} />
               <InfoRow label="Horario" value={formatTime(event.hora_evento)} />
               <InfoRow label="Convidados" value={`${event.quantidade_convidados ?? 0} pessoas`} />
               <InfoRow

@@ -28,7 +28,7 @@ export const partyStages: StageDefinition<PartyStage>[] = [
 
 export const executedStages: StageDefinition<ExecutedStage>[] = [
   { key: "aguardando_feedback", label: "Aguardando Feedback" },
-  { key: "redes_sociais", label: "Redes Sociais" },
+  { key: "redes_sociais", label: "Prova Social - Marketing" },
   { key: "oportunidade_futura", label: "Oportunidade Futura" },
 ];
 

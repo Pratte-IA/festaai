@@ -210,3 +210,46 @@ export const getPropostaFollowupKanbanBadge = (evento: {
 
   return null;
 };
+
+// Badge secundário exibido logo abaixo do badge de follow-up (ex.: "FU1 ✓")
+// quando o cliente responde DEPOIS de já termos enviado algum follow-up de
+// proposta — ou seja, respondeu AO follow-up. Clientes que responderam antes do
+// primeiro follow-up (resposta à própria proposta) não recebem este selo, pois
+// o FU1 é sempre enviado a todos e não representaria uma resposta ao follow-up.
+export const getPropostaFollowupRespondedKanbanBadge = (evento: {
+  etapa: string;
+  followup_1_enviado_em?: string | null;
+  followup_2_enviado_em?: string | null;
+  followup_3_enviado_em?: string | null;
+  followup_4_enviado_em?: string | null;
+  followup_resposta_cliente_em?: string | null;
+  followup_status?: string | null;
+}): { className: string; label: string } | null => {
+  if (evento.etapa !== "proposta_enviada") return null;
+  if (evento.followup_status !== "pausado_resposta") return null;
+  if (!evento.followup_resposta_cliente_em) return null;
+
+  // Data (epoch ms) do primeiro follow-up efetivamente enviado.
+  const primeiroFollowupEnviadoEm = [
+    evento.followup_1_enviado_em,
+    evento.followup_2_enviado_em,
+    evento.followup_3_enviado_em,
+    evento.followup_4_enviado_em,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => new Date(value).getTime())
+    .filter((time) => Number.isFinite(time))
+    .reduce<number | null>((menor, atual) => (menor === null || atual < menor ? atual : menor), null);
+
+  if (primeiroFollowupEnviadoEm === null) return null;
+
+  const respostaEm = new Date(evento.followup_resposta_cliente_em).getTime();
+
+  // Só sinaliza "Respondeu" quando a resposta do cliente veio APÓS o primeiro
+  // follow-up. Resposta anterior ao follow-up é resposta à proposta, não a ele.
+  if (!Number.isFinite(respostaEm) || respostaEm <= primeiroFollowupEnviadoEm) {
+    return null;
+  }
+
+  return { className: "bg-primary/15 text-primary", label: "Respondeu" };
+};

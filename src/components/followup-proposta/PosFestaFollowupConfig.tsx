@@ -122,7 +122,7 @@ export const PosFestaFollowupConfig = ({ showSettingsHeader }: PosFestaFollowupC
             <li>Evento em Aguardando Feedback (funil Executadas)</li>
             <li>Envio único — não repete após o lembrete</li>
             <li>
-              Após o lembrete, o lead é movido para <strong>Redes Sociais</strong>
+              Após o lembrete, o lead é movido para <strong>Prova Social - Marketing</strong>
             </li>
             <li>Para automaticamente se o cliente responder antes das 24h</li>
           </FollowupRuleList>

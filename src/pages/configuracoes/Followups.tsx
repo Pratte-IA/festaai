@@ -1,4 +1,4 @@
-import { Briefcase, ChevronRight, LucideIcon, PartyPopper, Star } from "lucide-react";
+import { Briefcase, ChevronRight, LucideIcon, PartyPopper, Star, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import {
@@ -20,6 +20,12 @@ const cards: FollowupAreaCardProps[] = [
     title: "Comercial",
     description: "Proposta (FU0–FU4), assinatura de contrato e regras de disparo",
     icon: Briefcase,
+  },
+  {
+    to: "/configuracoes/followups/oportunidade",
+    title: "Oportunidade",
+    description: "Reativação de leads perdidos (FUP1 e FOP1/FOP2/FOP3) — festa futura ou já realizada",
+    icon: Target,
   },
   {
     to: "/configuracoes/followups/execucao",
