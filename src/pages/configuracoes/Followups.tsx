@@ -36,7 +36,7 @@ const cards: FollowupAreaCardProps[] = [
   {
     to: "/configuracoes/followups/pos-festa",
     title: "Pós Festa",
-    description: "Envio da pesquisa de satisfação e lembrete automático (24h)",
+    description: "Pesquisa de satisfação, lembrete 24h e follow-up quando a nota for de 0 a 7",
     icon: Star,
   },
 ];

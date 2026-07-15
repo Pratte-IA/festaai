@@ -12,6 +12,13 @@ export {
   SATISFACTION_SURVEY_FOLLOWUP_PREVIEW,
 } from "./satisfaction-survey-followup";
 export {
+  buildSatisfactionSurveyNpsBaixaPreviewMessage,
+  DEFAULT_SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE,
+  SATISFACTION_SURVEY_NPS_BAIXA_MAX_SCORE,
+  SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY,
+  SATISFACTION_SURVEY_NPS_BAIXA_PREVIEW,
+} from "./satisfaction-survey-nps-baixa";
+export {
   buildPublicSatisfactionSurveyUrl,
 } from "./types";
 export type {

@@ -75,7 +75,7 @@ export const SETTINGS_PAGE_META = {
     breadcrumb: "Follow-ups · Pós Festa",
     title: "Pós festa",
     description:
-      "Envio da pesquisa de satisfação e lembrete automático quando a família não responde.",
+      "Envio da pesquisa de satisfação, lembrete quando a família não responde e follow-up automático em notas de 0 a 7.",
   },
   "pesquisa-avaliacao": {
     breadcrumb: "Pesquisa de Avaliação",

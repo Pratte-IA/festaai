@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, MessageCircle, Star } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, MessageSquareHeart, Star } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
@@ -17,9 +17,13 @@ import { SatisfactionSurveyMessagesSection } from "@/components/pesquisa-avaliac
 import {
   buildPublicSatisfactionSurveyUrl,
   buildSatisfactionSurveyFollowupPreviewMessage,
+  buildSatisfactionSurveyNpsBaixaPreviewMessage,
   SATISFACTION_SURVEY_FOLLOWUP_DELAY_HOURS,
   SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY,
   SATISFACTION_SURVEY_FOLLOWUP_PREVIEW,
+  SATISFACTION_SURVEY_NPS_BAIXA_MAX_SCORE,
+  SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY,
+  SATISFACTION_SURVEY_NPS_BAIXA_PREVIEW,
 } from "@/features/public-satisfaction-survey";
 import { useTenantCompanyProfile } from "@/features/guided-setup";
 import { useCurrentTenant } from "@/features/tenants";
@@ -31,6 +35,8 @@ const PESQUISA_FOLLOWUP_TEMPLATE_VARIABLES = [
   "{{nome_empresa}}",
   "{{link_pesquisa}}",
 ];
+
+const NPS_BAIXA_TEMPLATE_VARIABLES = ["{{primeiro_nome}}", "{{nome_aniversariante}}"];
 
 interface PosFestaFollowupConfigProps {
   showSettingsHeader?: boolean;
@@ -49,6 +55,11 @@ export const PosFestaFollowupConfig = ({ showSettingsHeader }: PosFestaFollowupC
     "Lembrete da pesquisa de satisfação",
   );
 
+  const npsBaixaTemplate = getTemplate(
+    SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY,
+    "Follow-up NPS baixa (0–7)",
+  );
+
   const previewLinkPesquisa = currentTenant
     ? buildPublicSatisfactionSurveyUrl(currentTenant.slug, SATISFACTION_SURVEY_FOLLOWUP_PREVIEW.eventoId)
     : "https://festaai.com.br/pesquisa/sua-casa/123";
@@ -62,6 +73,15 @@ export const PosFestaFollowupConfig = ({ showSettingsHeader }: PosFestaFollowupC
         templateBody: pesquisaFollowupTemplate.body,
       }),
     [companyLegalName, pesquisaFollowupTemplate.body, previewLinkPesquisa],
+  );
+
+  const previewNpsBaixa = useMemo(
+    () =>
+      buildSatisfactionSurveyNpsBaixaPreviewMessage({
+        ...SATISFACTION_SURVEY_NPS_BAIXA_PREVIEW,
+        templateBody: npsBaixaTemplate.body,
+      }),
+    [npsBaixaTemplate.body],
   );
 
   if (isLoading) {
@@ -93,6 +113,7 @@ export const PosFestaFollowupConfig = ({ showSettingsHeader }: PosFestaFollowupC
               <>
                 <SettingsStatChip>Envio inicial: dia seguinte à festa</SettingsStatChip>
                 <SettingsStatChip>Lembrete: {SATISFACTION_SURVEY_FOLLOWUP_DELAY_HOURS}h</SettingsStatChip>
+                <SettingsStatChip>NPS baixa: 0–{SATISFACTION_SURVEY_NPS_BAIXA_MAX_SCORE}</SettingsStatChip>
               </>
             }
           />
@@ -153,6 +174,56 @@ export const PosFestaFollowupConfig = ({ showSettingsHeader }: PosFestaFollowupC
           template={pesquisaFollowupTemplate}
           title={`Lembrete da pesquisa (${SATISFACTION_SURVEY_FOLLOWUP_DELAY_HOURS}h)`}
           variables={PESQUISA_FOLLOWUP_TEMPLATE_VARIABLES}
+        />
+      </FollowupSection>
+
+      <div className="border-t border-border/60 pt-8 space-y-2">
+        <div className="flex items-center gap-2">
+          <MessageSquareHeart className="h-5 w-5 text-primary" />
+          <h2 className="text-base font-semibold text-foreground">
+            Follow-up NPS baixa (0–{SATISFACTION_SURVEY_NPS_BAIXA_MAX_SCORE})
+          </h2>
+        </div>
+      </div>
+
+      <FollowupSection>
+        <FollowupRuleCard title="Regras de disparo — NPS baixa">
+          <FollowupRuleList>
+            <li>
+              Disparo <span className="text-foreground">imediato</span> quando o cliente responde a
+              pesquisa com nota de <span className="text-foreground">0 a {SATISFACTION_SURVEY_NPS_BAIXA_MAX_SCORE}</span>
+            </li>
+            <li>Usa a pergunta de indicação (NPS) da pesquisa de satisfação</li>
+            <li>Envio único por evento — não repete se a pesquisa for reenviada</li>
+            <li>Notas 8, 9 e 10 não disparam esta mensagem</li>
+          </FollowupRuleList>
+        </FollowupRuleCard>
+
+        <div className="rounded-lg border border-primary/25 bg-primary/5 p-4">
+          <div className="flex items-start gap-3">
+            <MessageCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <p className="text-sm text-muted-foreground">
+              Também usa o número de{" "}
+              <Link
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+                to="/configuracoes/automacoes"
+              >
+                Automações → Pesquisa de Satisfação
+              </Link>
+              . A mensagem pede detalhes para a casa entender o que não saiu bem.
+            </p>
+          </div>
+        </div>
+
+        <FollowupTemplateEditor
+          description="Mensagem enviada direto ao cliente após uma avaliação de 0 a 7."
+          isSaving={savingKey === SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY}
+          onChange={(body) => setDraftBody(SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY, body)}
+          onSave={() => void handleSave(npsBaixaTemplate)}
+          previewMessage={previewNpsBaixa}
+          template={npsBaixaTemplate}
+          title={`Follow-up NPS baixa (0–${SATISFACTION_SURVEY_NPS_BAIXA_MAX_SCORE})`}
+          variables={NPS_BAIXA_TEMPLATE_VARIABLES}
         />
 
         <p className="text-sm text-muted-foreground">

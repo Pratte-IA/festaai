@@ -6,10 +6,15 @@ import {
   phonesMatch,
 } from "../_shared/phone.ts";
 import { formatCompanyDisplayName } from "../_shared/company-display-name.ts";
+import { dispatchSatisfactionSurveyNpsBaixa } from "../_shared/dispatch-satisfaction-survey-nps-baixa.ts";
 import {
   isPostPartyAutomationActive,
   POST_PARTY_AUTOMATION_EFFECTIVE_DATE,
 } from "../_shared/post-party-automation.ts";
+import {
+  extractSatisfactionSurveyNpsScore,
+  shouldDispatchSatisfactionSurveyNpsBaixa,
+} from "../_shared/satisfaction-survey-nps-baixa-message.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -63,6 +68,7 @@ type SurveyQuestionRow = {
   config: Record<string, unknown> | null;
   id: number;
   label: string;
+  question_key: string | null;
   question_type: string;
   required: boolean;
   sort_order: number;
@@ -249,7 +255,7 @@ const handleLoad = async (
 
   const { data: questionRows, error: questionsError } = await admin
     .from("tenant_satisfaction_survey_questions")
-    .select("id, label, question_type, required, active, sort_order, config")
+    .select("id, label, question_key, question_type, required, active, sort_order, config")
     .eq("tenant_id", tenant.id)
     .eq("active", true)
     .order("sort_order", { ascending: true })
@@ -330,7 +336,7 @@ const handleSubmit = async (
 
   const { data: questionRows, error: questionsError } = await admin
     .from("tenant_satisfaction_survey_questions")
-    .select("id, label, question_type, required, active, sort_order, config")
+    .select("id, label, question_key, question_type, required, active, sort_order, config")
     .eq("tenant_id", tenant.id)
     .eq("active", true);
 
@@ -380,6 +386,36 @@ const handleSubmit = async (
     .is("satisfaction_survey_preenchido_em", null);
 
   if (eventoUpdateError) throw eventoUpdateError;
+
+  const npsScore = extractSatisfactionSurveyNpsScore(activeQuestions, payload.responses);
+  if (shouldDispatchSatisfactionSurveyNpsBaixa(npsScore) && npsScore != null) {
+    try {
+      const npsBaixaResult = await dispatchSatisfactionSurveyNpsBaixa(admin, {
+        eventoId: payload.eventoId,
+        npsScore,
+        tenant: {
+          id: tenant.id,
+          name: tenant.name,
+          slug: tenant.slug,
+        },
+        triggeredAt: now,
+      });
+
+      if (!npsBaixaResult.dispatched) {
+        console.warn("[client-satisfaction-survey] nps_baixa skipped/failed", {
+          errorMessage: npsBaixaResult.errorMessage,
+          eventoId: payload.eventoId,
+          npsScore,
+          skippedReason: npsBaixaResult.skippedReason,
+          tenantId: tenant.id,
+        });
+      }
+    } catch (npsBaixaError) {
+      const message =
+        npsBaixaError instanceof Error ? npsBaixaError.message : "Erro no follow-up NPS baixa.";
+      console.error("[client-satisfaction-survey] nps_baixa error", message);
+    }
+  }
 
   return jsonResponse({
     advancedToRedesSociais: true,

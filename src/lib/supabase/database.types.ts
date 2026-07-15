@@ -1381,6 +1381,8 @@ export type Database = {
           quantidade_crianas: number | null
           reativacao_festa_alvo: string | null
           reativacao_status: string | null
+          satisfaction_survey_followup_enviado_em: string | null
+          satisfaction_survey_nps_baixa_enviado_em: string | null
           satisfaction_survey_preenchido_em: string | null
           satisfaction_survey_whatsapp_enviado_em: string | null
           sete_dias_whatsapp_enviado_em: string | null
@@ -1463,6 +1465,8 @@ export type Database = {
           quantidade_crianas?: number | null
           reativacao_festa_alvo?: string | null
           reativacao_status?: string | null
+          satisfaction_survey_followup_enviado_em?: string | null
+          satisfaction_survey_nps_baixa_enviado_em?: string | null
           satisfaction_survey_preenchido_em?: string | null
           satisfaction_survey_whatsapp_enviado_em?: string | null
           sete_dias_whatsapp_enviado_em?: string | null
@@ -1545,6 +1549,8 @@ export type Database = {
           quantidade_crianas?: number | null
           reativacao_festa_alvo?: string | null
           reativacao_status?: string | null
+          satisfaction_survey_followup_enviado_em?: string | null
+          satisfaction_survey_nps_baixa_enviado_em?: string | null
           satisfaction_survey_preenchido_em?: string | null
           satisfaction_survey_whatsapp_enviado_em?: string | null
           sete_dias_whatsapp_enviado_em?: string | null

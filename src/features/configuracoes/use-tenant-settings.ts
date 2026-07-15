@@ -17,7 +17,9 @@ import {
 } from "@/features/eventos/contract-signature-followup";
 import {
   DEFAULT_SATISFACTION_SURVEY_FOLLOWUP_MESSAGE,
+  DEFAULT_SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE,
   SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY,
+  SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY,
 } from "@/features/public-satisfaction-survey";
 import {
   DEFAULT_PROPOSTA_FOLLOWUP_0_CONTATO_INICIAL,
@@ -112,6 +114,11 @@ export const defaultMessageTemplates: MessageTemplate[] = [
     key: SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY,
     title: "Lembrete da Pesquisa de Satisfação",
   },
+  {
+    body: "",
+    key: SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY,
+    title: "Follow-up NPS baixa (0–7)",
+  },
 ];
 
 export const useTenantMessageTemplates = () => {
@@ -155,6 +162,8 @@ export const useTenantMessageTemplates = () => {
                           ? DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE
                           : template.key === SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY
                             ? DEFAULT_SATISFACTION_SURVEY_FOLLOWUP_MESSAGE
+                            : template.key === SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY
+                              ? DEFAULT_SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE
                       : template.body;
 
         return {
