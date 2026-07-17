@@ -221,14 +221,7 @@ const App = () => (
                       />
                     </Route>
                     <Route path="minha-assinatura" element={<MinhaAssinatura />} />
-                    <Route
-                      path="suporte/faq"
-                      element={
-                        <TenantAdminRoute>
-                          <SuporteFaq />
-                        </TenantAdminRoute>
-                      }
-                    />
+                    <Route path="suporte/faq" element={<SuporteFaq />} />
                     <Route
                       path="suporte/novo"
                       element={
@@ -254,14 +247,7 @@ const App = () => (
                       }
                     />
                     <Route path="suporte/:id" element={<SuporteDetalhe />} />
-                    <Route
-                      path="suporte"
-                      element={
-                        <TenantAdminRoute>
-                          <Suporte />
-                        </TenantAdminRoute>
-                      }
-                    />
+                    <Route path="suporte" element={<Suporte />} />
                   </Route>
                 </Route>
               </Routes>

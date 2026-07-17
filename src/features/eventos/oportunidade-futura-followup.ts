@@ -36,7 +36,7 @@ export {
 
 export const DEFAULT_OPORTUNIDADE_FUTURA_FOF1 = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
-Parece que foi ontem que comemoramos a festa do(a) {{nome_aniversariante}} aqui na Vila Encantada! Foi uma alegria fazer parte desse momento tão especial com vocês. 💛🎉
+Parece que foi ontem que comemoramos a festa do(a) {{nome_aniversariante}} aqui na {{nome_empresa}}! Foi uma alegria fazer parte desse momento tão especial com vocês. 💛🎉
 
 Como o próximo aniversário já começa a se aproximar, passei para saber: vocês já começaram a pensar na comemoração deste ano?
 
@@ -56,7 +56,7 @@ Quer que eu verifique as opções disponíveis e prepare uma nova proposta para 
 
 export const DEFAULT_OPORTUNIDADE_FUTURA_FOF3 = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
-O aniversário do(a) {{nome_aniversariante}} está se aproximando, e queremos muito ter a alegria de comemorar mais um ano com vocês aqui na Vila Encantada. 🎉💛
+O aniversário do(a) {{nome_aniversariante}} está se aproximando, e queremos muito ter a alegria de comemorar mais um ano com vocês aqui na {{nome_empresa}}. 🎉💛
 
 Como faltam cerca de três meses, este é um ótimo momento para definir a festa e garantir uma boa opção de data e horário.
 

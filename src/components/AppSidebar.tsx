@@ -86,19 +86,20 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, user } = useAuth();
+  const { isPlatformAdmin, signOut, user } = useAuth();
   const { currentTenant, isLoading: isTenantLoading } = useCurrentTenant();
   const { data: tenantAdminCap } = useTenantAdminCapability();
 
+  const canAccessTenantAdminAreas =
+    Boolean(tenantAdminCap?.isTenantAdmin) || isPlatformAdmin;
+
   const sectionsResolved: NavSection[] = [
     vendasSection,
-    ...(tenantAdminCap?.isTenantAdmin ? [financeiroSection] : []),
+    ...(canAccessTenantAdminAreas ? [financeiroSection] : []),
     gestaoSection,
     {
       title: "Sistema",
-      items: tenantAdminCap?.isTenantAdmin
-        ? [...sistemaBaseItems, suporteItem]
-        : sistemaBaseItems,
+      items: [...sistemaBaseItems, suporteItem],
     },
   ];
 

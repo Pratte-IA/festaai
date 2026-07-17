@@ -30,7 +30,7 @@ export const DEFAULT_PERDIDO_REATIVACAO_FOP1 = `Oi, {{primeiro_nome}}! Tudo bem?
 
 No ano passado, você conversou com a gente sobre a festa do(a) {{nome_aniversariante}}, e lembrei de vocês porque já estamos começando a organizar as comemorações para {{mes_festa}}. 🎉
 
-Como ainda faltam alguns meses, este é um ótimo momento para planejar tudo com calma, escolher uma boa data e conhecer as opções de festa da Vila Encantada. ✨
+Como ainda faltam alguns meses, este é um ótimo momento para planejar tudo com calma, escolher uma boa data e conhecer as opções de festa da {{nome_empresa}}. ✨
 
 Vocês já começaram a pensar no aniversário deste ano?
 
@@ -42,7 +42,7 @@ Passei novamente porque estamos organizando as festas de {{mes_festa}} e ainda t
 
 Como o aniversário do(a) {{nome_aniversariante}} está se aproximando, queria saber se vocês já decidiram como será a comemoração deste ano.
 
-Aqui na Vila Encantada temos opções desde a locação do espaço até pacotes completos, e posso te ajudar a encontrar uma opção que combine com o que vocês estão planejando. ✨
+Aqui na {{nome_empresa}} temos opções desde a locação do espaço até pacotes completos, e posso te ajudar a encontrar uma opção que combine com o que vocês estão planejando. ✨
 
 Quer que eu te envie as opções atualizadas?`;
 
@@ -52,7 +52,7 @@ O aniversário do(a) {{nome_aniversariante}} está se aproximando, e como faltam
 
 Nossa agenda para {{mes_festa}} já está começando a preencher, e ainda temos algumas possibilidades de datas e horários disponíveis.
 
-Na Vila Encantada, temos opções desde a locação do espaço até pacotes completos, para deixar a organização mais prática e tranquila para você. ✨
+Na {{nome_empresa}}, temos opções desde a locação do espaço até pacotes completos, para deixar a organização mais prática e tranquila para você. ✨
 
 Quer que eu verifique as datas disponíveis e te envie as opções atualizadas?`;
 

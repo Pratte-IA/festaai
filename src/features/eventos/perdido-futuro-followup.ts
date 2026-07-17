@@ -28,7 +28,7 @@ Consultei nossa agenda e tenho uma boa notícia: essa data ainda está disponív
 
 Como faltam cerca de 60 dias, este é um ótimo momento para organizar tudo com calma, definir os detalhes e garantir a data antes que ela seja reservada.
 
-Vamos preparar uma festa linda e inesquecível para o(a) {{nome_aniversariante}} aqui na Vila Encantada? 💛`;
+Vamos preparar uma festa linda e inesquecível para o(a) {{nome_aniversariante}} aqui na {{nome_empresa}}? 💛`;
 
 export const DEFAULT_PERDIDO_FUTURO_FUP1_DATA_INDISPONIVEL = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
@@ -38,7 +38,7 @@ Consultei nossa agenda e essa data já foi reservada, mas ainda temos outras op�
 
 Como faltam cerca de 60 dias, ainda dá tempo de organizar uma festa linda, com tranquilidade e todo o carinho que esse momento merece.
 
-Queremos muito receber vocês aqui na Vila Encantada para comemorar esse dia especial! 💛
+Queremos muito receber vocês aqui na {{nome_empresa}} para comemorar esse dia especial! 💛
 
 Vamos verificar uma nova data?`;
 
