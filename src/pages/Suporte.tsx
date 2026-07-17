@@ -1,16 +1,24 @@
 import { Link } from "react-router-dom";
-import { AlertTriangle, Bot, ChevronRight, Headset } from "lucide-react";
+import { AlertTriangle, Bot, ChevronRight, CircleHelp, Headset } from "lucide-react";
 
 import AppLayout from "@/components/AppLayout";
 
 const suporteAreas = [
+  {
+    to: "/suporte/faq",
+    title: "Dúvidas frequentes",
+    description:
+      "Respostas rápidas sobre o portal: onde fica cada área, como acessar e quando abrir um chamado.",
+    icon: CircleHelp,
+    accent: "bg-primary/15 text-primary",
+  },
   {
     to: "/suporte/agente",
     title: "Agente",
     description:
       "Nesta área você solicita melhorias no agente FestaAI do seu WhatsApp (tom de voz, respostas, regras). Acompanhe pedidos em aberto, status e cobrança quando houver.",
     icon: Bot,
-    accent: "bg-primary/15 text-primary",
+    accent: "bg-secondary/40 text-secondary-foreground",
   },
   {
     to: "/suporte/erros",
@@ -34,11 +42,11 @@ const Suporte = () => {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground">Suporte</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Escolha um canal para falar com a FestaAI ou acompanhar seus pedidos.
+          Consulte dúvidas frequentes ou escolha um canal para falar com a FestaAI.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {suporteAreas.map((area) => (
           <Link
             key={area.to}

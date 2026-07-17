@@ -71,6 +71,7 @@ const Privacidade = lazy(() => import("./pages/Privacidade.tsx"));
 const Suporte = lazy(() => import("./pages/Suporte.tsx"));
 const SuporteAgente = lazy(() => import("./pages/SuporteAgente.tsx"));
 const SuporteErros = lazy(() => import("./pages/SuporteErros.tsx"));
+const SuporteFaq = lazy(() => import("./pages/SuporteFaq.tsx"));
 const SuporteNovo = lazy(() => import("./pages/SuporteNovo.tsx"));
 const SuporteDetalhe = lazy(() => import("./pages/SuporteDetalhe.tsx"));
 const NovaSenha = lazy(() => import("./pages/NovaSenha.tsx"));
@@ -220,6 +221,14 @@ const App = () => (
                       />
                     </Route>
                     <Route path="minha-assinatura" element={<MinhaAssinatura />} />
+                    <Route
+                      path="suporte/faq"
+                      element={
+                        <TenantAdminRoute>
+                          <SuporteFaq />
+                        </TenantAdminRoute>
+                      }
+                    />
                     <Route
                       path="suporte/novo"
                       element={

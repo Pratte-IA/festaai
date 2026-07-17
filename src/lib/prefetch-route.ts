@@ -15,6 +15,7 @@ const routeLoaders: Record<string, RouteLoader> = {
   "/usuarios": () => import("@/pages/Usuarios.tsx"),
   "/minha-assinatura": () => import("@/pages/MinhaAssinatura.tsx"),
   "/suporte": () => import("@/pages/Suporte.tsx"),
+  "/suporte/faq": () => import("@/pages/SuporteFaq.tsx"),
 };
 
 const prefetchedRoutes = new Set<string>();
