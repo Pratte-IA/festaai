@@ -102,6 +102,23 @@ export {
 } from "./perdido-reativacao-followup";
 export type { PerdidoReativacaoStatus } from "./perdido-reativacao-followup";
 export {
+  DEFAULT_OPORTUNIDADE_FUTURA_FOF1,
+  DEFAULT_OPORTUNIDADE_FUTURA_FOF2,
+  DEFAULT_OPORTUNIDADE_FUTURA_FOF3,
+  getOportunidadeFuturaFofKanbanBadge,
+  getOportunidadeFuturaFofRespondedKanbanBadge,
+  OPORTUNIDADE_FUTURA_FOF1_TEMPLATE,
+  OPORTUNIDADE_FUTURA_FOF2_TEMPLATE,
+  OPORTUNIDADE_FUTURA_FOF3_TEMPLATE,
+  OPORTUNIDADE_FUTURA_TEMPLATE_KEY,
+} from "./oportunidade-futura-followup";
+export type { OportunidadeFuturaFofStatus } from "./oportunidade-futura-followup";
+export {
+  OPORTUNIDADE_FUTURA_FOF1_MONTHS_BEFORE,
+  OPORTUNIDADE_FUTURA_FOF2_DELAY_DAYS,
+  OPORTUNIDADE_FUTURA_FOF3_DAYS_BEFORE,
+} from "./oportunidade-futura-schedule";
+export {
   DEFAULT_PERDIDO_FUTURO_FUP1_DATA_INDISPONIVEL,
   DEFAULT_PERDIDO_FUTURO_FUP1_DATA_LIVRE,
   getPerdidoFuturoKanbanBadge,

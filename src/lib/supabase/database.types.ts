@@ -1346,6 +1346,12 @@ export type Database = {
           fup1_enviado_em: string | null
           fup1_variante: string | null
           fup_resposta_cliente_em: string | null
+          fof1_enviado_em: string | null
+          fof2_enviado_em: string | null
+          fof3_enviado_em: string | null
+          fof_festa_alvo: string | null
+          fof_resposta_cliente_em: string | null
+          fof_status: string | null
           fop1_enviado_em: string | null
           fop2_enviado_em: string | null
           fop3_enviado_em: string | null
@@ -1427,6 +1433,12 @@ export type Database = {
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          fof1_enviado_em?: string | null
+          fof2_enviado_em?: string | null
+          fof3_enviado_em?: string | null
+          fof_festa_alvo?: string | null
+          fof_resposta_cliente_em?: string | null
+          fof_status?: string | null
           fop1_enviado_em?: string | null
           fop2_enviado_em?: string | null
           fop3_enviado_em?: string | null
@@ -1511,6 +1523,12 @@ export type Database = {
           etapa?: string
           executadas_transicao_em?: string | null
           fechamento_confirmado_em?: string | null
+          fof1_enviado_em?: string | null
+          fof2_enviado_em?: string | null
+          fof3_enviado_em?: string | null
+          fof_festa_alvo?: string | null
+          fof_resposta_cliente_em?: string | null
+          fof_status?: string | null
           fop1_enviado_em?: string | null
           fop2_enviado_em?: string | null
           fop3_enviado_em?: string | null

@@ -14,6 +14,7 @@ import { isKnownAutomationOutboundMessage } from "../_shared/is-known-automation
 import { ensureVendasLeadFromWhatsapp } from "../_shared/ensure-vendas-lead.ts";
 import { persistAgentConversationMessage } from "../_shared/agent-memory.ts";
 import { pausePerdidoReativacaoFollowupOnCustomerReply } from "../_shared/pause-perdido-reativacao-followup.ts";
+import { pauseOportunidadeFuturaFollowupOnCustomerReply } from "../_shared/pause-oportunidade-futura-followup.ts";
 import { pausePropostaFollowupOnCustomerReply } from "../_shared/pause-proposta-followup.ts";
 import {
   markContatoInicialFollowupOutbound,
@@ -293,6 +294,19 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       } catch (pauseError) {
         console.error(
           "pausePerdidoReativacaoFollowupOnCustomerReply failed:",
+          pauseError instanceof Error ? pauseError.message : pauseError,
+        );
+      }
+
+      try {
+        await pauseOportunidadeFuturaFollowupOnCustomerReply(ctx.service, {
+          customerPhone: message.customerPhone as string,
+          respondedAt: new Date().toISOString(),
+          tenantId: tenant.id,
+        });
+      } catch (pauseError) {
+        console.error(
+          "pauseOportunidadeFuturaFollowupOnCustomerReply failed:",
           pauseError instanceof Error ? pauseError.message : pauseError,
         );
       }

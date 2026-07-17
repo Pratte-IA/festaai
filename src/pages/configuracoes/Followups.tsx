@@ -24,7 +24,7 @@ const cards: FollowupAreaCardProps[] = [
   {
     to: "/configuracoes/followups/oportunidade",
     title: "Oportunidade",
-    description: "Reativação de leads perdidos (FUP1 e FOP1/FOP2/FOP3) — festa futura ou já realizada",
+    description: "Leads perdidos (FUP/FOP) e clientes em Oportunidade Futura (FOF1–FOF3)",
     icon: Target,
   },
   {

@@ -63,7 +63,7 @@ export const SETTINGS_PAGE_META = {
     breadcrumb: "Follow-ups · Oportunidade",
     title: "Follow-ups de oportunidade",
     description:
-      "Reativação de leads perdidos — FUP1 (festa futura, 60 dias antes) e FOP1/FOP2/FOP3 (festa já realizada).",
+      "FUP1/FOP (leads perdidos) e FOF1/FOF2/FOF3 (clientes em Oportunidade Futura que já festejaram).",
   },
   "followups/execucao": {
     breadcrumb: "Follow-ups · Execução",

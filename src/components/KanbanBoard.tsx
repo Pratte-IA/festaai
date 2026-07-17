@@ -7,6 +7,8 @@ import {
   Evento,
   FunnelType,
   getContractSignatureFollowupKanbanBadge,
+  getOportunidadeFuturaFofKanbanBadge,
+  getOportunidadeFuturaFofRespondedKanbanBadge,
   getPerdidoOportunidadeKanbanBadge,
   getPerdidoOportunidadeRespondedKanbanBadge,
   getPropostaFollowupKanbanBadge,
@@ -147,12 +149,16 @@ const KanbanBoard = ({ events, funnel, highlightStage, stages }: KanbanBoardProp
                     ? getPerdidoOportunidadeKanbanBadge(event) ??
                       getPropostaFollowupKanbanBadge(event) ??
                       getContractSignatureFollowupKanbanBadge(event)
-                    : null;
+                    : funnel === "executadas"
+                      ? getOportunidadeFuturaFofKanbanBadge(event)
+                      : null;
                 const respondedBadge =
                   funnel === "vendas"
                     ? getPerdidoOportunidadeRespondedKanbanBadge(event) ??
                       getPropostaFollowupRespondedKanbanBadge(event)
-                    : null;
+                    : funnel === "executadas"
+                      ? getOportunidadeFuturaFofRespondedKanbanBadge(event)
+                      : null;
                 const isCancelledParty = event.status_interno === "cancelado";
 
                 return (

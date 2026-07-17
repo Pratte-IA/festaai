@@ -29,7 +29,7 @@ export const AUTOMATION_TEMPLATE_CATALOG: AutomationTemplateDefinition[] = [
     key: "follow-up-perdido-reativacao",
     title: "Follow-up de Oportunidade",
     description:
-      "Reativa leads perdidos cujo aniversário já passou — sequência FOP1/FOP2/FOP3 no ano seguinte.",
+      "Reativa leads perdidos (FOP) e convida de volta famílias em Oportunidade Futura (FOF1/FOF2/FOF3).",
     direction: "outbound",
   },
   {

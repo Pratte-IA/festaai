@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarClock, Loader2, MessageCircle, Target } from "lucide-react";
+import { ArrowLeft, CalendarClock, HeartHandshake, Loader2, MessageCircle, Target } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
@@ -18,6 +18,12 @@ import {
   PERDIDO_FUTURO_PREVIEW,
 } from "@/features/eventos/build-perdido-futuro-preview";
 import {
+  buildOportunidadeFuturaFof1PreviewMessage,
+  buildOportunidadeFuturaFof2PreviewMessage,
+  buildOportunidadeFuturaFof3PreviewMessage,
+  OPORTUNIDADE_FUTURA_PREVIEW,
+} from "@/features/eventos/build-oportunidade-futura-preview";
+import {
   DEFAULT_PERDIDO_FUTURO_FUP1_DATA_INDISPONIVEL,
   DEFAULT_PERDIDO_FUTURO_FUP1_DATA_LIVRE,
   PERDIDO_FUTURO_FUP1_TEMPLATE_DATA_INDISPONIVEL,
@@ -30,6 +36,17 @@ import {
   buildPerdidoReativacaoFop3PreviewMessage,
   PERDIDO_REATIVACAO_PREVIEW,
 } from "@/features/eventos/build-perdido-reativacao-preview";
+import {
+  DEFAULT_OPORTUNIDADE_FUTURA_FOF1,
+  DEFAULT_OPORTUNIDADE_FUTURA_FOF2,
+  DEFAULT_OPORTUNIDADE_FUTURA_FOF3,
+  OPORTUNIDADE_FUTURA_FOF1_MONTHS_BEFORE,
+  OPORTUNIDADE_FUTURA_FOF1_TEMPLATE,
+  OPORTUNIDADE_FUTURA_FOF2_DELAY_DAYS,
+  OPORTUNIDADE_FUTURA_FOF2_TEMPLATE,
+  OPORTUNIDADE_FUTURA_FOF3_DAYS_BEFORE,
+  OPORTUNIDADE_FUTURA_FOF3_TEMPLATE,
+} from "@/features/eventos/oportunidade-futura-followup";
 import {
   DEFAULT_PERDIDO_REATIVACAO_FOP1,
   DEFAULT_PERDIDO_REATIVACAO_FOP2,
@@ -59,6 +76,13 @@ const TEMPLATE_VARIABLES = [
   "{{nome_empresa}}",
 ];
 
+const FOF_TEMPLATE_VARIABLES = [
+  "{{primeiro_nome}}",
+  "{{nome_aniversariante}}",
+  "{{mes_festa}}",
+];
+
+
 interface OportunidadeFollowupConfigProps {
   showSettingsHeader?: boolean;
 }
@@ -87,6 +111,21 @@ export const OportunidadeFollowupConfig = ({ showSettingsHeader }: OportunidadeF
     PERDIDO_REATIVACAO_FOP3_TEMPLATE,
     "Reativação FOP3 — 90 dias antes da festa",
     DEFAULT_PERDIDO_REATIVACAO_FOP3,
+  );
+  const fof1Template = getTemplate(
+    OPORTUNIDADE_FUTURA_FOF1_TEMPLATE,
+    "FOF1 — 6 meses antes do mês da festa",
+    DEFAULT_OPORTUNIDADE_FUTURA_FOF1,
+  );
+  const fof2Template = getTemplate(
+    OPORTUNIDADE_FUTURA_FOF2_TEMPLATE,
+    "FOF2 — 30 dias após FOF1",
+    DEFAULT_OPORTUNIDADE_FUTURA_FOF2,
+  );
+  const fof3Template = getTemplate(
+    OPORTUNIDADE_FUTURA_FOF3_TEMPLATE,
+    "FOF3 — 90 dias antes da festa",
+    DEFAULT_OPORTUNIDADE_FUTURA_FOF3,
   );
   const fupDataLivreTemplate = getTemplate(
     PERDIDO_FUTURO_FUP1_TEMPLATE_DATA_LIVRE,
@@ -135,6 +174,42 @@ export const OportunidadeFollowupConfig = ({ showSettingsHeader }: OportunidadeF
     [companyLegalName, fop3Template.body],
   );
 
+  const previewFof1 = useMemo(
+    () =>
+      buildOportunidadeFuturaFof1PreviewMessage({
+        aniversarianteNome: OPORTUNIDADE_FUTURA_PREVIEW.aniversarianteNome,
+        clienteNome: OPORTUNIDADE_FUTURA_PREVIEW.clienteNome,
+        companyLegalName,
+        targetPartyDate: OPORTUNIDADE_FUTURA_PREVIEW.targetPartyDate,
+        templateBody: fof1Template.body,
+      }),
+    [companyLegalName, fof1Template.body],
+  );
+
+  const previewFof2 = useMemo(
+    () =>
+      buildOportunidadeFuturaFof2PreviewMessage({
+        aniversarianteNome: OPORTUNIDADE_FUTURA_PREVIEW.aniversarianteNome,
+        clienteNome: OPORTUNIDADE_FUTURA_PREVIEW.clienteNome,
+        companyLegalName,
+        targetPartyDate: OPORTUNIDADE_FUTURA_PREVIEW.targetPartyDate,
+        templateBody: fof2Template.body,
+      }),
+    [companyLegalName, fof2Template.body],
+  );
+
+  const previewFof3 = useMemo(
+    () =>
+      buildOportunidadeFuturaFof3PreviewMessage({
+        aniversarianteNome: OPORTUNIDADE_FUTURA_PREVIEW.aniversarianteNome,
+        clienteNome: OPORTUNIDADE_FUTURA_PREVIEW.clienteNome,
+        companyLegalName,
+        targetPartyDate: OPORTUNIDADE_FUTURA_PREVIEW.targetPartyDate,
+        templateBody: fof3Template.body,
+      }),
+    [companyLegalName, fof3Template.body],
+  );
+
   const previewFup = useMemo(
     () =>
       buildPerdidoFuturoFup1PreviewMessages({
@@ -178,9 +253,8 @@ export const OportunidadeFollowupConfig = ({ showSettingsHeader }: OportunidadeF
             stats={
               <>
                 <SettingsStatChip>FUP1: {PERDIDO_FUTURO_FUP1_DAYS_BEFORE} dias antes</SettingsStatChip>
-                <SettingsStatChip>FOP1: 6 meses antes do mês da festa</SettingsStatChip>
-                <SettingsStatChip>FOP2: +30 dias</SettingsStatChip>
-                <SettingsStatChip>FOP3: 90 dias antes da festa</SettingsStatChip>
+                <SettingsStatChip>FOP1–3: leads perdidos</SettingsStatChip>
+                <SettingsStatChip>FOF1–3: oportunidade futura</SettingsStatChip>
               </>
             }
           />
@@ -190,8 +264,8 @@ export const OportunidadeFollowupConfig = ({ showSettingsHeader }: OportunidadeF
       <div className="rounded-lg border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground space-y-2">
         <p className="text-foreground font-medium">Follow-ups de oportunidade</p>
         <p>
-          Sequências automáticas para reativar leads perdidos e recuperar oportunidades comerciais fora do
-          funil ativo de proposta.
+          Sequências automáticas para reativar leads perdidos (FUP/FOP) e para convidar de volta famílias que
+          já festejaram conosco (FOF — etapa Oportunidade Futura).
         </p>
         <p>
           Cada mensagem enviada fica registrada na memória do agente de atendimento, para que, quando o
@@ -362,6 +436,118 @@ export const OportunidadeFollowupConfig = ({ showSettingsHeader }: OportunidadeF
           variables={TEMPLATE_VARIABLES}
         />
       </FollowupSection>
+      </div>
+
+      <div className="border-t border-border/60 pt-8 space-y-8">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <HeartHandshake className="h-5 w-5 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">
+              Clientes que já festejaram — Oportunidade Futura (FOF1/FOF2/FOF3)
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Para leads em <strong>Executadas → Oportunidade Futura</strong> (festa realizada, não cancelada).
+            Convida a família de volta para o aniversário seguinte. Festas canceladas não entram nesta
+            sequência.
+          </p>
+        </div>
+
+        <div className="rounded-lg border border-primary/25 bg-primary/5 p-4">
+          <div className="flex items-start gap-3">
+            <MessageCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <p className="text-sm text-muted-foreground">
+              Usa o mesmo número de{" "}
+              <Link
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+                to="/configuracoes/automacoes"
+              >
+                Automações → Follow-up de Oportunidade
+              </Link>
+              . Se o cliente responder, cria ou reaproveita um lead em <strong>Vendas → Contato Inicial</strong>{" "}
+              (sem criar card novo se já existir no funil). Sem resposta, segue FOF2 e depois FOF3 — nenhum
+              lead de vendas é criado só pelo disparo.
+            </p>
+          </div>
+        </div>
+
+        <FollowupSection>
+          <FollowupRuleCard title="Regra de disparo — FOF1">
+            <FollowupRuleList>
+              <li>
+                Lead em <strong>Oportunidade Futura</strong> com festa realizada (
+                <span className="text-foreground">data no passado</span>, não cancelada)
+              </li>
+              <li>
+                <span className="text-foreground">{OPORTUNIDADE_FUTURA_FOF1_MONTHS_BEFORE} meses</span>{" "}
+                antes do mês da festa no ano seguinte
+              </li>
+              <li>
+                Se responder → lead em Vendas (cria em Contato Inicial ou reaproveita o existente)
+              </li>
+              <li>Sem resposta → não cria lead em Vendas; segue para FOF2</li>
+            </FollowupRuleList>
+          </FollowupRuleCard>
+          <FollowupTemplateEditor
+            description="Primeiro contato de reativação para quem já festejou conosco."
+            isSaving={savingKey === OPORTUNIDADE_FUTURA_FOF1_TEMPLATE}
+            onChange={(body) => setDraftBody(OPORTUNIDADE_FUTURA_FOF1_TEMPLATE, body)}
+            onSave={() => void handleSave(fof1Template)}
+            previewMessage={previewFof1}
+            template={fof1Template}
+            title="FOF1 — 6 meses antes do mês da festa"
+            variables={FOF_TEMPLATE_VARIABLES}
+          />
+        </FollowupSection>
+
+        <FollowupSection>
+          <FollowupRuleCard title="Regra de disparo — FOF2">
+            <FollowupRuleList>
+              <li>
+                <span className="text-foreground">{OPORTUNIDADE_FUTURA_FOF2_DELAY_DAYS} dias</span> após o
+                FOF1, sem resposta do cliente
+              </li>
+              <li>
+                Badge <strong>FOF1 ✓</strong> no Kanban enquanto aguarda
+              </li>
+              <li>Se responder → cria ou reaproveita lead em Vendas</li>
+              <li>Sem resposta → segue para FOF3 (90 dias antes da festa)</li>
+            </FollowupRuleList>
+          </FollowupRuleCard>
+          <FollowupTemplateEditor
+            description="Segunda tentativa, 30 dias após o FOF1."
+            isSaving={savingKey === OPORTUNIDADE_FUTURA_FOF2_TEMPLATE}
+            onChange={(body) => setDraftBody(OPORTUNIDADE_FUTURA_FOF2_TEMPLATE, body)}
+            onSave={() => void handleSave(fof2Template)}
+            previewMessage={previewFof2}
+            template={fof2Template}
+            title="FOF2 — 30 dias após FOF1"
+            variables={FOF_TEMPLATE_VARIABLES}
+          />
+        </FollowupSection>
+
+        <FollowupSection>
+          <FollowupRuleCard title="Regra de disparo — FOF3">
+            <FollowupRuleList>
+              <li>
+                <span className="text-foreground">{OPORTUNIDADE_FUTURA_FOF3_DAYS_BEFORE} dias</span> antes
+                da data da festa alvo no ano seguinte
+              </li>
+              <li>Última tentativa do ciclo — após FOF2 sem resposta</li>
+              <li>Se não houver resposta, o ciclo reinicia no ano seguinte</li>
+            </FollowupRuleList>
+          </FollowupRuleCard>
+          <FollowupTemplateEditor
+            description="Terceira e última tentativa do ciclo (~3 meses antes da festa)."
+            isSaving={savingKey === OPORTUNIDADE_FUTURA_FOF3_TEMPLATE}
+            onChange={(body) => setDraftBody(OPORTUNIDADE_FUTURA_FOF3_TEMPLATE, body)}
+            onSave={() => void handleSave(fof3Template)}
+            previewMessage={previewFof3}
+            template={fof3Template}
+            title="FOF3 — 90 dias antes da festa"
+            variables={FOF_TEMPLATE_VARIABLES}
+          />
+        </FollowupSection>
       </div>
     </div>
   );
