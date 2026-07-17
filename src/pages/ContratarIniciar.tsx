@@ -266,34 +266,37 @@ const ContratarIniciar = () => {
                       className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
                     />
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-zinc-200">
-                        E-mail
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        required
-                        value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        placeholder="voce@email.com"
-                        className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="telefone" className="text-zinc-200">
-                        Telefone
-                      </Label>
-                      <Input
-                        id="telefone"
-                        required
-                        value={form.telefone}
-                        onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-                        placeholder="(11) 99999-9999"
-                        className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-zinc-200">
+                      E-mail de acesso
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="contato@suacasadefestas.com.br"
+                      className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
+                    />
+                    <p className="text-xs leading-5 text-zinc-500">
+                      Prefira o e-mail da casa de festas, se tiver. Assim o acesso fica no domínio do
+                      negócio — e-mail particular também funciona, mas o corporativo costuma ser
+                      melhor para o dia a dia.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone" className="text-zinc-200">
+                      Telefone
+                    </Label>
+                    <Input
+                      id="telefone"
+                      required
+                      value={form.telefone}
+                      onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                      placeholder="(11) 99999-9999"
+                      className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600 focus-visible:ring-[#5158e7]/35"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="empresa" className="text-zinc-200">

@@ -96,32 +96,36 @@ export const CustomPlanLeadDialog = ({ onOpenChange, open }: Props) => {
                 value={form.name}
               />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-zinc-200" htmlFor="lead-email">
-                  E-mail
-                </Label>
-                <Input
-                  className="border-white/15 bg-[#07070c] text-white"
-                  id="lead-email"
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  required
-                  type="email"
-                  value={form.email}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-zinc-200" htmlFor="lead-telefone">
-                  Telefone
-                </Label>
-                <Input
-                  className="border-white/15 bg-[#07070c] text-white"
-                  id="lead-telefone"
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  required
-                  value={form.phone}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label className="text-zinc-200" htmlFor="lead-email">
+                E-mail de acesso
+              </Label>
+              <Input
+                className="border-white/15 bg-[#07070c] text-white placeholder:text-zinc-600"
+                id="lead-email"
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="contato@suacasadefestas.com.br"
+                required
+                type="email"
+                value={form.email}
+              />
+              <p className="text-xs leading-5 text-zinc-500">
+                Prefira o e-mail da casa de festas, se tiver. Assim o acesso fica no domínio do
+                negócio — e-mail particular também funciona, mas o corporativo costuma ser melhor
+                para o dia a dia.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-zinc-200" htmlFor="lead-telefone">
+                Telefone
+              </Label>
+              <Input
+                className="border-white/15 bg-[#07070c] text-white"
+                id="lead-telefone"
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                required
+                value={form.phone}
+              />
             </div>
             <div className="space-y-2">
               <Label className="text-zinc-200" htmlFor="lead-empresa">
