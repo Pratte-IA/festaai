@@ -21,6 +21,12 @@ const GuidedSetupContext = createContext<GuidedSetupContextValue | null>(null);
 
 const FIRST_VISIT_STORAGE_KEY = "festaai.guidedSetupFirstVisitHandled";
 
+/** Rotas públicas de auth: o link de primeiro acesso autentica antes de criar senha. */
+const AUTH_FLOW_ROUTES = ["/nova-senha", "/login"] as const;
+
+const isAuthFlowRoute = (pathname: string) =>
+  AUTH_FLOW_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+
 export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,6 +36,7 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
   const { isComplete, isLoading: isProgressLoading } = useIsGuidedSetupComplete();
 
   const isOnSetupRoute = location.pathname.startsWith(GUIDED_SETUP_ROUTE);
+  const isOnAuthFlowRoute = isAuthFlowRoute(location.pathname);
   const isAdmin = Boolean(adminCapability?.isTenantAdmin);
   const isLoading = isAdminLoading || isProgressLoading;
   const isPlatformAdminViewing =
@@ -37,10 +44,20 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
     currentTenantId !== null &&
     getPlatformAdminViewingTenantId() === currentTenantId;
 
-  const isReadOnlyMode = !isLoading && !isComplete && !isOnSetupRoute && !isPlatformAdminViewing;
+  const isReadOnlyMode =
+    !isLoading && !isComplete && !isOnSetupRoute && !isOnAuthFlowRoute && !isPlatformAdminViewing;
 
   useEffect(() => {
-    if (isLoading || isComplete || !isAdmin || isOnSetupRoute || isPlatformAdminViewing) return;
+    if (
+      isLoading ||
+      isComplete ||
+      !isAdmin ||
+      isOnSetupRoute ||
+      isOnAuthFlowRoute ||
+      isPlatformAdminViewing
+    ) {
+      return;
+    }
 
     const storageKey = `${FIRST_VISIT_STORAGE_KEY}`;
     const alreadyHandled = sessionStorage.getItem(storageKey) === "1";
@@ -48,7 +65,15 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
 
     sessionStorage.setItem(storageKey, "1");
     navigate(GUIDED_SETUP_ROUTE, { replace: true });
-  }, [isAdmin, isComplete, isLoading, isOnSetupRoute, isPlatformAdminViewing, navigate]);
+  }, [
+    isAdmin,
+    isComplete,
+    isLoading,
+    isOnAuthFlowRoute,
+    isOnSetupRoute,
+    isPlatformAdminViewing,
+    navigate,
+  ]);
 
   const value = useMemo(
     () => ({
