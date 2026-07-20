@@ -55,6 +55,24 @@ const matchesSearch = (item: TenantSatisfactionSurveySubmissionListItem, query: 
   return haystack.includes(normalized);
 };
 
+/** Extrai a nota numérica de valores como "8" ou "8/10". */
+const parseAvaliacaoNota = (value: string | null | undefined): number | null => {
+  if (!value) return null;
+  const match = value.trim().match(/^(\d+(?:[.,]\d+)?)/);
+  if (!match) return null;
+  const score = Number(match[1].replace(",", "."));
+  return Number.isFinite(score) ? score : null;
+};
+
+type ResponseSentiment = "satisfeito" | "neutro" | "detrator";
+
+const getResponseSentiment = (score: number): ResponseSentiment | null => {
+  if (score >= 8 && score <= 10) return "satisfeito";
+  if (score === 7) return "neutro";
+  if (score >= 0 && score <= 6) return "detrator";
+  return null;
+};
+
 const StatusBadge = ({ item }: { item: TenantSatisfactionSurveySubmissionListItem }) => {
   const status = getSatisfactionSurveySubmissionStatus(item);
 
@@ -91,6 +109,23 @@ const PesquisaAvaliacao = () => {
     () => submissions.filter((item) => item.sentAt && !item.respondedAt).length,
     [submissions],
   );
+
+  const sentimentCounts = useMemo(() => {
+    let satisfeitos = 0;
+    let neutros = 0;
+    let detratores = 0;
+
+    for (const item of submissions) {
+      const score = parseAvaliacaoNota(item.avaliacaoNota);
+      if (score == null) continue;
+      const sentiment = getResponseSentiment(score);
+      if (sentiment === "satisfeito") satisfeitos += 1;
+      else if (sentiment === "neutro") neutros += 1;
+      else if (sentiment === "detrator") detratores += 1;
+    }
+
+    return { satisfeitos, neutros, detratores };
+  }, [submissions]);
 
   return (
     <AppLayout>
@@ -130,6 +165,45 @@ const PesquisaAvaliacao = () => {
             <p className="text-2xl font-bold text-warning">{pendingCount}</p>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mb-6">
+        <h2 className="mb-3 text-sm font-semibold text-foreground">Análise das respostas</h2>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Clientes satisfeitos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-success">{sentimentCounts.satisfeitos}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Notas 8, 9 e 10</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Clientes neutros
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-warning">{sentimentCounts.neutros}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Nota 7</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Clientes detratores
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-destructive">{sentimentCounts.detratores}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Notas de 0 a 6</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <Card>

@@ -101,8 +101,8 @@ const ConfiguracaoInicial = () => {
           }
           description={
             isComplete
-              ? "A configuração inicial já foi concluída. Clique em qualquer etapa abaixo para revisar ou ajustar as definições do seu espaço."
-              : "Clique em cada etapa para configurar. Ao salvar, a etapa fecha e a próxima é aberta automaticamente."
+              ? "A configuração inicial já foi concluída. Avance pelas etapas para revisar ou ajustar as definições do seu espaço."
+              : "Siga as etapas uma a uma. Ao salvar, a próxima tela abre automaticamente."
           }
           renderAction={
             isComplete

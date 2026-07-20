@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, ChevronDown, Lock } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight } from "lucide-react";
 
 import { AutomacoesSetupStep } from "@/components/guided-setup/AutomacoesSetupStep";
 import { AdicionaisSetupStep } from "@/components/guided-setup/AdicionaisSetupStep";
@@ -13,6 +13,8 @@ import { FollowupPropostaSetupStep } from "@/components/guided-setup/FollowupPro
 import { PesquisaAvaliacaoSetupStep } from "@/components/guided-setup/PesquisaAvaliacaoSetupStep";
 import { PackagesSetupStep } from "@/components/guided-setup/PackagesSetupStep";
 import { WhatsappSetupStep } from "@/components/guided-setup/WhatsappSetupStep";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   GUIDED_SETUP_STEPS,
   getNextGuidedSetupStep,
@@ -31,6 +33,9 @@ const isStepAccessible = (
   activeStep: GuidedSetupStepKey | null,
   completedSteps: GuidedSetupStepKey[],
 ) => completedSteps.includes(stepKey) || stepKey === activeStep || activeStep === null;
+
+const getStepIndex = (stepKey: GuidedSetupStepKey) =>
+  GUIDED_SETUP_STEPS.findIndex((step) => step.key === stepKey);
 
 const renderStepContent = (
   stepKey: GuidedSetupStepKey,
@@ -72,105 +77,139 @@ export const GuidedSetupStepper = ({
   completedSteps,
   onAllCompleted,
 }: GuidedSetupStepperProps) => {
-  const [expandedStep, setExpandedStep] = useState<GuidedSetupStepKey | null>(activeStep);
+  const [currentStep, setCurrentStep] = useState<GuidedSetupStepKey>(
+    () => activeStep ?? GUIDED_SETUP_STEPS[0].key,
+  );
 
   useEffect(() => {
-    setExpandedStep(activeStep);
-  }, [activeStep]);
+    if (activeStep) {
+      setCurrentStep(activeStep);
+      return;
+    }
+    if (completedSteps.length === GUIDED_SETUP_STEPS.length) {
+      setCurrentStep(GUIDED_SETUP_STEPS[0].key);
+    }
+  }, [activeStep, completedSteps.length]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
+  const currentIndex = getStepIndex(currentStep);
+  const currentMeta = GUIDED_SETUP_STEPS[currentIndex];
+  const progressPercent = Math.round(
+    (completedSteps.length / GUIDED_SETUP_STEPS.length) * 100,
+  );
+  const previousStep = currentIndex > 0 ? GUIDED_SETUP_STEPS[currentIndex - 1] : null;
+  const canGoBack =
+    previousStep !== null && isStepAccessible(previousStep.key, activeStep, completedSteps);
 
   const handleStepCompleted = (completedStepKey: GuidedSetupStepKey) => {
     const mergedCompleted = Array.from(
       new Set([...completedSteps, completedStepKey]),
     ) as GuidedSetupStepKey[];
     const nextStep = getNextGuidedSetupStep(mergedCompleted);
-    setExpandedStep(nextStep);
+    if (nextStep) {
+      setCurrentStep(nextStep);
+    }
   };
 
-  const handleHeaderClick = (stepKey: GuidedSetupStepKey) => {
+  const handleGoToStep = (stepKey: GuidedSetupStepKey) => {
     if (!isStepAccessible(stepKey, activeStep, completedSteps)) return;
-    setExpandedStep((current) => (current === stepKey ? null : stepKey));
+    setCurrentStep(stepKey);
   };
 
   return (
-    <ol className="flex w-full flex-col gap-2">
-      {GUIDED_SETUP_STEPS.map((step, index) => {
-        const isCompleted = completedSteps.includes(step.key);
-        const isCurrent = step.key === activeStep;
-        const isExpanded = expandedStep === step.key;
-        const isAccessible = isStepAccessible(step.key, activeStep, completedSteps);
+    <div className="flex w-full flex-col gap-5">
+      <div className="space-y-2 rounded-xl border border-border/50 bg-card/40 p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <p className="font-medium text-foreground">
+            Etapa {currentIndex + 1} de {GUIDED_SETUP_STEPS.length}
+          </p>
+          <p className="text-muted-foreground">{progressPercent}% concluído</p>
+        </div>
+        <Progress value={progressPercent} className="h-2" aria-label="Progresso geral da configuração" />
+      </div>
 
-        return (
-          <li
-            key={step.key}
-            className={cn(
-              "w-full rounded-xl border transition-colors",
-              isExpanded ? "overflow-visible" : "overflow-hidden",
-              isExpanded
-                ? "border-primary/40 bg-card/60 shadow-sm"
-                : isCompleted
-                  ? "border-emerald-500/25 bg-emerald-500/5"
-                  : isCurrent
-                    ? "border-primary/30 bg-primary/5"
-                    : "border-border/50 bg-muted/15",
-            )}
-          >
-            <button
-              type="button"
-              disabled={!isAccessible}
-              aria-expanded={isExpanded}
-              onClick={() => handleHeaderClick(step.key)}
-              className={cn(
-                "flex w-full items-center gap-3 px-4 py-3 text-left transition-colors sm:gap-4 sm:px-5",
-                isAccessible ? "cursor-pointer hover:bg-muted/20" : "cursor-not-allowed opacity-60",
-              )}
-            >
+      <div className="overflow-hidden rounded-xl border border-primary/30 bg-card/60 shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-border/40 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+          <div className="min-w-0 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                  isCompleted
+                  completedSteps.includes(currentStep)
                     ? "bg-emerald-500 text-white"
-                    : isCurrent
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground",
+                    : "bg-primary text-primary-foreground",
                 )}
               >
-                {isCompleted ? <Check className="h-4 w-4" aria-hidden /> : index + 1}
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <p className="text-sm font-semibold text-foreground sm:text-base">{step.title}</p>
-                  {!isExpanded ? (
-                    <p className="hidden truncate text-xs text-muted-foreground sm:inline sm:max-w-[50%]">
-                      {step.description}
-                    </p>
-                  ) : null}
-                </div>
-                {isExpanded ? (
-                  <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{step.description}</p>
-                ) : null}
-              </div>
-
-              <span className="shrink-0 text-muted-foreground">
-                {isAccessible ? (
-                  <ChevronDown
-                    className={cn("h-5 w-5 transition-transform duration-200", isExpanded && "rotate-180")}
-                    aria-hidden
-                  />
+                {completedSteps.includes(currentStep) ? (
+                  <Check className="h-4 w-4" aria-hidden />
                 ) : (
-                  <Lock className="h-4 w-4" aria-hidden />
+                  currentIndex + 1
                 )}
               </span>
-            </button>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">
+                {currentMeta.title}
+              </h2>
+            </div>
+            <p className="text-sm text-muted-foreground">{currentMeta.description}</p>
+          </div>
 
-            {isExpanded ? (
-              <div className="border-t border-border/40 px-4 py-6 sm:px-5">
-                {renderStepContent(step.key, () => handleStepCompleted(step.key), onAllCompleted)}
-              </div>
+          {canGoBack ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="shrink-0 self-start"
+              onClick={() => handleGoToStep(previousStep.key)}
+            >
+              <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
+              Etapa anterior
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="px-4 py-6 sm:px-6">
+          {renderStepContent(
+            currentStep,
+            () => handleStepCompleted(currentStep),
+            onAllCompleted,
+          )}
+        </div>
+      </div>
+
+      {activeStep === null && completedSteps.length === GUIDED_SETUP_STEPS.length ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/50 bg-muted/20 px-4 py-3">
+          <p className="text-sm text-muted-foreground">
+            Navegue pelas etapas acima para revisar ou ajustar qualquer configuração.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {currentIndex > 0 ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleGoToStep(GUIDED_SETUP_STEPS[currentIndex - 1].key)}
+              >
+                <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
+                Anterior
+              </Button>
             ) : null}
-          </li>
-        );
-      })}
-    </ol>
+            {currentIndex < GUIDED_SETUP_STEPS.length - 1 ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleGoToStep(GUIDED_SETUP_STEPS[currentIndex + 1].key)}
+              >
+                Próxima
+                <ChevronRight className="ml-1.5 h-4 w-4" aria-hidden />
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 };

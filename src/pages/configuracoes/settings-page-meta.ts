@@ -99,7 +99,7 @@ export const SETTINGS_PAGE_META = {
     breadcrumb: "Configuração inicial",
     title: "Configuração guiada",
     description:
-      "Configure empresa, pacotes, financeiro, contrato, formulário, follow-ups, pesquisa de avaliação e integrações em etapas sequenciais.",
+      "Configure empresa, pacotes, financeiro, contrato, formulário, follow-ups, pesquisa e integrações — uma etapa por vez.",
   },
 } as const satisfies Record<string, SettingsPageMeta>;
 
