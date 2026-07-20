@@ -144,18 +144,21 @@ const KanbanBoard = ({ events, funnel, highlightStage, stages }: KanbanBoardProp
 
             <div className="space-y-2 min-h-[200px] p-2 rounded-xl bg-muted/20 border border-border/30">
               {stageEvents.map((event) => {
+                const isPerdidoStage = stage.key === "perdido";
                 const followupBadge =
                   funnel === "vendas"
-                    ? getPerdidoOportunidadeKanbanBadge(event) ??
-                      getPropostaFollowupKanbanBadge(event) ??
-                      getContractSignatureFollowupKanbanBadge(event)
+                    ? isPerdidoStage
+                      ? getPerdidoOportunidadeKanbanBadge(event)
+                      : getPropostaFollowupKanbanBadge(event) ??
+                        getContractSignatureFollowupKanbanBadge(event)
                     : funnel === "executadas"
                       ? getOportunidadeFuturaFofKanbanBadge(event)
                       : null;
                 const respondedBadge =
                   funnel === "vendas"
-                    ? getPerdidoOportunidadeRespondedKanbanBadge(event) ??
-                      getPropostaFollowupRespondedKanbanBadge(event)
+                    ? isPerdidoStage
+                      ? getPerdidoOportunidadeRespondedKanbanBadge(event)
+                      : getPropostaFollowupRespondedKanbanBadge(event)
                     : funnel === "executadas"
                       ? getOportunidadeFuturaFofRespondedKanbanBadge(event)
                       : null;

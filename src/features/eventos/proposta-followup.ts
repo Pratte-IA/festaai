@@ -178,10 +178,8 @@ export const getPropostaFollowupKanbanBadge = (evento: {
     return null;
   }
 
-  if (evento.etapa === "perdido" && evento.followup_0b_enviado_em) {
-    return { className: "bg-success/15 text-success", label: "FU0b ✓" };
-  }
-
+  // Em Perdido, o Kanban mostra só badges da sequência da etapa (FUP/FOP).
+  // O histórico FU0/FU0b/FU1–FU4 fica no timeline do evento.
   if (evento.etapa !== "proposta_enviada") return null;
 
   if (evento.followup_3_enviado_em) {
