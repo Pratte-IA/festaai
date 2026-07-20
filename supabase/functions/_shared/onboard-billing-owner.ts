@@ -62,7 +62,7 @@ export const onboardBillingOwner = async (
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
       email,
       email_confirm: true,
-      user_metadata: { full_name: fullName },
+      user_metadata: { full_name: fullName, must_set_password: true },
     });
 
     if (createError || !created.user) {

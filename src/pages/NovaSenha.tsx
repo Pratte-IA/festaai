@@ -74,6 +74,7 @@ const NovaSenha = () => {
 
     const { error } = await supabase.auth.updateUser({
       password: parsedPasswords.data.password,
+      data: { must_set_password: false },
     });
 
     setIsSubmitting(false);

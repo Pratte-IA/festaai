@@ -2,6 +2,7 @@ import { createContext, PropsWithChildren, useContext, useEffect, useMemo } from
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/features/auth";
+import { FIRST_ACCESS_PASSWORD_PATH, userMustSetPassword } from "@/features/auth/must-set-password";
 import { getPlatformAdminViewingTenantId } from "@/features/admin";
 import { useCurrentTenant } from "@/features/tenants";
 import { useTenantAdminCapability } from "@/features/tenants/use-tenant-admin-capability";
@@ -30,13 +31,14 @@ const isAuthFlowRoute = (pathname: string) =>
 export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isPlatformAdmin } = useAuth();
+  const { isPlatformAdmin, user } = useAuth();
   const { currentTenantId } = useCurrentTenant();
   const { data: adminCapability, isLoading: isAdminLoading } = useTenantAdminCapability();
   const { isComplete, isLoading: isProgressLoading } = useIsGuidedSetupComplete();
 
   const isOnSetupRoute = location.pathname.startsWith(GUIDED_SETUP_ROUTE);
   const isOnAuthFlowRoute = isAuthFlowRoute(location.pathname);
+  const mustSetPassword = userMustSetPassword(user);
   const isAdmin = Boolean(adminCapability?.isTenantAdmin);
   const isLoading = isAdminLoading || isProgressLoading;
   const isPlatformAdminViewing =
@@ -45,10 +47,21 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
     getPlatformAdminViewingTenantId() === currentTenantId;
 
   const isReadOnlyMode =
-    !isLoading && !isComplete && !isOnSetupRoute && !isOnAuthFlowRoute && !isPlatformAdminViewing;
+    !isLoading &&
+    !isComplete &&
+    !isOnSetupRoute &&
+    !isOnAuthFlowRoute &&
+    !mustSetPassword &&
+    !isPlatformAdminViewing;
+
+  useEffect(() => {
+    if (!mustSetPassword || isOnAuthFlowRoute) return;
+    navigate(FIRST_ACCESS_PASSWORD_PATH, { replace: true });
+  }, [isOnAuthFlowRoute, mustSetPassword, navigate]);
 
   useEffect(() => {
     if (
+      mustSetPassword ||
       isLoading ||
       isComplete ||
       !isAdmin ||
@@ -72,6 +85,7 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
     isOnAuthFlowRoute,
     isOnSetupRoute,
     isPlatformAdminViewing,
+    mustSetPassword,
     navigate,
   ]);
 
