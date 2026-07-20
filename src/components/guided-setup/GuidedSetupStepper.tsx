@@ -8,6 +8,7 @@ import { CompanyProfileStepForm } from "@/components/guided-setup/CompanyProfile
 import { ContratoSetupStep } from "@/components/guided-setup/ContratoSetupStep";
 import { EstruturaSetupStep } from "@/components/guided-setup/EstruturaSetupStep";
 import { FinanceiroSetupStep } from "@/components/guided-setup/FinanceiroSetupStep";
+import { FeriadosSetupStep } from "@/components/guided-setup/FeriadosSetupStep";
 import { FormularioSetupStep } from "@/components/guided-setup/FormularioSetupStep";
 import { FollowupPropostaSetupStep } from "@/components/guided-setup/FollowupPropostaSetupStep";
 import { PesquisaAvaliacaoSetupStep } from "@/components/guided-setup/PesquisaAvaliacaoSetupStep";
@@ -53,6 +54,8 @@ const renderStepContent = (
       return <EstruturaSetupStep onCompleted={onCompleted} />;
     case "financeiro":
       return <FinanceiroSetupStep onCompleted={onCompleted} />;
+    case "feriados":
+      return <FeriadosSetupStep onCompleted={onCompleted} />;
     case "checklist":
       return <ChecklistSetupStep onCompleted={onCompleted} />;
     case "contrato":

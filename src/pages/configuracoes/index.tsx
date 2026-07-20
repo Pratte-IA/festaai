@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import {
   Bot,
+  CalendarDays,
   ChevronRight,
   ClipboardList,
   FileCheck2,
@@ -72,6 +73,12 @@ const cards: ConfigCardProps[] = [
     title: "Financeiro",
     description: "Entrada padrão, parcelas e regras de pagamento",
     icon: Wallet,
+  },
+  {
+    to: "/configuracoes/feriados",
+    title: "Feriados",
+    description: "Datas automáticas da precificação e feriados da cidade ou empresa",
+    icon: CalendarDays,
   },
   {
     to: "/configuracoes/followups",

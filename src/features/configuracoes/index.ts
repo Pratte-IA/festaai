@@ -164,3 +164,26 @@ export type {
 } from "./satisfaction-survey-submission-types";
 export { useTenantSatisfactionSurveySubmissions } from "./use-tenant-satisfaction-survey-submissions";
 export { useEventoSatisfactionResponses } from "./use-evento-satisfaction-responses";
+export type {
+  HolidayKind,
+  HolidayRecurrenceType,
+  HolidayScope,
+  HolidaySource,
+  TenantHolidayCalendarEntry,
+  TenantHolidayInput,
+  TenantHolidayScope,
+} from "./holiday-types";
+export {
+  defaultTenantHolidayInput,
+  HOLIDAY_KIND_LABELS,
+  HOLIDAY_RECURRENCE_LABELS,
+  HOLIDAY_SCOPE_LABELS,
+} from "./holiday-types";
+export {
+  findInactiveTwinHoliday,
+  useCreateTenantHoliday,
+  useDeleteTenantHoliday,
+  useTenantHolidayCalendar,
+  useToggleTenantHolidayActive,
+  useUpdateTenantHoliday,
+} from "./use-tenant-holidays";

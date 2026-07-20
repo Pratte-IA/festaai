@@ -76,6 +76,15 @@ const fetchSectionData = async (tenantId: number, section: GuidedSetupStepKey) =
       if (error) throw error;
       return data;
     }
+    case "feriados": {
+      const { data, error } = await supabase
+        .from("tenant_holidays")
+        .select("id, holiday_date, name, scope, kind, recurs_annually, active")
+        .eq("tenant_id", tenantId)
+        .order("holiday_date", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
     case "checklist": {
       const [categoriesResult, itemsResult] = await Promise.all([
         supabase

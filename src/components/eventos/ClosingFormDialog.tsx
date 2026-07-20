@@ -68,6 +68,8 @@ import {
   recalculateFinancialTotals,
   resolveGuestCount,
 } from "@/features/eventos/closing-form-runtime";
+import { useCheckTenantHolidays } from "@/features/holidays/use-check-tenant-holidays";
+import { isBrazilianNationalHoliday } from "@/data/brazilian-holidays";
 import { cn } from "@/lib/utils";
 
 interface ClosingFormDialogProps {
@@ -142,6 +144,18 @@ export const ClosingFormDialog = ({
 
   const fieldIdByKey = useMemo(() => buildFieldIdByKey(activeFields), [activeFields]);
 
+  const closingEventDate = useMemo(
+    () => resolveEventDateFromFieldValues(fieldValues, fieldIdByKey, evento.data_evento),
+    [evento.data_evento, fieldIdByKey, fieldValues],
+  );
+  const holidayCheck = useCheckTenantHolidays(evento.tenant_id, [
+    evento.data_evento,
+    closingEventDate,
+  ]);
+  const resolveIsHoliday = holidayCheck.isHolidayReady
+    ? holidayCheck.isHoliday
+    : isBrazilianNationalHoliday;
+
   const fieldsBySection = useMemo(() => {
     const grouped = new Map<ClosingFormSection, ClosingFormField[]>();
     CLOSING_FORM_SECTIONS.forEach((section) => grouped.set(section, []));
@@ -196,7 +210,7 @@ export const ClosingFormDialog = ({
       const eventDate = resolveEventDateFromFieldValues(values, fieldIdByKey, evento.data_evento);
       values = applyPackageToFieldValues(initialPackage, guestCount, values, fieldIdByKey);
       values = recalculateFinancialTotals(values, fieldIdByKey, {
-        pacoteValue: resolvePackagePrice(initialPackage, guestCount, eventDate),
+        pacoteValue: resolvePackagePrice(initialPackage, guestCount, eventDate, resolveIsHoliday),
       });
     } else {
       values = recalculateFinancialTotals(values, fieldIdByKey);
@@ -237,7 +251,7 @@ export const ClosingFormDialog = ({
     if (!pkg) return undefined;
     const guestCount = resolveGuestCount(evento, values, fieldIdByKey);
     const eventDate = resolveEventDateFromFieldValues(values, fieldIdByKey, evento.data_evento);
-    return resolvePackagePrice(pkg, guestCount, eventDate);
+    return resolvePackagePrice(pkg, guestCount, eventDate, resolveIsHoliday);
   };
 
   const refreshPackagePricing = (
@@ -294,7 +308,7 @@ export const ClosingFormDialog = ({
       setFieldValues((fieldPrevious) => {
         const withPackage = refreshPackagePricing(fieldPrevious, pkg);
         const eventDate = resolveEventDateFromFieldValues(withPackage, fieldIdByKey, evento.data_evento);
-        const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate);
+        const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate, resolveIsHoliday);
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         const adicionaisSelecionadosId = fieldIdByKey.get("adicionais_selecionados");

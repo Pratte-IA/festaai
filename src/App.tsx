@@ -36,6 +36,7 @@ const ConfiguracoesFormularioContratacao = lazy(
   () => import("./pages/configuracoes/FormularioContratacao"),
 );
 const ConfiguracoesFinanceiro = lazy(() => import("./pages/configuracoes/Financeiro"));
+const ConfiguracoesFeriados = lazy(() => import("./pages/configuracoes/Feriados"));
 const ConfiguracoesPesquisaAvaliacao = lazy(() => import("./pages/configuracoes/PesquisaAvaliacao"));
 const ConfiguracoesFollowups = lazy(() => import("./pages/configuracoes/Followups"));
 const ConfiguracoesFollowupsComercial = lazy(() => import("./pages/configuracoes/FollowupsComercial"));
@@ -195,6 +196,7 @@ const App = () => (
                       <Route path="formulario-contratacao" element={<ConfiguracoesFormularioContratacao />} />
                       <Route path="formulario-fechamento" element={<Navigate to="/configuracoes/formulario-contratacao" replace />} />
                       <Route path="financeiro" element={<ConfiguracoesFinanceiro />} />
+                      <Route path="feriados" element={<ConfiguracoesFeriados />} />
                       <Route path="followups" element={<ConfiguracoesFollowups />} />
                       <Route path="followups/comercial" element={<ConfiguracoesFollowupsComercial />} />
                       <Route path="followups/oportunidade" element={<ConfiguracoesFollowupsOportunidade />} />

@@ -35,8 +35,10 @@ import {
 import type { Evento } from "@/features/eventos/types";
 import { cn } from "@/lib/utils";
 import { resolvePricingBandForDate } from "@/data/pricing-schedule";
-import { isBrazilianNationalHoliday } from "@/data/brazilian-holidays";
 import { formatIsoDateBR } from "@/lib/date";
+import { useCurrentTenant } from "@/features/tenants";
+import { useCheckTenantHolidays } from "@/features/holidays/use-check-tenant-holidays";
+import { isBrazilianNationalHoliday } from "@/data/brazilian-holidays";
 import { AcceptanceTermResponseField, setTermResponse } from "./AcceptanceTermResponseField";
 import { ClientPaymentValueSummary } from "./ClientPaymentValueSummary";
 import {
@@ -239,6 +241,7 @@ const PreviewFieldInput = ({
 };
 
 export const FormPreviewPanel = () => {
+  const { currentTenantId } = useCurrentTenant();
   const { data: fields = [], isLoading: isFieldsLoading } = useTenantClosingForm();
   const { data: packages = [], isLoading: isPackagesLoading } = useTenantPackages();
   const { data: additionals = [], isLoading: isAdditionalsLoading } = useTenantAdditionals();
@@ -291,6 +294,15 @@ export const FormPreviewPanel = () => {
 
   const fieldIdByKey = useMemo(() => buildFieldIdByKey(activeFields), [activeFields]);
 
+  const previewEventDate = useMemo(
+    () => resolveEventDateFromFieldValues(fieldValues, fieldIdByKey),
+    [fieldIdByKey, fieldValues],
+  );
+  const holidayCheck = useCheckTenantHolidays(currentTenantId, [previewEventDate]);
+  const resolveIsHoliday = holidayCheck.isHolidayReady
+    ? holidayCheck.isHoliday
+    : isBrazilianNationalHoliday;
+
   const allFieldIdByKey = useMemo(
     () => buildFieldIdByKey(fields.filter((field) => field.active)),
     [fields],
@@ -304,10 +316,19 @@ export const FormPreviewPanel = () => {
         fieldIdByKey: allFieldIdByKey,
         fieldValues,
         guestCountSource: PREVIEW_EVENTO,
+        isHoliday: resolveIsHoliday,
         packages,
         selectedPackageId,
       }),
-    [additionals, allFieldIdByKey, fieldValues, packages, selectedAdditionalIds, selectedPackageId],
+    [
+      additionals,
+      allFieldIdByKey,
+      fieldValues,
+      packages,
+      resolveIsHoliday,
+      selectedAdditionalIds,
+      selectedPackageId,
+    ],
   );
 
   const fieldsBySection = useMemo(() => {
@@ -333,7 +354,7 @@ export const FormPreviewPanel = () => {
     if (!pkg) return undefined;
     const guestCount = resolveGuestCount(PREVIEW_EVENTO, values, fieldIdByKey);
     const eventDate = resolveEventDateFromFieldValues(values, fieldIdByKey);
-    return resolvePackagePrice(pkg, guestCount, eventDate);
+    return resolvePackagePrice(pkg, guestCount, eventDate, resolveIsHoliday);
   };
 
   const refreshPackagePricing = (
@@ -389,7 +410,7 @@ export const FormPreviewPanel = () => {
       setFieldValues((fieldPrevious) => {
         const withPackage = refreshPackagePricing(fieldPrevious, pkg);
         const eventDate = resolveEventDateFromFieldValues(withPackage, fieldIdByKey);
-        const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate);
+        const pacoteValue = resolvePackagePrice(pkg, guestCount, eventDate, resolveIsHoliday);
         const fieldNext = syncFinancialFields(withPackage, pacoteValue);
         const adicionaisFieldId = fieldIdByKey.get("valor_adicionais");
         if (adicionaisFieldId) fieldNext[adicionaisFieldId] = String(selectedTotal);
@@ -490,13 +511,13 @@ export const FormPreviewPanel = () => {
     const guestCount = resolveGuestCount(PREVIEW_EVENTO, fieldValues, fieldIdByKey);
     const eventDate = resolveEventDateFromFieldValues(fieldValues, fieldIdByKey);
     const selectedPrice = selectedPackage
-      ? resolvePackagePrice(selectedPackage, guestCount, eventDate)
+      ? resolvePackagePrice(selectedPackage, guestCount, eventDate, resolveIsHoliday)
       : undefined;
     const pricingBand =
       selectedPackage && eventDate
-        ? resolvePricingBandForDate(selectedPackage.pricingSchedule, eventDate)
+        ? resolvePricingBandForDate(selectedPackage.pricingSchedule, eventDate, resolveIsHoliday)
         : null;
-    const isHoliday = eventDate ? isBrazilianNationalHoliday(eventDate) : false;
+    const isHoliday = eventDate ? resolveIsHoliday(eventDate) : false;
 
     return (
       <div className="space-y-4">

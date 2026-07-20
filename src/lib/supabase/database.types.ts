@@ -2647,6 +2647,53 @@ export type Database = {
           },
         ]
       }
+      tenant_holidays: {
+        Row: {
+          active: boolean
+          created_at: string
+          holiday_date: string
+          id: number
+          kind: string
+          name: string
+          recurs_annually: boolean
+          scope: string
+          tenant_id: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          holiday_date: string
+          id?: number
+          kind: string
+          name: string
+          recurs_annually?: boolean
+          scope: string
+          tenant_id: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          holiday_date?: string
+          id?: number
+          kind?: string
+          name?: string
+          recurs_annually?: boolean
+          scope?: string
+          tenant_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_holidays_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_message_templates: {
         Row: {
           body: string
@@ -3028,6 +3075,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_tenant_holidays: {
+        Args: { p_dates: string[]; p_tenant_id: number }
+        Returns: {
+          date: string
+          holiday_kind: string | null
+          holiday_name: string | null
+          holiday_scope: string | null
+          holiday_source: string | null
+          is_holiday: boolean
+        }[]
+      }
       get_public_commercial_offer: {
         Args: { p_token: string }
         Returns: {
@@ -3050,6 +3108,21 @@ export type Database = {
       }
       is_platform_admin: { Args: never; Returns: boolean }
       is_tenant_member: { Args: { target_tenant_id: number }; Returns: boolean }
+      list_tenant_holiday_calendar: {
+        Args: { p_tenant_id: number; p_year: number }
+        Returns: {
+          active: boolean
+          date: string
+          editable: boolean
+          id: number | null
+          kind: string
+          name: string
+          recurrence_type: string
+          recurs_annually: boolean
+          scope: string
+          source: string
+        }[]
+      }
       match_documents: {
         Args: { filter?: Json; match_count?: number; query_embedding: string }
         Returns: {

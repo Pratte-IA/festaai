@@ -48,18 +48,22 @@ const addDays = (date: Date, days: number): Date => {
 };
 
 const FIXED_NATIONAL_HOLIDAYS = new Set([
-  "01-01",
-  "04-21",
-  "05-01",
-  "09-07",
-  "10-12",
-  "11-02",
-  "11-15",
-  "11-20",
-  "12-25",
+  "01-01", // Confraternização Universal — national / official
+  "04-21", // Tiradentes — national / official
+  "05-01", // Dia do Trabalho — national / official
+  "09-07", // Independência — national / official
+  "10-12", // Nossa Senhora Aparecida — national / official
+  "11-02", // Finados — national / official
+  "11-15", // Proclamação da República — national / official
+  "11-20", // Consciência Negra — national / official
+  "12-25", // Natal — national / official
 ]);
 
-/** Feriados nacionais fixos e móveis usados na precificação por faixa de dia. */
+/**
+ * Feriados/datas especiais do calendário automático (paridade com a RPC SQL).
+ * Inclui oficiais e facultativos comerciais (Carnaval seg/ter, Corpus Christi).
+ * Para precificação com feriados do tenant, use `check_tenant_holidays`.
+ */
 export const isBrazilianNationalHoliday = (dateStr: string): boolean => {
   const parts = parseIsoDateString(dateStr);
   if (!parts) return false;
@@ -68,6 +72,7 @@ export const isBrazilianNationalHoliday = (dateStr: string): boolean => {
   if (FIXED_NATIONAL_HOLIDAYS.has(monthDay)) return true;
 
   const easter = calculateEasterSunday(parts.year);
+  // Páscoa-48/-47 Carnaval (optional); -2 Sexta Santa (official); +60 Corpus Christi (optional)
   const movableDates = new Set(
     [
       addDays(easter, -48),

@@ -21,11 +21,20 @@ export {
 } from "./build-dre-entradas";
 export { buildDreStatement } from "./build-dre-statement";
 export {
+  buildFinanceiroReport,
   buildFinanceiroReportCsv,
+  buildFinanceiroReportPdfHtml,
+  buildFinanceiroReportXls,
+  DEFAULT_FINANCEIRO_EXPORT_SECTIONS,
   downloadFinanceiroReport,
   getFinanceiroReportFilename,
 } from "./export-financeiro-report";
-export type { FinanceiroExportData } from "./export-financeiro-report";
+export type {
+  FinanceiroExportData,
+  FinanceiroExportFormat,
+  FinanceiroExportOptions,
+  FinanceiroExportSections,
+} from "./export-financeiro-report";
 export type {
   DrePeriodSummary,
   DreStatement,

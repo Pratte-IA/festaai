@@ -220,6 +220,43 @@ const SectionBody = ({
     );
   }
 
+  if (section === "feriados") {
+    const holidays = (data ?? []) as Array<Record<string, unknown>>;
+    if (holidays.length === 0) {
+      return (
+        <EmptyState message="Nenhum feriado adicional cadastrado (as datas automáticas nacionais não aparecem aqui)." />
+      );
+    }
+
+    return (
+      <div className="overflow-hidden rounded-2xl border">
+        <div className="hidden grid-cols-[0.8fr_1.2fr_0.7fr_0.7fr_0.6fr_0.5fr] gap-4 bg-muted/50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid">
+          <span>Data</span>
+          <span>Nome</span>
+          <span>Abrangência</span>
+          <span>Tipo</span>
+          <span>Recorrente</span>
+          <span>Status</span>
+        </div>
+        <div className="divide-y">
+          {holidays.map((item) => (
+            <article
+              className="grid gap-2 px-4 py-3 text-sm md:grid-cols-[0.8fr_1.2fr_0.7fr_0.7fr_0.6fr_0.5fr] md:items-center"
+              key={String(item.id)}
+            >
+              <p className="tabular-nums font-medium">{String(item.holiday_date).slice(0, 10)}</p>
+              <p className="font-medium">{String(item.name)}</p>
+              <p className="text-muted-foreground">{String(item.scope)}</p>
+              <p className="text-muted-foreground">{String(item.kind)}</p>
+              <p className="text-muted-foreground">{item.recurs_annually ? "Sim" : "Não"}</p>
+              <p className="text-muted-foreground">{item.active === false ? "Inativo" : "Ativo"}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (section === "checklist") {
     const checklist = data as {
       categories: Array<{ id: number; name: string }>;

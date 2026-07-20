@@ -47,6 +47,12 @@ export const SETTINGS_PAGE_META = {
     description:
       "Configure entrada, formas de pagamento do restante e limites de parcelamento padrão da casa.",
   },
+  feriados: {
+    breadcrumb: "Feriados",
+    title: "Feriados e datas especiais",
+    description:
+      "Veja as datas consideradas automaticamente na precificação e cadastre feriados estaduais, municipais ou da empresa.",
+  },
   followups: {
     breadcrumb: "Follow-ups",
     title: "Follow-ups automáticos",

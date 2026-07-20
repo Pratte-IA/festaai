@@ -193,14 +193,18 @@ export const resolveEventDateFromFieldValues = (
   return fromField || fallbackDate || null;
 };
 
-export const getPackageFromPrice = (pkg: PackageData, eventDate?: string | null): number => {
+export const getPackageFromPrice = (
+  pkg: PackageData,
+  eventDate?: string | null,
+  isHoliday?: (date: string) => boolean,
+): number => {
   const tiers = pkg.pricingTiers ?? [];
   const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
   const bands = schedule.bands ?? [];
   if (tiers.length === 0) return 0;
 
   if (eventDate && bands.length > 0) {
-    const band = resolvePricingBandForDate(schedule, eventDate);
+    const band = resolvePricingBandForDate(schedule, eventDate, isHoliday);
     if (band) {
       const tierPrices = tiers.map((item) => getTierBandPrice(item.bandPrices, band.id));
       const positiveTierPrices = tierPrices.filter((price) => price > 0);
@@ -222,6 +226,7 @@ export const getPackagePriceForGuests = (
   pkg: PackageData,
   guestCount: number,
   eventDate?: string | null,
+  isHoliday?: (date: string) => boolean,
 ): number => {
   const tiers = pkg.pricingTiers ?? [];
   const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
@@ -235,7 +240,7 @@ export const getPackagePriceForGuests = (
   if (bands.length === 0) return 0;
 
   if (eventDate) {
-    const band = resolvePricingBandForDate(schedule, eventDate);
+    const band = resolvePricingBandForDate(schedule, eventDate, isHoliday);
     if (band) return getTierBandPrice(tier.bandPrices, band.id);
   }
 
@@ -248,10 +253,11 @@ export const resolvePackagePrice = (
   pkg: PackageData,
   guestCount: number,
   eventDate?: string | null,
+  isHoliday?: (date: string) => boolean,
 ): number =>
   guestCount > 0
-    ? getPackagePriceForGuests(pkg, guestCount, eventDate)
-    : getPackageFromPrice(pkg, eventDate);
+    ? getPackagePriceForGuests(pkg, guestCount, eventDate, isHoliday)
+    : getPackageFromPrice(pkg, eventDate, isHoliday);
 
 export const calculateAdditionalSubtotal = (
   additional: Pick<Additional, "price" | "type">,
@@ -399,6 +405,7 @@ export const computeClosingFormPaymentSummary = ({
   fieldIdByKey,
   fieldValues,
   guestCountSource,
+  isHoliday,
   packages,
   selectedPackageId,
 }: {
@@ -407,6 +414,7 @@ export const computeClosingFormPaymentSummary = ({
   fieldIdByKey: Map<string, string>;
   fieldValues: Record<string, string>;
   guestCountSource: Pick<Evento, "quantidade_convidados">;
+  isHoliday?: (date: string) => boolean;
   packages: PackageData[];
   selectedPackageId: string | null;
 }): {
@@ -421,7 +429,7 @@ export const computeClosingFormPaymentSummary = ({
     ? (packages.find((pkg) => pkg.id === selectedPackageId) ?? null)
     : null;
   const pacoteValue = selectedPackage
-    ? resolvePackagePrice(selectedPackage, guestCount, eventDate)
+    ? resolvePackagePrice(selectedPackage, guestCount, eventDate, isHoliday)
     : 0;
 
   const selections =

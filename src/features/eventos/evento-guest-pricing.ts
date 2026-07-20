@@ -69,6 +69,7 @@ export const recalculateEventoGuestPricing = ({
   adicionaisSnapshot,
   dataEvento,
   guestCount,
+  isHoliday,
   pacoteId,
   packages,
   valorAdicionais,
@@ -77,6 +78,7 @@ export const recalculateEventoGuestPricing = ({
   adicionaisSnapshot?: Json | null;
   dataEvento?: string | null;
   guestCount: number;
+  isHoliday?: (date: string) => boolean;
   pacoteId?: number | null;
   packages: PackageData[];
   valorAdicionais: number;
@@ -87,7 +89,7 @@ export const recalculateEventoGuestPricing = ({
 
   let nextValorPacote = valorPacote;
   if (pkg && normalizedGuestCount > 0) {
-    nextValorPacote = resolvePackagePrice(pkg, normalizedGuestCount, dataEvento);
+    nextValorPacote = resolvePackagePrice(pkg, normalizedGuestCount, dataEvento, isHoliday);
   }
 
   const parsedSnapshot = parseAdicionaisSnapshot(adicionaisSnapshot);

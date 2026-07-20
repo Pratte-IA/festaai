@@ -27,6 +27,7 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     additionalsResult,
     estruturaResult,
     financialResult,
+    holidaysResult,
     contractSettingsResult,
     contractAcceptanceResult,
     checklistResult,
@@ -58,6 +59,10 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
       .select("tenant_id")
       .eq("tenant_id", tenantId)
       .maybeSingle(),
+    supabase
+      .from("tenant_holidays")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId),
     supabase
       .from("tenant_contract_module_settings")
       .select("models_configured_at")
@@ -95,6 +100,7 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
   if (additionalsResult.error) throw additionalsResult.error;
   if (estruturaResult.error && estruturaResult.error.code !== "PGRST205") throw estruturaResult.error;
   if (financialResult.error) throw financialResult.error;
+  if (holidaysResult.error) throw holidaysResult.error;
   if (contractSettingsResult.error) throw contractSettingsResult.error;
   if (contractAcceptanceResult.error) throw contractAcceptanceResult.error;
   if (checklistResult.error) throw checklistResult.error;
@@ -122,6 +128,10 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
 
   if (financialResult.data) {
     completed.push("financeiro");
+  }
+
+  if ((holidaysResult.count ?? 0) > 0) {
+    completed.push("feriados");
   }
 
   if (contractSettingsResult.data?.models_configured_at && contractAcceptanceResult.data) {

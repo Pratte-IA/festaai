@@ -4,6 +4,8 @@ export const configuracoesQueryKeys = {
     ["configuracoes", tenantId, "checklist", packageId ?? null] as const,
   estrutura: (tenantId: number | null) => ["configuracoes", tenantId, "estrutura"] as const,
   financial: (tenantId: number | null) => ["configuracoes", tenantId, "financial"] as const,
+  holidays: (tenantId: number | null, year?: number) =>
+    ["configuracoes", tenantId, "holidays", year ?? null] as const,
   messages: (tenantId: number | null) => ["configuracoes", tenantId, "messages"] as const,
   packages: (tenantId: number | null) => ["configuracoes", tenantId, "packages"] as const,
   packagesAdmin: (tenantId: number | null) => ["configuracoes", tenantId, "packages-admin"] as const,

@@ -30,48 +30,55 @@ export const GUIDED_SETUP_STEPS = [
     description: "Defina entrada, parcelas e regras de pagamento padrão",
   },
   {
-    key: "checklist",
+    key: "feriados",
     order: 6,
+    title: "Feriados",
+    description:
+      "Revise as datas automáticas da precificação e cadastre feriados da cidade ou da empresa",
+  },
+  {
+    key: "checklist",
+    order: 7,
     title: "Checklist",
     description:
       "Tarefas para organizar cada festa — revise o checklist padrão gerado para seus pacotes",
   },
   {
     key: "contrato",
-    order: 7,
+    order: 8,
     title: "Contrato",
     description: "Escolha os modelos de contrato e aceite os termos do módulo",
   },
   {
     key: "formulario",
-    order: 8,
+    order: 9,
     title: "Formulário de contratação",
     description:
       "Configure o formulário que o cliente preenche com os dados da festa para organização e contrato",
   },
   {
     key: "followup_proposta",
-    order: 9,
+    order: 10,
     title: "Follow-ups de proposta",
     description:
       "Mensagens automáticas de retorno para leads em Proposta Enviada — começando 48h após o envio",
   },
   {
     key: "pesquisa_avaliacao",
-    order: 10,
+    order: 11,
     title: "Pesquisa de avaliação",
     description:
       "Monte a pesquisa de satisfação enviada após a festa — NPS, experiência e depoimentos",
   },
   {
     key: "whatsapp",
-    order: 11,
+    order: 12,
     title: "Conectar o WhatsApp",
     description: "Vincule um número WhatsApp para disparos automáticos",
   },
   {
     key: "automacoes",
-    order: 12,
+    order: 13,
     title: "Automações",
     description: "Vincule cada automação ao número WhatsApp que envia ou recebe as mensagens",
   },
@@ -88,6 +95,7 @@ export const GUIDED_SETUP_WIDE_STEPS: GuidedSetupStepKey[] = [
   "adicionais",
   "estrutura",
   "financeiro",
+  "feriados",
   "checklist",
   "contrato",
   "formulario",
