@@ -58,4 +58,14 @@ describe("resolvePackageAutomationNameForSave", () => {
       }),
     ).toBe("basico_2");
   });
+
+  it("respeita nomes já ocupados quando o cliente ainda envia o candidato original", () => {
+    expect(
+      resolvePackageAutomationNameForSave({
+        displayName: "pacote padrão",
+        explicitAutomationName: "padrao",
+        existingAutomationNames: ["padrao", "padrao_2"],
+      }),
+    ).toBe("padrao_3");
+  });
 });

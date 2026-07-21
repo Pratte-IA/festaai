@@ -33,6 +33,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/error-message";
 import {
   SettingsPageHeader,
   SettingsStatChip,
@@ -71,9 +72,6 @@ interface Props {
   guidedContinuePending?: boolean;
   onWizardStateChange?: (state: { isOpen: boolean; isLastStep: boolean }) => void;
 }
-
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : "Erro desconhecido.";
 
 const PackagesConfig = ({
   adminMode = false,
@@ -175,8 +173,13 @@ const PackagesConfig = ({
 
           try {
             if (persistedId) {
-              const savedPackage = { ...pkg, id: persistedId };
-              await updatePackage.mutateAsync(savedPackage);
+              const updated = await updatePackage.mutateAsync({ ...pkg, id: persistedId });
+              const savedPackage = {
+                ...pkg,
+                id: persistedId,
+                nameAutomacao: updated.nameAutomacao,
+              };
+              setPackageToEdit(savedPackage);
               if (close) {
                 toast({
                   title: "Pacote atualizado",
@@ -189,7 +192,11 @@ const PackagesConfig = ({
 
             const { id: _id, ...packageInput } = pkg;
             const created = await createPackage.mutateAsync(packageInput);
-            const savedPackage = { ...pkg, id: created.id };
+            const savedPackage = {
+              ...pkg,
+              id: created.id,
+              nameAutomacao: created.nameAutomacao,
+            };
             setPackageToEdit(savedPackage);
 
             if (close) {

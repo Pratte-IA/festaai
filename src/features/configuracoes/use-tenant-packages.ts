@@ -115,15 +115,50 @@ const invalidatePackages = (
 
 const fetchTenantPackageAutomationNames = async (
   tenantId: number,
+  options?: { excludePackageId?: number | string },
 ): Promise<string[]> => {
-  const { data, error } = await supabase
+  let query = supabase
     .from("tenant_packages")
-    .select("name_automacao")
+    .select("id, name_automacao")
     .eq("tenant_id", tenantId);
 
+  const excludeId = options?.excludePackageId != null ? Number(options.excludePackageId) : null;
+  if (excludeId != null && Number.isFinite(excludeId)) {
+    query = query.neq("id", excludeId);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
 
   return (data ?? []).map((row) => row.name_automacao).filter(Boolean);
+};
+
+const toPackageSaveError = (error: unknown): Error => {
+  const code =
+    error && typeof error === "object" && "code" in error
+      ? String((error as { code?: unknown }).code ?? "")
+      : "";
+  const message =
+    error instanceof Error
+      ? error.message
+      : error && typeof error === "object" && "message" in error
+        ? String((error as { message?: unknown }).message ?? "")
+        : "";
+
+  if (
+    code === "23505" ||
+    message.includes("tenant_packages_tenant_name_automacao_key")
+  ) {
+    return new Error(
+      "Já existe um pacote com este identificador de automação. Altere o nome ou o identificador e tente novamente.",
+    );
+  }
+
+  if (message.trim()) {
+    return error instanceof Error ? error : new Error(message);
+  }
+
+  return error instanceof Error ? error : new Error("Nao foi possivel salvar o pacote.");
 };
 
 const invalidateAdditionals = (
@@ -182,33 +217,40 @@ export const useUpdateTenantPackage = () => {
     mutationFn: async (pkg: PackageData) => {
       if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
-      const existingAutomationNames = await fetchTenantPackageAutomationNames(currentTenantId);
-      const nameAutomacao = resolvePackageAutomationNameForSave({
-        currentAutomationName: pkg.nameAutomacao,
-        displayName: pkg.name,
-        existingAutomationNames,
-        explicitAutomationName: pkg.nameAutomacao,
-      });
+      try {
+        const existingAutomationNames = await fetchTenantPackageAutomationNames(currentTenantId, {
+          excludePackageId: pkg.id,
+        });
+        const nameAutomacao = resolvePackageAutomationNameForSave({
+          displayName: pkg.name,
+          existingAutomationNames,
+          explicitAutomationName: pkg.nameAutomacao,
+        });
 
-      const { error } = await supabase
-        .from("tenant_packages")
-        .update({
-          ...packageMetadataPayload(pkg),
-          active: pkg.active ?? true,
-          buffet: pkg.buffet as unknown as Json,
-          description: pkg.description,
-          equipe: pkg.equipe as unknown as Json,
-          estrutura: pkg.estrutura as unknown as Json,
-          name: pkg.name.trim(),
-          name_automacao: nameAutomacao,
-          pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
-          sort_order: pkg.sortOrder ?? 0,
-          updated_by: user.id,
-        })
-        .eq("tenant_id", currentTenantId)
-        .eq("id", Number(pkg.id));
+        const { error } = await supabase
+          .from("tenant_packages")
+          .update({
+            ...packageMetadataPayload(pkg),
+            active: pkg.active ?? true,
+            buffet: pkg.buffet as unknown as Json,
+            description: pkg.description,
+            equipe: pkg.equipe as unknown as Json,
+            estrutura: pkg.estrutura as unknown as Json,
+            name: pkg.name.trim(),
+            name_automacao: nameAutomacao,
+            pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
+            sort_order: pkg.sortOrder ?? 0,
+            updated_by: user.id,
+          })
+          .eq("tenant_id", currentTenantId)
+          .eq("id", Number(pkg.id));
 
-      if (error) throw error;
+        if (error) throw error;
+
+        return { id: pkg.id, nameAutomacao };
+      } catch (error) {
+        throw toPackageSaveError(error);
+      }
     },
     onSuccess: () => invalidatePackages(queryClient, currentTenantId),
   });
@@ -223,49 +265,53 @@ export const useCreateTenantPackage = () => {
     mutationFn: async (pkg: PackageInput) => {
       if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
-      const { data: existing, error: sortError } = await supabase
-        .from("tenant_packages")
-        .select("sort_order")
-        .eq("tenant_id", currentTenantId)
-        .order("sort_order", { ascending: false })
-        .limit(1);
+      try {
+        const { data: existing, error: sortError } = await supabase
+          .from("tenant_packages")
+          .select("sort_order")
+          .eq("tenant_id", currentTenantId)
+          .order("sort_order", { ascending: false })
+          .limit(1);
 
-      if (sortError) throw sortError;
+        if (sortError) throw sortError;
 
-      const nextSortOrder = (existing?.[0]?.sort_order ?? -1) + 1;
-      const existingAutomationNames = await fetchTenantPackageAutomationNames(currentTenantId);
-      const nameAutomacao = resolvePackageAutomationNameForSave({
-        displayName: pkg.name,
-        existingAutomationNames,
-        explicitAutomationName: pkg.nameAutomacao,
-      });
+        const nextSortOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+        const existingAutomationNames = await fetchTenantPackageAutomationNames(currentTenantId);
+        const nameAutomacao = resolvePackageAutomationNameForSave({
+          displayName: pkg.name,
+          existingAutomationNames,
+          explicitAutomationName: pkg.nameAutomacao,
+        });
 
-      const { data, error } = await supabase
-        .from("tenant_packages")
-        .insert({
-          ...packageMetadataPayload(pkg),
-          active: pkg.active ?? true,
-          buffet: pkg.buffet as unknown as Json,
-          created_by: user.id,
-          description: pkg.description,
-          equipe: pkg.equipe as unknown as Json,
-          estrutura: pkg.estrutura as unknown as Json,
-          name: pkg.name.trim(),
-          name_automacao: nameAutomacao,
-          pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
-          sort_order: nextSortOrder,
-          tenant_id: currentTenantId,
-          updated_by: user.id,
-        })
-        .select("id")
-        .single();
+        const { data, error } = await supabase
+          .from("tenant_packages")
+          .insert({
+            ...packageMetadataPayload(pkg),
+            active: pkg.active ?? true,
+            buffet: pkg.buffet as unknown as Json,
+            created_by: user.id,
+            description: pkg.description,
+            equipe: pkg.equipe as unknown as Json,
+            estrutura: pkg.estrutura as unknown as Json,
+            name: pkg.name.trim(),
+            name_automacao: nameAutomacao,
+            pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
+            sort_order: nextSortOrder,
+            tenant_id: currentTenantId,
+            updated_by: user.id,
+          })
+          .select("id")
+          .single();
 
-      if (error) throw error;
-      if (!data?.id) throw new Error("Pacote nao foi persistido no banco de dados.");
+        if (error) throw error;
+        if (!data?.id) throw new Error("Pacote nao foi persistido no banco de dados.");
 
-      await seedDefaultChecklistForPackage(currentTenantId, data.id, user.id);
+        await seedDefaultChecklistForPackage(currentTenantId, data.id, user.id);
 
-      return { id: String(data.id) };
+        return { id: String(data.id), nameAutomacao };
+      } catch (error) {
+        throw toPackageSaveError(error);
+      }
     },
     onSuccess: () => invalidatePackages(queryClient, currentTenantId),
   });
