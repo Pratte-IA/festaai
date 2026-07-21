@@ -11,6 +11,7 @@ import {
 const baseEvent = (overrides: Partial<Evento>): Evento =>
   ({
     checklist_concluidos: [],
+    checklist_extras: [],
     cliente_nome: "Cliente",
     created_at: "2026-07-01T10:00:00.000Z",
     data_evento: "2026-07-18",

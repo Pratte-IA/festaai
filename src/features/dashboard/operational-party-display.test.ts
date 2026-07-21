@@ -8,6 +8,7 @@ const baseEvent = (overrides: Partial<Evento>): Evento =>
   ({
     aniversariante_nome: "Maria Clara prim do nascimento",
     checklist_concluidos: [],
+    checklist_extras: [],
     cliente_nome: "Judi cristina prim do nascimento",
     created_at: "2026-07-01T10:00:00.000Z",
     data_evento: "2026-07-11",

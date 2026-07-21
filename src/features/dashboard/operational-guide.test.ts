@@ -8,6 +8,7 @@ import { buildOperationalGuide, buildOperationalSummaryLines } from "./operation
 const baseEvent = (overrides: Partial<Evento>): Evento =>
   ({
     checklist_concluidos: [],
+    checklist_extras: [],
     cliente_nome: "Cliente Teste",
     created_at: "2026-07-01T10:00:00.000Z",
     data_evento: "2026-07-15",
@@ -31,6 +32,7 @@ describe("buildOperationalGuide", () => {
         cliente_nome: "Maria",
         etapa: "planejamento",
         checklist_concluidos: [],
+        checklist_extras: [],
         data_evento: "2026-07-20",
       }),
       baseEvent({
@@ -38,6 +40,7 @@ describe("buildOperationalGuide", () => {
         cliente_nome: "Joao",
         etapa: "planejamento",
         checklist_concluidos: ["item-1"],
+        checklist_extras: [],
         data_evento: "2026-07-25",
       }),
     ];

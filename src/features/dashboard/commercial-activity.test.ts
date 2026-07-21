@@ -7,6 +7,7 @@ import { buildCommercialActivity, countLeadsAttendedThisMonth, countLeadsAttende
 const baseEvent = (overrides: Partial<Evento>): Evento =>
   ({
     checklist_concluidos: [],
+    checklist_extras: [],
     cliente_nome: "Cliente",
     created_at: "2026-07-09T10:00:00.000Z",
     etapa: "contato_inicial",

@@ -5,6 +5,11 @@ import type { EventoContractSignatureFollowupSummary } from "./contract-signatur
 export type FunnelType = "vendas" | "festa" | "executadas";
 export type EventType = "festa" | "visita";
 
+export interface ChecklistExtraItem {
+  id: string;
+  label: string;
+}
+
 export type SalesStage =
   | "contato_inicial"
   | "proposta_enviada"
@@ -27,7 +32,7 @@ export type InternalStatus = "novo" | "ativo" | "pendente" | "finalizado" | "per
 
 export type Evento = Omit<
   Tables<"eventos">,
-  "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos"
+  "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos" | "checklist_extras"
 > & {
   contract_signature_followup?: EventoContractSignatureFollowupSummary | null;
   etapa: Stage;
@@ -35,27 +40,31 @@ export type Evento = Omit<
   status_interno: InternalStatus;
   tipo_evento: EventType;
   checklist_concluidos: string[];
+  checklist_extras: ChecklistExtraItem[];
 };
 
 export type EventoInsert = Omit<
   TablesInsert<"eventos">,
-  "etapa" | "funil" | "status_interno" | "tipo_evento"
-> & {
-  etapa?: Stage;
-  funil?: FunnelType;
-  status_interno?: InternalStatus;
-  tipo_evento?: EventType;
-};
-
-export type EventoUpdate = Omit<
-  TablesUpdate<"eventos">,
-  "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos"
+  "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos" | "checklist_extras"
 > & {
   etapa?: Stage;
   funil?: FunnelType;
   status_interno?: InternalStatus;
   tipo_evento?: EventType;
   checklist_concluidos?: string[];
+  checklist_extras?: ChecklistExtraItem[];
+};
+
+export type EventoUpdate = Omit<
+  TablesUpdate<"eventos">,
+  "etapa" | "funil" | "status_interno" | "tipo_evento" | "checklist_concluidos" | "checklist_extras"
+> & {
+  etapa?: Stage;
+  funil?: FunnelType;
+  status_interno?: InternalStatus;
+  tipo_evento?: EventType;
+  checklist_concluidos?: string[];
+  checklist_extras?: ChecklistExtraItem[];
 };
 
 export type EventoPagamento = Tables<"evento_pagamentos">;

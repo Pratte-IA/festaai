@@ -1322,6 +1322,8 @@ export type Database = {
           aniversariante_tema: string | null
           boas_vindas_whatsapp_agendado_em: string | null
           boas_vindas_whatsapp_enviado_em: string | null
+          checklist_concluidos: Json
+          checklist_extras: Json
           cliente_bairro: string | null
           cliente_cep: string | null
           cliente_cidade: string | null
@@ -1412,6 +1414,8 @@ export type Database = {
           aniversariante_tema?: string | null
           boas_vindas_whatsapp_agendado_em?: string | null
           boas_vindas_whatsapp_enviado_em?: string | null
+          checklist_concluidos?: Json
+          checklist_extras?: Json
           cliente_bairro?: string | null
           cliente_cep?: string | null
           cliente_cidade?: string | null
@@ -1502,6 +1506,8 @@ export type Database = {
           aniversariante_tema?: string | null
           boas_vindas_whatsapp_agendado_em?: string | null
           boas_vindas_whatsapp_enviado_em?: string | null
+          checklist_concluidos?: Json
+          checklist_extras?: Json
           cliente_bairro?: string | null
           cliente_cep?: string | null
           cliente_cidade?: string | null

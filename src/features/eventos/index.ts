@@ -32,10 +32,14 @@ export { getDefaultStageForFunnel, isStageValidForFunnel } from "./stage-validat
 export {
   shouldShowEventChecklist,
   parseChecklistConcluidos,
+  parseChecklistExtras,
   calculateChecklistProgress,
   isChecklistComplete,
+  ADICIONAIS_CHECKLIST_CATEGORY_ID,
+  ITENS_EXTRAS_CHECKLIST_CATEGORY_ID,
 } from "./evento-checklist";
 export { useEventoChecklist } from "./use-evento-checklist";
+export type { ChecklistExtraItem } from "./types";
 export {
   buildLeadImportCsvTemplate,
   downloadLeadImportCsvTemplate,
