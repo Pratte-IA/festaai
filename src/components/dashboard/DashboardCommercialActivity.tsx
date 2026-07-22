@@ -1,4 +1,14 @@
-import { Calendar, CalendarRange, DollarSign, PartyPopper, TrendingUp, UserPlus } from "lucide-react";
+import {
+  Calendar,
+  CalendarRange,
+  ChevronRight,
+  DollarSign,
+  PartyPopper,
+  Send,
+  TrendingUp,
+  UserPlus,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 import type { CommercialActivity, CommercialActivityCard } from "@/features/dashboard/commercial-activity";
 
@@ -13,10 +23,11 @@ const commercialCardIcons = {
   "leads-month": Calendar,
   "leads-today": UserPlus,
   "leads-week": CalendarRange,
+  "proposals-month": Send,
   "sold-value": DollarSign,
 } as const;
 
-const CommercialActivityCard = ({ card }: { card: CommercialActivityCard }) => {
+const CommercialActivityCardView = ({ card }: { card: CommercialActivityCard }) => {
   const Icon = commercialCardIcons[card.id];
 
   return (
@@ -38,8 +49,17 @@ const CommercialActivityCard = ({ card }: { card: CommercialActivityCard }) => {
 export const DashboardCommercialActivity = ({ activity, isLoading }: DashboardCommercialActivityProps) => (
   <div className="mb-8">
     <div className="glass-card animate-fade-in p-5">
-      <div className="mb-5">
-        <h2 className="text-base font-semibold text-foreground">Como está sua atividade comercial</h2>
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-foreground">Como está sua atividade comercial</h2>
+        </div>
+        <Link
+          to="/relatorios?report=atividade-comercial"
+          className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+        >
+          Ver relatório
+          <ChevronRight className="h-4 w-4" />
+        </Link>
       </div>
 
       {isLoading ? <p className="text-sm text-muted-foreground">Carregando atividade comercial...</p> : null}
@@ -47,7 +67,7 @@ export const DashboardCommercialActivity = ({ activity, isLoading }: DashboardCo
       {!isLoading && activity?.cards.length ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {activity.cards.map((card) => (
-            <CommercialActivityCard key={card.id} card={card} />
+            <CommercialActivityCardView key={card.id} card={card} />
           ))}
         </div>
       ) : null}

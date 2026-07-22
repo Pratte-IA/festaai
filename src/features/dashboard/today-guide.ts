@@ -1,4 +1,4 @@
-import type { DashboardAlert } from "./use-dashboard-data";
+import type { DashboardAlert } from "./build-dashboard-alerts";
 import type { Evento } from "@/features/eventos";
 import type { TenantTarefaListItem } from "@/features/tarefas/types";
 import { isTarefaOverdue } from "@/features/tarefas/filter-tenant-tarefas";

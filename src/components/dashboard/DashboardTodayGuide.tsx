@@ -1,8 +1,14 @@
 import { Bot, CheckCircle2, FilePenLine, MessageCircle, Send } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { DashboardOperationalGuidePanel, DashboardOperationalSummary } from "@/components/dashboard/DashboardOperationalGuide";
-import type { FestaAiDailyStatus, FestaAiStatusSection } from "@/features/dashboard/festa-ai-daily-status";
+import type {
+  FestaAiDailyStatus,
+  FestaAiSectionId,
+  FestaAiStatusSection,
+} from "@/features/dashboard/festa-ai-daily-status";
 import type { DashboardOperationalGuide } from "@/features/dashboard/operational-guide";
+import { cn } from "@/lib/utils";
 
 interface DashboardTodayGuideProps {
   festaAiDailyStatus: FestaAiDailyStatus | undefined;
@@ -17,11 +23,19 @@ const festaAiSectionIcons = {
   propostas: Send,
 } as const;
 
+const festaAiSectionHrefs: Partial<Record<FestaAiSectionId, string>> = {
+  "contato-inicial": "/crm?funil=vendas&etapa=contato_inicial",
+  contratos: "/contratos",
+  "followup-comercial": "/relatorios?report=followup-comercial-aberto",
+  propostas: "/crm?funil=vendas&etapa=proposta_enviada",
+};
+
 const FestaAiStatusCard = ({ section }: { section: FestaAiStatusSection }) => {
   const Icon = festaAiSectionIcons[section.id];
+  const href = festaAiSectionHrefs[section.id];
 
-  return (
-    <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
+  const content = (
+    <>
       <div className="mb-3 flex items-start gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
           <Icon className="h-4 w-4" />
@@ -40,8 +54,23 @@ const FestaAiStatusCard = ({ section }: { section: FestaAiStatusSection }) => {
       ) : (
         <p className="px-2 text-2xl font-bold tabular-nums text-foreground">{section.count}</p>
       )}
-    </div>
+    </>
   );
+
+  const className = cn(
+    "rounded-xl border border-border/60 bg-muted/20 p-4",
+    href && "transition-colors hover:border-primary/40 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+  );
+
+  if (href) {
+    return (
+      <Link aria-label={`Abrir ${section.title}`} className={className} to={href}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
 };
 
 export const DashboardTodayGuide = ({

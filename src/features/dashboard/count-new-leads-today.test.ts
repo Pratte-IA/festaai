@@ -32,6 +32,16 @@ describe("count-new-leads-today", () => {
     expect(isNewLeadContactToday(evento, today)).toBe(true);
   });
 
+  it("conta lead criado hoje mesmo apos avancar no funil", () => {
+    const evento = baseEvento({
+      etapa: "proposta_enviada",
+      status_interno: "ativo",
+    });
+
+    expect(isBrandNewLeadContactToday(evento, today)).toBe(true);
+    expect(isNewLeadContactToday(evento, today)).toBe(true);
+  });
+
   it("conta lead recuperado de perdido hoje", () => {
     const evento = baseEvento({
       created_at: "2026-06-10T10:00:00.000Z",
@@ -67,6 +77,24 @@ describe("count-new-leads-today", () => {
     expect(isNewLeadContactToday(evento, today)).toBe(false);
   });
 
+  it("conta lead criado hoje mesmo ja marcado como perdido", () => {
+    const evento = baseEvento({
+      etapa: "perdido",
+      status_interno: "perdido",
+    });
+
+    expect(isBrandNewLeadContactToday(evento, today)).toBe(true);
+    expect(isNewLeadContactToday(evento, today)).toBe(true);
+  });
+
+  it("ignora lead cancelado criado hoje", () => {
+    const evento = baseEvento({
+      status_interno: "cancelado",
+    });
+
+    expect(isNewLeadContactToday(evento, today)).toBe(false);
+  });
+
   it("agrega novos e recuperados no total do dia", () => {
     const eventos = [
       baseEvento({ id: 1 }),
@@ -84,5 +112,17 @@ describe("count-new-leads-today", () => {
     ];
 
     expect(countNewLeadsToday(eventos, today)).toBe(2);
+  });
+
+  it("conta lead criado hoje mesmo apos avancar no funil no agregador diario", () => {
+    const eventos = [
+      baseEvento({
+        id: 1,
+        etapa: "proposta_enviada",
+        status_interno: "ativo",
+      }),
+    ];
+
+    expect(countNewLeadsToday(eventos, today)).toBe(1);
   });
 });

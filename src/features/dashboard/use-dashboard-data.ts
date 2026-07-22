@@ -1,25 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { buildNeedsAttention, type NeedsAttention } from "./build-needs-attention";
 import { countNewLeadsToday } from "./count-new-leads-today";
 import { sumFestaOpenBalance, sumFestaOverdueOpenBalance } from "./festa-open-balance";
 import { buildMonthRevenueBreakdown } from "./month-revenue";
-import { buildCommercialActivity, type CommercialActivity } from "./commercial-activity";
+import {
+  buildCommercialActivity,
+  countNewLeadsThisMonth,
+  getClosedPartiesWithSignedContractInRange,
+  type CommercialActivity,
+  type SignedContractClosing,
+} from "./commercial-activity";
 import { buildFestaAiDailyStatus, type FestaAiDailyStatus } from "./festa-ai-daily-status";
 import { buildOperationalGuide, type DashboardOperationalGuide } from "./operational-guide";
 import { Evento, EventoPagamento } from "@/features/eventos";
 import type { TenantTarefaEvento, TenantTarefaListItem } from "@/features/tarefas/types";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
-import { isIsoDateBeforeToday, parseIsoDateLocal } from "@/lib/date";
+import { parseIsoDateLocal } from "@/lib/date";
 
-type AlertType = "pendencia" | "prazo" | "contrato";
-
-export interface DashboardAlert {
-  description: string;
-  eventoId: number;
-  title: string;
-  type: AlertType;
-}
+export type { NeedsAttention } from "./build-needs-attention";
 
 export interface DashboardParty {
   date: string;
@@ -47,7 +47,7 @@ interface DashboardTarefaRow {
 }
 
 interface DashboardData {
-  alerts: DashboardAlert[];
+  needsAttention: NeedsAttention;
   commercialActivity: CommercialActivity;
   metrics: {
     closedParties: number;
@@ -128,55 +128,6 @@ const getStatusLabel = (evento: Evento) => {
   };
 };
 
-const daysSince = (date: string) => {
-  const dateValue = new Date(date).getTime();
-  return Math.floor((Date.now() - dateValue) / (1000 * 60 * 60 * 24));
-};
-
-const buildAlerts = (events: Evento[], payments: EventoPagamento[]): DashboardAlert[] => {
-  const paidByEvent = new Map<number, number>();
-
-  payments.forEach((payment) => {
-    paidByEvent.set(payment.evento_id, (paidByEvent.get(payment.evento_id) ?? 0) + payment.valor);
-  });
-
-  const alerts: DashboardAlert[] = [];
-
-  events.forEach((event) => {
-    const eventTitle = `${event.cliente_nome}${event.data_evento ? ` - Festa ${shortDate(event.data_evento)}` : ""}`;
-
-    if (event.etapa === "proposta_enviada" && daysSince(event.updated_at) >= 3) {
-      alerts.push({
-        description: "Proposta enviada sem retorno ha 3 dias ou mais",
-        eventoId: event.id,
-        title: eventTitle,
-        type: "pendencia",
-      });
-    }
-
-    const paid = event.valor_entrada + (paidByEvent.get(event.id) ?? 0);
-    if (event.valor_total > paid && event.data_evento && isIsoDateBeforeToday(event.data_evento)) {
-      alerts.push({
-        description: "Saldo pendente em evento com data ja vencida",
-        eventoId: event.id,
-        title: eventTitle,
-        type: "prazo",
-      });
-    }
-
-    if (event.etapa === "aguardando_feedback") {
-      alerts.push({
-        description: "Feedback pos-festa pendente",
-        eventoId: event.id,
-        title: eventTitle,
-        type: "pendencia",
-      });
-    }
-  });
-
-  return alerts.slice(0, 5);
-};
-
 const shortDate = (date: string) => {
   const parsed = parseIsoDateLocal(date);
   if (!parsed) return date;
@@ -208,7 +159,8 @@ const mapDashboardTarefa = (row: DashboardTarefaRow): TenantTarefaListItem => {
 const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
   const { startIso, endIso, startDate, endDate } = getMonthRange();
 
-  const [eventsResult, paymentsResult, tarefasResult, contractsResult] = await Promise.all([
+  const [eventsResult, paymentsResult, tarefasResult, contractsResult, acceptedContractsResult] =
+    await Promise.all([
     supabase
       .from("eventos")
       .select("*")
@@ -252,6 +204,13 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       .eq("tenant_id", tenantId)
       .eq("status", "generated")
       .eq("assinatura_followup_status", "ativo"),
+    supabase
+      .from("evento_contracts")
+      .select("evento_id, accepted_at")
+      .eq("tenant_id", tenantId)
+      .eq("status", "accepted")
+      .not("accepted_at", "is", null)
+      .returns<SignedContractClosing[]>(),
   ]);
 
   if (eventsResult.error) {
@@ -270,13 +229,22 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
     throw contractsResult.error;
   }
 
+  if (acceptedContractsResult.error) {
+    throw acceptedContractsResult.error;
+  }
+
   const events = eventsResult.data ?? [];
   const payments = paymentsResult.data ?? [];
   const tarefas = (tarefasResult.data ?? []).map(mapDashboardTarefa);
   const contractSignatureEventoIds = (contractsResult.data ?? []).map((contract) => contract.evento_id);
-  const monthEvents = events.filter((event) => event.created_at >= startIso && event.created_at <= endIso);
-  const closedEvents = monthEvents.filter(
-    (event) => event.funil === "festa" || event.funil === "executadas",
+  const signedContracts = (acceptedContractsResult.data ?? []).filter(
+    (contract): contract is SignedContractClosing => Boolean(contract.accepted_at),
+  );
+  const closedThisMonth = getClosedPartiesWithSignedContractInRange(
+    events,
+    signedContracts,
+    startIso,
+    endIso,
   );
   const paidByEvent = new Map<number, number>();
 
@@ -311,26 +279,27 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
 
   const operationalGuide = buildOperationalGuide(events, payments, tarefas);
   const festaAiDailyStatus = buildFestaAiDailyStatus(events, contractSignatureEventoIds);
-  const commercialActivity = buildCommercialActivity(events);
-  const alerts = buildAlerts(events, payments);
+  const commercialActivity = buildCommercialActivity(events, signedContracts);
+  const needsAttention = buildNeedsAttention(events, payments);
+  const leadsThisMonth = countNewLeadsThisMonth(events);
 
   return {
-    alerts,
+    needsAttention,
     commercialActivity,
     metrics: {
-      closedParties: closedEvents.length,
+      closedParties: closedThisMonth.length,
       conversionRate:
-        monthEvents.length > 0 ? Math.round((closedEvents.length / monthEvents.length) * 100) : 0,
+        leadsThisMonth > 0 ? Math.round((closedThisMonth.length / leadsThisMonth) * 100) : 0,
       feedbackPending: events.filter((event) => event.etapa === "aguardando_feedback").length,
       futureOpportunities: events.filter((event) => event.etapa === "oportunidade_futura").length,
-      leadsInPeriod: monthEvents.length,
+      leadsInPeriod: leadsThisMonth,
       newLeadsToday: countNewLeadsToday(events),
       monthRevenue,
       monthFestaEntradas,
       monthPaymentsReceived,
       pendingBalance,
       socialMediaClients: events.filter((event) => event.etapa === "redes_sociais").length,
-      soldValue: closedEvents.reduce((sum, event) => sum + event.valor_total, 0),
+      soldValue: closedThisMonth.reduce((sum, event) => sum + event.valor_total, 0),
       toReceive,
     },
     festaAiDailyStatus,

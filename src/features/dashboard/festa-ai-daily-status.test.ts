@@ -55,7 +55,7 @@ describe("festa-ai-daily-status", () => {
     expect(status.sections[0]?.subtitle).toBe(
       "Estamos em etapa de contato inicial com 2 clientes",
     );
-    expect(status.sections[1]?.subtitle).toBe("Enviamos 1 proposta");
+    expect(status.sections[1]?.subtitle).toBe("1 proposta aguardando retorno");
     expect(status.sections[2]?.subtitle).toBe("Temos 1 contrato a serem assinados");
     expect(status.sections[3]?.count).toBe(3);
     expect(status.sections[3]?.title).toBe("Follow-up comercial");

@@ -69,7 +69,7 @@ export const buildFestaAiDailyStatus = (
       count: propostasEnviadasCount,
       emptyMessage: "Nenhuma proposta aguardando retorno.",
       id: "propostas",
-      subtitle: `Enviamos ${formatCountLabel(propostasEnviadasCount, "proposta", "propostas")}`,
+      subtitle: `${formatCountLabel(propostasEnviadasCount, "proposta", "propostas")} aguardando retorno`,
       title: "Propostas enviadas",
     },
     {

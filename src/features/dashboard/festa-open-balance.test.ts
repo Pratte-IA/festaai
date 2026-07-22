@@ -37,16 +37,27 @@ describe("festa-open-balance", () => {
     expect(sumFestaOpenBalance(events, paidByEvent)).toBe(5500);
   });
 
-  it("soma saldo vencido apenas de festas com data passada", () => {
+  it("soma saldo vencido pelo vencimento do recebivel (nao pela data da festa)", () => {
     const paidByEvent = new Map<number, number>();
-    const referenceDate = new Date(2026, 6, 1, 12, 0, 0, 0);
+    const referenceDate = new Date(2026, 6, 21, 12, 0, 0, 0);
     const events = [
-      baseEvento({ id: 1, data_evento: "2026-06-01", valor_total: 4000, valor_entrada: 1000 }),
-      baseEvento({ id: 2, data_evento: "2026-08-01", valor_total: 3000, valor_entrada: 500 }),
-      baseEvento({ id: 3, funil: "vendas", data_evento: "2026-05-01", valor_total: 8000, valor_entrada: 0 }),
+      // Festa futura, mas vencimento (data_evento - 7) = 18/07 já passou
+      baseEvento({ id: 1, data_evento: "2026-07-25", valor_total: 4000, valor_entrada: 1000 }),
+      // Festa futura com vencimento ainda à frente
+      baseEvento({ id: 2, data_evento: "2026-08-15", valor_total: 3000, valor_entrada: 500 }),
+      // Já com data_limite_pagamento explícita vencida
+      baseEvento({
+        id: 3,
+        data_evento: "2026-08-20",
+        data_limite_pagamento: "2026-07-10",
+        valor_total: 2000,
+        valor_entrada: 500,
+      }),
+      baseEvento({ id: 4, funil: "vendas", data_evento: "2026-05-01", valor_total: 8000, valor_entrada: 0 }),
     ];
 
-    expect(sumFestaOverdueOpenBalance(events, paidByEvent, referenceDate)).toBe(3000);
+    // id1: 3000 + id3: 1500
+    expect(sumFestaOverdueOpenBalance(events, paidByEvent, referenceDate)).toBe(4500);
   });
 
   it("nao considera saldo em aberto para festas executadas", () => {

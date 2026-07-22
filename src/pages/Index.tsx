@@ -1,12 +1,11 @@
 import AppLayout from "@/components/AppLayout";
 import MetricCard from "@/components/MetricCard";
 import MiniCalendar from "@/components/MiniCalendar";
-import AlertItem from "@/components/AlertItem";
 import { DashboardCommercialActivity } from "@/components/dashboard/DashboardCommercialActivity";
+import { DashboardNeedsAttention } from "@/components/dashboard/DashboardNeedsAttention";
 import { DashboardTodayGuide } from "@/components/dashboard/DashboardTodayGuide";
 import { PublicFormCopyButton } from "@/components/formulario-contratacao/PublicFormCopyButton";
-import { CreditCard, Clock, MessageSquare, Wallet, Receipt, DollarSign } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { CreditCard, Clock, Wallet, Receipt, DollarSign } from "lucide-react";
 import { useDashboardData } from "@/features/dashboard";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -16,10 +15,8 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 });
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { data, error, isLoading } = useDashboardData();
   const metrics = data?.metrics;
-  const alerts = data?.alerts ?? [];
 
   return (
     <AppLayout>
@@ -47,82 +44,27 @@ const Dashboard = () => {
 
       <DashboardCommercialActivity activity={data?.commercialActivity} isLoading={isLoading} />
 
-      <div className="mb-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Financeiro</span>
-      </div>
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <MetricCard icon={DollarSign} title="Faturamento do mês" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthRevenue ?? 0)} accent="success" />
-        <MetricCard icon={Wallet} title="Faturamento Entradas" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthFestaEntradas ?? 0)} accent="primary" />
-        <MetricCard icon={Receipt} title="Pagamentos recebidos no mês" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthPaymentsReceived ?? 0)} accent="lilas" />
-        <MetricCard icon={CreditCard} title="Valor a receber" value={isLoading ? "..." : currencyFormatter.format(metrics?.toReceive ?? 0)} accent="warning" />
-        <MetricCard icon={Clock} title="Saldo Pendente - Em Atraso" value={isLoading ? "..." : currencyFormatter.format(metrics?.pendingBalance ?? 0)} accent="coral" />
+      <div className="mb-8">
+        <DashboardNeedsAttention attention={data?.needsAttention} isLoading={isLoading} />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-1">
-          <MiniCalendar />
-
-          <div className="glass-card animate-fade-in p-5">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">Pós-venda</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Feedbacks pendentes</span>
-                <span className="font-semibold text-warning">{isLoading ? "..." : metrics?.feedbackPending ?? 0}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Clientes em redes sociais</span>
-                <span className="font-semibold text-primary">{isLoading ? "..." : metrics?.socialMediaClients ?? 0}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Oportunidades futuras</span>
-                <span className="font-semibold text-rosa">{isLoading ? "..." : metrics?.futureOpportunities ?? 0}</span>
-              </div>
-            </div>
+      <div className="mb-8">
+        <div className="glass-card animate-fade-in p-5">
+          <div className="mb-5">
+            <h2 className="text-base font-semibold text-foreground">Financeiro</h2>
           </div>
-
-          <div className="glass-card animate-fade-in p-5">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">Resumo do mês</h3>
-            <div className="space-y-3">
-              {[
-                { label: "Festas fechadas", value: isLoading ? "..." : metrics?.closedParties ?? 0 },
-                { label: "Faturamento", value: isLoading ? "..." : currencyFormatter.format(metrics?.monthRevenue ?? 0) },
-                { label: "Leads no período", value: isLoading ? "..." : metrics?.leadsInPeriod ?? 0 },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{item.label}</span>
-                  <span className="font-semibold text-foreground">{String(item.value)}</span>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <MetricCard embedded icon={DollarSign} title="Faturamento do mês" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthRevenue ?? 0)} accent="success" />
+            <MetricCard embedded icon={Wallet} title="Faturamento Entradas" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthFestaEntradas ?? 0)} accent="primary" />
+            <MetricCard embedded icon={Receipt} title="Pagamentos recebidos no mês" value={isLoading ? "..." : currencyFormatter.format(metrics?.monthPaymentsReceived ?? 0)} accent="lilas" />
+            <MetricCard embedded icon={CreditCard} title="Valor a receber" value={isLoading ? "..." : currencyFormatter.format(metrics?.toReceive ?? 0)} accent="warning" />
+            <MetricCard embedded icon={Clock} title="Saldo Pendente - Em Atraso" value={isLoading ? "..." : currencyFormatter.format(metrics?.pendingBalance ?? 0)} accent="coral" />
           </div>
         </div>
+      </div>
 
-        <div className="space-y-6 lg:col-span-2">
-          <div className="glass-card animate-fade-in p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-warning" />
-              <h3 className="text-sm font-semibold text-foreground">Precisa de Atenção</h3>
-              <span className="ml-auto rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning">
-                {alerts.length} itens
-              </span>
-            </div>
-            <div className="space-y-2">
-              {isLoading && <p className="text-sm text-muted-foreground">Carregando prioridades...</p>}
-              {!isLoading && alerts.length === 0 && (
-                <p className="text-sm text-muted-foreground">Nenhuma pendência crítica no momento.</p>
-              )}
-              {alerts.map((alert) => (
-                <AlertItem
-                  key={`${alert.type}-${alert.eventoId}-${alert.description}`}
-                  type={alert.type}
-                  title={alert.title}
-                  description={alert.description}
-                  onClick={() => navigate(`/crm/evento/${alert.eventoId}`)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+      <div className="max-w-md">
+        <MiniCalendar />
       </div>
     </AppLayout>
   );

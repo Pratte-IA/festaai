@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
+import type { SignedContractClosing } from "@/features/dashboard/commercial-activity";
 import { Evento, EventoPagamento } from "@/features/eventos";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
@@ -12,10 +13,11 @@ export interface ReportData {
   eventos: Evento[];
   pagamentos: EventoPagamento[];
   paidByEventoId: Map<number, number>;
+  signedContracts: SignedContractClosing[];
 }
 
 const fetchReportData = async (tenantId: number): Promise<ReportData> => {
-  const [eventosResult, pagamentosResult] = await Promise.all([
+  const [eventosResult, pagamentosResult, acceptedContractsResult] = await Promise.all([
     supabase
       .from("eventos")
       .select("*")
@@ -27,6 +29,12 @@ const fetchReportData = async (tenantId: number): Promise<ReportData> => {
       .select("*")
       .eq("tenant_id", tenantId)
       .returns<EventoPagamento[]>(),
+    supabase
+      .from("evento_contracts")
+      .select("evento_id, accepted_at")
+      .eq("tenant_id", tenantId)
+      .eq("status", "accepted")
+      .not("accepted_at", "is", null),
   ]);
 
   if (eventosResult.error) {
@@ -35,6 +43,10 @@ const fetchReportData = async (tenantId: number): Promise<ReportData> => {
 
   if (pagamentosResult.error) {
     throw pagamentosResult.error;
+  }
+
+  if (acceptedContractsResult.error) {
+    throw acceptedContractsResult.error;
   }
 
   const pagamentos = pagamentosResult.data ?? [];
@@ -47,10 +59,15 @@ const fetchReportData = async (tenantId: number): Promise<ReportData> => {
     );
   });
 
+  const signedContracts = (acceptedContractsResult.data ?? []).filter(
+    (contract): contract is SignedContractClosing => Boolean(contract.accepted_at),
+  );
+
   return {
     eventos: eventosResult.data ?? [],
     paidByEventoId,
     pagamentos,
+    signedContracts,
   };
 };
 

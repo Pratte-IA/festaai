@@ -1,17 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
+import AtividadeComercialReport from "@/components/AtividadeComercialReport";
 import RecompraReport from "@/components/RecompraReport";
 import LeadsPerdidosReport from "@/components/LeadsPerdidosReport";
 import FinanceiroReport from "@/components/FinanceiroReport";
 import FestasExecutadasReport from "@/components/FestasExecutadasReport";
+import FollowupComercialAbertoReport from "@/components/FollowupComercialAbertoReport";
 import HistoricoFinanceiroReport from "@/components/HistoricoFinanceiroReport";
 import OcupacaoReport from "@/components/OcupacaoReport";
 import PosVendaReport from "@/components/PosVendaReport";
-import { Users, UserX, DollarSign, CalendarDays, Star, ChevronRight, History, PartyPopper } from "lucide-react";
+import {
+  Users,
+  UserX,
+  DollarSign,
+  CalendarDays,
+  Star,
+  ChevronRight,
+  History,
+  PartyPopper,
+  TrendingUp,
+  Send,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ReportComponentProps, ReportPeriod } from "@/features/reports";
 
 const reports = [
+  {
+    id: "atividade-comercial",
+    title: "Atividade Comercial",
+    description: "Leads, festas fechadas, conversão e valor vendido mês a mês",
+    icon: TrendingUp,
+    accent: "bg-primary/15 text-primary",
+  },
+  {
+    id: "followup-comercial-aberto",
+    title: "Follow-up Comercial em Aberto",
+    description: "Clientes que o FestaAI está acompanhando com follow-up agora",
+    icon: Send,
+    accent: "bg-primary/15 text-primary",
+  },
   {
     id: "recompra",
     title: "Clientes para Recompra",
@@ -63,7 +91,23 @@ const reports = [
   },
 ];
 
+const reportsWithoutPeriodFilter = new Set([
+  "festas-executadas",
+  "atividade-comercial",
+  "followup-comercial-aberto",
+]);
+
 const reportComponents: Record<string, { component: React.FC<ReportComponentProps>; title: string; subtitle: string }> = {
+  "atividade-comercial": {
+    component: AtividadeComercialReport,
+    title: "Atividade Comercial",
+    subtitle: "Evolução mensal de leads, festas fechadas com contrato, conversão e valor vendido",
+  },
+  "followup-comercial-aberto": {
+    component: FollowupComercialAbertoReport,
+    title: "Follow-up Comercial em Aberto",
+    subtitle: "Relação dos clientes que o FestaAI está trabalhando com follow-up agora",
+  },
   recompra: { component: RecompraReport, title: "Clientes para Recompra", subtitle: "Clientes que já realizaram festas e têm potencial de retorno" },
   "leads-perdidos": { component: LeadsPerdidosReport, title: "Leads Perdidos", subtitle: "Leads sem contato há mais de 7 dias que podem ser reativados" },
   financeiro: { component: FinanceiroReport, title: "Financeiro — Valores em Aberto", subtitle: "Clientes com saldo devedor pendente" },
@@ -82,20 +126,42 @@ const reportComponents: Record<string, { component: React.FC<ReportComponentProp
 };
 
 const Relatorios = () => {
-  const [activeReport, setActiveReport] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const reportFromQuery = searchParams.get("report");
+  const [activeReport, setActiveReport] = useState<string | null>(
+    reportFromQuery && reportComponents[reportFromQuery] ? reportFromQuery : null,
+  );
   const currentYear = new Date().getFullYear();
   const [period, setPeriod] = useState<ReportPeriod>({
     endDate: `${currentYear}-12-31`,
     startDate: `${currentYear}-01-01`,
   });
 
+  useEffect(() => {
+    if (reportFromQuery && reportComponents[reportFromQuery]) {
+      setActiveReport(reportFromQuery);
+    }
+  }, [reportFromQuery]);
+
+  const openReport = (reportId: string) => {
+    setActiveReport(reportId);
+    setSearchParams({ report: reportId });
+  };
+
+  const closeReport = () => {
+    setActiveReport(null);
+    setSearchParams({});
+  };
+
   if (activeReport && reportComponents[activeReport]) {
     const { component: ReportComponent, title, subtitle } = reportComponents[activeReport];
+    const hidePeriodFilter = reportsWithoutPeriodFilter.has(activeReport);
+
     return (
       <AppLayout>
         <div className="mb-6">
           <button
-            onClick={() => setActiveReport(null)}
+            onClick={closeReport}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-2 flex items-center gap-1"
           >
             ← Voltar aos relatórios
@@ -104,7 +170,7 @@ const Relatorios = () => {
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
         </div>
         <div className="glass-card mb-6 grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
-          {activeReport !== "festas-executadas" ? (
+          {!hidePeriodFilter ? (
             <>
               <div>
                 <label className="mb-1 block text-xs text-muted-foreground">Início do período</label>
@@ -125,8 +191,11 @@ const Relatorios = () => {
             </>
           ) : (
             <p className="text-sm text-muted-foreground md:col-span-2">
-              Este relatório lista todas as festas do funil executadas. Use os filtros do relatório para
-              refinar por data da festa, cliente ou criança.
+              {activeReport === "atividade-comercial"
+                ? "Este relatório lista automaticamente do primeiro mês com dados do tenant até o mês atual."
+                : activeReport === "followup-comercial-aberto"
+                  ? "Este relatório lista os follows comerciais que o FestaAI está trabalhando agora."
+                  : "Este relatório lista todas as festas do funil executadas. Use os filtros do relatório para refinar por data da festa, cliente ou criança."}
             </p>
           )}
         </div>
@@ -146,7 +215,7 @@ const Relatorios = () => {
         {reports.map((report) => (
           <button
             key={report.id}
-            onClick={() => setActiveReport(report.id)}
+            onClick={() => openReport(report.id)}
             className="glass-card p-5 text-left hover:border-primary/30 transition-all group"
           >
             <div className="flex items-start justify-between">
