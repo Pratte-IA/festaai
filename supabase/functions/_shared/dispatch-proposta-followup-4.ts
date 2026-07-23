@@ -1,6 +1,7 @@
 import { persistAgentOutboundAutomationMessage } from "./agent-memory.ts";
 import { resolveAutomationConnectionId } from "./automation-bindings.ts";
 import { formatCompanyDisplayName } from "./company-display-name.ts";
+import { isEventDateAvailableForTenant } from "./event-date-availability.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
 import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
 import {
@@ -9,10 +10,12 @@ import {
 } from "./proposta-followup-4-message.ts";
 import {
   PROPOSTA_FOLLOWUP_4_EVENT,
-  PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
   PROPOSTA_FOLLOWUP_LOSS_MOTIVO,
   PROPOSTA_FOLLOWUP_TEMPLATE_KEY,
+  propostaFollowup4VarianteToTemplateKey,
+  type PropostaFollowup4Variante,
 } from "./proposta-followup-constants.ts";
+import { isTenantSystemArmed, SYSTEM_NOT_ARMED_SKIP_REASON } from "./system-armed.ts";
 
 type ServiceClient = {
   from: (table: string) => Record<string, unknown>;
@@ -34,6 +37,7 @@ export interface DispatchPropostaFollowup4Result {
   movedToPerdido: boolean;
   responseStatus: number | null;
   skippedReason: string | null;
+  variante: PropostaFollowup4Variante | null;
 }
 
 const resolveCompanyLegalName = async (
@@ -77,7 +81,7 @@ export const dispatchPropostaFollowup4 = async (
 ): Promise<DispatchPropostaFollowup4Result> => {
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
-    .select("automation_template_bindings")
+    .select("automation_template_bindings, system_armed")
     .eq("tenant_id", input.tenant.id)
     .maybeSingle();
 
@@ -89,6 +93,18 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: null,
+      variante: null,
+    };
+  }
+
+  if (!isTenantSystemArmed(settings)) {
+    return {
+      dispatched: false,
+      errorMessage: null,
+      responseStatus: null,
+      skippedReason: SYSTEM_NOT_ARMED_SKIP_REASON,
+      movedToPerdido: false,
+      variante: null,
     };
   }
 
@@ -104,6 +120,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "WhatsApp de Follow-up de Proposta não vinculado nas automações.",
+      variante: null,
     };
   }
 
@@ -124,6 +141,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: null,
+      variante: null,
     };
   }
 
@@ -134,6 +152,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "Follow-up 3 ainda não enviado para este evento.",
+      variante: null,
     };
   }
 
@@ -144,6 +163,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "Follow-up 4 já enviado para este evento.",
+      variante: null,
     };
   }
 
@@ -154,6 +174,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "Lead não está mais em Proposta Enviada.",
+      variante: null,
     };
   }
 
@@ -164,6 +185,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "Sequência de follow-up não está ativa para este lead.",
+      variante: null,
     };
   }
 
@@ -175,6 +197,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "Lead sem data da festa — follow-up não enviado.",
+      variante: null,
     };
   }
 
@@ -188,6 +211,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "Cliente sem celular válido para envio do follow-up.",
+      variante: null,
     };
   }
 
@@ -206,6 +230,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: null,
+      variante: null,
     };
   }
 
@@ -216,6 +241,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: "Conexão WhatsApp do follow-up ainda não está ativa.",
+      variante: null,
     };
   }
 
@@ -228,6 +254,7 @@ export const dispatchPropostaFollowup4 = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: null,
+      variante: null,
     };
   }
 
@@ -239,11 +266,10 @@ export const dispatchPropostaFollowup4 = async (
 
   if (secretError) throw secretError;
 
-  const templateBody = await loadTenantTemplateBody(
-    admin,
-    input.tenant.id,
-    PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
-  );
+  const dateAvailable = await isEventDateAvailableForTenant(admin, input.tenant.id, dataEvento);
+  const variante: PropostaFollowup4Variante = dateAvailable ? "data_livre" : "data_indisponivel";
+  const templateKey = propostaFollowup4VarianteToTemplateKey(variante);
+  const templateBody = await loadTenantTemplateBody(admin, input.tenant.id, templateKey);
   const companyLegalName = await resolveCompanyLegalName(admin, input.tenant.id, input.tenant.name);
 
   const messageText = buildPropostaFollowup4Message({
@@ -253,6 +279,7 @@ export const dispatchPropostaFollowup4 = async (
     companyLegalName,
     dataEvento,
     templateBody,
+    variante,
   });
 
   const sendResult = await sendEvolutionTextMessage({
@@ -276,7 +303,7 @@ export const dispatchPropostaFollowup4 = async (
     payload: {
       companyDisplayName: formatCompanyDisplayName(companyLegalName),
       event: PROPOSTA_FOLLOWUP_4_EVENT,
-      evento: { id: evento.id, movedToPerdido: sendResult.ok },
+      evento: { id: evento.id, movedToPerdido: sendResult.ok, variante },
       templateKey: PROPOSTA_FOLLOWUP_TEMPLATE_KEY,
       tenant: {
         id: input.tenant.id,
@@ -292,6 +319,7 @@ export const dispatchPropostaFollowup4 = async (
       .update({
         etapa: "perdido",
         followup_4_enviado_em: input.triggeredAt,
+        followup_4_variante: variante,
         followup_status: "concluido_perdido",
         motivo_perda: PROPOSTA_FOLLOWUP_LOSS_MOTIVO,
         status_interno: "perdido",
@@ -306,6 +334,7 @@ export const dispatchPropostaFollowup4 = async (
       texto: buildPropostaFollowup4Nota({
         dataEvento,
         enviadoEm: input.triggeredAt,
+        variante,
       }),
     });
 
@@ -321,7 +350,8 @@ export const dispatchPropostaFollowup4 = async (
         followupStep: 4,
         movedToPerdido: true,
         source: "followup_automation",
-        templateKey: PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
+        templateKey,
+        variante,
       },
       role: "ai",
       tenantId: input.tenant.id,
@@ -334,5 +364,6 @@ export const dispatchPropostaFollowup4 = async (
     movedToPerdido: sendResult.ok,
     responseStatus: sendResult.status,
     skippedReason: null,
+    variante,
   };
 };

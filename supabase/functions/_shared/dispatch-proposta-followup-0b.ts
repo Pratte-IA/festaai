@@ -14,6 +14,7 @@ import {
   PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO,
   PROPOSTA_FOLLOWUP_TEMPLATE_KEY,
 } from "./proposta-followup-constants.ts";
+import { isTenantSystemArmed, SYSTEM_NOT_ARMED_SKIP_REASON } from "./system-armed.ts";
 
 type ServiceClient = {
   from: (table: string) => Record<string, unknown>;
@@ -78,7 +79,7 @@ export const dispatchPropostaFollowup0b = async (
 ): Promise<DispatchPropostaFollowup0bResult> => {
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
-    .select("automation_template_bindings")
+    .select("automation_template_bindings, system_armed")
     .eq("tenant_id", input.tenant.id)
     .maybeSingle();
 
@@ -90,6 +91,16 @@ export const dispatchPropostaFollowup0b = async (
       movedToPerdido: false,
       responseStatus: null,
       skippedReason: null,
+    };
+  }
+
+  if (!isTenantSystemArmed(settings)) {
+    return {
+      dispatched: false,
+      errorMessage: null,
+      responseStatus: null,
+      skippedReason: SYSTEM_NOT_ARMED_SKIP_REASON,
+      movedToPerdido: false,
     };
   }
 

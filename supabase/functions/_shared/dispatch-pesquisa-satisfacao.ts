@@ -5,6 +5,7 @@ import {
   buildPublicSatisfactionSurveyUrl,
   buildSatisfactionSurveyDispatchMessage,
 } from "./satisfaction-survey-dispatch-message.ts";
+import { isTenantSystemArmed, SYSTEM_NOT_ARMED_SKIP_REASON } from "./system-armed.ts";
 
 const PESQUISA_SATISFACAO_TEMPLATE_KEY = "pesquisa-satisfacao";
 const PESQUISA_SATISFACAO_EVENT = "pesquisa_satisfacao.post_party";
@@ -93,7 +94,7 @@ export const dispatchPesquisaSatisfacaoAfterPostParty = async (
 ): Promise<DispatchPesquisaSatisfacaoResult> => {
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
-    .select("automation_template_bindings")
+    .select("automation_template_bindings, system_armed")
     .eq("tenant_id", input.tenant.id)
     .maybeSingle();
 
@@ -104,6 +105,15 @@ export const dispatchPesquisaSatisfacaoAfterPostParty = async (
         settingsError instanceof Error ? settingsError.message : "Erro ao carregar automações.",
       responseStatus: null,
       skippedReason: null,
+    };
+  }
+
+  if (!isTenantSystemArmed(settings)) {
+    return {
+      dispatched: false,
+      errorMessage: null,
+      responseStatus: null,
+      skippedReason: SYSTEM_NOT_ARMED_SKIP_REASON,
     };
   }
 

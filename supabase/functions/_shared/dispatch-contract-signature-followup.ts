@@ -15,6 +15,7 @@ import {
 } from "./contract-signature-followup-message.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
 import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
+import { isTenantSystemArmed, SYSTEM_NOT_ARMED_SKIP_REASON } from "./system-armed.ts";
 
 type ServiceClient = {
   from: (table: string) => Record<string, unknown>;
@@ -92,7 +93,7 @@ export const dispatchContractSignatureFollowup = async (
 ): Promise<DispatchContractSignatureFollowupResult> => {
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
-    .select("automation_template_bindings")
+    .select("automation_template_bindings, system_armed")
     .eq("tenant_id", input.tenant.id)
     .maybeSingle();
 
@@ -103,6 +104,15 @@ export const dispatchContractSignatureFollowup = async (
         settingsError instanceof Error ? settingsError.message : "Erro ao carregar automações.",
       responseStatus: null,
       skippedReason: null,
+    };
+  }
+
+  if (!isTenantSystemArmed(settings)) {
+    return {
+      dispatched: false,
+      errorMessage: null,
+      responseStatus: null,
+      skippedReason: SYSTEM_NOT_ARMED_SKIP_REASON,
     };
   }
 

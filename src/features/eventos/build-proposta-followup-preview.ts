@@ -7,10 +7,14 @@ import {
   DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE,
   DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE,
+  DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA,
+  DEFAULT_PROPOSTA_FOLLOWUP_4_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO,
   type PropostaFollowup1Variante,
   type PropostaFollowup2Variante,
+  type PropostaFollowup3Variante,
+  type PropostaFollowup4Variante,
 } from "./proposta-followup";
 
 export const PROPOSTA_FOLLOWUP_PREVIEW = {
@@ -103,8 +107,13 @@ export const buildPropostaFollowup3PreviewMessage = (input: {
   companyLegalName: string;
   dataEvento: string;
   templateBody?: string;
+  variante: PropostaFollowup3Variante;
 }): string => {
-  const template = input.templateBody?.trim() || DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA;
+  const template =
+    input.templateBody?.trim() ||
+    (input.variante === "data_livre"
+      ? DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA
+      : DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL);
 
   return template
     .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
@@ -119,8 +128,13 @@ export const buildPropostaFollowup4PreviewMessage = (input: {
   companyLegalName: string;
   dataEvento: string;
   templateBody?: string;
+  variante: PropostaFollowup4Variante;
 }): string => {
-  const template = input.templateBody?.trim() || DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO;
+  const template =
+    input.templateBody?.trim() ||
+    (input.variante === "data_livre"
+      ? DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO
+      : DEFAULT_PROPOSTA_FOLLOWUP_4_DATA_INDISPONIVEL);
 
   return template
     .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))

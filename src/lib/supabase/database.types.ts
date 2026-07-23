@@ -1365,7 +1365,9 @@ export type Database = {
           followup_2_enviado_em: string | null
           followup_2_variante: string | null
           followup_3_enviado_em: string | null
+          followup_3_variante: string | null
           followup_4_enviado_em: string | null
+          followup_4_variante: string | null
           followup_cancelado_motivo: string | null
           followup_resposta_cliente_em: string | null
           followup_status: string | null
@@ -1457,7 +1459,9 @@ export type Database = {
           followup_2_enviado_em?: string | null
           followup_2_variante?: string | null
           followup_3_enviado_em?: string | null
+          followup_3_variante?: string | null
           followup_4_enviado_em?: string | null
+          followup_4_variante?: string | null
           followup_cancelado_motivo?: string | null
           followup_resposta_cliente_em?: string | null
           followup_status?: string | null
@@ -1549,7 +1553,9 @@ export type Database = {
           followup_2_enviado_em?: string | null
           followup_2_variante?: string | null
           followup_3_enviado_em?: string | null
+          followup_3_variante?: string | null
           followup_4_enviado_em?: string | null
+          followup_4_variante?: string | null
           followup_cancelado_motivo?: string | null
           followup_resposta_cliente_em?: string | null
           followup_status?: string | null
@@ -1929,6 +1935,8 @@ export type Database = {
           n8n_routing_key: string | null
           n8n_workflow_id: string | null
           n8n_workflows: Json | null
+          system_armed: boolean
+          system_armed_at: string | null
           tenant_id: number
           updated_at: string
         }
@@ -1946,6 +1954,8 @@ export type Database = {
           n8n_routing_key?: string | null
           n8n_workflow_id?: string | null
           n8n_workflows?: Json | null
+          system_armed?: boolean
+          system_armed_at?: string | null
           tenant_id: number
           updated_at?: string
         }
@@ -1963,6 +1973,8 @@ export type Database = {
           n8n_routing_key?: string | null
           n8n_workflow_id?: string | null
           n8n_workflows?: Json | null
+          system_armed?: boolean
+          system_armed_at?: string | null
           tenant_id?: number
           updated_at?: string
         }

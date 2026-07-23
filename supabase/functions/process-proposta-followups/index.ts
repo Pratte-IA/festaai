@@ -56,6 +56,7 @@ type Fu3DispatchResult = {
   dispatched: boolean;
   eventoId: number;
   skippedReason: string | null;
+  variante: string | null;
 };
 
 type Fu4DispatchResult = {
@@ -63,6 +64,7 @@ type Fu4DispatchResult = {
   eventoId: number;
   movedToPerdido: boolean;
   skippedReason: string | null;
+  variante: string | null;
 };
 
 type Fu0DispatchResult = {
@@ -457,6 +459,7 @@ Deno.serve(async (req) => {
             dispatched: false,
             eventoId: evento.id,
             skippedReason: "Tenant não encontrado para follow-up.",
+            variante: null,
           });
           continue;
         }
@@ -471,6 +474,7 @@ Deno.serve(async (req) => {
           dispatched: result.dispatched,
           eventoId: evento.id,
           skippedReason: result.skippedReason,
+          variante: result.variante,
         });
 
         if (result.errorMessage) {
@@ -519,6 +523,7 @@ Deno.serve(async (req) => {
             eventoId: evento.id,
             movedToPerdido: false,
             skippedReason: "Tenant não encontrado para follow-up.",
+            variante: null,
           });
           continue;
         }
@@ -534,6 +539,7 @@ Deno.serve(async (req) => {
           eventoId: evento.id,
           movedToPerdido: result.movedToPerdido,
           skippedReason: result.skippedReason,
+          variante: result.variante,
         });
 
         if (result.errorMessage) {

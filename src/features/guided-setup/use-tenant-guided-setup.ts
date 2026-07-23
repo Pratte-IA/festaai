@@ -75,11 +75,17 @@ export const useIsGuidedSetupComplete = () => {
   const progressQuery = useTenantGuidedSetupProgress();
 
   const merged = useMemo(() => {
-    if (!derivedQuery.data) return null;
-
     const explicitCompleted = progressQuery.data?.completedSteps ?? [];
+    const derivedCompleted = derivedQuery.data?.completedSteps ?? [];
+    const hasProgressRow = progressQuery.data != null;
+    const hasDerived = derivedQuery.data != null;
+
+    // Progresso salvo tem prioridade: se o derive falhar (ex.: tabela ausente),
+    // não zerar a barra nem forçar a configuração de novo.
+    if (!hasDerived && !hasProgressRow) return null;
+
     const completedSteps = Array.from(
-      new Set([...derivedQuery.data.completedSteps, ...explicitCompleted]),
+      new Set([...derivedCompleted, ...explicitCompleted]),
     ) as GuidedSetupStepKey[];
 
     const allStepsComplete = isGuidedSetupComplete(completedSteps);
@@ -94,15 +100,22 @@ export const useIsGuidedSetupComplete = () => {
     };
   }, [
     derivedQuery.data,
-    progressQuery.data?.completedAt,
-    progressQuery.data?.completedSteps,
-    progressQuery.data?.currentStep,
+    progressQuery.data,
   ]);
+
+  const isLoading = derivedQuery.isLoading || progressQuery.isLoading;
+  // Só bloqueia a tela se as duas fontes falharem; progresso salvo basta para exibir.
+  const error =
+    derivedQuery.error && progressQuery.error
+      ? derivedQuery.error
+      : !merged && (derivedQuery.error ?? progressQuery.error)
+        ? (derivedQuery.error ?? progressQuery.error)
+        : null;
 
   return {
     ...derivedQuery,
-    isLoading: derivedQuery.isLoading || progressQuery.isLoading,
-    error: derivedQuery.error ?? progressQuery.error,
+    isLoading,
+    error,
     data: merged,
     isComplete: Boolean(merged?.isComplete),
     activeStep: merged?.activeStep ?? null,

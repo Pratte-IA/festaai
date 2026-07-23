@@ -26,7 +26,13 @@ export const PROPOSTA_FOLLOWUP_4_DELAY_HOURS = 48;
 
 export const PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA = "follow-up-proposta-3-visita";
 
+export const PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL =
+  "follow-up-proposta-3-data-indisponivel";
+
 export const PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO = "follow-up-proposta-4-encerramento";
+
+export const PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL =
+  "follow-up-proposta-4-data-indisponivel";
 
 export const PROPOSTA_FOLLOWUP_LOSS_MOTIVO =
   "Sem retorno após sequência de follow-ups de proposta";
@@ -55,6 +61,10 @@ export type PropostaFollowup1Variante = PropostaFollowupDateVariante;
 
 export type PropostaFollowup2Variante = PropostaFollowupDateVariante;
 
+export type PropostaFollowup3Variante = PropostaFollowupDateVariante;
+
+export type PropostaFollowup4Variante = PropostaFollowupDateVariante;
+
 export type PropostaFollowupStatus =
   | "ativo"
   | "pausado_resposta"
@@ -74,6 +84,20 @@ export const propostaFollowup2VarianteToTemplateKey = (
   variante === "data_livre"
     ? PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_LIVRE
     : PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_INDISPONIVEL;
+
+export const propostaFollowup3VarianteToTemplateKey = (
+  variante: PropostaFollowup3Variante,
+): string =>
+  variante === "data_livre"
+    ? PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA
+    : PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL;
+
+export const propostaFollowup4VarianteToTemplateKey = (
+  variante: PropostaFollowup4Variante,
+): string =>
+  variante === "data_livre"
+    ? PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO
+    : PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL;
 
 // Janela de horário comercial do FU0 / FU0b (referência: America/Sao_Paulo).
 export const PROPOSTA_FOLLOWUP_TIMEZONE = "America/Sao_Paulo";

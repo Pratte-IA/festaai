@@ -7,12 +7,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAdminTenantConfigSection } from "@/features/admin";
+import type { TenantContractTemplateParams } from "@/features/eventos/contracts/contract-template-params";
+import {
+  CONTRACT_TEMPLATE_DEFINITIONS,
+  type ContractTemplateKey,
+} from "@/features/eventos/contracts/contract-template-types";
 import { GUIDED_SETUP_STEPS, type GuidedSetupStepKey } from "@/features/guided-setup";
 import { formatDurationMinutes } from "@/lib/duration";
 import { formatIsoDateBR } from "@/lib/date";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
+const formatNullableNumber = (value: number | null | undefined, suffix = "") =>
+  value == null ? null : `${value}${suffix}`;
+
+const formatCurrencyNullable = (value: number | null | undefined) =>
+  value == null ? null : formatCurrency(value);
+
+const contractTemplateLabel = (key: string | null | undefined) => {
+  if (!key) return null;
+  if (key in CONTRACT_TEMPLATE_DEFINITIONS) {
+    return CONTRACT_TEMPLATE_DEFINITIONS[key as ContractTemplateKey].name;
+  }
+  return key;
+};
 
 const EmptyState = ({ message }: { message: string }) => (
   <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
@@ -295,9 +314,24 @@ const SectionBody = ({
   if (section === "contrato") {
     const contrato = data as {
       acceptances: Array<{ accepted_at: string; accepted_by_name: string; terms_version: string }>;
-      settings: Record<string, unknown> | null;
-      templates: Array<{ id: number; name: string; is_active: boolean; is_default: boolean }>;
+      packages: Array<{ id: string; name: string }>;
+      settings: {
+        default_template_key: string | null;
+        models_configured_at: string | null;
+        templateParams: TenantContractTemplateParams;
+      } | null;
+      templates: Array<{
+        id: number;
+        name: string;
+        template_key: string;
+        is_active: boolean;
+        is_default: boolean;
+      }>;
     };
+
+    const params = contrato.settings?.templateParams;
+    const packageNameById = new Map(contrato.packages.map((pkg) => [pkg.id, pkg.name]));
+    const packageTemplateEntries = Object.entries(params?.package_template_map ?? {});
 
     return (
       <div className="space-y-6">
@@ -309,26 +343,149 @@ const SectionBody = ({
                 ? formatIsoDateBR(String(contrato.settings.models_configured_at).slice(0, 10))
                 : null,
             },
+            {
+              label: "Modelo padrão",
+              value: contractTemplateLabel(contrato.settings?.default_template_key),
+            },
             { label: "Aceites registrados", value: String(contrato.acceptances.length) },
           ]}
         />
-        {contrato.templates.length > 0 ? (
-          <div className="divide-y rounded-2xl border">
-            {contrato.templates.map((template) => (
-              <div className="flex items-center justify-between px-4 py-3 text-sm" key={template.id}>
-                <span className="font-medium">{template.name}</span>
-                <div className="flex gap-2">
-                  {template.is_default ? <Badge variant="secondary">Padrão</Badge> : null}
-                  <Badge variant={template.is_active ? "default" : "secondary"}>
-                    {template.is_active ? "Ativo" : "Inativo"}
-                  </Badge>
+
+        {params ? (
+          <div className="space-y-4">
+            <p className="text-sm font-semibold">Parâmetros do contrato</p>
+            <FieldGrid
+              fields={[
+                {
+                  label: "Capacidade máxima do espaço",
+                  value: formatNullableNumber(params.capacidade_maxima_espaco, " pessoas"),
+                },
+                { label: "Comarca do foro", value: params.comarca_foro },
+                {
+                  label: "Tolerância de encerramento",
+                  value: formatNullableNumber(params.tolerancia_encerramento, " min"),
+                },
+                {
+                  label: "Valor da hora extra",
+                  value: formatCurrencyNullable(params.valor_hora_extra),
+                },
+                {
+                  label: "Idade mínima para cobrança de extra",
+                  value: formatNullableNumber(params.idade_cobranca_convidado_extra, " anos"),
+                },
+                {
+                  label: "Prazo para alteração de convidados",
+                  value: formatNullableNumber(params.prazo_alteracao_convidados, " dias"),
+                },
+              ]}
+            />
+
+            <p className="text-sm font-semibold">Dados bancários</p>
+            <FieldGrid
+              fields={[
+                { label: "Banco", value: params.banco },
+                { label: "Agência", value: params.agencia },
+                { label: "Conta", value: params.conta },
+                { label: "Chave Pix", value: params.chave_pix },
+                { label: "Titular da conta", value: params.titular_conta },
+              ]}
+            />
+
+            <p className="text-sm font-semibold">Cancelamento e remarcação</p>
+            <FieldGrid
+              fields={[
+                {
+                  label: "Dias sem multa extra",
+                  value: formatNullableNumber(params.prazo_cancelamento_sem_multa_adicional, " dias"),
+                },
+                {
+                  label: "Dias com multa",
+                  value: formatNullableNumber(params.prazo_cancelamento_com_multa, " dias"),
+                },
+                {
+                  label: "Multa",
+                  value: formatNullableNumber(params.percentual_multa_cancelamento, "%"),
+                },
+                {
+                  label: "Remarcação",
+                  value: formatNullableNumber(params.prazo_maximo_remarcacao, " meses"),
+                },
+                {
+                  label: "Prazo para confirmação da entrada",
+                  value: formatNullableNumber(params.prazo_confirmacao_entrada, " dias"),
+                },
+              ]}
+            />
+
+            {packageTemplateEntries.length > 0 ? (
+              <div>
+                <p className="mb-3 text-sm font-semibold">Modelo por pacote</p>
+                <div className="divide-y rounded-2xl border">
+                  {packageTemplateEntries.map(([packageId, templateKey]) => (
+                    <div
+                      className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
+                      key={packageId}
+                    >
+                      <span className="font-medium">
+                        {packageNameById.get(packageId) ?? `Pacote ${packageId}`}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {contractTemplateLabel(templateKey) ?? templateKey}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            ) : null}
+          </div>
+        ) : (
+          <EmptyState message="Parâmetros do contrato ainda não configurados." />
+        )}
+
+        {contrato.templates.length > 0 ? (
+          <div>
+            <p className="mb-3 text-sm font-semibold">Modelos cadastrados</p>
+            <div className="divide-y rounded-2xl border">
+              {contrato.templates.map((template) => (
+                <div className="flex items-center justify-between px-4 py-3 text-sm" key={template.id}>
+                  <div>
+                    <p className="font-medium">{template.name}</p>
+                    <p className="text-xs text-muted-foreground">{template.template_key}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {template.is_default ? <Badge variant="secondary">Padrão</Badge> : null}
+                    <Badge variant={template.is_active ? "default" : "secondary"}>
+                      {template.is_active ? "Ativo" : "Inativo"}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <EmptyState message="Nenhum modelo de contrato cadastrado." />
         )}
+
+        {contrato.acceptances.length > 0 ? (
+          <div>
+            <p className="mb-3 text-sm font-semibold">Aceites dos termos</p>
+            <div className="divide-y rounded-2xl border">
+              {contrato.acceptances.map((acceptance, index) => (
+                <div className="grid gap-1 px-4 py-3 text-sm md:grid-cols-3" key={`${acceptance.accepted_at}-${index}`}>
+                  <span className="font-medium">{acceptance.accepted_by_name || "—"}</span>
+                  <span className="text-muted-foreground">
+                    v{acceptance.terms_version || "—"}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {acceptance.accepted_at
+                      ? formatIsoDateBR(String(acceptance.accepted_at).slice(0, 10))
+                      : "—"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
     );
   }

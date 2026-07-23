@@ -14,6 +14,7 @@ import {
   propostaFollowup1VarianteToTemplateKey,
   type PropostaFollowup1Variante,
 } from "./proposta-followup-constants.ts";
+import { isTenantSystemArmed, SYSTEM_NOT_ARMED_SKIP_REASON } from "./system-armed.ts";
 
 type ServiceClient = {
   from: (table: string) => Record<string, unknown>;
@@ -78,7 +79,7 @@ export const dispatchPropostaFollowup1 = async (
 ): Promise<DispatchPropostaFollowup1Result> => {
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
-    .select("automation_template_bindings")
+    .select("automation_template_bindings, system_armed")
     .eq("tenant_id", input.tenant.id)
     .maybeSingle();
 
@@ -89,6 +90,16 @@ export const dispatchPropostaFollowup1 = async (
         settingsError instanceof Error ? settingsError.message : "Erro ao carregar automações.",
       responseStatus: null,
       skippedReason: null,
+      variante: null,
+    };
+  }
+
+  if (!isTenantSystemArmed(settings)) {
+    return {
+      dispatched: false,
+      errorMessage: null,
+      responseStatus: null,
+      skippedReason: SYSTEM_NOT_ARMED_SKIP_REASON,
       variante: null,
     };
   }

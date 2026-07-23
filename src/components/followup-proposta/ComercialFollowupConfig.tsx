@@ -49,8 +49,10 @@ import {
   PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_LIVRE,
   PROPOSTA_FOLLOWUP_3_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
   PROPOSTA_FOLLOWUP_4_DELAY_HOURS,
+  PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
   PROPOSTA_FOLLOWUP_LOSS_MOTIVO,
 } from "@/features/eventos/proposta-followup";
@@ -116,9 +118,17 @@ export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowu
     PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
     "Follow-up 3 — convite de visita",
   );
+  const fu3DataIndisponivelTemplate = getTemplate(
+    PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL,
+    "Follow-up 3 — data indisponível",
+  );
   const fu4EncerramentoTemplate = getTemplate(
     PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
     "Follow-up 4 — encerramento",
+  );
+  const fu4DataIndisponivelTemplate = getTemplate(
+    PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL,
+    "Follow-up 4 — data indisponível",
   );
   const assinaturaInicialTemplate = getTemplate(
     CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_TEMPLATE,
@@ -203,8 +213,20 @@ export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowu
         ...PROPOSTA_FOLLOWUP_PREVIEW,
         companyLegalName,
         templateBody: fu3VisitaTemplate.body,
+        variante: "data_livre",
       }),
     [companyLegalName, fu3VisitaTemplate.body],
+  );
+
+  const previewFu3DataIndisponivel = useMemo(
+    () =>
+      buildPropostaFollowup3PreviewMessage({
+        ...PROPOSTA_FOLLOWUP_PREVIEW,
+        companyLegalName,
+        templateBody: fu3DataIndisponivelTemplate.body,
+        variante: "data_indisponivel",
+      }),
+    [companyLegalName, fu3DataIndisponivelTemplate.body],
   );
 
   const previewFu4Encerramento = useMemo(
@@ -213,8 +235,20 @@ export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowu
         ...PROPOSTA_FOLLOWUP_PREVIEW,
         companyLegalName,
         templateBody: fu4EncerramentoTemplate.body,
+        variante: "data_livre",
       }),
     [companyLegalName, fu4EncerramentoTemplate.body],
+  );
+
+  const previewFu4DataIndisponivel = useMemo(
+    () =>
+      buildPropostaFollowup4PreviewMessage({
+        ...PROPOSTA_FOLLOWUP_PREVIEW,
+        companyLegalName,
+        templateBody: fu4DataIndisponivelTemplate.body,
+        variante: "data_indisponivel",
+      }),
+    [companyLegalName, fu4DataIndisponivelTemplate.body],
   );
 
   const previewAssinaturaInicial = useMemo(
@@ -468,18 +502,30 @@ export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowu
                 <span className="text-foreground">{PROPOSTA_FOLLOWUP_3_DELAY_HOURS} horas</span> após o envio
                 do Follow-up 2
               </li>
-              <li>Convite para visita presencial — sem validação de data na agenda</li>
               <li>Lead ainda em Proposta Enviada, sem retorno no WhatsApp após o FU2</li>
+              <li>Revalida data livre/ocupada na agenda antes do envio</li>
+              <li>Se a data estiver livre: convite para visita presencial</li>
+              <li>Se a data já estiver ocupada: informa a reserva e mantém o convite de visita</li>
             </FollowupRuleList>
           </FollowupRuleCard>
           <FollowupTemplateEditor
-            description="Convite para conhecer o espaço pessoalmente e agendar uma visita."
+            description="72h após o FU2, quando a data da festa ainda está livre — convite de visita."
             isSaving={savingKey === PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA}
             onChange={(body) => setDraftBody(PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA, body)}
             onSave={() => void handleSave(fu3VisitaTemplate)}
             previewMessage={previewFu3Visita}
             template={fu3VisitaTemplate}
-            title="Follow-up 3 — convite de visita"
+            title="Follow-up 3 — convite de visita (data livre)"
+            variables={TEMPLATE_VARIABLES}
+          />
+          <FollowupTemplateEditor
+            description="72h após o FU2, quando a data já foi reservada ou bloqueada."
+            isSaving={savingKey === PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL}
+            onChange={(body) => setDraftBody(PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL, body)}
+            onSave={() => void handleSave(fu3DataIndisponivelTemplate)}
+            previewMessage={previewFu3DataIndisponivel}
+            template={fu3DataIndisponivelTemplate}
+            title="Follow-up 3 — data indisponível"
             variables={TEMPLATE_VARIABLES}
           />
         </FollowupSection>
@@ -492,6 +538,7 @@ export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowu
                 do Follow-up 3
               </li>
               <li>Mensagem de encerramento amigável, sem pressão</li>
+              <li>Revalida data livre/ocupada na agenda antes do envio</li>
               <li>
                 Após o envio, o lead é movido automaticamente para <strong>Perdido</strong> (
                 {PROPOSTA_FOLLOWUP_LOSS_MOTIVO.toLowerCase()})
@@ -504,13 +551,23 @@ export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowu
             </FollowupRuleList>
           </FollowupRuleCard>
           <FollowupTemplateEditor
-            description="Encerramento da sequência. O lead vai para Perdido após o envio."
+            description="Encerramento quando a data ainda está livre. O lead vai para Perdido após o envio."
             isSaving={savingKey === PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO}
             onChange={(body) => setDraftBody(PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO, body)}
             onSave={() => void handleSave(fu4EncerramentoTemplate)}
             previewMessage={previewFu4Encerramento}
             template={fu4EncerramentoTemplate}
-            title="Follow-up 4 — encerramento"
+            title="Follow-up 4 — encerramento (data livre)"
+            variables={TEMPLATE_VARIABLES}
+          />
+          <FollowupTemplateEditor
+            description="Encerramento quando a data já foi reservada. O lead vai para Perdido após o envio."
+            isSaving={savingKey === PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL}
+            onChange={(body) => setDraftBody(PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL, body)}
+            onSave={() => void handleSave(fu4DataIndisponivelTemplate)}
+            previewMessage={previewFu4DataIndisponivel}
+            template={fu4DataIndisponivelTemplate}
+            title="Follow-up 4 — encerramento (data indisponível)"
             variables={TEMPLATE_VARIABLES}
           />
         </FollowupSection>

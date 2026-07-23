@@ -5,6 +5,7 @@ import {
   parseAutomationTemplateBindings,
 } from "@/features/automations/parse-automation-bindings";
 import { parseOutboundWebhookUrls } from "@/features/admin/admin-tenant-n8n-settings";
+import { parseTenantContractTemplateParams } from "@/features/eventos/contracts/contract-template-params";
 import type { GuidedSetupStepKey } from "@/features/guided-setup";
 import {
   normalizeBuffetBlock,
@@ -106,10 +107,10 @@ const fetchSectionData = async (tenantId: number, section: GuidedSetupStepKey) =
       };
     }
     case "contrato": {
-      const [settingsResult, acceptancesResult, templatesResult] = await Promise.all([
+      const [settingsResult, acceptancesResult, templatesResult, packagesResult] = await Promise.all([
         supabase
           .from("tenant_contract_module_settings")
-          .select("*")
+          .select("tenant_id, models_configured_at, default_template_key, template_params, updated_at")
           .eq("tenant_id", tenantId)
           .maybeSingle(),
         supabase
@@ -119,16 +120,28 @@ const fetchSectionData = async (tenantId: number, section: GuidedSetupStepKey) =
           .order("accepted_at", { ascending: false }),
         supabase
           .from("tenant_contract_templates")
-          .select("id, name, is_active, is_default, updated_at")
+          .select("id, name, template_key, is_active, is_default, updated_at")
           .eq("tenant_id", tenantId)
           .order("name", { ascending: true }),
+        supabase
+          .from("tenant_packages")
+          .select("id, name")
+          .eq("tenant_id", tenantId)
+          .order("sort_order", { ascending: true }),
       ]);
       if (settingsResult.error) throw settingsResult.error;
       if (acceptancesResult.error) throw acceptancesResult.error;
       if (templatesResult.error) throw templatesResult.error;
+      if (packagesResult.error) throw packagesResult.error;
       return {
         acceptances: acceptancesResult.data ?? [],
-        settings: settingsResult.data,
+        packages: packagesResult.data ?? [],
+        settings: settingsResult.data
+          ? {
+              ...settingsResult.data,
+              templateParams: parseTenantContractTemplateParams(settingsResult.data.template_params),
+            }
+          : null,
         templates: templatesResult.data ?? [],
       };
     }

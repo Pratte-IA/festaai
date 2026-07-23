@@ -23,6 +23,7 @@ import {
 import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
 import { phonesMatch } from "../_shared/phone.ts";
+import { isTenantSystemArmed } from "../_shared/system-armed.ts";
 
 const ATENDIMENTO_TEMPLATE_KEY = "atendimento";
 
@@ -232,7 +233,7 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
   const { data: automationSettings } = await ctx.service
     .from("tenant_automation_settings")
     .select(
-      "automation_template_bindings, inbound_automation_enabled, n8n_inbound_webhook_url, n8n_provision_status, n8n_routing_key",
+      "automation_template_bindings, inbound_automation_enabled, n8n_inbound_webhook_url, n8n_provision_status, n8n_routing_key, system_armed",
     )
     .eq("tenant_id", tenant.id)
     .maybeSingle();
@@ -264,8 +265,11 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
     }
   }
 
+  const systemArmed = isTenantSystemArmed(automationSettings);
+
   const canForward =
     isAtendimentoConnection &&
+    systemArmed &&
     automationSettings?.inbound_automation_enabled === true &&
     automationSettings?.n8n_provision_status === "active" &&
     Boolean(tenantWebhookUrl);
@@ -390,13 +394,15 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
           ? "Automação de Atendimento sem número WhatsApp vinculado."
           : !isAtendimentoConnection
             ? "Mensagem recebida em número diferente do vinculado à automação de Atendimento."
-            : automationSettings?.n8n_provision_status === "draft"
-              ? "Workflow N8N em rascunho — configure e ative manualmente na admin da plataforma."
-              : !automationSettings?.inbound_automation_enabled
-                ? "Automação inbound desativada — ative manualmente na admin da plataforma (Configuração N8N)."
-                : !tenantWebhookUrl
-                  ? "URL do workflow N8N não configurada — defina na admin da plataforma (Configuração N8N)."
-                  : "Automação inbound não liberada.";
+            : !systemArmed
+              ? "Sistema do tenant não ativado — ative em Admin FestaAI (Ativar sistema)."
+              : automationSettings?.n8n_provision_status === "draft"
+                ? "Workflow N8N em rascunho — configure e ative manualmente na admin da plataforma."
+                : !automationSettings?.inbound_automation_enabled
+                  ? "Automação inbound desativada — ative manualmente na admin da plataforma (Configuração N8N)."
+                  : !tenantWebhookUrl
+                    ? "URL do workflow N8N não configurada — defina na admin da plataforma (Configuração N8N)."
+                    : "Automação inbound não liberada.";
 
       await logAutomationDispatch(ctx, {
         connectionId: ctx.connection.id,

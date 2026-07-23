@@ -1,4 +1,10 @@
 import { extractFirstName, formatCompanyDisplayName } from "./company-display-name.ts";
+import {
+  PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL,
+  PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
+  type PropostaFollowup3Variante,
+  propostaFollowup3VarianteToTemplateKey,
+} from "./proposta-followup-constants.ts";
 import { formatPropostaFollowupDateBR } from "./proposta-followup-1-message.ts";
 
 export const DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
@@ -13,21 +19,46 @@ Assim você vê o espaço com calma, tira suas dúvidas e consegue sentir se faz
 
 Vamos agendar um horário para uma visita?`;
 
+export const DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
+
+Passei aqui de novo sobre a festa de {{nome_aniversariante}}.
+
+A data {{data_festa}} acabou sendo reservada por outra família, mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}}. ✨
+
+Que tal vir conhecer o espaço pessoalmente? Assim você vê tudo com calma, tira suas dúvidas e a gente já aproveita para olhar juntas outras datas disponíveis.
+
+Vamos agendar um horário para uma visita?`;
+
+const defaultTemplateByKey: Record<string, string> = {
+  [PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA]: DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA,
+  [PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL]:
+    DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL,
+};
+
 export interface BuildPropostaFollowup3MessageInput {
   aniversarianteNome: string | null;
   clienteNome: string | null;
   companyLegalName: string;
   dataEvento: string;
   templateBody?: string | null;
+  variante: PropostaFollowup3Variante;
 }
 
-export const resolvePropostaFollowup3TemplateBody = (templateBody?: string | null): string => {
+export const resolvePropostaFollowup3TemplateBody = (
+  variante: PropostaFollowup3Variante,
+  templateBody?: string | null,
+): string => {
   const trimmed = templateBody?.trim();
-  return trimmed || DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA;
+  if (trimmed) return trimmed;
+
+  const key = propostaFollowup3VarianteToTemplateKey(variante);
+  return defaultTemplateByKey[key] ?? DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA;
 };
 
-export const buildPropostaFollowup3Message = (input: BuildPropostaFollowup3MessageInput): string => {
-  const template = resolvePropostaFollowup3TemplateBody(input.templateBody);
+export const buildPropostaFollowup3Message = (
+  input: BuildPropostaFollowup3MessageInput,
+): string => {
+  const template = resolvePropostaFollowup3TemplateBody(input.variante, input.templateBody);
   const primeiroNome = extractFirstName(input.clienteNome);
   const nomeAniversariante = input.aniversarianteNome?.trim() || "aniversariante";
   const nomeEmpresa = formatCompanyDisplayName(input.companyLegalName);
@@ -43,6 +74,7 @@ export const buildPropostaFollowup3Message = (input: BuildPropostaFollowup3Messa
 export const buildPropostaFollowup3Nota = (input: {
   dataEvento: string;
   enviadoEm: string;
+  variante: PropostaFollowup3Variante;
 }): string => {
   const dataBR = formatPropostaFollowupDateBR(input.dataEvento);
   const enviado = new Date(input.enviadoEm);
@@ -55,5 +87,10 @@ export const buildPropostaFollowup3Nota = (input: {
     year: "numeric",
   });
 
-  return `[Automação] Follow-up 3 enviado (convite de visita) — ${enviadoBR}\nData da festa: ${dataBR}`;
+  const varianteLabel =
+    input.variante === "data_livre"
+      ? "data livre (convite de visita)"
+      : "data indisponível (reservada por outra família)";
+
+  return `[Automação] Follow-up 3 enviado — ${enviadoBR}\nVariante: ${varianteLabel}\nData verificada: ${dataBR}`;
 };

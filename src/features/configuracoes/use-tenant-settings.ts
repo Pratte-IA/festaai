@@ -28,7 +28,9 @@ import {
   DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE,
   DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE,
+  DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA,
+  DEFAULT_PROPOSTA_FOLLOWUP_4_DATA_INDISPONIVEL,
   DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO,
   PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
   PROPOSTA_FOLLOWUP_0B_TEMPLATE_ENCERRAMENTO,
@@ -36,7 +38,9 @@ import {
   PROPOSTA_FOLLOWUP_1_TEMPLATE_DATA_LIVRE,
   PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_2_TEMPLATE_DATA_LIVRE,
+  PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA,
+  PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL,
   PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO,
 } from "@/features/eventos/proposta-followup";
 
@@ -96,8 +100,18 @@ export const defaultMessageTemplates: MessageTemplate[] = [
   },
   {
     body: "",
+    key: "follow-up-proposta-3-data-indisponivel",
+    title: "Follow-up Proposta 3 (data indisponivel)",
+  },
+  {
+    body: "",
     key: "follow-up-proposta-4-encerramento",
     title: "Follow-up Proposta 4 (encerramento)",
+  },
+  {
+    body: "",
+    key: "follow-up-proposta-4-data-indisponivel",
+    title: "Follow-up Proposta 4 (data indisponivel)",
   },
   {
     body: "",
@@ -154,16 +168,20 @@ export const useTenantMessageTemplates = () => {
                   ? DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL
                   : template.key === PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA
                     ? DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA
-                    : template.key === PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO
-                      ? DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO
-                      : template.key === CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_TEMPLATE
-                        ? DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_INICIAL
-                        : template.key === CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE_TEMPLATE
-                          ? DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE
-                          : template.key === SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY
-                            ? DEFAULT_SATISFACTION_SURVEY_FOLLOWUP_MESSAGE
-                            : template.key === SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY
-                              ? DEFAULT_SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE
+                    : template.key === PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL
+                      ? DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL
+                      : template.key === PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO
+                        ? DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO
+                        : template.key === PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL
+                          ? DEFAULT_PROPOSTA_FOLLOWUP_4_DATA_INDISPONIVEL
+                          : template.key === CONTRACT_SIGNATURE_FOLLOWUP_INICIAL_TEMPLATE
+                            ? DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_INICIAL
+                            : template.key === CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE_TEMPLATE
+                              ? DEFAULT_CONTRACT_SIGNATURE_FOLLOWUP_LEMBRETE
+                              : template.key === SATISFACTION_SURVEY_FOLLOWUP_MESSAGE_TEMPLATE_KEY
+                                ? DEFAULT_SATISFACTION_SURVEY_FOLLOWUP_MESSAGE
+                                : template.key === SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE_TEMPLATE_KEY
+                                  ? DEFAULT_SATISFACTION_SURVEY_NPS_BAIXA_MESSAGE
                       : template.body;
 
         return {

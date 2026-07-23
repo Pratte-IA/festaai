@@ -3,6 +3,7 @@ import {
   type EventoFinanceiroValores,
 } from "./event-financial.ts";
 import { forwardToN8n, N8N_PAYLOAD_VERSION } from "./n8n-client.ts";
+import { isTenantSystemArmed, SYSTEM_NOT_ARMED_SKIP_REASON } from "./system-armed.ts";
 
 const SETE_DIAS_TEMPLATE_KEY = "sete-dias-antes";
 const SETE_DIAS_EVENT = "sete_dias_antes.party_reminder";
@@ -176,7 +177,7 @@ export const dispatchSeteDiasAntesReminder = async (
 ): Promise<DispatchSeteDiasAntesResult> => {
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
-    .select("automation_template_bindings, n8n_outbound_webhook_urls")
+    .select("automation_template_bindings, n8n_outbound_webhook_urls, system_armed")
     .eq("tenant_id", input.tenant.id)
     .maybeSingle();
 
@@ -186,6 +187,15 @@ export const dispatchSeteDiasAntesReminder = async (
       errorMessage: settingsError instanceof Error ? settingsError.message : "Erro ao carregar automações.",
       responseStatus: null,
       skippedReason: null,
+    };
+  }
+
+  if (!isTenantSystemArmed(settings)) {
+    return {
+      dispatched: false,
+      errorMessage: null,
+      responseStatus: null,
+      skippedReason: SYSTEM_NOT_ARMED_SKIP_REASON,
     };
   }
 

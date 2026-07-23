@@ -27,3 +27,7 @@ export {
   type AdminTenantWhatsappConnection,
   type AdminTenantWhatsappOverview,
 } from "./use-admin-tenant-whatsapp-overview";
+export {
+  adminTenantsQueryKey,
+  useSetTenantSystemArmed,
+} from "./use-admin-tenant-system-armed";

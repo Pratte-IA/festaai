@@ -13,11 +13,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { adminTenantsQueryKey, useSetTenantSystemArmed } from "@/features/admin";
 import { useAuth } from "@/features/auth";
 import { Tenant } from "@/features/tenants";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase/client";
-
-const adminTenantsQueryKey = ["admin", "tenants"] as const;
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
@@ -27,21 +27,52 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
 type StatusFilter = "all" | "active" | "inactive" | `status:${string}`;
 type SortOption = "created-desc" | "created-asc" | "name-asc" | "name-desc";
 
+type AdminTenantRow = Tenant & {
+  system_armed: boolean;
+};
+
+type AdminTenantQueryRow = Tenant & {
+  tenant_automation_settings:
+    | { system_armed: boolean | null }
+    | { system_armed: boolean | null }[]
+    | null;
+};
+
 const activeStatuses = new Set(["active", "trialing"]);
 const inactiveStatuses = new Set(["canceled", "suspended"]);
 
-const fetchAdminTenants = async (): Promise<Tenant[]> => {
+const resolveSystemArmed = (row: AdminTenantQueryRow): boolean => {
+  const settings = row.tenant_automation_settings;
+  if (!settings) return false;
+  const value = Array.isArray(settings) ? settings[0] : settings;
+  return value?.system_armed === true;
+};
+
+const fetchAdminTenants = async (): Promise<AdminTenantRow[]> => {
   const { data, error } = await supabase
     .from("tenants")
-    .select("id, name, slug, document, phone, email, status, created_at, updated_at")
+    .select(
+      "id, name, slug, document, phone, email, status, created_at, updated_at, tenant_automation_settings(system_armed)",
+    )
     .order("created_at", { ascending: false })
-    .returns<Tenant[]>();
+    .returns<AdminTenantQueryRow[]>();
 
   if (error) {
     throw error;
   }
 
-  return data ?? [];
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    document: row.document,
+    phone: row.phone,
+    email: row.email,
+    status: row.status,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    system_armed: resolveSystemArmed(row),
+  }));
 };
 
 const formatDateTime = (value: string | null) => {
@@ -66,7 +97,7 @@ const getStatusVariant = (status: Tenant["status"]) => {
 
 const normalizeText = (value: string | null | undefined) => value?.toLowerCase().trim() ?? "";
 
-const matchesSearch = (tenant: Tenant, searchTerm: string) => {
+const matchesSearch = (tenant: AdminTenantRow, searchTerm: string) => {
   if (!searchTerm) {
     return true;
   }
@@ -82,7 +113,7 @@ const matchesSearch = (tenant: Tenant, searchTerm: string) => {
   return searchableValues.some((value) => normalizeText(value).includes(searchTerm));
 };
 
-const matchesStatusFilter = (tenant: Tenant, statusFilter: StatusFilter) => {
+const matchesStatusFilter = (tenant: AdminTenantRow, statusFilter: StatusFilter) => {
   if (statusFilter === "all") {
     return true;
   }
@@ -98,7 +129,7 @@ const matchesStatusFilter = (tenant: Tenant, statusFilter: StatusFilter) => {
   return tenant.status === statusFilter.replace("status:", "");
 };
 
-const sortTenants = (tenants: Tenant[], sortOption: SortOption) => {
+const sortTenants = (tenants: AdminTenantRow[], sortOption: SortOption) => {
   return [...tenants].sort((firstTenant, secondTenant) => {
     if (sortOption === "name-asc") {
       return firstTenant.name.localeCompare(secondTenant.name, "pt-BR");
@@ -143,11 +174,13 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortOption, setSortOption] = useState<SortOption>("created-desc");
+  const [pendingTenantId, setPendingTenantId] = useState<number | null>(null);
   const { data: tenants = [], error, isLoading } = useQuery({
     queryFn: fetchAdminTenants,
     queryKey: adminTenantsQueryKey,
     staleTime: 1000 * 60,
   });
+  const setSystemArmed = useSetTenantSystemArmed();
 
   const availableStatuses = useMemo(
     () => [...new Set(tenants.map((tenant) => tenant.status))].sort((a, b) => a.localeCompare(b, "pt-BR")),
@@ -177,6 +210,29 @@ const Admin = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate("/login", { replace: true });
+  };
+
+  const handleToggleSystem = async (tenant: AdminTenantRow) => {
+    const nextArmed = !tenant.system_armed;
+    setPendingTenantId(tenant.id);
+
+    try {
+      await setSystemArmed.mutateAsync({ tenantId: tenant.id, armed: nextArmed });
+      toast({
+        title: nextArmed ? "Sistema ativado" : "Sistema desativado",
+        description: nextArmed
+          ? `${tenant.name}: automações e robôs liberados.`
+          : `${tenant.name}: automações e robôs pausados.`,
+      });
+    } catch (toggleError) {
+      toast({
+        title: "Não foi possível alterar a ativação",
+        description: toggleError instanceof Error ? toggleError.message : "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setPendingTenantId(null);
+    }
   };
 
   return (
@@ -226,7 +282,9 @@ const Admin = () => {
         <Card className="rounded-3xl border-white/80 bg-white/90 shadow-sm">
           <CardHeader>
             <CardTitle>Clientes</CardTitle>
-            <CardDescription>Listagem somente leitura dos tenants cadastrados.</CardDescription>
+            <CardDescription>
+              Tenants cadastrados. Use Ativar sistema para liberar automações e robôs.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="mb-5 grid gap-3 lg:grid-cols-[1.4fr_0.8fr_0.8fr]">
@@ -295,38 +353,60 @@ const Admin = () => {
 
             {!isLoading && !error && filteredTenants.length > 0 && (
               <div className="overflow-hidden rounded-2xl border">
-                <div className="hidden grid-cols-[1.5fr_1fr_0.8fr_1fr_1fr_0.8fr] gap-4 bg-muted/50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid">
+                <div className="hidden grid-cols-[1.4fr_0.9fr_0.7fr_0.9fr_0.9fr_1fr_0.8fr] gap-4 bg-muted/50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:grid">
                   <span>Nome</span>
                   <span>Slug</span>
                   <span>Status</span>
                   <span>Criado em</span>
                   <span>Atualizado em</span>
+                  <span>Ativar sistema</span>
                   <span className="text-right">Acoes</span>
                 </div>
                 <div className="divide-y">
-                  {filteredTenants.map((tenant) => (
-                    <article
-                      className="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.5fr_1fr_0.8fr_1fr_1fr_0.8fr] md:items-center md:gap-4"
-                      key={tenant.id}
-                    >
-                      <div>
-                        <p className="font-semibold text-foreground">{tenant.name}</p>
-                        <p className="text-xs text-muted-foreground md:hidden">{tenant.slug}</p>
-                        {tenant.email && <p className="text-xs text-muted-foreground">{tenant.email}</p>}
-                      </div>
-                      <p className="hidden text-muted-foreground md:block">{tenant.slug}</p>
-                      <div>
-                        <Badge variant={getStatusVariant(tenant.status)}>{tenant.status}</Badge>
-                      </div>
-                      <p className="text-muted-foreground">{formatDateTime(tenant.created_at)}</p>
-                      <p className="text-muted-foreground">{formatDateTime(tenant.updated_at)}</p>
-                      <div className="md:text-right">
-                        <Button asChild size="sm" variant="outline">
-                          <Link to={`/admin/tenants/${tenant.id}`}>Abrir painel</Link>
-                        </Button>
-                      </div>
-                    </article>
-                  ))}
+                  {filteredTenants.map((tenant) => {
+                    const isToggling = pendingTenantId === tenant.id && setSystemArmed.isPending;
+
+                    return (
+                      <article
+                        className="grid gap-3 px-4 py-4 text-sm lg:grid-cols-[1.4fr_0.9fr_0.7fr_0.9fr_0.9fr_1fr_0.8fr] lg:items-center lg:gap-4"
+                        key={tenant.id}
+                      >
+                        <div>
+                          <p className="font-semibold text-foreground">{tenant.name}</p>
+                          <p className="text-xs text-muted-foreground lg:hidden">{tenant.slug}</p>
+                          {tenant.email && <p className="text-xs text-muted-foreground">{tenant.email}</p>}
+                        </div>
+                        <p className="hidden text-muted-foreground lg:block">{tenant.slug}</p>
+                        <div>
+                          <Badge variant={getStatusVariant(tenant.status)}>{tenant.status}</Badge>
+                        </div>
+                        <p className="text-muted-foreground">{formatDateTime(tenant.created_at)}</p>
+                        <p className="text-muted-foreground">{formatDateTime(tenant.updated_at)}</p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            disabled={isToggling}
+                            onClick={() => void handleToggleSystem(tenant)}
+                            size="sm"
+                            variant={tenant.system_armed ? "outline" : "default"}
+                          >
+                            {isToggling
+                              ? "Salvando..."
+                              : tenant.system_armed
+                                ? "Desativar"
+                                : "Ativar"}
+                          </Button>
+                          <Badge variant={tenant.system_armed ? "default" : "secondary"}>
+                            {tenant.system_armed ? "Ativo" : "Off"}
+                          </Badge>
+                        </div>
+                        <div className="lg:text-right">
+                          <Button asChild size="sm" variant="outline">
+                            <Link to={`/admin/tenants/${tenant.id}`}>Abrir painel</Link>
+                          </Button>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -38,9 +38,15 @@ export const PROPOSTA_FOLLOWUP_3_DELAY_HOURS = 72;
 
 export const PROPOSTA_FOLLOWUP_3_TEMPLATE_VISITA = "follow-up-proposta-3-visita";
 
+export const PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL =
+  "follow-up-proposta-3-data-indisponivel";
+
 export const PROPOSTA_FOLLOWUP_4_DELAY_HOURS = 48;
 
 export const PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO = "follow-up-proposta-4-encerramento";
+
+export const PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL =
+  "follow-up-proposta-4-data-indisponivel";
 
 export const PROPOSTA_FOLLOWUP_LOSS_MOTIVO =
   "Sem retorno após sequência de follow-ups de proposta";
@@ -56,6 +62,10 @@ export type PropostaFollowupStatus =
 export type PropostaFollowup1Variante = PropostaFollowupDateVariante;
 
 export type PropostaFollowup2Variante = PropostaFollowupDateVariante;
+
+export type PropostaFollowup3Variante = PropostaFollowupDateVariante;
+
+export type PropostaFollowup4Variante = PropostaFollowupDateVariante;
 
 export const propostaFollowupStatusLabels: Record<PropostaFollowupStatus, string> = {
   ativo: "Follow-up ativo",
@@ -128,15 +138,33 @@ Assim você vê o espaço com calma, tira suas dúvidas e consegue sentir se faz
 
 Vamos agendar um horário para uma visita?`;
 
+export const DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
+
+Passei aqui de novo sobre a festa de {{nome_aniversariante}}.
+
+A data {{data_festa}} acabou sendo reservada por outra família, mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}}. ✨
+
+Que tal vir conhecer o espaço pessoalmente? Assim você vê tudo com calma, tira suas dúvidas e a gente já aproveita para olhar juntas outras datas disponíveis.
+
+Vamos agendar um horário para uma visita?`;
+
 export const DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
-Como não tivemos seu retorno, vou deixar seu atendimento em aberto por aqui.
+Como não tivemos seu retorno, vou pausar por aqui — e se fizer sentido no futuro, a gente retoma com carinho.
 
 A gente segue com muito carinho e interesse em receber vocês na {{nome_empresa}} para celebrar a festa de {{nome_aniversariante}}, mas também entendemos que cada família tem seu tempo para decidir. ✨
 
 Por enquanto, a data {{data_festa}} continuará disponível para novas reservas.
 
 Se em algum momento você quiser retomar a proposta, ajustar algum detalhe ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
+
+export const DEFAULT_PROPOSTA_FOLLOWUP_4_DATA_INDISPONIVEL = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
+
+Como não tivemos seu retorno, vou pausar por aqui — e se fizer sentido no futuro, a gente retoma com carinho.
+
+A gente segue com muito carinho e interesse em receber vocês na {{nome_empresa}} para celebrar a festa de {{nome_aniversariante}}, mas também entendemos que cada família tem seu tempo para decidir. ✨
+
+A data {{data_festa}} já não está mais disponível, mas se em algum momento você quiser retomar a proposta, escolher outra data ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
 
 export const getPropostaFollowupKanbanBadge = (evento: {
   contato_inicial_ultima_mensagem_em?: string | null;
