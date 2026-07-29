@@ -288,6 +288,11 @@ export const buildInstanceName = (tenantSlug: string) => {
   return `festaai-${safeSlug}-${Date.now()}-${suffix}`;
 };
 
+export const buildPlatformInstanceName = () => {
+  const suffix = Math.floor(100000 + Math.random() * 900000);
+  return `festaai-platform-${Date.now()}-${suffix}`;
+};
+
 export const extractInstanceApiKey = (payload: Record<string, unknown> | null): string | null => {
   if (!payload) return null;
 

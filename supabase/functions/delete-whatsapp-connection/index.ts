@@ -1,12 +1,13 @@
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
-import { resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
+import { resolveAuthedPlatformAdmin, resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { deleteEvolutionInstance } from "../_shared/evolution-client.ts";
 
 const bodySchema = z.object({
-  tenantId: z.number().int().positive(),
   connectionId: z.number().int().positive(),
+  scope: z.enum(["tenant", "platform"]).default("tenant"),
+  tenantId: z.number().int().positive().optional(),
 });
 
 Deno.serve(async (req) => {
@@ -20,17 +21,32 @@ Deno.serve(async (req) => {
 
   try {
     const payload = bodySchema.parse(await req.json());
-    const auth = await resolveAuthedTenantMember(req, payload.tenantId, { requireAdmin: true });
+    const isPlatform = payload.scope === "platform";
+
+    if (!isPlatform && payload.tenantId == null) {
+      return jsonResponse({ ok: false, error: "tenantId é obrigatório." }, 400);
+    }
+
+    const auth = isPlatform
+      ? await resolveAuthedPlatformAdmin(req)
+      : await resolveAuthedTenantMember(req, payload.tenantId as number, { requireAdmin: true });
     if (auth instanceof Response) return auth;
 
-    const { service, tenantId } = auth;
+    const { service } = auth;
+    const tenantId = isPlatform ? null : (auth as { tenantId: number }).tenantId;
 
-    const { data: connection, error: fetchError } = await service
+    let fetchQuery = service
       .from("whatsapp_connections")
       .select("id, instance_name")
-      .eq("id", payload.connectionId)
-      .eq("tenant_id", tenantId)
-      .maybeSingle();
+      .eq("id", payload.connectionId);
+
+    if (isPlatform) {
+      fetchQuery = fetchQuery.eq("scope", "platform");
+    } else {
+      fetchQuery = fetchQuery.eq("tenant_id", tenantId).eq("scope", "tenant");
+    }
+
+    const { data: connection, error: fetchError } = await fetchQuery.maybeSingle();
 
     if (fetchError) throw fetchError;
     if (!connection) {
@@ -39,11 +55,14 @@ Deno.serve(async (req) => {
 
     await deleteEvolutionInstance(connection.instance_name);
 
-    const { error: deleteError } = await service
-      .from("whatsapp_connections")
-      .delete()
-      .eq("id", connection.id)
-      .eq("tenant_id", tenantId);
+    let deleteQuery = service.from("whatsapp_connections").delete().eq("id", connection.id);
+    if (isPlatform) {
+      deleteQuery = deleteQuery.eq("scope", "platform");
+    } else {
+      deleteQuery = deleteQuery.eq("tenant_id", tenantId);
+    }
+
+    const { error: deleteError } = await deleteQuery;
 
     if (deleteError) throw deleteError;
 

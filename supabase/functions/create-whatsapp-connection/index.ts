@@ -1,9 +1,10 @@
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
-import { resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
+import { resolveAuthedPlatformAdmin, resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import {
   buildInstanceName,
+  buildPlatformInstanceName,
   buildWebhookConfig,
   evolutionFetch,
   extractQrCode,
@@ -12,9 +13,11 @@ import {
   setEvolutionWebhook,
   tryFetchQrCode,
 } from "../_shared/evolution-client.ts";
+
 const bodySchema = z.object({
-  tenantId: z.number().int().positive(),
   name: z.string().trim().min(2).max(120),
+  scope: z.enum(["tenant", "platform"]).default("tenant"),
+  tenantId: z.number().int().positive().optional(),
 });
 
 Deno.serve(async (req) => {
@@ -28,23 +31,53 @@ Deno.serve(async (req) => {
 
   try {
     const payload = bodySchema.parse(await req.json());
-    const auth = await resolveAuthedTenantMember(req, payload.tenantId, { requireAdmin: true });
-    if (auth instanceof Response) return auth;
+    const isPlatform = payload.scope === "platform";
 
-    const { service, tenantId, user } = auth;
-
-    const { data: tenant, error: tenantError } = await service
-      .from("tenants")
-      .select("id, name, slug")
-      .eq("id", tenantId)
-      .maybeSingle();
-
-    if (tenantError) throw tenantError;
-    if (!tenant?.slug) {
-      return jsonResponse({ ok: false, error: "Tenant não encontrado." }, 404);
+    if (!isPlatform && payload.tenantId == null) {
+      return jsonResponse({ ok: false, error: "tenantId é obrigatório." }, 400);
     }
 
-    const instanceName = buildInstanceName(tenant.slug);
+    const auth = isPlatform
+      ? await resolveAuthedPlatformAdmin(req)
+      : await resolveAuthedTenantMember(req, payload.tenantId as number, { requireAdmin: true });
+    if (auth instanceof Response) return auth;
+
+    const { service, user } = auth;
+    const tenantId = isPlatform ? null : (auth as { tenantId: number }).tenantId;
+
+    let instanceName: string;
+
+    if (isPlatform) {
+      const { data: existing, error: existingError } = await service
+        .from("whatsapp_connections")
+        .select("id")
+        .eq("scope", "platform")
+        .maybeSingle();
+
+      if (existingError) throw existingError;
+      if (existing) {
+        return jsonResponse(
+          { ok: false, error: "Já existe uma conexão WhatsApp da plataforma. Exclua-a antes de criar outra." },
+          409,
+        );
+      }
+
+      instanceName = buildPlatformInstanceName();
+    } else {
+      const { data: tenant, error: tenantError } = await service
+        .from("tenants")
+        .select("id, name, slug")
+        .eq("id", tenantId)
+        .maybeSingle();
+
+      if (tenantError) throw tenantError;
+      if (!tenant?.slug) {
+        return jsonResponse({ ok: false, error: "Tenant não encontrado." }, 404);
+      }
+
+      instanceName = buildInstanceName(tenant.slug);
+    }
+
     const webhookUrl = Deno.env.get("EVOLUTION_WEBHOOK_URL") ?? null;
     const globalWebhookToken = Deno.env.get("EVOLUTION_WEBHOOK_TOKEN") ?? null;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("VITE_SUPABASE_ANON_KEY") ?? null;
@@ -96,6 +129,7 @@ Deno.serve(async (req) => {
         name: payload.name,
         provider: "evolution",
         qr_code: qrCode,
+        scope: isPlatform ? "platform" : "tenant",
         status: "connecting",
         tenant_id: tenantId,
         type: "whatsapp",

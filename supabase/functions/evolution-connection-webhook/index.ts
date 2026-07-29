@@ -23,12 +23,14 @@ import {
 import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
 import { phonesMatch } from "../_shared/phone.ts";
+import { upsertPlatformWhatsappConversation } from "../_shared/platform-whatsapp-conversation.ts";
 import { isTenantSystemArmed } from "../_shared/system-armed.ts";
 
 const ATENDIMENTO_TEMPLATE_KEY = "atendimento";
 
 type AuthStatus = "valid" | "invalid" | "missing" | "disabled";
 type ProcessingStatus = "received" | "processed" | "skipped" | "rejected";
+type ConnectionScope = "tenant" | "platform";
 
 interface WebhookContext {
   authStatus: AuthStatus;
@@ -37,8 +39,9 @@ interface WebhookContext {
     instance_name: string;
     name: string;
     phone: string | null;
+    scope: ConnectionScope;
     status: string;
-    tenant_id: number;
+    tenant_id: number | null;
   } | null;
   eventName: string | null;
   instanceName: string | null;
@@ -209,8 +212,61 @@ const logAutomationDispatch = async (
   });
 };
 
+const handlePlatformMessagesUpsert = async (ctx: WebhookContext) => {
+  if (!ctx.connection) return;
+
+  const messages = parseEvolutionMessages(ctx.payload);
+  if (messages.length === 0) {
+    await logWebhookIngest(ctx, "skipped", "Nenhuma mensagem válida no payload.");
+    return;
+  }
+
+  let processed = 0;
+
+  for (const message of messages) {
+    if (!message.customerPhone) {
+      await logWebhookIngest(ctx, "skipped", "Mensagem sem telefone do cliente.");
+      continue;
+    }
+
+    // Inbound do cliente ou outbound iniciado por nós — ambos entram no funil.
+    try {
+      await upsertPlatformWhatsappConversation(ctx.service, {
+        connectionId: ctx.connection.id,
+        customerName: message.customerName,
+        customerPhone: message.customerPhone,
+        messageText: message.text,
+        messageTimestamp: message.timestamp,
+        messageType: message.type,
+      });
+      processed += 1;
+    } catch (upsertError) {
+      console.error(
+        "platform_whatsapp_conversations upsert failed:",
+        upsertError instanceof Error ? upsertError.message : upsertError,
+      );
+      await logWebhookIngest(
+        ctx,
+        "skipped",
+        upsertError instanceof Error ? upsertError.message : "Falha ao upsert conversa platform.",
+      );
+    }
+  }
+
+  await logWebhookIngest(
+    ctx,
+    processed > 0 ? "processed" : "skipped",
+    processed > 0 ? null : "Nenhuma conversa atualizada.",
+  );
+};
+
 const handleMessagesUpsert = async (ctx: WebhookContext) => {
   if (!ctx.connection || !ctx.eventName) return;
+
+  if (ctx.connection.scope === "platform" || ctx.connection.tenant_id == null) {
+    await handlePlatformMessagesUpsert(ctx);
+    return;
+  }
 
   const messages = parseEvolutionMessages(ctx.payload);
   if (messages.length === 0) {
@@ -576,7 +632,7 @@ Deno.serve(async (req) => {
 
     const { data: connection } = await service
       .from("whatsapp_connections")
-      .select("id, tenant_id, status, name, instance_name, phone")
+      .select("id, tenant_id, status, name, instance_name, phone, scope")
       .eq("instance_name", instanceName)
       .maybeSingle();
 
@@ -596,7 +652,10 @@ Deno.serve(async (req) => {
 
     const ctx: WebhookContext = {
       authStatus,
-      connection,
+      connection: {
+        ...connection,
+        scope: (connection.scope === "platform" ? "platform" : "tenant") as ConnectionScope,
+      },
       eventName,
       instanceName,
       payload,

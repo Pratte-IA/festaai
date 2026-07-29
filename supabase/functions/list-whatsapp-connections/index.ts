@@ -1,6 +1,6 @@
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
-import { resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
+import { resolveAuthedPlatformAdmin, resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import {
   evolutionFetch,
@@ -15,7 +15,8 @@ import {
 } from "../_shared/ensure-vila-encantada-inbound-routing.ts";
 
 const bodySchema = z.object({
-  tenantId: z.number().int().positive(),
+  scope: z.enum(["tenant", "platform"]).default("tenant"),
+  tenantId: z.number().int().positive().optional(),
 });
 
 Deno.serve(async (req) => {
@@ -29,16 +30,29 @@ Deno.serve(async (req) => {
 
   try {
     const payload = bodySchema.parse(await req.json());
-    const auth = await resolveAuthedTenantMember(req, payload.tenantId);
+    const isPlatform = payload.scope === "platform";
+
+    if (!isPlatform && payload.tenantId == null) {
+      return jsonResponse({ ok: false, error: "tenantId é obrigatório." }, 400);
+    }
+
+    const auth = isPlatform
+      ? await resolveAuthedPlatformAdmin(req)
+      : await resolveAuthedTenantMember(req, payload.tenantId as number);
     if (auth instanceof Response) return auth;
 
-    const { service, tenantId } = auth;
+    const { service } = auth;
+    const tenantId = isPlatform ? null : (auth as { tenantId: number }).tenantId;
 
-    const { data: connections, error: listError } = await service
-      .from("whatsapp_connections")
-      .select("*")
-      .eq("tenant_id", tenantId)
-      .order("created_at", { ascending: false });
+    let listQuery = service.from("whatsapp_connections").select("*").order("created_at", { ascending: false });
+
+    if (isPlatform) {
+      listQuery = listQuery.eq("scope", "platform");
+    } else {
+      listQuery = listQuery.eq("tenant_id", tenantId).eq("scope", "tenant");
+    }
+
+    const { data: connections, error: listError } = await listQuery;
 
     if (listError) throw listError;
 
@@ -87,7 +101,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      if (connection.instance_name === VILA_ENCANTADA_LUANA_INSTANCE_NAME) {
+      if (!isPlatform && connection.instance_name === VILA_ENCANTADA_LUANA_INSTANCE_NAME) {
         try {
           await syncConnectionWebhook(service, connection);
         } catch {
@@ -104,13 +118,14 @@ Deno.serve(async (req) => {
         updated_at: new Date().toISOString(),
       };
 
-      const { data: saved, error: saveError } = await service
-        .from("whatsapp_connections")
-        .update(updates)
-        .eq("id", connection.id)
-        .eq("tenant_id", tenantId)
-        .select("*")
-        .single();
+      let saveQuery = service.from("whatsapp_connections").update(updates).eq("id", connection.id);
+      if (isPlatform) {
+        saveQuery = saveQuery.eq("scope", "platform");
+      } else {
+        saveQuery = saveQuery.eq("tenant_id", tenantId);
+      }
+
+      const { data: saved, error: saveError } = await saveQuery.select("*").single();
 
       if (saveError) {
         refreshed.push(connection);

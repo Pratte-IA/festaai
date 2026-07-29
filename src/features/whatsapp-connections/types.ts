@@ -11,8 +11,9 @@ export interface WhatsappConnection {
   phone: string | null;
   provider: string;
   qr_code: string | null;
+  scope?: "tenant" | "platform";
   status: WhatsappConnectionStatus;
-  tenant_id: number;
+  tenant_id: number | null;
   type: string;
   updated_at: string;
   webhook_url: string | null;

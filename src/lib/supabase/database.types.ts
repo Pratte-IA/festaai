@@ -1629,6 +1629,53 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_whatsapp_conversations: {
+        Row: {
+          connection_id: number
+          created_at: string
+          customer_name: string | null
+          customer_phone: string
+          id: number
+          last_message_at: string | null
+          last_message_preview: string | null
+          lost_reason: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          connection_id: number
+          created_at?: string
+          customer_name?: string | null
+          customer_phone: string
+          id?: number
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          lost_reason?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          connection_id?: number
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string
+          id?: number
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          lost_reason?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_whatsapp_conversations_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2987,8 +3034,9 @@ export type Database = {
           phone: string | null
           provider: string
           qr_code: string | null
+          scope: string
           status: string
-          tenant_id: number
+          tenant_id: number | null
           type: string
           updated_at: string
           webhook_url: string | null
@@ -3004,8 +3052,9 @@ export type Database = {
           phone?: string | null
           provider?: string
           qr_code?: string | null
+          scope?: string
           status?: string
-          tenant_id: number
+          tenant_id?: number | null
           type?: string
           updated_at?: string
           webhook_url?: string | null
@@ -3021,8 +3070,9 @@ export type Database = {
           phone?: string | null
           provider?: string
           qr_code?: string | null
+          scope?: string
           status?: string
-          tenant_id?: number
+          tenant_id?: number | null
           type?: string
           updated_at?: string
           webhook_url?: string | null

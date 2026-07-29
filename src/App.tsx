@@ -17,6 +17,8 @@ import Tarefas from "./pages/Tarefas.tsx";
 
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AdminClientes = lazy(() => import("./pages/AdminClientes.tsx"));
+const AdminConexoes = lazy(() => import("./pages/AdminConexoes.tsx"));
+const AdminWhatsApp = lazy(() => import("./pages/AdminWhatsApp.tsx"));
 const AdminTenantDetail = lazy(() => import("./pages/AdminTenantDetail.tsx"));
 const AdminTenantConfig = lazy(() => import("./pages/AdminTenantConfig.tsx"));
 const AdminTenantConfigSection = lazy(() => import("./pages/AdminTenantConfigSection.tsx"));
@@ -142,6 +144,8 @@ const App = () => (
                     <Route path="/admin/tenants/:id/configuracao" element={<AdminTenantConfig />} />
                     <Route path="/admin/tenants/:id" element={<AdminTenantDetail />} />
                     <Route path="/admin/clientes" element={<AdminClientes />} />
+                    <Route path="/admin/conexoes" element={<AdminConexoes />} />
+                    <Route path="/admin/whatsapp" element={<AdminWhatsApp />} />
                     <Route path="/admin" element={<Admin />} />
                   </Route>
                   <Route path="/privacidade" element={<Privacidade />} />

@@ -7,6 +7,8 @@ import {
   LayoutGrid,
   LifeBuoy,
   LogOut,
+  MessageCircle,
+  PlugZap,
   Radar,
   ShieldCheck,
   UserCircle,
@@ -26,6 +28,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: Building2, label: "Clientes", path: "/admin/clientes" },
+  { icon: PlugZap, label: "Conexões", path: "/admin/conexoes" },
+  { icon: MessageCircle, label: "WhatsApp", path: "/admin/whatsapp" },
   { icon: Radar, label: "Radar Comercial", path: "/admin/radar" },
   { icon: LayoutGrid, label: "CRM Comercial", path: "/admin/crm" },
   { icon: Handshake, label: "Comercial", path: "/admin/comercial" },

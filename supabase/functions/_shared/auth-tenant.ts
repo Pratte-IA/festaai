@@ -86,3 +86,61 @@ export const resolveAuthedTenantMember = async (
 
   return { authedClient, service, tenantId, user, role };
 };
+
+export interface AuthedPlatformAdminContext {
+  authedClient: SupabaseClient;
+  service: SupabaseClient;
+  user: User;
+}
+
+export const resolveAuthedPlatformAdmin = async (
+  req: Request,
+): Promise<AuthedPlatformAdminContext | Response> => {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ ok: false, error: "Não autorizado." }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const jwt = authHeader.replace("Bearer ", "");
+  const supabaseUrl = requiredEnv("SUPABASE_URL");
+  const anonKey = requiredEnv("SUPABASE_ANON_KEY");
+
+  const authedClient = createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false },
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const {
+    data: { user },
+    error: userError,
+  } = await authedClient.auth.getUser(jwt);
+
+  if (userError || !user) {
+    return new Response(JSON.stringify({ ok: false, error: "Sessão inválida." }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const service = createServiceClient();
+
+  const { data: profile, error: profileError } = await service
+    .from("profiles")
+    .select("is_platform_admin")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+
+  if (!profile?.is_platform_admin) {
+    return new Response(JSON.stringify({ ok: false, error: "Permissão insuficiente." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return { authedClient, service, user };
+};
