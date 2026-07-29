@@ -60,21 +60,31 @@ export const LancamentoFormDialog = ({
 }: LancamentoFormDialogProps) => {
   const createLancamento = useCreateFinanceiroLancamento();
   const [dataLancamento, setDataLancamento] = useState("");
+  const [competenciaMonth, setCompetenciaMonth] = useState("");
   const [valor, setValor] = useState("");
   const [complemento, setComplemento] = useState("");
   const [observacao, setObservacao] = useState("");
   const [categoria, setCategoria] = useState(defaultCategoria ?? defaultCategoriaByMode[mode]);
 
   const isEntrada = mode === "entrada_evento" || mode === "entrada_geral";
+  const isDespesaGeral = mode === "despesa_geral";
   const isDesconto = isEntrada && isFinanceiroCategoriaDesconto(categoria);
   const categoriaOptions = isEntrada ? FINANCEIRO_CATEGORIAS_ENTRADA : FINANCEIRO_CATEGORIAS_SAIDA;
 
   const resetForm = () => {
     setDataLancamento("");
+    setCompetenciaMonth("");
     setValor("");
     setComplemento("");
     setObservacao("");
     setCategoria(defaultCategoria ?? defaultCategoriaByMode[mode]);
+  };
+
+  const handleDataLancamentoChange = (value: string) => {
+    setDataLancamento(value);
+    if (isDespesaGeral && value && !competenciaMonth) {
+      setCompetenciaMonth(value.slice(0, 7));
+    }
   };
 
   const handleSubmit = async () => {
@@ -101,9 +111,19 @@ export const LancamentoFormDialog = ({
       return;
     }
 
+    if (isDespesaGeral && !competenciaMonth) {
+      toast({
+        title: "Competencia obrigatoria",
+        description: "Informe o mes/ano de competencia da despesa.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await createLancamento.mutateAsync({
         categoria,
+        data_competencia: isDespesaGeral ? `${competenciaMonth}-01` : undefined,
         data_lancamento: dataLancamento,
         descricao: complemento.trim() || null,
         eventoId: mode === "despesa_geral" || mode === "entrada_geral" ? null : eventoId ?? null,
@@ -142,14 +162,29 @@ export const LancamentoFormDialog = ({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="data-lancamento">Data</Label>
+            <Label htmlFor="data-lancamento">{isDespesaGeral ? "Data de pagamento" : "Data"}</Label>
             <Input
               id="data-lancamento"
               type="date"
               value={dataLancamento}
-              onChange={(event) => setDataLancamento(event.target.value)}
+              onChange={(event) => handleDataLancamentoChange(event.target.value)}
             />
           </div>
+
+          {isDespesaGeral ? (
+            <div className="space-y-2">
+              <Label htmlFor="competencia-lancamento">Competencia (mes/ano)</Label>
+              <Input
+                id="competencia-lancamento"
+                type="month"
+                value={competenciaMonth}
+                onChange={(event) => setCompetenciaMonth(event.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Mes em que a despesa entra no resultado por competencia.
+              </p>
+            </div>
+          ) : null}
 
           <div className="space-y-2">
             <Label htmlFor="valor-lancamento">

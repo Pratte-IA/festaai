@@ -732,6 +732,7 @@ export type Database = {
           categoria: string
           created_at: string
           created_by: string | null
+          data_competencia: string | null
           data_lancamento: string
           descricao: string | null
           evento_id: number | null
@@ -750,6 +751,7 @@ export type Database = {
           categoria: string
           created_at?: string
           created_by?: string | null
+          data_competencia?: string | null
           data_lancamento: string
           descricao?: string | null
           evento_id?: number | null
@@ -768,6 +770,7 @@ export type Database = {
           categoria?: string
           created_at?: string
           created_by?: string | null
+          data_competencia?: string | null
           data_lancamento?: string
           descricao?: string | null
           evento_id?: number | null

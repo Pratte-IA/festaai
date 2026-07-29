@@ -81,12 +81,13 @@ describe("export-financeiro-report", () => {
     expect(csv).toContain("DRE - Demonstrativo do Resultado");
     expect(csv).toContain("Receita liquida;500,00");
     expect(csv).toContain("Entradas - Festas (automático)");
-    expect(csv).toContain("Entrada Contrato;Maria;Contrato;400,00");
+    expect(csv).toContain("origem_movimento;data_confirmada;observacao");
+    expect(csv).toContain("Entrada Contrato;Maria;Contrato;Lançamento da festa;Sim;;400,00");
     expect(csv).toContain("Entradas - Empresa (manual)");
-    expect(csv).toContain("Outras receitas;Venda avulsa;Geral;100,00");
-    expect(csv).toContain("Total de entradas;;;;500,00");
+    expect(csv).toContain("Outras receitas;Venda avulsa;Geral;Entrada manual;Sim;;100,00");
+    expect(csv).toContain("Total de entradas;;;;;;;500,00");
     expect(csv).toContain("Saídas - Empresa (manual)");
-    expect(csv).toContain("Impostos;;Geral;200,00");
+    expect(csv).toContain("Impostos;;Geral;Saída manual;Sim;;200,00");
   });
 
   it("permite exportar apenas secoes selecionadas", () => {

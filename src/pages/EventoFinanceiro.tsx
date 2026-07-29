@@ -196,7 +196,7 @@ const EventoFinanceiro = () => {
 
   const getPagamentoFormTarget = (itemId: string): PagamentoRecebidoFormTarget | null => {
     if (itemId === "entrada-contrato") {
-      return { evento, eventoId: validEventoId, kind: "entrada" };
+      return { evento: event, eventoId: validEventoId, kind: "entrada" };
     }
 
     const pagamentoId = Number(itemId.replace("pagamento-", ""));

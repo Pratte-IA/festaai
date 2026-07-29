@@ -1,34 +1,19 @@
 import { FinanceiroContratoEntrada, FinanceiroDisplayItem, DrePeriodSummary } from "./display-types";
+import {
+  buildFluxoCaixaEntradasFestas,
+  mapContratoEntradaToDisplay,
+  mapLancamentoToFluxoDisplay,
+} from "./fluxo-caixa";
 import { FinanceiroLancamento } from "./types";
 
-const toIsoDate = (value: string) => value.slice(0, 10);
+export { mapContratoEntradaToDisplay };
 
-export const mapContratoEntradaToDisplay = (item: FinanceiroContratoEntrada): FinanceiroDisplayItem => ({
-  categoria: "entrada_contrato",
-  data_lancamento: toIsoDate(item.referenceAt),
-  deletable: false,
-  descricao: item.clienteNome,
-  evento_id: item.eventoId,
-  id: `contrato-${item.id}`,
-  origem: "contrato",
-  tipo: "entrada",
-  valor: item.valorEntrada,
-});
+export const mapLancamentoToDisplay = mapLancamentoToFluxoDisplay;
 
-export const mapLancamentoToDisplay = (item: FinanceiroLancamento): FinanceiroDisplayItem => ({
-  categoria: item.categoria,
-  data_lancamento: item.data_lancamento,
-  deletable: item.origem !== "pagamento",
-  descricao: item.descricao,
-  evento_id: item.evento_id,
-  id: `lancamento-${item.id}`,
-  ledgerId: item.id,
-  origem: item.origem,
-  tipo: item.tipo,
-  valor: item.valor,
-});
-
-/** Entradas do DRE: sinal/reserva da festa (`eventos.valor_entrada`). */
+/**
+ * @deprecated Prefer buildFluxoCaixaEntradasFestas — inclui pagamentos do ledger + sinal legado.
+ * Mantido para compatibilidade: só mapeia sinais legados.
+ */
 export const buildDreEntradas = (contratoEntradas: FinanceiroContratoEntrada[]): FinanceiroDisplayItem[] =>
   sortDisplayItems(contratoEntradas.map(mapContratoEntradaToDisplay));
 
@@ -37,8 +22,11 @@ const sortDisplayItems = (items: FinanceiroDisplayItem[]) =>
     (a, b) => b.data_lancamento.localeCompare(a.data_lancamento) || b.id.localeCompare(a.id),
   );
 
-/** Reservas/sinal lancados nas festas (valor_entrada). */
+/** Reservas/sinal legados (valor_entrada). */
 export const buildEntradasFestasAutomaticas = buildDreEntradas;
+
+/** Entradas de festa no Fluxo de Caixa (legado + ledger, sem duplicar sync). */
+export const buildEntradasFestasFluxoCaixa = buildFluxoCaixaEntradasFestas;
 
 /** Receitas avulsas da empresa (ex.: venda de estoque), sem vinculo com festa. */
 export const buildEntradasManuaisGerais = (lancamentos: FinanceiroLancamento[]): FinanceiroDisplayItem[] =>

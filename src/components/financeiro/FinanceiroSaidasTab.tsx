@@ -28,8 +28,9 @@ export const FinanceiroSaidasTab = ({
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold">Saidas do periodo</CardTitle>
         <p className="mt-1 text-sm text-muted-foreground">
-          Despesas gerais da empresa sao lancadas aqui (aluguel, investimentos, marketing etc.). Despesas de
-          cada festa aparecem automaticamente a partir do financeiro do evento.
+          Despesas gerais da empresa sao lancadas aqui (aluguel, investimentos, marketing etc.). No
+          Fluxo de Caixa entram pela data de pagamento; na Competencia, pelo mes informado no cadastro.
+          Despesas de cada festa aparecem automaticamente a partir do financeiro do evento.
         </p>
       </CardHeader>
       <CardContent className="space-y-6">

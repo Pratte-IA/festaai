@@ -13,8 +13,8 @@ export const FinanceiroDreTab = ({ isLoading, month, statement }: FinanceiroDreT
     <CardHeader className="pb-3">
       <CardTitle className="text-base font-semibold">DRE — Demonstrativo de Resultado</CardTitle>
       <p className="mt-1 text-sm text-muted-foreground">
-        Visao consolidada do mes de {formatFinanceiroMonthLabel(month)} com receitas, deducoes, despesas e
-        resultado liquido.
+        Visao consolidada do fluxo de caixa de {formatFinanceiroMonthLabel(month)} — receitas e despesas
+        pela data em que o dinheiro entrou ou saiu.
       </p>
     </CardHeader>
     <CardContent className="space-y-4">

@@ -52,6 +52,8 @@ const ConfiguracoesAutomacoes = lazy(() => import("./pages/configuracoes/Automac
 const EventoDetalhe = lazy(() => import("./pages/EventoDetalhe.tsx"));
 const EventoFinanceiro = lazy(() => import("./pages/EventoFinanceiro.tsx"));
 const Financeiro = lazy(() => import("./pages/Financeiro.tsx"));
+const FinanceiroCompetencia = lazy(() => import("./pages/FinanceiroCompetencia.tsx"));
+const FinanceiroPorFesta = lazy(() => import("./pages/FinanceiroPorFesta.tsx"));
 const FinanceiroLancamentos = lazy(() => import("./pages/FinanceiroLancamentos.tsx"));
 const Contratar = lazy(() => import("./pages/Contratar.tsx"));
 const ContratarIniciar = lazy(() => import("./pages/ContratarIniciar.tsx"));
@@ -190,6 +192,22 @@ const App = () => (
                       element={
                         <TenantAdminRoute>
                           <FinanceiroLancamentos />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route
+                      path="financeiro/festas"
+                      element={
+                        <TenantAdminRoute>
+                          <FinanceiroPorFesta />
+                        </TenantAdminRoute>
+                      }
+                    />
+                    <Route
+                      path="financeiro/competencia"
+                      element={
+                        <TenantAdminRoute>
+                          <FinanceiroCompetencia />
                         </TenantAdminRoute>
                       }
                     />

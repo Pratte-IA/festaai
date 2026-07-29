@@ -34,13 +34,22 @@ export const LancamentoGeralInlineForm = ({
   const createLancamento = useCreateFinanceiroLancamento();
   const isEntrada = mode === "entrada_geral";
   const showCategoriaSelect = !isEntrada;
+  const showCompetencia = !isEntrada;
 
   const [dataLancamento, setDataLancamento] = useState("");
+  const [competenciaMonth, setCompetenciaMonth] = useState("");
   const [valor, setValor] = useState("");
   const [complemento, setComplemento] = useState("");
   const [categoria, setCategoria] = useState("");
 
   const resolvedCategoria = isEntrada ? ENTRADA_GERAL_CATEGORIA : categoria;
+
+  const handleDataLancamentoChange = (value: string) => {
+    setDataLancamento(value);
+    if (showCompetencia && value && !competenciaMonth) {
+      setCompetenciaMonth(value.slice(0, 7));
+    }
+  };
 
   const handleSubmit = async () => {
     const parsedValor = Number(valor);
@@ -66,9 +75,19 @@ export const LancamentoGeralInlineForm = ({
       return;
     }
 
+    if (showCompetencia && !competenciaMonth) {
+      toast({
+        title: "Competencia obrigatoria",
+        description: "Informe o mes/ano de competencia da despesa.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await createLancamento.mutateAsync({
         categoria: resolvedCategoria,
+        data_competencia: showCompetencia ? `${competenciaMonth}-01` : undefined,
         data_lancamento: dataLancamento,
         descricao: complemento.trim() || null,
         eventoId: null,
@@ -91,13 +110,29 @@ export const LancamentoGeralInlineForm = ({
   return (
     <InlineFormShell>
       <div
-        className={`grid gap-2 ${showCategoriaSelect ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3"}`}
+        className={`grid gap-2 ${
+          showCompetencia
+            ? "sm:grid-cols-2 lg:grid-cols-5"
+            : showCategoriaSelect
+              ? "sm:grid-cols-2 lg:grid-cols-4"
+              : "sm:grid-cols-2 lg:grid-cols-3"
+        }`}
       >
         <Input
           type="date"
           value={dataLancamento}
-          onChange={(event) => setDataLancamento(event.target.value)}
+          onChange={(event) => handleDataLancamentoChange(event.target.value)}
+          aria-label="Data de pagamento"
         />
+        {showCompetencia ? (
+          <Input
+            type="month"
+            value={competenciaMonth}
+            onChange={(event) => setCompetenciaMonth(event.target.value)}
+            aria-label="Competencia (mes/ano)"
+            title="Competencia (mes/ano)"
+          />
+        ) : null}
         <Input
           type="number"
           min="0"
@@ -126,6 +161,12 @@ export const LancamentoGeralInlineForm = ({
           onChange={(event) => setComplemento(event.target.value)}
         />
       </div>
+      {showCompetencia ? (
+        <p className="text-xs text-muted-foreground">
+          Competencia: mes em que a despesa deve aparecer no resultado (independente da data de
+          pagamento).
+        </p>
+      ) : null}
       <InlineFormActions
         isPending={createLancamento.isPending}
         onCancel={onCancel}

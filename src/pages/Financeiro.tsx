@@ -11,9 +11,9 @@ import { FinanceiroSaidasTab } from "@/components/financeiro/FinanceiroSaidasTab
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   buildDashboardSaidaRows,
-  buildDreEntradas,
   buildDreSaidas,
   buildDreStatement,
+  buildEntradasFestasFluxoCaixa,
   buildEntradasManuaisGerais,
   buildSaidasFestas,
   buildSaidasGerais,
@@ -24,6 +24,7 @@ import {
   useFinanceiroContratoEntradas,
   useFinanceiroLancamentos,
 } from "@/features/financeiro";
+import { toValorEntradaMap } from "@/features/financeiro/use-financeiro-contrato-entradas";
 import { toast } from "@/hooks/use-toast";
 
 type FinanceiroTab = "dashboard" | "dre" | "entradas" | "saidas";
@@ -40,17 +41,28 @@ const Financeiro = () => {
 
   const { from, to } = useMemo(() => getMonthRange(month), [month]);
   const { data: lancamentos = [], isLoading: isLancamentosLoading } = useFinanceiroLancamentos({ from, to });
-  const { data: contratoEntradas = [], isLoading: isContratoLoading } = useFinanceiroContratoEntradas(from, to);
+  const { data: contratoEntradasResult, isLoading: isContratoLoading } = useFinanceiroContratoEntradas(from, to);
   const deleteLancamento = useDeleteFinanceiroLancamento();
 
-  const entradasFestas = useMemo(() => buildDreEntradas(contratoEntradas), [contratoEntradas]);
+  const contratoEntradas = useMemo(
+    () => contratoEntradasResult?.entradas ?? [],
+    [contratoEntradasResult?.entradas],
+  );
+  const valorEntradaByEvento = useMemo(
+    () => toValorEntradaMap(contratoEntradasResult?.valorEntradaByEvento),
+    [contratoEntradasResult?.valorEntradaByEvento],
+  );
+  const entradasFestas = useMemo(
+    () => buildEntradasFestasFluxoCaixa(contratoEntradas, lancamentos, valorEntradaByEvento),
+    [contratoEntradas, lancamentos, valorEntradaByEvento],
+  );
   const entradasManuais = useMemo(() => buildEntradasManuaisGerais(lancamentos), [lancamentos]);
   const saidasGerais = useMemo(() => buildSaidasGerais(lancamentos), [lancamentos]);
   const saidasFestas = useMemo(() => buildSaidasFestas(lancamentos), [lancamentos]);
   const dreSaidas = useMemo(() => buildDreSaidas(lancamentos), [lancamentos]);
   const dreStatement = useMemo(
-    () => buildDreStatement(contratoEntradas, lancamentos),
-    [contratoEntradas, lancamentos],
+    () => buildDreStatement(contratoEntradas, lancamentos, valorEntradaByEvento),
+    [contratoEntradas, lancamentos, valorEntradaByEvento],
   );
   const dashboardSaidaRows = useMemo(
     () =>
@@ -107,9 +119,11 @@ const Financeiro = () => {
     <AppLayout>
       <div className="mx-auto max-w-6xl px-4 py-6">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Financeiro</h1>
+          <h1 className="text-2xl font-bold text-foreground">Fluxo de Caixa</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Visao executiva do mes com entradas, saidas, resultado e indicadores.
+            Mostra entradas e saídas conforme as datas em que o dinheiro foi recebido ou pago.
+            Sinais legados (`valor_entrada` sem pagamento detalhado) aparecem com data estimada
+            sinalizada — não confundir com comprovante de recebimento.
           </p>
         </div>
 

@@ -29,6 +29,7 @@ describe("build-dre-entradas", () => {
         contractId: null,
         eventoId: 3,
         id: 99,
+        isLegacyEstimate: true,
         valorEntrada: 5000,
       },
     ]);
@@ -36,8 +37,9 @@ describe("build-dre-entradas", () => {
     expect(entradas).toHaveLength(1);
     expect(entradas[0]).toMatchObject({
       categoria: "entrada_contrato",
-      origem: "contrato",
+      origem: "legado_valor_entrada",
       valor: 5000,
+      isLegacyEstimate: true,
     });
   });
 

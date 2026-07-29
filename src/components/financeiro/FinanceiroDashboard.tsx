@@ -83,7 +83,7 @@ export const FinanceiroDashboard = ({
         />
         <SummaryCard
           icon={TrendingUp}
-          label="Resultado do mes"
+          label="Resultado do periodo (caixa)"
           loading={isLoading}
           tone="resultado"
           value={formatFinanceiroCurrency(statement.resultadoLiquido)}
@@ -92,8 +92,8 @@ export const FinanceiroDashboard = ({
       </div>
 
       <DashboardRow
-        subtitle={`Recebimentos de ${formatFinanceiroMonthLabel(month)}`}
-        title="Entradas do mes"
+        subtitle={`Recebimentos de ${formatFinanceiroMonthLabel(month)} (por data de entrada)`}
+        title="Entradas do periodo"
       >
         {isLoading ? (
           <p className="text-sm italic text-muted-foreground">Carregando...</p>
@@ -113,7 +113,7 @@ export const FinanceiroDashboard = ({
         )}
       </DashboardRow>
 
-      <DashboardRow subtitle="Despesas por descricao no periodo" title="Saidas do mes">
+      <DashboardRow subtitle="Despesas por descricao no periodo (por data de pagamento)" title="Saidas do periodo">
         {isLoading ? (
           <p className="text-sm italic text-muted-foreground">Carregando...</p>
         ) : saidasAtivas.length === 0 ? (
@@ -136,7 +136,7 @@ export const FinanceiroDashboard = ({
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resultado do mes</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resultado do periodo</p>
             <p
               className={`mt-1 text-3xl font-bold tabular-nums ${
                 isLoading
@@ -166,7 +166,7 @@ export const FinanceiroDashboard = ({
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold">Analise rapida</CardTitle>
-          <p className="text-sm text-muted-foreground">Indicadores para leitura executiva do mes.</p>
+          <p className="text-sm text-muted-foreground">Indicadores do fluxo de caixa no periodo selecionado.</p>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
           <InsightTile

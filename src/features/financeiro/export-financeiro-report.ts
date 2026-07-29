@@ -1,5 +1,6 @@
 import { getFinanceiroCategoriaLabel } from "./constants";
 import { DreStatement, FinanceiroDisplayItem } from "./display-types";
+import { getFluxoCaixaExportMeta } from "./fluxo-caixa";
 import { formatFinanceiroMonthLabel } from "./month-range";
 
 export type FinanceiroExportFormat = "csv" | "pdf" | "xls";
@@ -91,6 +92,10 @@ const escapeHtml = (value: string): string =>
     .replace(/"/g, "&quot;");
 
 const formatOrigemLabel = (item: FinanceiroDisplayItem): string => {
+  if (item.isLegacyEstimate || item.origem === "legado_valor_entrada") {
+    return "Sinal legado";
+  }
+
   if (item.origem === "contrato") {
     return "Contrato";
   }
@@ -106,15 +111,30 @@ const sumItems = (items: FinanceiroDisplayItem[]): number =>
   items.reduce((total, item) => total + item.valor, 0);
 
 const mapLancamentoRows = (items: FinanceiroDisplayItem[]): string[][] =>
-  items.map((item) => [
-    formatDateBr(item.data_lancamento),
-    getFinanceiroCategoriaLabel(item.categoria),
-    item.descricao ?? "",
-    formatOrigemLabel(item),
-    formatMoneyBr(item.valor),
-  ]);
+  items.map((item) => {
+    const meta = getFluxoCaixaExportMeta(item);
+    return [
+      formatDateBr(item.data_lancamento),
+      getFinanceiroCategoriaLabel(item.categoria),
+      item.descricao ?? "",
+      formatOrigemLabel(item),
+      meta.origem_movimento,
+      meta.data_confirmada,
+      meta.observacao,
+      formatMoneyBr(item.valor),
+    ];
+  });
 
-const LANCAMENTO_HEADERS = ["Data", "Categoria", "Complemento", "Origem", "Valor (R$)"];
+const LANCAMENTO_HEADERS = [
+  "Data",
+  "Categoria",
+  "Complemento",
+  "Origem",
+  "origem_movimento",
+  "data_confirmada",
+  "observacao",
+  "Valor (R$)",
+];
 
 const hasSelectedSections = (sections: FinanceiroExportSections): boolean =>
   sections.dre || sections.entradas || sections.saidas;
@@ -294,6 +314,9 @@ const buildWorksheetXml = (table: ReportTable, index: number): string => {
       <Column ss:AutoFitWidth="1" ss:Width="160"/>
       <Column ss:AutoFitWidth="1" ss:Width="180"/>
       <Column ss:AutoFitWidth="1" ss:Width="100"/>
+      <Column ss:AutoFitWidth="1" ss:Width="140"/>
+      <Column ss:AutoFitWidth="1" ss:Width="110"/>
+      <Column ss:AutoFitWidth="1" ss:Width="220"/>
       <Column ss:AutoFitWidth="1" ss:Width="100"/>
       ${rowsXml.join("\n      ")}
     </Table>

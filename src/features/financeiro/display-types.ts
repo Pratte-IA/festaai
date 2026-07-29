@@ -1,10 +1,17 @@
 export interface FinanceiroContratoEntrada {
-  /** Data de referencia da entrada (fechamento_confirmado_em ?? created_at). */
+  /**
+   * Data de referência da entrada.
+   * Para legado (valor_entrada): estimada (fechamento_confirmado_em ?? created_at) — nunca tratar como data real sem isLegacyEstimate.
+   */
   referenceAt: string;
   clienteNome: string;
   contractId: number | null;
+  /** @deprecated Use isLegacyEstimate */
+  estimatedDate?: boolean;
   eventoId: number;
   id: number;
+  /** true quando a data não é comprovação de recebimento real */
+  isLegacyEstimate?: boolean;
   valorEntrada: number;
 }
 
@@ -15,6 +22,7 @@ export interface FinanceiroDisplayItem {
   descricao: string | null;
   evento_id: number | null;
   id: string;
+  isLegacyEstimate?: boolean;
   ledgerId?: number;
   origem: string;
   tipo: "entrada" | "saida";

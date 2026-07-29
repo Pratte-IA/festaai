@@ -17,6 +17,8 @@ import {
   CreditCard,
   LifeBuoy,
   Wallet,
+  PartyPopper,
+  Scale,
   Star,
   type LucideIcon,
 } from "lucide-react";
@@ -30,6 +32,8 @@ interface NavItem {
   icon: LucideIcon;
   label: string;
   path: string;
+  /** Quando true, só marca ativo em match exato (evita /financeiro ativar /financeiro/festas). */
+  exact?: boolean;
 }
 
 interface NavSection {
@@ -61,7 +65,11 @@ const gestaoSection: NavSection = {
 
 const financeiroSection: NavSection = {
   title: "Financeiro",
-  items: [{ icon: Wallet, label: "Financeiro", path: "/financeiro" }],
+  items: [
+    { icon: PartyPopper, label: "Financeiro por festa", path: "/financeiro/festas" },
+    { icon: Wallet, label: "Fluxo de Caixa", path: "/financeiro", exact: true },
+    { icon: Scale, label: "Competência", path: "/financeiro/competencia" },
+  ],
 };
 
 const sistemaBaseItems: NavItem[] = [
@@ -71,10 +79,16 @@ const sistemaBaseItems: NavItem[] = [
 
 const suporteItem: NavItem = { icon: LifeBuoy, label: "Suporte", path: "/suporte" };
 
-function isNavItemActive(pathname: string, path: string) {
-  return path === "/"
-    ? pathname === "/"
-    : pathname === path || pathname.startsWith(`${path}/`);
+function isNavItemActive(pathname: string, item: NavItem) {
+  if (item.path === "/") {
+    return pathname === "/";
+  }
+
+  if (item.exact) {
+    return pathname === item.path;
+  }
+
+  return pathname === item.path || pathname.startsWith(`${item.path}/`);
 }
 
 interface AppSidebarProps {
@@ -120,7 +134,7 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
   };
 
   const renderNavItem = (item: NavItem) => {
-    const isActive = isNavItemActive(location.pathname, item.path);
+    const isActive = isNavItemActive(location.pathname, item);
 
     return (
       <Link

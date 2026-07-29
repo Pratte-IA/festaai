@@ -3,6 +3,7 @@ export const FINANCEIRO_CATEGORIAS_ENTRADA = {
   entrada_contrato: "Entrada Contrato",
   outras_receitas: "Outras receitas",
   pagamento_contrato: "Pagamento Contrato",
+  retencao_sinal_multa: "Retenção de sinal / multa de cancelamento",
   desconto: "Desconto",
 } as const;
 
@@ -11,7 +12,9 @@ export const FINANCEIRO_CATEGORIAS_SAIDA = {
   buffet_doces: "Buffet - Doces",
   buffet_bebidas: "Buffet - Bebidas",
   decoracao: "Decoração",
+  devolucao_cliente: "Devolução de cliente",
   equipe: "Equipe",
+  estorno: "Estorno",
   infraestrutura_investimentos: "Infraestrutura - Investimentos",
   marketing: "Marketing",
   gastos_fixos: "Gastos Fixos",

@@ -1,6 +1,7 @@
 import { isFinanceiroCategoriaDesconto } from "./constants";
 import { buildDashboardSaidaRows } from "./dre-utils";
 import { FinanceiroContratoEntrada, DreStatement, DreStatementLine } from "./display-types";
+import { shouldIncludeLedgerEntradaContrato } from "./fluxo-caixa";
 import { FinanceiroLancamento } from "./types";
 
 const sumValues = (values: number[]) => values.reduce((sum, value) => sum + value, 0);
@@ -18,17 +19,34 @@ const isAdicionalLancamento = (item: FinanceiroLancamento) =>
   !isPagamentoSaldoLancamento(item) &&
   item.categoria !== "entrada_contrato";
 
+/**
+ * DRE do Fluxo de Caixa.
+ * Reservas = sinal legado (valor_entrada) + entrada_contrato no ledger só quando o evento não tem valor_entrada.
+ * Pagamentos = somente ledger (sync de evento_pagamentos) — nunca soma as duas tabelas.
+ */
 export const buildDreStatement = (
   contratoEntradas: FinanceiroContratoEntrada[],
   lancamentos: FinanceiroLancamento[],
+  valorEntradaByEvento: Map<number, number> = new Map(),
 ): DreStatement => {
   const entradaLancamentos = lancamentos.filter((item) => item.tipo === "entrada");
 
-  const reservasTotal = sumValues(contratoEntradas.map((item) => item.valorEntrada));
+  const reservasLegado = sumValues(contratoEntradas.map((item) => item.valorEntrada));
   const reservasManuais = sumValues(
-    entradaLancamentos.filter((item) => item.categoria === "entrada_contrato").map((item) => item.valor),
+    entradaLancamentos
+      .filter((item) => {
+        if (item.categoria !== "entrada_contrato") {
+          return false;
+        }
+        if (item.evento_id == null) {
+          return true;
+        }
+        const valorEntrada = valorEntradaByEvento.get(item.evento_id) ?? 0;
+        return shouldIncludeLedgerEntradaContrato(valorEntrada);
+      })
+      .map((item) => item.valor),
   );
-  const reservas = reservasTotal + reservasManuais;
+  const reservas = reservasLegado + reservasManuais;
 
   const pagamentosSaldo = sumValues(
     entradaLancamentos.filter(isPagamentoSaldoLancamento).map((item) => item.valor),

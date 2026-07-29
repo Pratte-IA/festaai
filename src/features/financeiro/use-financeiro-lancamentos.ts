@@ -15,6 +15,7 @@ interface LancamentosFilters {
 
 interface CreateFinanceiroLancamentoInput {
   categoria: string;
+  data_competencia?: string | null;
   data_lancamento: string;
   descricao?: string | null;
   eventoId?: number | null;
@@ -23,6 +24,11 @@ interface CreateFinanceiroLancamentoInput {
   tipo: FinanceiroLancamento["tipo"];
   valor: number;
 }
+
+const toMonthStart = (dateValue: string) => {
+  const [year, month] = dateValue.slice(0, 10).split("-");
+  return `${year}-${month}-01`;
+};
 
 const fetchFinanceiroLancamentos = async (
   tenantId: number,
@@ -81,11 +87,16 @@ export const useCreateFinanceiroLancamento = () => {
         throw new Error("Sessao ou tenant atual indisponivel.");
       }
 
+      const dataCompetencia = input.data_competencia
+        ? toMonthStart(input.data_competencia)
+        : toMonthStart(input.data_lancamento);
+
       const { data, error } = await supabase
         .from("financeiro_lancamentos")
         .insert({
           categoria: input.categoria,
           created_by: user.id,
+          data_competencia: dataCompetencia,
           data_lancamento: input.data_lancamento,
           descricao: input.descricao ?? null,
           evento_id: input.eventoId ?? null,
