@@ -67,7 +67,7 @@ export const LancamentoFormDialog = ({
   const [categoria, setCategoria] = useState(defaultCategoria ?? defaultCategoriaByMode[mode]);
 
   const isEntrada = mode === "entrada_evento" || mode === "entrada_geral";
-  const isDespesaGeral = mode === "despesa_geral";
+  const isDespesa = mode === "despesa_geral" || mode === "despesa_evento";
   const isDesconto = isEntrada && isFinanceiroCategoriaDesconto(categoria);
   const categoriaOptions = isEntrada ? FINANCEIRO_CATEGORIAS_ENTRADA : FINANCEIRO_CATEGORIAS_SAIDA;
 
@@ -82,7 +82,7 @@ export const LancamentoFormDialog = ({
 
   const handleDataLancamentoChange = (value: string) => {
     setDataLancamento(value);
-    if (isDespesaGeral && value && !competenciaMonth) {
+    if (isDespesa && value && !competenciaMonth) {
       setCompetenciaMonth(value.slice(0, 7));
     }
   };
@@ -111,10 +111,10 @@ export const LancamentoFormDialog = ({
       return;
     }
 
-    if (isDespesaGeral && !competenciaMonth) {
+    if (isDespesa && !competenciaMonth) {
       toast({
         title: "Competencia obrigatoria",
-        description: "Informe o mes/ano de competencia da despesa.",
+        description: "Informe o mes em que a despesa entra no resultado.",
         variant: "destructive",
       });
       return;
@@ -123,7 +123,7 @@ export const LancamentoFormDialog = ({
     try {
       await createLancamento.mutateAsync({
         categoria,
-        data_competencia: isDespesaGeral ? `${competenciaMonth}-01` : undefined,
+        data_competencia: isDespesa ? `${competenciaMonth}-01` : undefined,
         data_lancamento: dataLancamento,
         descricao: complemento.trim() || null,
         eventoId: mode === "despesa_geral" || mode === "entrada_geral" ? null : eventoId ?? null,
@@ -162,18 +162,23 @@ export const LancamentoFormDialog = ({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="data-lancamento">{isDespesaGeral ? "Data de pagamento" : "Data"}</Label>
+            <Label htmlFor="data-lancamento">{isDespesa ? "Data de pagamento" : "Data"}</Label>
             <Input
               id="data-lancamento"
               type="date"
               value={dataLancamento}
               onChange={(event) => handleDataLancamentoChange(event.target.value)}
             />
+            {isDespesa ? (
+              <p className="text-xs text-muted-foreground">
+                Quando o dinheiro saiu da conta (fluxo de caixa).
+              </p>
+            ) : null}
           </div>
 
-          {isDespesaGeral ? (
+          {isDespesa ? (
             <div className="space-y-2">
-              <Label htmlFor="competencia-lancamento">Competencia (mes/ano)</Label>
+              <Label htmlFor="competencia-lancamento">Mes no resultado</Label>
               <Input
                 id="competencia-lancamento"
                 type="month"
@@ -181,7 +186,7 @@ export const LancamentoFormDialog = ({
                 onChange={(event) => setCompetenciaMonth(event.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Mes em que a despesa entra no resultado por competencia.
+                Em qual mes essa despesa entra na Competencia.
               </p>
             </div>
           ) : null}
@@ -206,10 +211,12 @@ export const LancamentoFormDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label>Descricao</Label>
+            <Label>{isDespesa ? "Categoria" : "Descricao"}</Label>
             <Select value={categoria} onValueChange={setCategoria}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione a descricao" />
+                <SelectValue
+                  placeholder={isDespesa ? "Ex.: buffet, decoracao" : "Selecione a descricao"}
+                />
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(categoriaOptions).map(([key, label]) => (
@@ -219,9 +226,6 @@ export const LancamentoFormDialog = ({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              Usada para unificar o total gasto ou recebido em cada item no fim do mes.
-            </p>
           </div>
 
           <div className="space-y-2">

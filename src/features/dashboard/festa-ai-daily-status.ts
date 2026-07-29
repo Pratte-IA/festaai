@@ -32,7 +32,10 @@ export const isInComercialFollowupPipeline = (event: Evento): boolean => {
   if (event.funil !== "vendas" || !isActiveEvent(event)) return false;
 
   if (event.etapa === "contato_inicial") {
-    return !event.followup_0b_enviado_em;
+    // Sem FU0b ainda, e só entra na esteira se já há timer/marco ativo ou FU0 enviado.
+    // Backlog pré-ativação (sem marco) fica fora — tratamento manual.
+    if (event.followup_0b_enviado_em) return false;
+    return Boolean(event.followup_0_enviado_em || event.contato_inicial_ultima_mensagem_em);
   }
 
   if (event.etapa === "proposta_enviada") {

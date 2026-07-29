@@ -28,7 +28,13 @@ const baseEvent = (overrides: Partial<Evento>): Evento =>
 
 describe("getComercialFollowupOpenLabel", () => {
   it("identifica FU0 e FU0b em contato inicial", () => {
-    expect(getComercialFollowupOpenLabel(baseEvent({}))).toBe("Aguardando FU0");
+    expect(
+      getComercialFollowupOpenLabel(
+        baseEvent({
+          contato_inicial_ultima_mensagem_em: "2026-07-01T11:00:00.000Z",
+        }),
+      ),
+    ).toBe("Aguardando FU0");
     expect(
       getComercialFollowupOpenLabel(
         baseEvent({
@@ -76,7 +82,11 @@ describe("getComercialFollowupOpenLabel", () => {
 describe("buildComercialFollowupOpenReport", () => {
   it("lista apenas leads na esteira e monta as colunas do relatório", () => {
     const rows = buildComercialFollowupOpenReport([
-      baseEvent({ id: 1, cliente_nome: "Ana Cliente" }),
+      baseEvent({
+        id: 1,
+        cliente_nome: "Ana Cliente",
+        contato_inicial_ultima_mensagem_em: "2026-07-01T11:00:00.000Z",
+      }),
       baseEvent({
         id: 2,
         cliente_nome: "Bruno",
@@ -93,6 +103,11 @@ describe("buildComercialFollowupOpenReport", () => {
         id: 4,
         etapa: "contato_inicial",
         followup_0b_enviado_em: "2026-07-01T18:00:00.000Z",
+      }),
+      baseEvent({
+        id: 5,
+        cliente_nome: "Backlog sem marco",
+        etapa: "contato_inicial",
       }),
     ]);
 

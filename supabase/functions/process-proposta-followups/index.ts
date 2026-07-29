@@ -19,6 +19,7 @@ import {
   PROPOSTA_FOLLOWUP_3_DELAY_HOURS,
   PROPOSTA_FOLLOWUP_4_DELAY_HOURS,
 } from "../_shared/proposta-followup-constants.ts";
+import { clampAwaitingSinceToSystemArmedAt } from "../_shared/system-armed.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
@@ -106,6 +107,7 @@ Deno.serve(async (req) => {
     const inactiveStatuses = new Set(["perdido", "cancelado"]);
 
     const tenantCache = new Map<number, TenantInfo | null>();
+    const systemArmedAtCache = new Map<number, string | null>();
     const fu0Results: Fu0DispatchResult[] = [];
     const fu0bResults: Fu0bDispatchResult[] = [];
     const fu1Results: DispatchResult[] = [];
@@ -127,6 +129,24 @@ Deno.serve(async (req) => {
       const tenant = data ? { id: data.id, name: data.name, slug: data.slug } : null;
       tenantCache.set(tenantId, tenant);
       return tenant;
+    };
+
+    const loadSystemArmedAt = async (tenantId: number) => {
+      if (systemArmedAtCache.has(tenantId)) return systemArmedAtCache.get(tenantId) ?? null;
+
+      const { data, error } = await supabase
+        .from("tenant_automation_settings")
+        .select("system_armed_at")
+        .eq("tenant_id", tenantId)
+        .maybeSingle();
+
+      if (error) throw error;
+      const armedAt =
+        typeof data?.system_armed_at === "string" && data.system_armed_at.trim()
+          ? data.system_armed_at
+          : null;
+      systemArmedAtCache.set(tenantId, armedAt);
+      return armedAt;
     };
 
     // FU0 (retomada de contato inicial): leads que não retornaram após a nossa
@@ -163,14 +183,17 @@ Deno.serve(async (req) => {
 
     for (const evento of fu0Active) {
       try {
-        const awaitingSince = await resolveContatoInicialAwaitingReplySince(supabase, {
+        const rawAwaitingSince = await resolveContatoInicialAwaitingReplySince(supabase, {
           customerPhone:
             typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : null,
           tenantId: evento.tenant_id,
         });
+        const systemArmedAt = await loadSystemArmedAt(evento.tenant_id);
+        const awaitingSince = clampAwaitingSinceToSystemArmedAt(rawAwaitingSince, systemArmedAt);
 
         // Mantém a coluna sincronizada (Kanban / auditoria), inclusive zerando
-        // quando a última mensagem do histórico for do cliente.
+        // quando a última mensagem do histórico for do cliente ou for anterior
+        // à ativação do sistema (backlog pré-automação).
         if (awaitingSince !== evento.contato_inicial_ultima_mensagem_em) {
           try {
             await syncContatoInicialUltimaMensagemMarco(supabase, {

@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { InlineFormActions, InlineFormShell } from "@/components/financeiro/InlineFormActions";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -78,7 +79,7 @@ export const LancamentoGeralInlineForm = ({
     if (showCompetencia && !competenciaMonth) {
       toast({
         title: "Competencia obrigatoria",
-        description: "Informe o mes/ano de competencia da despesa.",
+        description: "Informe o mes em que a despesa entra no resultado.",
         variant: "destructive",
       });
       return;
@@ -110,7 +111,7 @@ export const LancamentoGeralInlineForm = ({
   return (
     <InlineFormShell>
       <div
-        className={`grid gap-2 ${
+        className={`grid gap-3 ${
           showCompetencia
             ? "sm:grid-cols-2 lg:grid-cols-5"
             : showCategoriaSelect
@@ -118,55 +119,80 @@ export const LancamentoGeralInlineForm = ({
               : "sm:grid-cols-2 lg:grid-cols-3"
         }`}
       >
-        <Input
-          type="date"
-          value={dataLancamento}
-          onChange={(event) => handleDataLancamentoChange(event.target.value)}
-          aria-label="Data de pagamento"
-        />
-        {showCompetencia ? (
+        <div className="space-y-1.5">
+          <Label htmlFor="despesa-geral-pagamento">
+            {isEntrada ? "Data" : "Data de pagamento"}
+          </Label>
           <Input
-            type="month"
-            value={competenciaMonth}
-            onChange={(event) => setCompetenciaMonth(event.target.value)}
-            aria-label="Competencia (mes/ano)"
-            title="Competencia (mes/ano)"
+            id="despesa-geral-pagamento"
+            type="date"
+            value={dataLancamento}
+            onChange={(event) => handleDataLancamentoChange(event.target.value)}
           />
+          {showCompetencia ? (
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Quando o dinheiro saiu da conta (fluxo de caixa).
+            </p>
+          ) : null}
+        </div>
+
+        {showCompetencia ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="despesa-geral-competencia">Mes no resultado</Label>
+            <Input
+              id="despesa-geral-competencia"
+              type="month"
+              value={competenciaMonth}
+              onChange={(event) => setCompetenciaMonth(event.target.value)}
+            />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Em qual mes essa despesa entra na Competencia.
+            </p>
+          </div>
         ) : null}
-        <Input
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="Valor (R$)"
-          value={valor}
-          onChange={(event) => setValor(event.target.value)}
-        />
+
+        <div className="space-y-1.5">
+          <Label htmlFor="despesa-geral-valor">Valor (R$)</Label>
+          <Input
+            id="despesa-geral-valor"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0,00"
+            value={valor}
+            onChange={(event) => setValor(event.target.value)}
+          />
+        </div>
+
         {showCategoriaSelect ? (
-          <Select value={categoria} onValueChange={setCategoria}>
-            <SelectTrigger>
-              <SelectValue placeholder="Descricao" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(FINANCEIRO_CATEGORIAS_SAIDA).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1.5">
+            <Label htmlFor="despesa-geral-categoria">Categoria</Label>
+            <Select value={categoria} onValueChange={setCategoria}>
+              <SelectTrigger id="despesa-geral-categoria">
+                <SelectValue placeholder="Ex.: aluguel, marketing" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(FINANCEIRO_CATEGORIAS_SAIDA).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         ) : null}
-        <Input
-          placeholder="Complemento (opcional)"
-          value={complemento}
-          onChange={(event) => setComplemento(event.target.value)}
-        />
+
+        <div className="space-y-1.5">
+          <Label htmlFor="despesa-geral-complemento">Complemento</Label>
+          <Input
+            id="despesa-geral-complemento"
+            placeholder="Opcional"
+            value={complemento}
+            onChange={(event) => setComplemento(event.target.value)}
+          />
+        </div>
       </div>
-      {showCompetencia ? (
-        <p className="text-xs text-muted-foreground">
-          Competencia: mes em que a despesa deve aparecer no resultado (independente da data de
-          pagamento).
-        </p>
-      ) : null}
+
       <InlineFormActions
         isPending={createLancamento.isPending}
         onCancel={onCancel}

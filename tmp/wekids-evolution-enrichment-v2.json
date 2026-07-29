@@ -1,0 +1,2673 @@
+{
+  "stats": {
+    "with_human": 7,
+    "with_any": 47,
+    "extracted": 31,
+    "no_msgs": 77
+  },
+  "results": [
+    {
+      "id": 853,
+      "cliente_nome": "Matheus Buchimann",
+      "phone": "554598370052",
+      "jid": "554598370052@s.whatsapp.net",
+      "msg_total": 22,
+      "human_n": 0,
+      "ai_n": 22,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "data_evento": "2026-09-21",
+        "quantidade_convidados": 60,
+        "aniversariante_nome": "Laura"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Matheus, confirmando pra você:\n\nNo fim de semana antes (07/09/2026), nosso espaço já está reservado para outra festa 😅\n\nJá no fim de semana após, o dia 21/09/2026 está totalmente disponível! 🎉✨\n\nQuer que eu te envie mais detalhes para o dia 21/09? Se quiser conferir alguma outra data específica também, só avisar! 💜",
+        "Que alegria saber que você amou, Matheus! 💜✨\n\nSe precisar de mais alguma informação, quiser analisar outras datas ou ajustar qualquer detalhe para a festa da Laura, é só chamar. Estou aqui para ajudar no que for preciso, sempre com muito carinho para tornar esse dia inesquecível 🎉🎂",
+        "Pode contar comigo para tornar a festa da Laura incrível! Qualquer novidade, só me chamar. Um abraço carinhoso da equipe WeKids! 🎂💫",
+        "Ficou com alguma dúvida ou gostaria de ajustar algum detalhe do pacote? Se tiver algo especial que deseja incluir ou modificar, é só me avisar — queremos deixar a festa do jeitinho que você sempre sonhou! 💜"
+      ]
+    },
+    {
+      "id": 854,
+      "cliente_nome": "~ Fgª Izabela Alves",
+      "phone": "554598279308",
+      "jid": "554598279308@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 60
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Isa, vou pedir para nossa equipe comercial detalhar exatamente:\n\nValor total do pacote para 60 convidados\n\nValor do chopp considerando 20L reservados e 10L extra em stand by\n\nO valor da entrada paga\n\nO saldo restante para quitação\n\nTodas as opções de forma de pagamento para o acerto final.",
+        "Isa, ótimo! 😊 Já deixei registrado sua preferência por copos de 200 ml para servir o chopp.\n\nA equipe da WeKids ainda vai confirmar para mim se temos esses copos disponíveis como padrão ou se é preciso fazer algum ajuste especial no pedido. Assim que eu tiver a confirmação, te aviso certinho!",
+        "Assim que eu tiver a resposta exata sobre os copos disponíveis na WeKids, volto para te informar tudinho! Quer já deixar a reserva dos 10L pré-agendada ou prefere esperar só mais um pouquinho até eu confirmar todos os tamanhos? 💜✨",
+        "Isa, o volume exato do copo para servir o chopp não está especificado no material oficial da WeKids. Quer que eu confirme diretamente com a equipe para te informar certinho? Se você já tiver uma preferência de tamanho (por exemplo: 200ml ou 300ml), posso inclusive verificar a disponibilidade!"
+      ]
+    },
+    {
+      "id": 855,
+      "cliente_nome": "Luana Santos",
+      "phone": "554584071030",
+      "jid": "554584071030@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 1,
+      "ai_n": 49,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 40,
+        "data_evento": "2026-07-12",
+        "aniversariante_nome": "Pedro Arthur"
+      },
+      "human_samples": [
+        "E teria garçom e monitora para as crianças?"
+      ],
+      "ai_samples": [
+        "Quando estiver mais pertinho do dia, eu vou te mandar uma listinha para confirmar os últimos detalhes (como número final de convidados, decoração, painel e ajustes), mas pode ficar tranquila que está tudo reservado e organizadinho para sua família! 🎉",
+        "Qualquer dúvida no processo ou se quiser confirmar algum detalhe, me avisa! Estou aqui para ajudar a garantir que sua festa do Pedro Arthur seja um sucesso 🎉🎈.",
+        "Perfeito, Luana! Sua entrada de R$ 600,00 + o saldo de R$ 3.000,00 parcelado em 7x de aproximadamente R$ 428,60 está confirmada para o *Pacote Padrão* de 40 convidados no dia 02/08/2026, com tema Ferrari. 🏎️✨ \n\nAssim que você realizar o pagamento da entrada, já garantimos a reserva da sua data! Após isso, o restante pode ser parcelado no cartão em 7x.",
+        "Luana, o pacote para 40 convidados está confirmado, valor total de R$ 3.600,00.\n\nSe você der uma entrada de R$ 600,00, o saldo restante para parcelar será de R$ 3.000,00. As parcelas ficariam assim:\n\nEm 10x: cada parcela fica em torno de R$ 300,00.\n\nEm 7x: cada parcela fica em torno de R$ 428,60.\n\nEsses valores podem variar um pouquinho de acordo com a taxa do cartão no momento do pagamento, mas essa já é a média do parcelamento. Assim você garante sua reserva e ainda deixa o saldo parceladinho, do jeitinho que preferir!"
+      ]
+    },
+    {
+      "id": 857,
+      "cliente_nome": "Samara",
+      "phone": "554599475287",
+      "jid": "554599475287@s.whatsapp.net",
+      "msg_total": 22,
+      "human_n": 0,
+      "ai_n": 22,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 50,
+        "aniversariante_nome": "Antonella"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Que bom saber que você está considerando a WeKids, Samara! 💜 Fico feliz em ajudar e espero que a festa da Antonella seja exatamente como você sonha, seja aqui ou em outro espaço.\n\nSe surgir qualquer dúvida, desejar visitar o local, experimentar nosso buffet ou personalizar o pacote, é só me chamar! Estarei por aqui para o que precisar até a sua decisão final.\n\nPosso te retornar daqui uns dias para ver como está o seu planejamento? Se preferir, pode nos acionar a qualquer momento!\n\nObrigada pelo carinho no atendimento e conte comigo para fazer uma festa encantadora ✨🎈",
+        "Samara, ficou assim o orçamento do nosso *Pacote Padrão* para 50 convidados, em dezembro de 2026 (você pode escolher entre 18 ou 19/12):\n\n*Pacote Padrão* – 50 convidados – Sexta ou sábado:\n💰 Valor à vista: R$3.550,00  \nOu em até 10x de R$402,00  \n\nSe precisar aumentar a lista, cada convidado adicional custa R$49,90. E o melhor: até 7 dias antes da festa você pode nos avisar o número exato, para não pagar por quem não vier!\n\nGostou do nosso pacote? Ficou com algum dúvida ou tem algum detalhe especial que gostaria de adaptar para deixar a festa da Antonella do jeitinho que imaginou? 🎂✨",
+        "Samara, vou te contar um pouquinho sobre nosso espaço para você imaginar a festa da Antonella ainda mais especial! ✨\n\nA WeKids é uma casa de festas pensada para transformar sonhos em momentos inesquecíveis! Nosso ambiente é climatizado, sonorizado e completamente preparado para garantir diversão e conforto para família, amigos e, claro, para os pequenos.",
+        "Que notícia boa, Samara! 🎉✨ Tanto o dia 18/12/2026 quanto o dia 19/12/2026 estão disponíveis aqui na WeKids para a festa da Antonella 🏰💜."
+      ]
+    },
+    {
+      "id": 858,
+      "cliente_nome": "Su 🌹",
+      "phone": "554598236644",
+      "jid": "554598236644@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 50,
+        "aniversariante_nome": "Isabelle Maria"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Seu pedido para falar diretamente com a responsável já foi encaminhado, Su! Agora a equipe especializada da WeKids vai assumir seu atendimento e dar continuidade a tudo que você precisar — podem te ajudar sobre pagamentos, lista, dúvidas, contrato e detalhes finais da festa da Isabelle Maria.",
+        "Você pode quitar o restante do valor até 7 dias antes da festa, Su! 💜 Ou seja, o pagamento total deve ser feito até o dia 18/07/2026. Assim, conseguimos organizar tudo com tranquilidade, garantir seu buffet e todo o preparo especial para a festa da Isabelle Maria. 🎂✨",
+        "Ótima pergunta, Su! 💜 Você pode ajustar e confirmar o número exato de convidados até 7 dias antes da festa, sem problema nenhum!\n\nEntão, pode ficar tranquila: até o dia 18/07/2026 você pode avisar se algum nome da sua lista vai ou não, e a gente recalcula o valor certinho para você não pagar a mais nem a menos.\n\nSe precisar alterar algum detalhe na lista até lá, é só me avisar! Assim sua festa fica perfeita e sob medida para vocês ✨🎈\n\nQualquer outra dúvida, estou aqui!",
+        "Para a sua festa no dia 25/07/2026 (sábado), o valor do pacote para 50 convidados é de R$3.900,00 ou, se preferir, pode parcelar em até 10x de R$442,00.\n\nComo você já pagou R$1.500,00 de entrada, o saldo restante fica em R$2.400,00 para quitar até a festa, do jeitinho que combinamos 😊✨\n\nQualquer ajuste de convidados pode ser feito até uma semana antes do evento, tá? Se ainda quiser revisar algum detalhe ou tiver dúvida sobre o saldo, é só avisar! 💜\n\nPosso te ajudar em mais alguma coisa?"
+      ]
+    },
+    {
+      "id": 859,
+      "cliente_nome": "Fr@n",
+      "phone": "554599706607",
+      "jid": "554599706607@s.whatsapp.net",
+      "msg_total": 20,
+      "human_n": 0,
+      "ai_n": 20,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Lívia"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Bom dia, Fr@n! Tudo ótimo e contigo? 💜✨\n\nRecebi aqui os dados da festa da Lívia, que será no dia 04/09/2026, com início às 20h, tema Jesus e bolo de 4 leites com morango — vai ser lindo demais! 🎂🎈\n\nPra seguir certinho, só preciso confirmar com você o número estimado de convidados. Lembrando que nossas festas podem ser para 30, 40, 50 ou até 60 pessoas! Você já tem uma ideia ou prefere deixar em aberto e definir mais perto da data? 😊\n\nAssim que confirmar esse ponto, sigo com todas as informações do pacote, valores e detalhes pra deixar tudo perfeito pra vocês! Se já quiser adiantar alguma dúvida sobre a estrutura ou decoração, pode me mandar também. Estou aqui para ajudar! 💜✨",
+        "Perfeito, Fr@n! Festa para 30 a 40 convidados é super especial por aqui 🎈✨\n\nAgora preciso só da data em que você pensa em fazer a festa da Lívia. Assim, já verifico se temos o dia disponível para vocês e, se estiver tudo certo, seguimos para te mostrar nossos pacotes certinhos! 📅💜\n\nQual seria a data do evento?",
+        "Vale lembrar que nossas festas são a partir de 30 até 60 convidados. Você imagina algo dentro desse número? Me conta para seguirmos juntas! 🎈💜",
+        "Se você ainda não definiu uma quantidade exata, pode me passar uma estimativa de convidados? Pode ser um intervalo (por exemplo, entre 30 e 40 pessoas, ou até 60), só para eu te orientar certinho nos pacotes!"
+      ]
+    },
+    {
+      "id": 860,
+      "cliente_nome": "Ianashara",
+      "phone": "554599446319",
+      "jid": "554599446319@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 11,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_data_nascimento": "2021-07-14",
+        "quantidade_convidados": 40,
+        "aniversariante_nome": "Eduardo"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "No entanto, nossas receitas são preparadas pela Salgados e Cia., e para confirmar com 100% de segurança sobre cada item, posso acionar o fornecedor para checagem detalhada. Se houver qualquer restrição alimentar (alergia ou intolerância), conseguimos adaptar o cardápio ou sugerir alternativas – só preciso que você me informe quantos convidados e qual tipo de restrição, combinado?",
+        "Resumo da Conversa para a Equipe Especializada da WeKids:\n\n- A cliente Jamilly entrou em contato inicialmente pelo Instagram interessada em saber mais sobre o espaço para festa infantil.\n- Foi informada sobre o espaço WeKids, seus brinquedos, estrutura, buffet e decoração personalizada.\n- Ela forneceu os dados para festa do Eduardo (aniversariante nascido em 14/07/2021, festa para 40 convidados em 14/07/2026).\n- Foi enviado orçamento para o pacote festa padrão para 40 pessoas no dia 14/07/2026, com possibilidade de ajuste no número de convidados até 7 dias antes da festa.\n- Explicações sobre a política de convidados pagantes (crianças a partir de 5 anos) foram dadas.\n- Jamilly afirmou interesse em avançar e solicitou agendamento de visita ao espaço.\n- Visita agendada com Yana, responsável da WeKids.\n- A cliente confirmou os dados para o contrato e fechou inicialmente para 40 convidados.\n- Informações para pagamento da entrada foram enviadas e cliente realizou pagamento de R$1.000,00 via PIX, comprovante encaminhado.\n- Cliente entrou em contato com Yana para solicitar a possibilidade de servir chocolate quente na festa, mencionou orçamento do fornecedor Café e Prosa e pediu indicação de fornecedores.\n- Foi informado que chocolate quente não faz parte do buffet padrão, mas que pode ser incluído via fornecedor terceirizado, sendo possível organizar logística com o espaço.\n- Yana está em contato para buscar orçamento ou dar orientações para incluir o chocolate quente na festa.\n- Cliente manifestou gratidão e interesse em continuar o acompanhamento próximo com a equipe.\n- Cliente solicitou que, para ajustes finos da festa, continue falando diretamente com Yana.\n\nSolicitação para a equipe:\nDar sequência ao atendimento personalizado com Jamilly, especialmente tratando dos detalhes de fornecedor para chocolate quente, ajustes finais do pacote, e garantir apoio na finalização do contrato e organização da festa do Eduardo no dia 14/07/2026.",
+        "Resumo da Conversa para a Equipe Especializada da WeKids:\n\nO usuário enviou repetidamente a mensagem automática padrão referente ao atendimento automatizado da WeKids, indicando desejo por atendimento humano. Durante a interação, a IA percebeu essa repetição e buscou confirmar se o usuário queria realmente ser transferido para o time humano, oferecendo também a possibilidade de continuar o atendimento automatizado para fornecer informações sobre festas infantis, pacotes, orçamentos, datas e demais detalhes.\n\nA IA solicitou informações básicas para a personalização do atendimento, como nome do aniversariante, data de nascimento, data da festa e número estimado de convidados. Porém, o usuário não respondeu com os dados solicitados, apenas repetiu mensagens automáticas, sugerindo estar com dificuldades no envio ou buscando contato humano direto.\n\nA IA manteve uma postura paciente, reforçando a possibilidade de encaminhar para o atendimento humano via WhatsApp (0800 570 0800) e aguardou confirmação do usuário para realizar a transferência.\n\nA conversa não avançou além deste ponto e permanece pendente de intervenção humana para atendimento personalizado.\n\nSugestão: Entrar em contato diretamente com o usuário para oferecer suporte personalizado e esclarecer dúvidas, assegurando o acompanhamento da organização da festa infantil na WeKids.",
+        "Resumo do atendimento com a cliente Bruna:\n\nBruna iniciou contato para ajustar o horário da visita, inicialmente marcada para 13:30, pedindo alteração para 14:30 devido a compromisso do esposo. Houve confirmação e encaminhamento do pedido para a equipe, que respondeu oferecendo horários alternativos, incluindo manhã às 11h e período até 14h para visita. Depois, Bruna confirmou que o esposo conseguiu trocar o compromisso e voltou ao horário original às 13:30.\n\nEla perguntou até quando poderia confirmar os convidados e foi informada que até uma semana antes do evento, aproximadamente 20 de julho, tendo sido ofertada pré-reserva da data.\n\nBruna mencionou que, devido a um contratempo, só deve confirmar em abril, correndo risco de perder a data, o que foi aceito pela equipe.\n\nPosteriormente, Bruna consultou sobre datas disponíveis em julho, manifestando interesse no dia 25 ou próximos. A equipe informou que 25/07 está reservado, mas tinha disponíveis dias 12 (domingo), 22, 23, 28 e 29 (dias de semana). Bruna escolheu o dia 23/07 para o evento, confirmando número de 60 convidados e alguns detalhes do contrato, incluindo valor, tema (margaridas), sabor do bolo (dois amores), e item chopp (não).\n\nFoi esclarecido que início da festa durante a semana é às 19h30 para convidados, com liberação dos pais às 19h para preparação/fotos.\n\nBruna solicitou catálogo de decorações e balões. A equipe explicou que não há catálogo formal, mas mostrou Instagram com temas e fotos, e mencionou possibilidade de personalizar paleta de cores, por exemplo, substituindo amarelo por lilás.\n\nEla confirmou o pacote para 60 convidados, solicitando ajuste nos balões: um arco apenas e alguns soltos, e solicitou esclarecimento sobre valores. Equipe detalhou o pacote: R$3.900,00 do pacote para 60 convidados, R$200,00 para arco de balões, R$100,00 para balões transparentes (bubbles), totalizando R$4.200,00 menos R$500,00 já pagos, resultando valor restante de R$3.700,00.\n\nBruna optou por pagar metade agora e o restante até 18/07. A equipe confirmou os dados para pagamento via PIX (CNPJ 14.661.638/0001-88, Banco Sicoob, WeKids Eventos ou Adriana Corso Walentim).\n\nApós confirmação do pagamento da entrada e do envio do comprovante, a equipe garantiu a reserva e informou que o time especializado dará sequência ao atendimento para finalizar o contrato, confirmar detalhes e acompanhar o evento da Luísa, com 1 ano.\n\nBruna enviou comprovante do pagamento da entrada.\n\n-------------------------------------\n\nEncaminhar para equipe especializada da Wekids:\n\n- Cliente Bruna confirmou a reserva para festa no dia 23/07 com 60 convidados, tema margaridas, bolo dois amores, sem chopp.\n\n- Entrada no valor de R$500,00 já foi paga, saldo devedor R$3.700,00, parcelado em metade agora e o restante até 18/07.\n\n- Dados do cliente e detalhes do contrato fornecidos.\n\n- Cliente recebeu informações sobre personalização de paleta de cores e acesso ao Instagram para consulta de temas/decor.\n\n- Próximos passos são aguardar pagamento da parcela intermediária, finalizar contrato e orientar cliente sobre detalhes do evento.\n\n- Manter contato próximo para suporte e esclarecimento de dúvidas, garantindo experiência positiva até o dia do evento.\n\nFavor dar prosseguimento ao atendimento conforme necessário."
+      ]
+    },
+    {
+      "id": 861,
+      "cliente_nome": "Taty",
+      "phone": "554598196809",
+      "jid": "554598196809@s.whatsapp.net",
+      "msg_total": 6,
+      "human_n": 0,
+      "ai_n": 6,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 60
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Obrigada, Taty! Agora só ficou faltando o nome do aniversariante (ou da mamãe, se preferir) e a data de nascimento 🥰\n\nVocê pode me enviar esses dois detalhes? Assim consigo consultar a disponibilidade do dia 13/09 e já pedir um orçamento personalizado para 60 convidados! 💜✨",
+        "Para te mostrar o pacote perfeito, preciso de algumas informações rápidas:\n\n🎂 Nome do aniversariante\n\n📅 Data de nascimento\n\n🎉 Data da festa\n\n🧑‍🤝‍🧑 Quantidade estimada de convidados"
+      ]
+    },
+    {
+      "id": 862,
+      "cliente_nome": "Keilla Carmo",
+      "phone": "554599353806",
+      "jid": "554599353806@s.whatsapp.net",
+      "msg_total": 12,
+      "human_n": 0,
+      "ai_n": 12,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 50,
+        "data_evento": "2026-10-04",
+        "aniversariante_nome": "Sophia"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Keilla, consegui o orçamento certinho para você! Confira os valores do 🎡 *Pacote Padrão* para domingo, dia 04/10/2026:\n\n50 convidados: R$3.900,00 ou 10x de R$442,00\n\nLembrando que, até 7 dias antes da festa, você pode ajustar o número exato de convidados e recalculamos o valor para que pague só pelo que realmente vai usar, ok? ✨\n\nFicou com alguma dúvida sobre o pacote, ou gostaria de ajustar algo para deixar tudo do jeito que sonhou para a Sophia? Estou aqui para te ajudar no que precisar! 💜✨",
+        "Gostou do nosso pacote? Agora vou calcular o orçamento certinho para 50 convidados! Se quiser alterar para 40 ou 60, só avisar. Já te trago o valor, tudo bem? 💜✨\n\nTem algum detalhe especial que gostaria de ajustar para a festa da Sophia?",
+        "🎈 *Pacote Festa Padrão*\n\n🏠 Disponível a partir de 30 convidados, com capacidade máxima de 60 pessoas.\n🥐 Buffet feito e entregue no dia da festa, e sobras são entregues ao final.\n🍬 Doces: brigadeiro, beijinho, dois amores, leite ninho e surpresinha de uva.\n🥟 Salgados fritos: pastel de carne, risoles de pizza, bolinha de queijo, kibe, enroladinho e coxinha.\n🥖 Salgados assados: empada, croissant de goiabada, rocambole, folhado de bacon, mini pizza e esfiha.\n🎂 Bolo (recheio à escolha): 4 leites, brigadeiro, prestígio, abacaxi com coco ou dois amores e você pode adicionar morango 🍓: +R$ 50,00.\n🥤 Bebidas: Coca-Cola, Guaraná, água com e sem gás.\n⏰ Duração: 3 horas (com tolerância de 15 min).\n📅 Horários  \n    ✨ Semana: início às 19h30 (sem hora extra).  \n    🎊 Finais de semana: início entre 15h e 16h30, com opção de 1h extra paga.\n🍽️ Inclui louças completas (pratos, talheres e taças).\n👧 Mesa Kids com buffet completo adaptado para as crianças.",
+        "Perfeito, Keilla! Nosso pacote padrão para domingos e feriados trabalha com opções para 30, 40, 50 ou 60 convidados. Como você mencionou 50 pessoas, vou considerar este número para calcular o orçamento.\n\nAgora, deixa eu te apresentar rapidinho como funciona nosso pacote:\n\nNós trabalhamos com um pacote exclusivo de festa:"
+      ]
+    },
+    {
+      "id": 863,
+      "cliente_nome": "Jessica Dalberto Psimotri",
+      "phone": "554598170426",
+      "jid": "554598170426@s.whatsapp.net",
+      "msg_total": 22,
+      "human_n": 0,
+      "ai_n": 22,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 50,
+        "data_evento": "2026-12-02",
+        "aniversariante_nome": "Yuri"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "💰 Reserva: Entrada de R$ 500,00 (Pix: 55.972.180/0001-65) garante a data. O número de convidados pode ser ajustado até 7 dias antes para você pagar só o que realmente usar.",
+        "🍽️ Equipe dedicada: 2 monitores, garçons (conforme número de convidados) e copeira. Louças completas e todo suporte para o evento ser tranquilo e especial.",
+        "🎨 Decoração: Painel enorme temático (até o teto!), mesa decorada, balões, numeral em LED, pelúcias e itens do tema, hall de entrada enfeitado para receber seus convidados. Não permitimos decoradores externos, mas deixamos tudo impecável do jeitinho que você quiser dentro do nosso portfólio!",
+        "Jessica, segue o orçamento para a festa do Yuri com 50 convidados no dia 02/12/2026:\n\n🎡 *Pacote Padrão* — Dia de Semana (quarta-feira)\n\nPara 50 convidados: R$3.550,00 ou 10x de R$402,00\n\nLembrando que até 7 dias antes do evento você pode ajustar o número de convidados, assim paga só pelo que realmente precisar, ok?\n\nSe ficou com alguma dúvida ou quiser personalizar algum detalhe, é só me avisar! Quer que eu te explique como reservar essa data ou gostaria de revisar algum item do pacote? 🎉💜"
+      ]
+    },
+    {
+      "id": 864,
+      "cliente_nome": "Débora Moraes",
+      "phone": "554599403220",
+      "jid": "554599403220@s.whatsapp.net",
+      "msg_total": 2,
+      "human_n": 0,
+      "ai_n": 2,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "Para te mostrar o pacote perfeito, preciso de algumas informações rápidas:\n🎂 Nome do aniversariante\n📅 Data de nascimento\n🎉 Data da festa\n🧑‍🤝‍🧑 Quantidade estimada de convidados\nMe envia por favor? 💜✨"
+      ]
+    },
+    {
+      "id": 865,
+      "cliente_nome": "Raiane",
+      "phone": "554598337520",
+      "jid": "554598337520@s.whatsapp.net",
+      "msg_total": 2,
+      "human_n": 0,
+      "ai_n": 2,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "Para te mostrar o pacote perfeito, preciso de algumas informações rápidas:\n\n🎂 Nome do aniversariante\n📅 Data de nascimento\n🎉 Data da festa\n🧑‍🤝‍🧑 Quantidade estimada de convidados\n\nMe envia por favor? 💜✨"
+      ]
+    },
+    {
+      "id": 867,
+      "cliente_nome": "Joice Cristina",
+      "phone": "554598476833",
+      "jid": "554598476833@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 38,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Anthony Miguel"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Oi, Joice! Tudo ótimo por aqui, e contigo? 😊💜\n\nPronta para ajudar no que precisar para deixar a festa do Anthony Miguel ainda mais especial! \n\nSe quiser tirar dúvidas, ajustar algum detalhe ou só conversar sobre a decoração, é só me chamar! ✨🎉",
+        "Perfeito, Joice! 💜✨ Fico super feliz em saber que está tudo certo para a festa do dia 26/07! Toda a nossa equipe está preparadíssima para tornar esse dia inesquecível para vocês e para o Anthony Miguel! 🎉🎂",
+        "Número de convidados: Já definiu ou deseja ajustar a quantidade estimada? Nosso pacote atende entre 30 e 60 convidados, e é possível confirmar até 7 dias antes do evento.",
+        "Se estiver pensando em organizar uma nova comemoração, pode me passar o nome do aniversariante, a data de nascimento, a data da festa e a quantidade estimada de convidados? Assim te apresento um pacote completinho e todos os detalhes do nosso espaço! 🏰💜"
+      ]
+    },
+    {
+      "id": 868,
+      "cliente_nome": "Jociane",
+      "phone": "554598581221",
+      "jid": "554598581221@s.whatsapp.net",
+      "msg_total": 16,
+      "human_n": 0,
+      "ai_n": 16,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 30,
+        "data_evento": "2026-08-22",
+        "aniversariante_nome": "Theo"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Ficou com alguma dúvida ou gostaria de ajustar algum detalhe? Somos super flexíveis para adaptar a festa do jeitinho que você sonhar! \n\nQuer conversar sobre tema, horário, lembrancinhas ou algo especial? 💜✨",
+        "🎉 E para o sábado, 22/08/2026 — Pacote para 30 convidados: R$3.250,00 ou em até 10x de R$368,00 sem juros!",
+        "🎈 *Pacote Festa Padrão* \n\nDisponível a partir de 30 convidados, com capacidade máxima de 60 pessoas. \n\nBuffet completo, preparado e servido na hora, para garantir tudo sempre fresquinho! \n\nDoces deliciosos: brigadeiro, beijinho, dois amores, leite ninho e surpresinha de uva. \n\nSalgados fritos e assados de diversos sabores, para agradar adultos e crianças. \n\nBolo com recheio à escolha: 4 leites, brigadeiro, prestígio, abacaxi com coco ou dois amores (e você pode adicionar morango por +R$ 50,00). \n\nBebidas inclusas: Coca-Cola, Guaraná e água (com e sem gás). \n\n3 horas de festa, com tolerância de 15 min. \n\nHorário nos finais de semana: entre 15h e 16h30 (tem opção de hora extra paga). \n\nMesa Kids especial para os pequenos, com todo o buffet adaptado para as crianças! \n\nLouças completas, decoração personalizada conforme o tema do aniversariante, serviço atencioso e ambiente seguro. \n\nSobraram delícias? Você leva para casa ao final da festa!",
+        "Jociane, vou te contar um pouquinho sobre a WeKids para você imaginar como pode ser incrível a festa do Theo! 💜✨\n\nNosso espaço é super acolhedor, climatizado, com Mesas Kids especiais para as crianças, louças completas e decoração temática prontinha – tudo alinhado com o tema que você escolher! O salão comporta de 30 a 60 convidados com conforto e segurança."
+      ]
+    },
+    {
+      "id": 869,
+      "cliente_nome": "Jociane",
+      "phone": "554598581221",
+      "jid": "554598581221@s.whatsapp.net",
+      "msg_total": 16,
+      "human_n": 0,
+      "ai_n": 16,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 30,
+        "data_evento": "2026-08-22",
+        "aniversariante_nome": "Theo"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Ficou com alguma dúvida ou gostaria de ajustar algum detalhe? Somos super flexíveis para adaptar a festa do jeitinho que você sonhar! \n\nQuer conversar sobre tema, horário, lembrancinhas ou algo especial? 💜✨",
+        "🎉 E para o sábado, 22/08/2026 — Pacote para 30 convidados: R$3.250,00 ou em até 10x de R$368,00 sem juros!",
+        "🎈 *Pacote Festa Padrão* \n\nDisponível a partir de 30 convidados, com capacidade máxima de 60 pessoas. \n\nBuffet completo, preparado e servido na hora, para garantir tudo sempre fresquinho! \n\nDoces deliciosos: brigadeiro, beijinho, dois amores, leite ninho e surpresinha de uva. \n\nSalgados fritos e assados de diversos sabores, para agradar adultos e crianças. \n\nBolo com recheio à escolha: 4 leites, brigadeiro, prestígio, abacaxi com coco ou dois amores (e você pode adicionar morango por +R$ 50,00). \n\nBebidas inclusas: Coca-Cola, Guaraná e água (com e sem gás). \n\n3 horas de festa, com tolerância de 15 min. \n\nHorário nos finais de semana: entre 15h e 16h30 (tem opção de hora extra paga). \n\nMesa Kids especial para os pequenos, com todo o buffet adaptado para as crianças! \n\nLouças completas, decoração personalizada conforme o tema do aniversariante, serviço atencioso e ambiente seguro. \n\nSobraram delícias? Você leva para casa ao final da festa!",
+        "Jociane, vou te contar um pouquinho sobre a WeKids para você imaginar como pode ser incrível a festa do Theo! 💜✨\n\nNosso espaço é super acolhedor, climatizado, com Mesas Kids especiais para as crianças, louças completas e decoração temática prontinha – tudo alinhado com o tema que você escolher! O salão comporta de 30 a 60 convidados com conforto e segurança."
+      ]
+    },
+    {
+      "id": 870,
+      "cliente_nome": "Aline Reis Figueiredo",
+      "phone": "554598475339",
+      "jid": "554598475339@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": 40,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Pedro"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Eu que agradeço, aline! 💜✨ Sempre que precisar, é só chamar. Vai ser uma alegria ajudar a tornar a festa do Pedro ainda mais especial!\n\nQualquer dúvida, ajuste ou sugestão, conte comigo! 🎈🦕",
+        "Se quiser uma simulação para quantidade diferente de convidados, só me avisar!\n\nQualquer dúvida, só pedir — será um prazer te ajudar a preparar a festa perfeita! 🎉✨",
+        "Política de convidados para crianças:\n\nCrianças de 0 a 4 anos não contam como convidados e não pagam.\n\nA partir de 5 anos contam normalmente na lista.\n\nPai, mãe e o aniversariante também não entram na contagem de convidados pagantes.\n\nO número final de convidados pode ser ajustado até 7 dias antes da festa.\n\nValor por convidado extra: R$ 49,90.",
+        "Se você precisar ajustar o número de convidados, me avise que recalculo tudo direitinho! Qualquer dúvida, só perguntar, tá bom? 💜✨"
+      ]
+    },
+    {
+      "id": 871,
+      "cliente_nome": "Cassiane Seghatti",
+      "phone": "554599076665",
+      "jid": "554599076665@s.whatsapp.net",
+      "msg_total": 1,
+      "human_n": 0,
+      "ai_n": 1,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "Olá, Cassiane 🎉 \nQue alegria falar sobre festa com você!\n\nPara te mostrar o pacote perfeito, preciso de algumas informações rápidas:\n\n🎂 Nome do aniversariante\n📅 Data de nascimento\n🎉 Data da festa\n🧑‍🤝‍🧑 Quantidade estimada de convidados\n\nMe envia por favor? 💜✨"
+      ]
+    },
+    {
+      "id": 872,
+      "cliente_nome": "Bruna Lima",
+      "phone": "554599700125",
+      "jid": "554599700125@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Luísa"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Se for no fim de semana e vocês quiserem montar algo a mais ou o fotógrafo for fazer registros antes dos convidados, normalmente é necessário contratar hora adicional (R$450/h), que precisa ser combinada e paga antes.",
+        "Oi, Bruna! ✨ Pode sim, você pode passar agora para fazer o pagamento! Nossa equipe está pronta para te receber e garantir que tudo continue certinho para a festa da Luísa 💜",
+        "Pode sim, fique super à vontade para passar depois do almoço para efetuar o pagamento! Nossa equipe vai te receber e organizar tudo direitinho para garantir que a festa da Luísa fique perfeita 💜✨",
+        "🎈 Número final de convidados\n\n🌼 Tema (se decidir mudar)\n\n🍰 Sabor do bolo\n\n⏰ Horário certinho da festa\n\n🍻 Vai querer chopp?\n\n🎈 Vai querer acréscimo de balão?"
+      ]
+    },
+    {
+      "id": 873,
+      "cliente_nome": "Yasmin",
+      "phone": "554591257287",
+      "jid": "554591257287@s.whatsapp.net",
+      "msg_total": 2,
+      "human_n": 0,
+      "ai_n": 2,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "Aproveitando, para montar o pacote ideal, pode me informar também:\n\n🎂 Nome do aniversariante\n📅 Data de nascimento\n🎉 Data da festa\n🧑‍🤝‍🧑 Quantidade estimada de convidados\n\nAssim consigo te dar o orçamento completinho e sem erro! 💜✨",
+        "Consigo sim 💛 Só preciso confirmar a data e o número de convidados para te passar o valor exato sem risco de erro. Me envia esses dois detalhes?"
+      ]
+    },
+    {
+      "id": 874,
+      "cliente_nome": "Mariana Farias",
+      "phone": "554598023138",
+      "jid": "554598023138@s.whatsapp.net",
+      "msg_total": 13,
+      "human_n": 0,
+      "ai_n": 13,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 30,
+        "data_evento": "2027-01-09",
+        "aniversariante_nome": "Alice"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "💜 Sobre o orçamento:\n\nPacote padrão para 30 convidados em janeiro de 2027 (usando valores de 2026 como base): R$3.250,00 ou 10x de R$368,00.\n\nObs: O valor pode ter um reajuste em janeiro, mas você já pode garantir a reserva assinando agora! Até 7 dias antes do evento, pode ajustar o número de convidados para garantir que só pague pelos confirmados.\n\nSe quiser um orçamento para mais convidados, é só avisar!\n\nFicou com alguma dúvida sobre o que está incluso ou gostaria de ajustar algo para a festa da Alice? 😊✨",
+        "🎉 O que está incluso no nosso pacote padrão:\n\nFesta para 30 convidados (mínimo), com buffet completo (doces, salgados, bolo e bebidas).\n\nDecoração personalizada: você pode sugerir qualquer tema infantil que desejar! Nossa equipe prepara tudo conforme sua ideia e paleta de cores.\n\nDecoração padrão inclui painel até o teto (tema escolhido), arcos, mesas e toalhas nas cores do tema, bandejas, arranjos, bolo fake, numeral em LED, pelúcias (se houver no tema), varetas com balões, tapete, hall de entrada decorado com cesto para presentes e estante para lembrancinhas.\n\nBrinquedos e estrutura da casa à disposição, além de mesas kids e louça completa para todos.",
+        "Podemos avançar para escolher o pacote ideal para a festa da Alice. Você já conhece nosso espaço, Mariana? Posso te mostrar um pouquinho da nossa estrutura e diferenciais? ✨",
+        "Que notícia boa 🎉✨! O dia 09/01/2027 está disponível aqui na WeKids 🏰💜."
+      ]
+    },
+    {
+      "id": 875,
+      "cliente_nome": "Aline",
+      "phone": "554599482798",
+      "jid": "554599482798@s.whatsapp.net",
+      "msg_total": 25,
+      "human_n": 1,
+      "ai_n": 24,
+      "current": {
+        "aniversariante_nome": "Aurora",
+        "aniversariante_data_nascimento": null,
+        "data_evento": "2026-10-15",
+        "quantidade_convidados": 50,
+        "aniversariante_idade": 2
+      },
+      "patch": {},
+      "human_samples": [
+        "Ah ok obrigada"
+      ],
+      "ai_samples": [
+        "Veja os principais itens do nosso cardápio de valores:\n\nFesta a partir de 30 convidados, máximo 60.\n\nEntrada para reservar a data: R$500,00 (Pix ou dinheiro).\n\n🎡 *Pacote Padrão* do domingo (18/10/2026): R$4.250,00 para 60 convidados, ou 10x de R$482,00.\n\nValor por convidado extra (acima de 60): R$49,90.\n\nHora extra (só finais de semana): R$450,00/h.\n\nAdicionais: cachorro-quente R$3,50/unidade, chopp a partir de R$160,00/10L, arcos de balões a partir de R$200,00 e Bubbles (balões do teto) R$10,00/unidade.\n\nDecoração padrão super completa já inclusa — arcos e balões personalizados são opcionais.\n\nBuffet, bolo, doces, bebidas tudo incluso já no pacote, e você pode trazer algum item extra se quiser (só avisar!).",
+        "Que tal garantir o domingo, 18/10/2026, enquanto está disponível? Ou prefere que eu também confira alguma data durante a semana? Fique à vontade para me pedir algo especial, adaptar o pacote ou perguntar sobre decorações — estou aqui para ajudar a criar um momento mágico para vocês! 💜✨",
+        "Nosso pacote atende até 60 convidados com conforto (exatamente o que você queria!).\n\nTemos vários opcionais, como arco de balões, chopp, cachorro-quente e outros mimos — tudo para personalizar do jeitinho da Aurora.",
+        "Sobre valores:\n\nDomingo, 18/10/2026 (Pacote 60 convidados): R$4.250,00 ou 10x de R$482,00.\n\nJá estou finalizando a confirmação para te passar o orçamento do valor durante a semana, tá bom? Assim você pode comparar!"
+      ]
+    },
+    {
+      "id": 876,
+      "cliente_nome": "Mayulle Lima",
+      "phone": "554599973659",
+      "jid": "554599973659@s.whatsapp.net",
+      "msg_total": 19,
+      "human_n": 0,
+      "ai_n": 19,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 35,
+        "data_evento": "2027-05-20",
+        "aniversariante_nome": "Paulo Ricardo"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Se surgir qualquer outra dúvida, fico à disposição! E quando decidir sobre a reserva, é só me chamar. Vou adorar ajudar a realizar a festa do Paulo Ricardo! ✨🎈",
+        "Se ainda tiver alguma dúvida ou quiser adaptar algum detalhe do pacote, me conta! Posso ajudar em qualquer etapa para transformar a festa do Paulo Ricardo em um momento inesquecível 🎈✨",
+        "Domingo (23/05/2027):\n\n*Pacote Padrão* – Fim de semana/feriado, referência 2027: R$3.250,00 até 30 convidados ou 10x R$368,00. Mesma política de ajuste para o número final de convidados, com previsão de reajuste anual dos fornecedores.",
+        "Orçamento para 35 convidados:\n\nSexta-feira (21/05/2027):\n\n*Pacote Padrão* – Segunda a Sexta, referência 2026: R$2.850,00 até 30 convidados ou, se preferir, 10x de R$323,00 (o valor para 35 convidados é ajustado, sempre arredondando para baixo e recalculado até 7 dias antes da festa — ajustamos para não pagar por convidados que não vierem 😉).\n\nValor será atualizado em janeiro de 2027, normalmente um reajuste de cerca de R$250,00, ok?"
+      ]
+    },
+    {
+      "id": 877,
+      "cliente_nome": "Eduarda",
+      "phone": "554599568983",
+      "jid": "554599568983@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 50,
+        "data_evento": "2026-07-10",
+        "aniversariante_nome": "Maitê"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Se preferir, pode chegar a partir das 19h para deixar lembrancinhas, sucos e já ir ajeitando os detalhes, combinado? Se precisar de ajuda para carregar ou organizar, nossa equipe estará disponível!",
+        "Oi, Eduarda! Bom diaaa! ☀️ Que bom receber sua mensagem — vai ser um prazer te ajudar com todas as dúvidas sobre a festa da Maitê no dia 10! 💜✨",
+        "Eduarda, que alegria receber sua confirmação! 💜\n\nJá encaminhei seu atendimento para nossa equipe especializada. Agora, eles vão te orientar direitinho: você só precisa fazer a entrada de R$500,00 para garantir a data, e a quantidade final de convidados (40 ou 50) pode ser decidida até 7 dias antes da festa, sem problema!",
+        "Visualmente, fica assim:\nLogo na entrada, o hall já decorado nas cores do tema, com as lembrancinhas e presentes\nO painel do chão ao teto com a Skye ao fundo montando o cenário central da festa\nA mesa do bolo à frente, com o bolo fake, doces e numeral em LED, além das pelúcias\nTapete para as crianças tirarem fotos\nAs varetas de balão dão movimento à decoração, substituindo o arco\nAs mesas dos convidados seguem toda a paleta do tema, com flores e mesa kids próxima aos brinquedos"
+      ]
+    },
+    {
+      "id": 878,
+      "cliente_nome": "Eduarda",
+      "phone": "554599568983",
+      "jid": "554599568983@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 50,
+        "data_evento": "2026-07-10",
+        "aniversariante_nome": "Maitê"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Se preferir, pode chegar a partir das 19h para deixar lembrancinhas, sucos e já ir ajeitando os detalhes, combinado? Se precisar de ajuda para carregar ou organizar, nossa equipe estará disponível!",
+        "Oi, Eduarda! Bom diaaa! ☀️ Que bom receber sua mensagem — vai ser um prazer te ajudar com todas as dúvidas sobre a festa da Maitê no dia 10! 💜✨",
+        "Eduarda, que alegria receber sua confirmação! 💜\n\nJá encaminhei seu atendimento para nossa equipe especializada. Agora, eles vão te orientar direitinho: você só precisa fazer a entrada de R$500,00 para garantir a data, e a quantidade final de convidados (40 ou 50) pode ser decidida até 7 dias antes da festa, sem problema!",
+        "Visualmente, fica assim:\nLogo na entrada, o hall já decorado nas cores do tema, com as lembrancinhas e presentes\nO painel do chão ao teto com a Skye ao fundo montando o cenário central da festa\nA mesa do bolo à frente, com o bolo fake, doces e numeral em LED, além das pelúcias\nTapete para as crianças tirarem fotos\nAs varetas de balão dão movimento à decoração, substituindo o arco\nAs mesas dos convidados seguem toda a paleta do tema, com flores e mesa kids próxima aos brinquedos"
+      ]
+    },
+    {
+      "id": 879,
+      "cliente_nome": "Maria F. Lima",
+      "phone": "554599177541",
+      "jid": "554599177541@s.whatsapp.net",
+      "msg_total": 4,
+      "human_n": 0,
+      "ai_n": 4,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "🎂 Nome do aniversariante\n📅 Data de nascimento\n🎉 Data da festa\n🧑‍🤝‍🧑 Quantidade estimada de convidados"
+      ]
+    },
+    {
+      "id": 880,
+      "cliente_nome": "Kethelen Machado",
+      "phone": "554598324995",
+      "jid": "554598324995@s.whatsapp.net",
+      "msg_total": 3,
+      "human_n": 0,
+      "ai_n": 3,
+      "current": {
+        "aniversariante_nome": "Luiza e Melina",
+        "aniversariante_data_nascimento": "2020-02-13",
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": 7
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "Pode me passar esses detalhes? Assim já verifico disponibilidade e consigo personalizar tudo para vocês! 🎈✨",
+        "Para te mostrar o pacote perfeito, preciso só de algumas informações rápidas:\n\n🎂 Nome do aniversariante (pode ser só “Luiza e Melina”)\n\n📅 Data de nascimento das meninas\n\n🎉 Data (ou intervalo) que você pensa em fazer a festa entre 13 e 28/02/2027\n\n🧑‍🤝‍🧑 Quantidade estimada de convidados",
+        "Olá, Kethelen 🎉 Que alegria falar sobre a festa das suas filhas, Luiza e Melina! Amei a ideia do tema Toy Story com a Jessie como destaque, vai ficar incrível 💜✨"
+      ]
+    },
+    {
+      "id": 883,
+      "cliente_nome": "Daiane",
+      "phone": "554699833794",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 884,
+      "cliente_nome": "Larissa Wouk",
+      "phone": "554599290716",
+      "jid": "554599290716@s.whatsapp.net",
+      "msg_total": 34,
+      "human_n": 0,
+      "ai_n": 34,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "data_evento": "2026-09-18",
+        "quantidade_convidados": 50,
+        "aniversariante_nome": "Théo"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Larissa, já anotei seu pedido de visita para o dia 13/05! Vou passar agora para nossa equipe organizar direitinho e confirmar o melhor horário para você conhecer o espaço e conversar sobre a festa do Théo 💜✨",
+        "Eu que agradeço, Larissa! 💜  \n\nFico muito feliz em ajudar e te espero para vivermos juntos esse sonho da festa do Théo. Pode contar comigo para o que precisar antes, durante e depois do evento!",
+        "Perfeito, Larissa! Vou encaminhar para nossa equipe agendar sua visita no sábado para conhecer o espaço e conversar pessoalmente sobre todos os detalhes da festa do Théo 💜✨\n\nEles vão entrar em contato rapidinho para combinar certinho o melhor horário. Vai ser um prazer receber vocês aqui na WeKids!\n\nQualquer detalhe ou dúvida até lá, estou à disposição. Até breve! 🎈",
+        "Larissa, conferi agora na nossa agenda:\n\nDia 18/09/2026 (quinta-feira): está disponível para agendamento 🎈✨\n\nDia 19/09/2026 (sexta-feira): já está reservada, infelizmente.\n\nSe for interessante, você pode garantir a festa do Théo no dia 18/09/2026 aqui na WeKids!"
+      ]
+    },
+    {
+      "id": 885,
+      "cliente_nome": "Rosangela",
+      "phone": "554598475140",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 886,
+      "cliente_nome": "Isabela Thomé",
+      "phone": "554598140028",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 887,
+      "cliente_nome": "Diana Pacheco",
+      "phone": "554599931240",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 888,
+      "cliente_nome": "Bruno Aquino",
+      "phone": "551173566446",
+      "jid": "5511973566446@s.whatsapp.net",
+      "msg_total": 8,
+      "human_n": 0,
+      "ai_n": 8,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 889,
+      "cliente_nome": "Taynara Raini",
+      "phone": "554599939077",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 890,
+      "cliente_nome": "Jéssica Monteiro Ferreira",
+      "phone": "554598208102",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 891,
+      "cliente_nome": "Gislene Pires ❤️❤️",
+      "phone": "554598067707",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 892,
+      "cliente_nome": "Dani",
+      "phone": "554599320931",
+      "jid": "554599320931@s.whatsapp.net",
+      "msg_total": 1,
+      "human_n": 0,
+      "ai_n": 1,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 893,
+      "cliente_nome": "Nati Anacleto",
+      "phone": "554599233868",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 894,
+      "cliente_nome": "Ana Paula Sinhuri",
+      "phone": "554599724719",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 895,
+      "cliente_nome": "Bruna Dias",
+      "phone": "554599885715",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 896,
+      "cliente_nome": ".",
+      "phone": "554599229360",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 897,
+      "cliente_nome": "Sheila Caroline",
+      "phone": "554584026827",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 898,
+      "cliente_nome": "Ana Carla Roteski",
+      "phone": "554599813683",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 899,
+      "cliente_nome": "Dani",
+      "phone": "554598325422",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 900,
+      "cliente_nome": "Pamela Grobes💫",
+      "phone": "554599289447",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 901,
+      "cliente_nome": "~Luanny",
+      "phone": "554591330599",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 902,
+      "cliente_nome": "Karol",
+      "phone": "554599637193",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 903,
+      "cliente_nome": ".",
+      "phone": "554599192007",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 904,
+      "cliente_nome": "Larissa Becker",
+      "phone": "554599122653",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 905,
+      "cliente_nome": "Ana Paula",
+      "phone": "554598544326",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 906,
+      "cliente_nome": "Vitória🌸",
+      "phone": "554195099818",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 907,
+      "cliente_nome": "Thauana Estevao",
+      "phone": "554498315551",
+      "jid": "554498315551@s.whatsapp.net",
+      "msg_total": 2,
+      "human_n": 2,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [
+        "Oiii desculpa demora uma correria",
+        "Oiii desculpa demora uma correria"
+      ],
+      "ai_samples": []
+    },
+    {
+      "id": 910,
+      "cliente_nome": "Lauany Kawaguchi🎀",
+      "phone": "554598242654",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 911,
+      "cliente_nome": "Carla",
+      "phone": "554599604369",
+      "jid": "554599604369@s.whatsapp.net",
+      "msg_total": 1,
+      "human_n": 0,
+      "ai_n": 1,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 912,
+      "cliente_nome": "Amanda Cristina Farias",
+      "phone": "554599943224",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 913,
+      "cliente_nome": "Erika Teixeira",
+      "phone": "554588184321",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 914,
+      "cliente_nome": "Camila Vissosi",
+      "phone": "554198399297",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 925,
+      "cliente_nome": "Kenni Miessa",
+      "phone": "554599892641",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 926,
+      "cliente_nome": "May😘",
+      "phone": "554599348065",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 943,
+      "cliente_nome": "mgrimouth",
+      "phone": "559181938424",
+      "jid": "559181938424@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Rafaella"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Fico muito feliz em saber que você amou, Marília! 💜✨ Estaremos sempre à disposição para cuidar de tudo e fazer a festa da Rafaella do jeitinho que vocês sonham. Se precisar de qualquer coisa, conte comigo!",
+        "Qualquer dúvida, ajuste ou sugestão que você queira, pode me chamar aqui a qualquer momento! Desejo que os preparativos sejam muito especiais e que a festa da Rafaella seja inesquecível. Conte comigo para o que precisar, sempre! 🎂✨",
+        "Entendi direitinho, mgrimouth! É super importante que vocês consigam aproveitar a visita juntos e dentro do horário disponível. Já deixei claro para a equipe que seu horário é das 13h, justamente porque seu marido trabalha às 16h.",
+        "Fico super feliz em saber disso, mgrimouth! 💜✨ Nós também amamos acompanhar cada detalhe e estamos à disposição sempre que você precisar! Vai ser incrível celebrar a festa da Rafaella com a gente! 🎂🎉"
+      ]
+    },
+    {
+      "id": 946,
+      "cliente_nome": "Sabrina Richart",
+      "phone": "554598183667",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 948,
+      "cliente_nome": "Japah",
+      "phone": "554599850650",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 957,
+      "cliente_nome": "Kary",
+      "phone": "554988960395",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 963,
+      "cliente_nome": "Amanda Cristina",
+      "phone": "554599446493",
+      "jid": "554599446493@s.whatsapp.net",
+      "msg_total": 29,
+      "human_n": 0,
+      "ai_n": 23,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "data_evento": "2027-02-13"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "*Dados para o contrato*\nNome: \nCPF: \nTelefone \nE-mail: \nData:\nValor:\nInício da festa:\nTema da festa:\nN° convidados:\nSabor do bolo:\nChopp:\nNome e idade da criança:",
+        "Que notícia boa, Amanda! 🎉✨ O dia 13/02/2027 está disponível aqui na WeKids para celebrar com a Isabelly e a Laura 🏰💜.",
+        "🎂 Nome do aniversariante\n\n📅 Data de nascimento\n\n🎉 Data da festa\n\n🧑‍🤝‍🧑 Quantidade estimada de convidados"
+      ]
+    },
+    {
+      "id": 965,
+      "cliente_nome": "Ana Gabriela",
+      "phone": "554598511154",
+      "jid": "554598511154@s.whatsapp.net",
+      "msg_total": 12,
+      "human_n": 0,
+      "ai_n": 11,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 966,
+      "cliente_nome": "Letícia Barbosa",
+      "phone": "554599344505",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 967,
+      "cliente_nome": "Anna ❤️ Lucas",
+      "phone": "554598607043",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 968,
+      "cliente_nome": "Brenda Andre",
+      "phone": "554598223403",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 969,
+      "cliente_nome": "Andreia Fernandes",
+      "phone": "554599265584",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 970,
+      "cliente_nome": "~Marta Felicidade",
+      "phone": "554598055048",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 971,
+      "cliente_nome": "Sarah",
+      "phone": "554599351640",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 972,
+      "cliente_nome": ".",
+      "phone": "554599454486",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 973,
+      "cliente_nome": "Emilly",
+      "phone": "554598356719",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 974,
+      "cliente_nome": "Matheus Walentim",
+      "phone": "554599403797",
+      "jid": "554599403797@s.whatsapp.net",
+      "msg_total": 46,
+      "human_n": 16,
+      "ai_n": 26,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [
+        "mto bom",
+        "kkkkkkkkkkkkkkkkkkkk",
+        "manda esse p ela kkk",
+        "https://www.google.com/maps/place/rua+itajai+588/@-24.997601,-53.4508161,3a,75y,333.62h,90t/data=!3m4!1e1!3m2!1s1PsM6SP0dP-NdTxJUlis2Q!2e0!4m2!3m1!1s0x94f3d5beb390bb43:0x2af38d31d7b9b405?sa=X&ved=1t:3780&ictx=111",
+        "Mds",
+        "😂😂😂😂😂😂😂😂😂"
+      ],
+      "ai_samples": [
+        "Ah, me manda por favor aquelas informações rapidinhas? Assim posso te mostrar o pacote ideal:  \n🎂 Nome do aniversariante  \n📅 Data de nascimento  \n🎉 Data da festa  \n🧑‍🤝‍🧑 Quantidade estimada de convidados",
+        "Para te mostrar o pacote perfeito para a sua festa, preciso só de algumas informações rápidas:  \n🎂 Nome do aniversariante  \n📅 Data de nascimento  \n🎉 Data da festa  \n🧑‍🤝‍🧑 Quantidade estimada de convidados",
+        "Olá, Matheus 🎉  \nQue alegria receber sua mensagem e ver essa imagem incrível do nosso espaço! Nosso objetivo é realmente proporcionar diversão, segurança e muito encanto para os pequenos e seus convidados ✨💜"
+      ]
+    },
+    {
+      "id": 975,
+      "cliente_nome": "Juliane Almeida battisti",
+      "phone": "554599291159",
+      "jid": "554599291159@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 50,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Sarah"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Juliane, sim! Temos datas mais próximas disponíveis para a sua escolha, incluindo a quarta-feira, que é o dia do aniversário da Sarah:\n\nSegunda-feira, 15 de julho de 2024 (durante a semana)\n\nQuarta-feira, 17 de julho de 2024 (dia do aniversário da Sarah)\n\nSábado, 20 de julho de 2024 (final de semana)\n\nEssas três datas estão liberadas na agenda da WeKids! 💜✨",
+        "Juliane, que bom ver vocês planejando a nova data! 💜✨ Seguem as próximas datas disponíveis para remarcação da festa da Sarah aqui na WeKids:\n\n12/08/2026 (quarta-feira)\n\n13/08/2026 (quinta-feira)\n\n14/08/2026 (sexta-feira)",
+        "Quanto à sua dúvida, vou te orientar direitinho:\n\nA WeKids entende situações delicadas de saúde e, embora não exista uma política fixa para doença na véspera, analisamos cada caso individualmente.\n\nSe for preciso remarcar por motivo de saúde, o melhor é nos avisar o quanto antes, informando a situação e sugerindo possíveis novas datas para checarmos a disponibilidade.\n\nNossa equipe sempre faz o possível para encontrar alternativas e evitar qualquer prejuízo, mas mudanças oficiais precisam ser tratadas diretamente com nosso atendimento para garantir registro e apoio em todo o processo.",
+        "Juliane, fica tranquila! Se acontecer de ultrapassar um pouquinho o limite, chegando a 62 ou 63 pessoas, incluindo crianças a partir de 5 anos, não tem problema – entendemos que sempre pode acontecer esse ajuste de última hora, especialmente quando dependemos de confirmação de convidados e trabalho/plantão. 💜✨"
+      ]
+    },
+    {
+      "id": 976,
+      "cliente_nome": "Paulina",
+      "phone": "554588142391",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 978,
+      "cliente_nome": "♍Alessandra",
+      "phone": "554588123957",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 979,
+      "cliente_nome": "Desistir Nunca",
+      "phone": "554598347026",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 981,
+      "cliente_nome": "Agatha",
+      "phone": "554588312379",
+      "jid": "554588312379@s.whatsapp.net",
+      "msg_total": 1,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 982,
+      "cliente_nome": "R",
+      "phone": "554599220728",
+      "jid": "554599220728@s.whatsapp.net",
+      "msg_total": 11,
+      "human_n": 0,
+      "ai_n": 11,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Luísa"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Se quiser que eu calcule certinho para a sua quantidade de convidados, é só me avisar! 💜 E, claro, qualquer sobra do buffet é entregue pra você ao final da festa.\n\nMe conta quanto você gostaria de destacar esses doces na decoração, que te ajudo a ajustar o pedido!",
+        "Olá, R! Que bom receber sua mensagem novamente! 🎉✨\n\nPosso te ajudar com alguma nova dúvida sobre a festa da Luísa ou com mais alguma informação do nosso espaço? Me conta como posso facilitar seu planejamento hoje! 💜",
+        "Sobre a lista: crianças até 4 anos não contam na lista de convidados (você pode convidar à vontade). A partir de 5 anos, elas já passam a contar normalmente como convidado. E pai, mãe e o próprio aniversariante também não entram na contagem!",
+        "Oii, bom dia, R! 💜\n\nSim, o nosso espaço comporta até 60 convidados com conforto e segurança — esse é o nosso limite máximo para garantir que a experiência seja incrível para todo mundo!"
+      ]
+    },
+    {
+      "id": 983,
+      "cliente_nome": "Thais Proença",
+      "phone": "554598592530",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 984,
+      "cliente_nome": "Vitoria Matos",
+      "phone": "554598126932",
+      "jid": "554598126932@s.whatsapp.net",
+      "msg_total": 1,
+      "human_n": 0,
+      "ai_n": 1,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "Olá, Vitoria 🎉 \n\nQue alegria falar sobre festa com você! \n\nPara te mostrar o pacote perfeito, preciso de algumas informações rápidas: \n\n🎂 Nome do aniversariante \n📅 Data de nascimento \n🎉 Data da festa \n🧑‍🤝‍🧑 Quantidade estimada de convidados \n\nMe envia por favor? 💜✨"
+      ]
+    },
+    {
+      "id": 985,
+      "cliente_nome": "INVICTA SOLUÇÕES RENOVÁVEIS",
+      "phone": "554599600980",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 986,
+      "cliente_nome": "Sunamita de Lima",
+      "phone": "554598401869",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 987,
+      "cliente_nome": "Samara Passian",
+      "phone": "554599978159",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 988,
+      "cliente_nome": "Gezieli Roberto Zaramella",
+      "phone": "554599246755",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 989,
+      "cliente_nome": "Bianca Montezolli",
+      "phone": "554488524773",
+      "jid": "554488524773@s.whatsapp.net",
+      "msg_total": 12,
+      "human_n": 0,
+      "ai_n": 12,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "data_evento": "2026-10-10",
+        "aniversariante_nome": "também"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Perfeito, Bianca! Fique super à vontade para confirmar com calma a lista de convidados. Aqui na WeKids, você pode ajustar o número de convidados até 7 dias antes da festa, assim garantimos todos os detalhes do jeitinho que você sonha 💜✨",
+        "Bianca, aqui na WeKids o mínimo para fechar uma festa é de 30 convidados pagantes. Lembrando que crianças de 0 a 4 anos não entram na contagem, e a partir de 5 anos já contam como convidado.\n\nPai, mãe e aniversariante também não são considerados pagantes, tá? Nossa capacidade máxima é de 60 convidados.",
+        "Bianca, crianças a partir de 5 anos entram na contagem de convidados e pagam normalmente.\n\nJá os pequenos de 0 a 4 anos não pagam! E uma dica bacana: pai, mãe e o próprio aniversariante também não entram na contagem 🎉",
+        "Bianca, já trouxe o orçamento personalizado para a sua festa de 40 convidados no dia 10/10/2026, que será em um sábado:\n\n🎡 *Pacote Padrão* — 40 convidados: R$3.600,00 ou 10x de R$408,00 💜✨\n\nEsse pacote inclui tudo para uma comemoração deliciosa e completa: buffet, doces, bolo sabor à escolha, bebidas, toda a estrutura do espaço, brinquedos e muito mais! Se quiser detalhes de tudo que está incluso, é só me pedir 🎈\n\nFicou com alguma dúvida sobre o pacote, ou tem algo que gostaria de ajustar? Aqui somos flexíveis para adaptar ao seu sonho! 🥳"
+      ]
+    },
+    {
+      "id": 990,
+      "cliente_nome": "Daniela",
+      "phone": "554599945409",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 992,
+      "cliente_nome": "Monise🌻",
+      "phone": "554588221508",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 993,
+      "cliente_nome": "Maria Taborda",
+      "phone": "554599064917",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 994,
+      "cliente_nome": "gi",
+      "phone": "554598445971",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 995,
+      "cliente_nome": "Paola Moraes",
+      "phone": "554591010893",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 996,
+      "cliente_nome": "Yooh 🦋",
+      "phone": "554598256613",
+      "jid": "554598256613@s.whatsapp.net",
+      "msg_total": 41,
+      "human_n": 0,
+      "ai_n": 41,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 40,
+        "data_evento": "2026-10-31",
+        "aniversariante_nome": "Yan Lucca"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Na decoração padrão, já está garantido para o Safari:\n\nPainel alto até o teto (2,75 m) personalizado no tema Safari\n\nMesas, toalhas, bandejas para doces e bolo fake do tema\n\nNumeral em LED e tapete especial\n\nHall de entrada decorado, com cesto de presente e estante para lembrancinhas\n\nArranjos de folhagens verdes e painéis adicionais para dar aquele clima de selva\n\nPelúcias de animais, caso estejam disponíveis\n\n2 varetas com balões especiais.",
+        "O tema Safari está super disponível aqui na WeKids e fica lindo para festas de menino! 🦁🌿",
+        "Nós trabalhamos com um pacote exclusivo de festa:\n\n🎈 *Pacote Festa Padrão*\n\n🏠 Disponível a partir de 30 convidados, com capacidade máxima de 60 pessoas.\n\n🥐 Buffet feito e entregue no dia da festa, e sobras são entregues ao final.\n\n🍬 Doces: brigadeiro, beijinho, dois amores, leite ninho e surpresinha de uva.\n\n🥟 Salgados fritos: pastel de carne, risoles de pizza, bolinha de queijo, kibe, enroladinho e coxinha.\n\n🥖 Salgados assados: empada, croissant de goiabada, rocambole, folhado de bacon, mini pizza e esfiha.\n\n🎂 Bolo (recheio à escolha): 4 leites, brigadeiro, prestígio, abacaxi com coco ou dois amores e você pode adicionar morango 🍓: +R$ 50,00.\n\n🥤 Bebidas: Coca-Cola, Guaraná, água com e sem gás.\n\n⏰ Duração: 3 horas (com tolerância de 15 min). Aos fins de semana, opção de contratá-la com 1 hora extra.\n\n🍽️ Inclui louças completas (pratos, talheres e taças).\n\n👧 Mesa Kids com buffet completo adaptado para as crianças.\n\n💫 Equipe completa para cuidar de tudo com carinho.\n\nGostou? Posso te enviar o orçamento personalizado para 40 convidados nessa data especial? Se quiser incluir ou adaptar algo, é só me avisar! 🎉✨",
+        "Te mostro o nosso pacote padrão para 40 convidados? Vai ser um prazer detalhar tudo para você! 💜"
+      ]
+    },
+    {
+      "id": 997,
+      "cliente_nome": "Lucia Rocha",
+      "phone": "554599090896",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 998,
+      "cliente_nome": "Kaline",
+      "phone": "554598429068",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 999,
+      "cliente_nome": "Daniela Migliorini",
+      "phone": "554599506761",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1000,
+      "cliente_nome": "Jessyca Alebrante",
+      "phone": "554599598241",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1001,
+      "cliente_nome": "Daiane",
+      "phone": "554599040444",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1002,
+      "cliente_nome": "Duda 🦋",
+      "phone": "554584260482",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1003,
+      "cliente_nome": "Elen Fernandes Rosa",
+      "phone": "554699360278",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1004,
+      "cliente_nome": "Andressa Lopes",
+      "phone": "554598393856",
+      "jid": "554598393856@s.whatsapp.net",
+      "msg_total": 7,
+      "human_n": 0,
+      "ai_n": 7,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1005,
+      "cliente_nome": "Prs",
+      "phone": "554598108220",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1006,
+      "cliente_nome": "Bruna Esthefany",
+      "phone": "554599196534",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1007,
+      "cliente_nome": "Maiara",
+      "phone": "554584313197",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1008,
+      "cliente_nome": "Lilia",
+      "phone": "554599730096",
+      "jid": "554599730096@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 0,
+      "ai_n": 21,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": [
+        "Olá, Lilia! ✨ Que notícia linda para começar o dia! Que alegria saber que a festa da princesa já está fechada e o painel também! 🏰👑 Vai ficar um encanto só, tenho certeza!"
+      ]
+    },
+    {
+      "id": 1009,
+      "cliente_nome": "Beatryz",
+      "phone": "554599729588",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1010,
+      "cliente_nome": "Danielli Reis",
+      "phone": "554598114918",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1012,
+      "cliente_nome": "..",
+      "phone": "554598015271",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1013,
+      "cliente_nome": "Zarom🤍",
+      "phone": "554588217032",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1014,
+      "cliente_nome": "Dany",
+      "phone": "554599896010",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1015,
+      "cliente_nome": "Ana🥰",
+      "phone": "554591112678",
+      "jid": "554591112678@s.whatsapp.net",
+      "msg_total": 5,
+      "human_n": 0,
+      "ai_n": 5,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Iker Matteo"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Se quiser retomar sobre a festa do Iker Matteo, ajustar detalhes do orçamento, agendar visita ou tirar qualquer dúvida, é só me avisar! Vou adorar te ajudar a planejar um aniversário inesquecível 💜🎈"
+      ]
+    },
+    {
+      "id": 1017,
+      "cliente_nome": "Lucineia Ricarte",
+      "phone": "554599597752",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1018,
+      "cliente_nome": "Rayllander 🙏☺️",
+      "phone": "554599994502",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1019,
+      "cliente_nome": "Dayane",
+      "phone": "554591341983",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1020,
+      "cliente_nome": "Ana Heloiza 🩷",
+      "phone": "554599063708",
+      "jid": "554599063708@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 21,
+      "ai_n": 14,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": "Samuel Henrique"
+      },
+      "human_samples": [
+        "Pode ser sábado",
+        "Ok",
+        "Ta bom",
+        "Hoje tem alguma horário que possamos ir visitar o espaço",
+        "Oiii",
+        "Mais gostaria que ele tivesse junto"
+      ],
+      "ai_samples": [
+        "Vai ser um prazer ajudar a deixar a festa do Samuel Henrique ainda mais especial! Se precisar, é só chamar. ✨🎂",
+        "Se surgir qualquer dúvida sobre o espaço, decoração ou quiser planejar mais algum detalhe da festa do Samuel Henrique, é só me chamar! Estou por aqui para ajudar no que precisar, viu? ✨🎉",
+        "Perfeito, Ana! 💜 Assim que nossa equipe conferir os horários disponíveis para hoje, eles já entram em contato com você para combinar certinho a visita.",
+        "Ana, que alegria saber que você quer visitar nosso espaço hoje! 💜\n\nVou encaminhar seu pedido para nossa equipe de agendamento agora mesmo — assim eles entram em contato rapidinho para combinar o melhor horário conforme a disponibilidade de hoje, tá bom? Assim você, seu esposo e toda a família se sentem à vontade para conhecer cada cantinho, experimentar nosso buffet e tirar todas as dúvidas!\n\nSe precisar de algo enquanto isso, pode me chamar por aqui. Nossa equipe vai te atender logo mais e garantir um atendimento especial para vocês! ✨"
+      ]
+    },
+    {
+      "id": 1021,
+      "cliente_nome": "Amanda Caroline",
+      "phone": "554599252292",
+      "jid": "554599252292@s.whatsapp.net",
+      "msg_total": 29,
+      "human_n": 0,
+      "ai_n": 29,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 50,
+        "data_evento": "2027-05-01",
+        "aniversariante_nome": "Ravi"
+      },
+      "human_samples": [],
+      "ai_samples": [
+        "Se você quiser, posso confirmar com a equipe qual marca estará disponível para a sua data mais próxima da festa, ok? E só reforçando: não é permitido trazer bebida alcoólica de fora, apenas contratar nosso chopp mesmo.",
+        "Valores de referência 2026:\n\n* 🎡 *Pacote festa padrão* para 50 convidados: R$3.900,00 ou 10x de R$442,00\n\n* 1 hora extra: R$450,00\n\n* 30 litros de chopp: R$300,00",
+        "Amanda, segue seu orçamento personalizado para a festa do Ravi no dia 01/05/2027, começando às 15h e terminando às 19h (com 1 hora extra) e 30 litros de chopp incluídos:",
+        "Seu orçamento base para 50 convidados (valor de referência de 2026):\n\nR$3.900,00 ou 10x de R$442,00\n\nO valor do chopp é adicionado conforme o volume que você escolher. Em janeiro de 2027, reajustamos apenas pelo índice dos nossos fornecedores (o reajuste costuma ser em torno de R$250,00)."
+      ]
+    },
+    {
+      "id": 1022,
+      "cliente_nome": "Talita",
+      "phone": "554599126401",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1023,
+      "cliente_nome": "Ketlyn Arantes",
+      "phone": "554584313062",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1024,
+      "cliente_nome": "Adriana",
+      "phone": "554599152138",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1025,
+      "cliente_nome": "Kaly",
+      "phone": "554598541497",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1027,
+      "cliente_nome": "Daniela Becker",
+      "phone": "554599814592",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1028,
+      "cliente_nome": "Camila Santos",
+      "phone": "554599364837",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {},
+      "human_samples": [],
+      "ai_samples": []
+    },
+    {
+      "id": 1029,
+      "cliente_nome": "Micheli F Faoro Giraldi",
+      "phone": "554599785617",
+      "jid": "554599785617@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 15,
+      "ai_n": 35,
+      "current": {
+        "aniversariante_nome": null,
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": null,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "quantidade_convidados": 30,
+        "data_evento": "2026-08-15",
+        "aniversariante_nome": "nascido"
+      },
+      "human_samples": [
+        "e o dia 16/05/26?",
+        "está liberado a data do dia 10/04 entao?",
+        "verifica por favor se a data do dia 10/04 está disponivel.",
+        "sim, por favor.\nquero falar com um humano.",
+        "quero falar com um atendente humano",
+        "o dia 15, está disponivel?"
+      ],
+      "ai_samples": [
+        "Se quiser saber mais sobre as festas, pacotes, datas disponíveis ou tirar qualquer dúvida, é só me chamar. Como posso te ajudar hoje? 🎉",
+        "Que alegria, Micheli! 🎉✨ O dia 16/05/2026 (sábado) está liberado e disponível aqui na WeKids para a sua festa 🏰💜.\n\nSe quiser, já posso seguir com o orçamento personalizado ou ajustar algum detalhe do seu pacote. Como prefere avançar?",
+        "Que notícia boa, Micheli! 🎉✨ O dia 10/04/2026 está liberado e disponível aqui na WeKids para a sua festa 🏰💜.\n\nQuer que eu já prepare o orçamento para essa data? Se quiser personalizar algo no pacote ou ajustar o número de convidados, é só me avisar!",
+        "Que notícia ótima, Micheli! 🎉✨ O dia 10/04/2026 (sexta-feira) está disponível aqui na WeKids para realizar sua festa 🏰💜."
+      ]
+    },
+    {
+      "id": 1032,
+      "cliente_nome": "Gabriela Webber",
+      "phone": "554598034565",
+      "jid": "554598034565@s.whatsapp.net",
+      "msg_total": 50,
+      "human_n": 14,
+      "ai_n": 31,
+      "current": {
+        "aniversariante_nome": "José",
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": 50,
+        "aniversariante_idade": 1
+      },
+      "patch": {},
+      "human_samples": [
+        "No mês de abril",
+        "Você poderia me mandar as datas que estão disponíveis",
+        "Bom dia",
+        "??",
+        "Do dia 11.04 por exemplo 🥲",
+        "Essas reservas já estão certas? Ou pode ter alguma desistência?"
+      ],
+      "ai_samples": [
+        "Vamos seguir com a mesma ideia do *Pacote Festa Padrão* para 50 convidados, como conversamos antes? Se quiser, podemos adaptar detalhes da decoração ou personalizar ainda mais — é só avisar!",
+        "Que escolha encantadora, Gabriela! O tema Toy Story fica simplesmente lindo para festas de 1 aninho! 🧸🚀✨ Nossa equipe adora montar esse universo divertido e colorido, perfeito para o José e seus convidados.",
+        "Agora podemos avançar para a escolha do pacote ideal para a sua festa de 50 convidados. Você gostaria de manter o mesmo estilo de pacote e opções que conversamos antes ou quer ver alguma ideia diferente para o José? Já sabe qual tema está pensando ou quer sugestões? Estou aqui para ajudar em cada detalhe! 🎂🧸✨",
+        "Me envia, por favor:\n\n🎂 Data de nascimento do José\n\n🧑‍🤝‍🧑 Número estimado de convidados\n\nE, se quiser já adiantar o tema, adoramos saber!"
+      ]
+    },
+    {
+      "id": 1035,
+      "cliente_nome": "cccarnevalli",
+      "phone": "554599177740",
+      "jid": null,
+      "msg_total": 0,
+      "human_n": 0,
+      "ai_n": 0,
+      "current": {
+        "aniversariante_nome": "É quanto tempo de",
+        "aniversariante_data_nascimento": null,
+        "data_evento": null,
+        "quantidade_convidados": 50,
+        "aniversariante_idade": null
+      },
+      "patch": {
+        "aniversariante_nome": null
+      },
+      "human_samples": [],
+      "ai_samples": []
+    }
+  ]
+}

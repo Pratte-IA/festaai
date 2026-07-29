@@ -130,28 +130,54 @@ describe("competencia financeira — auditoria", () => {
     expect(marco.festas[0]?.situacao).toBe("Previsto");
   });
 
-  it("cenario A — despesa paga antes da festa entra na competencia do mes da festa", () => {
-    const result = buildCompetenciaPeriodResult(
-      "2026-03",
-      [festaMarco],
-      [
-        {
-          categoria: "decoracao",
-          data_competencia: "2026-02-01",
-          data_lancamento: "2026-02-10",
-          descricao: "Decoracao paga em fev",
-          evento_id: 1,
-          id: 1,
-          origem: "manual",
-          tipo: "saida",
-          valor: 1000,
-        },
-      ],
-    );
+  it("cenario A — despesa de festa usa data_competencia, nao o mes da festa nem o pagamento", () => {
+    const lancamentos = [
+      {
+        categoria: "decoracao",
+        data_competencia: "2026-02-01",
+        data_lancamento: "2026-02-10",
+        descricao: "Decoracao competencia fev",
+        evento_id: 1,
+        id: 1,
+        origem: "manual" as const,
+        tipo: "saida" as const,
+        valor: 1000,
+      },
+    ];
 
-    expect(result.summary.custosDiretos).toBe(1000);
-    expect(result.summary.receitaFestas).toBe(5000);
-    expect(result.summary.lucroBruto).toBe(4000);
+    const fevereiro = buildCompetenciaPeriodResult("2026-02", [festaMarco], lancamentos);
+    expect(fevereiro.summary.receitaFestas).toBe(0);
+    expect(fevereiro.summary.custosDiretos).toBe(1000);
+    expect(fevereiro.custosDiretos).toHaveLength(1);
+    expect(fevereiro.festas).toHaveLength(0);
+
+    const marco = buildCompetenciaPeriodResult("2026-03", [festaMarco], lancamentos);
+    expect(marco.summary.receitaFestas).toBe(5000);
+    expect(marco.summary.custosDiretos).toBe(0);
+    expect(marco.festas[0]?.custosDiretos).toBe(0);
+    expect(marco.summary.lucroBruto).toBe(5000);
+  });
+
+  it("cenario A2 — cartao: compra/competencia em jul, pagamento em ago", () => {
+    const lancamentos = [
+      {
+        categoria: "decoracao",
+        data_competencia: "2026-07-01",
+        data_lancamento: "2026-08-15",
+        descricao: "Material no cartao",
+        evento_id: 1,
+        id: 1,
+        origem: "manual" as const,
+        tipo: "saida" as const,
+        valor: 800,
+      },
+    ];
+
+    const julho = buildCompetenciaPeriodResult("2026-07", [festaMarco], lancamentos);
+    expect(julho.summary.custosDiretos).toBe(800);
+
+    const agosto = buildCompetenciaPeriodResult("2026-08", [festaMarco], lancamentos);
+    expect(agosto.summary.custosDiretos).toBe(0);
   });
 
   it("cenario B — despesa operacional usa data_competencia, nao data_lancamento", () => {

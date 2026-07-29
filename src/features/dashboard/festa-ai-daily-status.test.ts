@@ -23,7 +23,20 @@ const baseEvent = (overrides: Partial<Evento>): Evento =>
 
 describe("festa-ai-daily-status", () => {
   it("identifica leads na esteira comercial de follow-up", () => {
-    expect(isInComercialFollowupPipeline(baseEvent({ etapa: "contato_inicial" }))).toBe(true);
+    expect(isInComercialFollowupPipeline(baseEvent({ etapa: "contato_inicial" }))).toBe(false);
+    expect(
+      isInComercialFollowupPipeline(
+        baseEvent({
+          etapa: "contato_inicial",
+          contato_inicial_ultima_mensagem_em: "2026-07-01T10:00:00.000Z",
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      isInComercialFollowupPipeline(
+        baseEvent({ etapa: "contato_inicial", followup_0_enviado_em: "2026-07-01T10:00:00.000Z" }),
+      ),
+    ).toBe(true);
     expect(
       isInComercialFollowupPipeline(
         baseEvent({ etapa: "contato_inicial", followup_0b_enviado_em: "2026-07-01T10:00:00.000Z" }),
@@ -44,7 +57,11 @@ describe("festa-ai-daily-status", () => {
   it("monta os quatro cards de status do FestaAI", () => {
     const events = [
       baseEvent({ id: 1, etapa: "contato_inicial" }),
-      baseEvent({ id: 2, etapa: "contato_inicial" }),
+      baseEvent({
+        id: 2,
+        etapa: "contato_inicial",
+        contato_inicial_ultima_mensagem_em: "2026-07-01T12:00:00.000Z",
+      }),
       baseEvent({ id: 3, etapa: "proposta_enviada", followup_status: "ativo" }),
       baseEvent({ id: 4, etapa: "perdido", status_interno: "perdido" }),
     ];
@@ -57,7 +74,8 @@ describe("festa-ai-daily-status", () => {
     );
     expect(status.sections[1]?.subtitle).toBe("1 proposta aguardando retorno");
     expect(status.sections[2]?.subtitle).toBe("Temos 1 contrato a serem assinados");
-    expect(status.sections[3]?.count).toBe(3);
+    // Contato inicial sem marco fica fora da esteira de follow-up aberto.
+    expect(status.sections[3]?.count).toBe(2);
     expect(status.sections[3]?.title).toBe("Follow-up comercial");
   });
 });

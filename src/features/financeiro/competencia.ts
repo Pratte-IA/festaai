@@ -47,6 +47,19 @@ export interface CompetenciaDespesaOperacional {
   valor: number;
 }
 
+/** Saída vinculada a festa cuja data_competencia cai no mês do relatório. */
+export interface CompetenciaCustoDireto {
+  categoria: string;
+  dataCompetencia: string;
+  dataPagamento: string;
+  descricao: string | null;
+  eventoId: number;
+  festaLabel: string;
+  id: number;
+  situacao: CompetenciaSituacao;
+  valor: number;
+}
+
 export interface CompetenciaBucketSummary {
   custosDiretos: number;
   lucroBruto: number;
@@ -66,6 +79,8 @@ export interface CompetenciaPeriodSummary {
 }
 
 export interface CompetenciaPeriodResult {
+  /** Custos de festa no mês (filtro = data_competencia), inclusive de festas de outro mês. */
+  custosDiretos: CompetenciaCustoDireto[];
   despesasOperacionais: CompetenciaDespesaOperacional[];
   festas: CompetenciaFestaRow[];
   summary: CompetenciaPeriodSummary;
@@ -185,6 +200,24 @@ const sumSaidasByEvento = (lancamentos: LancamentoCompetencia[], eventoId: numbe
     .filter((item) => item.evento_id === eventoId && item.tipo === "saida")
     .reduce((sum, item) => sum + Number(item.valor || 0), 0);
 
+const isSaidaFestaNoMesCompetencia = (
+  item: LancamentoCompetencia,
+  monthValue: string,
+): boolean =>
+  item.tipo === "saida" &&
+  item.evento_id != null &&
+  item.data_competencia != null &&
+  isDateInMonth(item.data_competencia, monthValue);
+
+const sumSaidasByEventoNoMesCompetencia = (
+  lancamentos: LancamentoCompetencia[],
+  eventoId: number,
+  monthValue: string,
+) =>
+  lancamentos
+    .filter((item) => item.evento_id === eventoId && isSaidaFestaNoMesCompetencia(item, monthValue))
+    .reduce((sum, item) => sum + Number(item.valor || 0), 0);
+
 const emptyBucket = (): CompetenciaBucketSummary => ({
   custosDiretos: 0,
   lucroBruto: 0,
@@ -192,11 +225,8 @@ const emptyBucket = (): CompetenciaBucketSummary => ({
   resultadoBruto: 0,
 });
 
-const buildBucketFromFestas = (festas: CompetenciaFestaRow[]): CompetenciaBucketSummary => {
-  const receitaFestas = festas.reduce((sum, row) => sum + row.valorContratado, 0);
-  const custosDiretos = festas.reduce((sum, row) => sum + row.custosDiretos, 0);
+const buildBucket = (receitaFestas: number, custosDiretos: number): CompetenciaBucketSummary => {
   const lucroBruto = computeEventResult(receitaFestas, custosDiretos);
-
   return {
     custosDiretos,
     lucroBruto,
@@ -208,16 +238,30 @@ const buildBucketFromFestas = (festas: CompetenciaFestaRow[]): CompetenciaBucket
 const buildSummaryFromParts = (
   festas: CompetenciaFestaRow[],
   despesasOperacionaisTotal: number,
+  custosDiretos: CompetenciaCustoDireto[],
 ): CompetenciaPeriodSummary => {
-  const previsto = buildBucketFromFestas(festas.filter((row) => row.situacao === "Previsto"));
-  const realizado = buildBucketFromFestas(festas.filter((row) => row.situacao === "Realizado"));
-  const receitaFestas = previsto.receitaFestas + realizado.receitaFestas;
-  const custosDiretos = previsto.custosDiretos + realizado.custosDiretos;
-  const lucroBruto = computeEventResult(receitaFestas, custosDiretos);
+  const receitaPrevisto = festas
+    .filter((row) => row.situacao === "Previsto")
+    .reduce((sum, row) => sum + row.valorContratado, 0);
+  const receitaRealizado = festas
+    .filter((row) => row.situacao === "Realizado")
+    .reduce((sum, row) => sum + row.valorContratado, 0);
+  const custosPrevisto = custosDiretos
+    .filter((row) => row.situacao === "Previsto")
+    .reduce((sum, row) => sum + row.valor, 0);
+  const custosRealizado = custosDiretos
+    .filter((row) => row.situacao === "Realizado")
+    .reduce((sum, row) => sum + row.valor, 0);
+
+  const previsto = buildBucket(receitaPrevisto, custosPrevisto);
+  const realizado = buildBucket(receitaRealizado, custosRealizado);
+  const receitaFestas = receitaPrevisto + receitaRealizado;
+  const custosDiretosTotal = custosPrevisto + custosRealizado;
+  const lucroBruto = computeEventResult(receitaFestas, custosDiretosTotal);
   const resultadoLiquido = lucroBruto - despesasOperacionaisTotal;
 
   return {
-    custosDiretos,
+    custosDiretos: custosDiretosTotal,
     despesasOperacionais: despesasOperacionaisTotal,
     lucroBruto,
     margemLiquidaPercent: computeEventMarginPercent(receitaFestas, resultadoLiquido),
@@ -230,9 +274,10 @@ const buildSummaryFromParts = (
 
 /**
  * Resultado por competência do mês:
- * - Receita = valor contratado vigente das festas do mês (não usa recebimentos)
- * - Custos diretos = saídas válidas vinculadas a essas festas (mês = data_evento)
+ * - Receita = valor contratado vigente das festas do mês (data_evento; não usa recebimentos)
+ * - Custos diretos = saídas com evento_id e data_competencia no mês (não usa data_evento nem data_lancamento)
  * - Despesas operacionais = saídas sem evento_id com data_competencia no mês
+ * - Financeiro por festa (outra tela) continua somando todos os custos do evento, independente de mês
  */
 export const buildCompetenciaPeriodResult = (
   monthValue: string,
@@ -241,14 +286,17 @@ export const buildCompetenciaPeriodResult = (
   options: { todayIso?: string } = {},
 ): CompetenciaPeriodResult => {
   const todayIso = options.todayIso ?? new Date().toISOString().slice(0, 10);
-  const eligibleInMonth = eventos.filter(
-    (evento) => isEventEligibleForCompetencia(evento) && isDateInMonth(evento.data_evento, monthValue),
+  const eligibleEventos = eventos.filter((evento) => isEventEligibleForCompetencia(evento));
+  const eventosById = new Map(eligibleEventos.map((evento) => [evento.id, evento]));
+
+  const eligibleInMonth = eligibleEventos.filter((evento) =>
+    isDateInMonth(evento.data_evento, monthValue),
   );
 
   const festas: CompetenciaFestaRow[] = eligibleInMonth.map((evento) => {
     const eventLancamentos = lancamentos.filter((item) => item.evento_id === evento.id);
     const { valorContratado } = computeCompetenciaReceitaFesta(evento, eventLancamentos);
-    const custosDiretos = sumSaidasByEvento(lancamentos, evento.id);
+    const custosDiretos = sumSaidasByEventoNoMesCompetencia(lancamentos, evento.id, monthValue);
     const lucroBruto = computeEventResult(valorContratado, custosDiretos);
     const margemPercent = computeEventMarginPercent(valorContratado, lucroBruto);
 
@@ -269,6 +317,35 @@ export const buildCompetenciaPeriodResult = (
   });
 
   festas.sort((a, b) => a.dataEvento.localeCompare(b.dataEvento) || a.festaLabel.localeCompare(b.festaLabel));
+
+  const custosDiretos: CompetenciaCustoDireto[] = lancamentos
+    .filter((item) => isSaidaFestaNoMesCompetencia(item, monthValue))
+    .flatMap((item) => {
+      const evento = eventosById.get(item.evento_id as number);
+      if (!evento) {
+        return [];
+      }
+
+      return [
+        {
+          categoria: item.categoria,
+          dataCompetencia: toCompetenciaMonthStart(item.data_competencia as string),
+          dataPagamento: item.data_lancamento,
+          descricao: item.descricao,
+          eventoId: evento.id,
+          festaLabel: festaLabelFromEvent(evento),
+          id: item.id,
+          situacao: getEventCompetenciaSituacao(evento),
+          valor: Number(item.valor || 0),
+        },
+      ];
+    })
+    .sort(
+      (a, b) =>
+        a.dataPagamento.localeCompare(b.dataPagamento) ||
+        a.festaLabel.localeCompare(b.festaLabel) ||
+        a.id - b.id,
+    );
 
   const despesasOperacionais: CompetenciaDespesaOperacional[] = lancamentos
     .filter(
@@ -292,9 +369,10 @@ export const buildCompetenciaPeriodResult = (
   const despesasOperacionaisTotal = despesasOperacionais.reduce((sum, row) => sum + row.valor, 0);
 
   return {
+    custosDiretos,
     despesasOperacionais,
     festas,
-    summary: buildSummaryFromParts(festas, despesasOperacionaisTotal),
+    summary: buildSummaryFromParts(festas, despesasOperacionaisTotal, custosDiretos),
   };
 };
 
@@ -329,10 +407,27 @@ export const applyCompetenciaFilters = (
     );
   });
 
+  const custosDiretos = result.custosDiretos.filter((custo) => {
+    if (filters.eventoId != null && custo.eventoId !== filters.eventoId) {
+      return false;
+    }
+
+    if (statusFilter !== "todos" && custo.situacao !== statusFilter) {
+      return false;
+    }
+
+    if (!normalizedSearch) {
+      return true;
+    }
+
+    return custo.festaLabel.toLowerCase().includes(normalizedSearch);
+  });
+
   return {
+    custosDiretos,
     despesasOperacionais: result.despesasOperacionais,
     festas,
-    summary: buildSummaryFromParts(festas, result.summary.despesasOperacionais),
+    summary: buildSummaryFromParts(festas, result.summary.despesasOperacionais, custosDiretos),
   };
 };
 

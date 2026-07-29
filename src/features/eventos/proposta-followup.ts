@@ -189,18 +189,15 @@ export const getPropostaFollowupKanbanBadge = (evento: {
       return { className: "bg-muted text-muted-foreground", label: "Aguard. FU0b" };
     }
 
-    // Referência para "parado há +2h": preferimos o marco da nossa última
-    // mensagem; na ausência dele (leads anteriores ao rastreio), usamos a
-    // última atualização do lead como aproximação.
-    const referencia =
-      evento.contato_inicial_ultima_mensagem_em ?? evento.updated_at ?? evento.created_at;
+    // Só sinaliza com o marco real da nossa última mensagem aguardando
+    // retorno. Sem ele (backlog anterior à ativação / sem rastreio), não
+    // mostra badge — updated_at/created_at geravam falso "Aguard. FU0".
+    const referencia = evento.contato_inicial_ultima_mensagem_em;
+    if (!referencia) return null;
 
-    if (referencia) {
-      const horasSemRetorno = (Date.now() - new Date(referencia).getTime()) / (1000 * 60 * 60);
-
-      if (horasSemRetorno >= PROPOSTA_FOLLOWUP_0_AGUARDANDO_BADGE_HOURS) {
-        return { className: "bg-muted text-muted-foreground", label: "Aguard. FU0" };
-      }
+    const horasSemRetorno = (Date.now() - new Date(referencia).getTime()) / (1000 * 60 * 60);
+    if (horasSemRetorno >= PROPOSTA_FOLLOWUP_0_AGUARDANDO_BADGE_HOURS) {
+      return { className: "bg-muted text-muted-foreground", label: "Aguard. FU0" };
     }
 
     return null;

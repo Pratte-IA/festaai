@@ -79,6 +79,7 @@ export {
 } from "./competencia";
 export type {
   CompetenciaBucketSummary,
+  CompetenciaCustoDireto,
   CompetenciaDespesaOperacional,
   CompetenciaFestaRow,
   CompetenciaPeriodResult,

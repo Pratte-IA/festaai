@@ -65,6 +65,7 @@ const FinanceiroCompetencia = () => {
 
   const summary = data?.summary;
   const festas = data?.festas ?? [];
+  const custosDiretos = data?.custosDiretos ?? [];
   const despesasOperacionais = data?.despesasOperacionais ?? [];
 
   const totalCards = useMemo(
@@ -117,12 +118,12 @@ const FinanceiroCompetencia = () => {
       },
       {
         label: "Custos previstos",
-        hint: "Custos das festas ainda no funil Festa",
+        hint: "Competência no mês · festas ainda no funil Festa",
         value: summary ? formatFinanceiroCurrency(summary.previsto.custosDiretos) : "—",
       },
       {
         label: "Custos realizados",
-        hint: "Custos das festas no funil Executadas",
+        hint: "Competência no mês · festas no funil Executadas",
         value: summary ? formatFinanceiroCurrency(summary.realizado.custosDiretos) : "—",
       },
       {
@@ -145,8 +146,8 @@ const FinanceiroCompetencia = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">Competência</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Resultado das festas reconhecido no mês em que foram realizadas, independentemente das
-            datas de recebimento e pagamento.
+            Receita das festas no mês da data do evento. Custos e despesas operacionais no mês de
+            competência informado no lançamento — independente da data de pagamento (fluxo de caixa).
           </p>
         </div>
 
@@ -223,10 +224,11 @@ const FinanceiroCompetencia = () => {
 
         <Card className="mb-6">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Resultado por festa</CardTitle>
+            <CardTitle className="text-base">Receita por festa</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Receita pelo valor contratado vigente no mês da data da festa — não pelos recebimentos
-              parcelados. Previsto = funil Festa; Realizado = funil Executadas.
+              Valor contratado vigente no mês da data da festa — não pelos recebimentos parcelados.
+              A coluna de custos lista apenas saídas com competência neste mês. Previsto = funil
+              Festa; Realizado = funil Executadas.
             </p>
           </CardHeader>
           <CardContent>
@@ -249,7 +251,7 @@ const FinanceiroCompetencia = () => {
                       <TableHead>Data</TableHead>
                       <TableHead>Pacote</TableHead>
                       <TableHead className="text-right">Valor contratado</TableHead>
-                      <TableHead className="text-right">Custos diretos</TableHead>
+                      <TableHead className="text-right">Custos no mês</TableHead>
                       <TableHead className="text-right">Lucro bruto</TableHead>
                       <TableHead className="text-right">Margem</TableHead>
                       <TableHead>Situação</TableHead>
@@ -300,11 +302,68 @@ const FinanceiroCompetencia = () => {
           </CardContent>
         </Card>
 
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Custos diretos de festas</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Saídas vinculadas a festa com data de competência em{" "}
+              {formatCompetenciaMonthYear(`${month}-01`)} — inclusive de festas de outro mês. O
+              pagamento (fluxo de caixa) pode ser em data diferente.
+            </p>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : custosDiretos.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Nenhum custo de festa neste mês de competência.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Festa</TableHead>
+                      <TableHead>Descrição</TableHead>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead>Competência</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                      <TableHead>Pagamento</TableHead>
+                      <TableHead>Situação</TableHead>
+                      <TableHead className="text-right">Ação</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {custosDiretos.map((custo) => (
+                      <TableRow key={custo.id}>
+                        <TableCell className="font-medium">{custo.festaLabel}</TableCell>
+                        <TableCell>{custo.descricao || "—"}</TableCell>
+                        <TableCell>{getFinanceiroCategoriaLabel(custo.categoria)}</TableCell>
+                        <TableCell>{formatCompetenciaMonthYear(custo.dataCompetencia)}</TableCell>
+                        <TableCell className="text-right">
+                          {formatFinanceiroCurrency(custo.valor)}
+                        </TableCell>
+                        <TableCell>{formatDate(custo.dataPagamento)}</TableCell>
+                        <TableCell>{custo.situacao}</TableCell>
+                        <TableCell className="text-right">
+                          <Button asChild size="sm" variant="ghost">
+                            <Link to={`/crm/evento/${custo.eventoId}/financeiro`}>Ver festa</Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Despesas operacionais</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Somente saídas sem vínculo com festa, filtradas por data_competencia{" "}
+              Somente saídas sem vínculo com festa, filtradas por data de competência{" "}
               {formatCompetenciaMonthYear(`${month}-01`)}. Entradas gerais não entram aqui.
             </p>
           </CardHeader>
