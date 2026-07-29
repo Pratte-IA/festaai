@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Building2,
   Handshake,
+  LayoutDashboard,
+  LayoutGrid,
   LifeBuoy,
   LogOut,
   Radar,
@@ -22,15 +24,21 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { icon: Building2, label: "Clientes", path: "/admin" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
+  { icon: Building2, label: "Clientes", path: "/admin/clientes" },
   { icon: Radar, label: "Radar Comercial", path: "/admin/radar" },
+  { icon: LayoutGrid, label: "CRM Comercial", path: "/admin/crm" },
   { icon: Handshake, label: "Comercial", path: "/admin/comercial" },
   { icon: LifeBuoy, label: "Solicitações do agente", path: "/admin/agent-requests" },
 ];
 
 function isNavItemActive(pathname: string, path: string) {
   if (path === "/admin") {
-    return pathname === "/admin" || pathname.startsWith("/admin/tenants");
+    return pathname === "/admin";
+  }
+
+  if (path === "/admin/clientes") {
+    return pathname === "/admin/clientes" || pathname.startsWith("/admin/tenants");
   }
 
   return pathname === path || pathname.startsWith(`${path}/`);

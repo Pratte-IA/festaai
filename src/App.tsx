@@ -16,6 +16,7 @@ import Login from "./pages/Login.tsx";
 import Tarefas from "./pages/Tarefas.tsx";
 
 const Admin = lazy(() => import("./pages/Admin.tsx"));
+const AdminClientes = lazy(() => import("./pages/AdminClientes.tsx"));
 const AdminTenantDetail = lazy(() => import("./pages/AdminTenantDetail.tsx"));
 const AdminTenantConfig = lazy(() => import("./pages/AdminTenantConfig.tsx"));
 const AdminTenantConfigSection = lazy(() => import("./pages/AdminTenantConfigSection.tsx"));
@@ -70,6 +71,8 @@ const AdminComercialContratoAceiteDetalhe = lazy(
 );
 const AdminComercialContratos = lazy(() => import("./pages/AdminComercialContratos.tsx"));
 const AdminRadar = lazy(() => import("./pages/AdminRadar.tsx"));
+const AdminCrm = lazy(() => import("./pages/AdminCrm.tsx"));
+const AdminCrmLead = lazy(() => import("./pages/AdminCrmLead.tsx"));
 const Privacidade = lazy(() => import("./pages/Privacidade.tsx"));
 const Suporte = lazy(() => import("./pages/Suporte.tsx"));
 const SuporteAgente = lazy(() => import("./pages/SuporteAgente.tsx"));
@@ -128,12 +131,15 @@ const App = () => (
                     <Route path="/admin/comercial/contratos" element={<AdminComercialContratos />} />
                     <Route path="/admin/comercial" element={<AdminComercial />} />
                     <Route path="/admin/radar" element={<AdminRadar />} />
+                    <Route path="/admin/crm/:companyId" element={<AdminCrmLead />} />
+                    <Route path="/admin/crm" element={<AdminCrm />} />
                     <Route path="/admin/agent-requests/:id" element={<AdminAgentRequestDetail />} />
                     <Route path="/admin/agent-requests" element={<AdminAgentRequests />} />
                     <Route path="/admin/tenants/:id/n8n" element={<AdminTenantN8nConfig />} />
                     <Route path="/admin/tenants/:id/configuracao/:section" element={<AdminTenantConfigSection />} />
                     <Route path="/admin/tenants/:id/configuracao" element={<AdminTenantConfig />} />
                     <Route path="/admin/tenants/:id" element={<AdminTenantDetail />} />
+                    <Route path="/admin/clientes" element={<AdminClientes />} />
                     <Route path="/admin" element={<Admin />} />
                   </Route>
                   <Route path="/privacidade" element={<Privacidade />} />

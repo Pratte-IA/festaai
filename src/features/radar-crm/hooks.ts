@@ -9,6 +9,8 @@ import type {
   RadarCompanyListResult,
   RadarCrmFilters,
   RadarFilterOptions,
+  RadarKanbanBoardResult,
+  RadarKanbanFilters,
   UpsertCrmPayload,
 } from "./types";
 
@@ -93,6 +95,39 @@ export const useRadarFilterOptions = () =>
     },
   });
 
+export const useRadarKanbanBoard = (filters: RadarKanbanFilters) =>
+  useQuery({
+    queryKey: radarCrmQueryKeys.kanban(filters),
+    queryFn: async (): Promise<RadarKanbanBoardResult> => {
+      const { data, error } = await supabase.rpc("radar_crm_kanban_board", {
+        p_search: filters.search.trim() || undefined,
+        p_priorities: filters.priorities.length ? filters.priorities : undefined,
+        p_city: filters.city || undefined,
+        p_state: filters.state || undefined,
+        p_category: filters.category || undefined,
+        p_has_instagram: toOptionalBoolean(filters.hasInstagram),
+        p_has_phone: toOptionalBoolean(filters.hasPhone),
+        p_has_whatsapp: toOptionalBoolean(filters.hasWhatsapp),
+        p_has_administrator: toOptionalBoolean(filters.hasAdministrator),
+        p_assigned_user_id: filters.assignedUserId || undefined,
+        p_overdue_next_action: filters.overdueNextAction ? true : undefined,
+        p_next_action_today: filters.nextActionToday ? true : undefined,
+        p_next_action_week: filters.nextActionWeek ? true : undefined,
+        p_without_next_action: filters.withoutNextAction ? true : undefined,
+        p_without_contact: filters.withoutContact ? true : undefined,
+        p_do_not_contact: toOptionalBoolean(filters.doNotContact),
+      });
+      if (error) throw error;
+      const payload = (data ?? {}) as unknown as Partial<RadarKanbanBoardResult>;
+      return {
+        total: payload.total ?? 0,
+        filtered: payload.filtered ?? 0,
+        counts: (payload.counts ?? {}) as RadarKanbanBoardResult["counts"],
+        items: payload.items ?? [],
+      };
+    },
+  });
+
 export const useRadarCompanyDetail = (companyId: number | null) =>
   useQuery({
     enabled: companyId != null,
@@ -123,6 +158,7 @@ export const useUpsertRadarCrm = () => {
         p_lost_reason: payload.lostReason ?? undefined,
         p_do_not_contact: payload.doNotContact,
         p_last_contact_at: payload.lastContactAt ?? undefined,
+        p_notes: payload.notes ?? undefined,
       });
       if (error) throw error;
       return data;

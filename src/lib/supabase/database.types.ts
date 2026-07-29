@@ -3171,6 +3171,29 @@ export type Database = {
       }
       radar_crm_filter_options: { Args: never; Returns: Json }
       radar_crm_get_company: { Args: { p_company_id: number }; Returns: Json }
+      radar_crm_kanban_board: {
+        Args: {
+          p_assigned_user_id?: string
+          p_category?: string
+          p_city?: string
+          p_do_not_contact?: boolean
+          p_entered_from?: string
+          p_entered_to?: string
+          p_has_administrator?: boolean
+          p_has_instagram?: boolean
+          p_has_phone?: boolean
+          p_has_whatsapp?: boolean
+          p_next_action_today?: boolean
+          p_next_action_week?: boolean
+          p_overdue_next_action?: boolean
+          p_priorities?: string[]
+          p_search?: string
+          p_state?: string
+          p_without_contact?: boolean
+          p_without_next_action?: boolean
+        }
+        Returns: Json
+      }
       radar_crm_list_companies: {
         Args: {
           p_assigned_user_id?: string
@@ -3207,6 +3230,7 @@ export type Database = {
           p_lost_reason?: string
           p_next_action_at?: string
           p_next_action_description?: string
+          p_notes?: string
           p_priority?: string
           p_status?: string
         }

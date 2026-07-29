@@ -1,5 +1,5 @@
 import { DEFAULT_PAGE_SIZE } from "./constants";
-import type { RadarCrmFilters } from "./types";
+import type { RadarCrmFilters, RadarKanbanFilters } from "./types";
 
 export const createDefaultRadarFilters = (): RadarCrmFilters => ({
   search: "",
@@ -24,6 +24,25 @@ export const createDefaultRadarFilters = (): RadarCrmFilters => ({
   pageSize: DEFAULT_PAGE_SIZE,
 });
 
+export const createDefaultKanbanFilters = (): RadarKanbanFilters => ({
+  search: "",
+  priorities: [],
+  city: "",
+  state: "",
+  category: "",
+  hasInstagram: null,
+  hasPhone: null,
+  hasWhatsapp: null,
+  hasAdministrator: null,
+  assignedUserId: "",
+  overdueNextAction: false,
+  nextActionToday: false,
+  nextActionWeek: false,
+  withoutNextAction: false,
+  withoutContact: false,
+  doNotContact: null,
+});
+
 export const hasActiveRadarFilters = (filters: RadarCrmFilters): boolean =>
   Boolean(
     filters.search.trim() ||
@@ -44,6 +63,26 @@ export const hasActiveRadarFilters = (filters: RadarCrmFilters): boolean =>
       filters.nextActionTo ||
       filters.withoutContact ||
       filters.overdueNextAction,
+  );
+
+export const hasActiveKanbanFilters = (filters: RadarKanbanFilters): boolean =>
+  Boolean(
+    filters.search.trim() ||
+      filters.priorities.length ||
+      filters.city ||
+      filters.state ||
+      filters.category ||
+      filters.hasInstagram !== null ||
+      filters.hasPhone !== null ||
+      filters.hasWhatsapp !== null ||
+      filters.hasAdministrator !== null ||
+      filters.assignedUserId ||
+      filters.overdueNextAction ||
+      filters.nextActionToday ||
+      filters.nextActionWeek ||
+      filters.withoutNextAction ||
+      filters.withoutContact ||
+      filters.doNotContact !== null,
   );
 
 export const formatCnpjDisplay = (value: string | null | undefined): string => {

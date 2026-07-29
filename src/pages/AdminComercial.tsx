@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ClipboardList, FileText, Handshake, Radar, Users } from "lucide-react";
+import { ClipboardList, FileText, Handshake, Kanban, Radar, Users } from "lucide-react";
 
 import { AdminPageShell } from "@/components/admin/AdminPageShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,13 @@ const AdminComercial = () => {
       icon: Radar,
       stat: "Abrir radar",
       title: "Radar Comercial",
+    },
+    {
+      description: "Funil comercial com Kanban para acompanhar o avanço das oportunidades do Radar.",
+      href: "/admin/crm",
+      icon: Kanban,
+      stat: "Abrir CRM",
+      title: "CRM Comercial",
     },
     {
       description: "Solicitações do card Plano sob medida na página de contratação.",

@@ -61,6 +61,14 @@ export interface RadarCompanyListItem {
   next_action_description: string | null;
   do_not_contact: boolean;
   lost_reason: string | null;
+  notes?: string | null;
+  crm_created_at?: string | null;
+  last_interaction?: {
+    id: number;
+    interaction_type: InteractionType;
+    interaction_at: string;
+    notes: string | null;
+  } | null;
   next_action_overdue: boolean;
 }
 
@@ -230,6 +238,33 @@ export interface UpsertCrmPayload {
   lostReason?: string | null;
   doNotContact?: boolean;
   lastContactAt?: string | null;
+  notes?: string | null;
+}
+
+export interface RadarKanbanFilters {
+  search: string;
+  priorities: CrmPriority[];
+  city: string;
+  state: string;
+  category: string;
+  hasInstagram: boolean | null;
+  hasPhone: boolean | null;
+  hasWhatsapp: boolean | null;
+  hasAdministrator: boolean | null;
+  assignedUserId: string;
+  overdueNextAction: boolean;
+  nextActionToday: boolean;
+  nextActionWeek: boolean;
+  withoutNextAction: boolean;
+  withoutContact: boolean;
+  doNotContact: boolean | null;
+}
+
+export interface RadarKanbanBoardResult {
+  total: number;
+  filtered: number;
+  counts: Record<CrmStatus, number>;
+  items: RadarCompanyListItem[];
 }
 
 export interface AddInteractionPayload {

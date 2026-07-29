@@ -17,7 +17,7 @@ const AdminTenantConfigSection = () => {
       <main className="min-h-screen bg-background px-4 py-8">
         <div className="mx-auto max-w-6xl space-y-4">
           <Button asChild variant="outline">
-            <Link to="/admin">Voltar para Admin</Link>
+            <Link to="/admin/clientes">Voltar para Admin</Link>
           </Button>
           <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             Seção de configuração inválida.

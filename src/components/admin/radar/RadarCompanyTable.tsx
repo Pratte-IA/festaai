@@ -44,8 +44,9 @@ interface RadarCompanyTableProps {
   companies: RadarCompanyListItem[];
   isUpdating?: boolean;
   onOpenDetail: (companyId: number) => void;
-  onPriorityChange: (companyId: number, priority: CrmPriority) => void;
-  onStatusChange: (companyId: number, status: CrmStatus, lostReason?: string) => void;
+  allowCrmEdit?: boolean;
+  onPriorityChange?: (companyId: number, priority: CrmPriority) => void;
+  onStatusChange?: (companyId: number, status: CrmStatus, lostReason?: string) => void;
 }
 
 const DigitalPresenceIcons = ({ company }: { company: RadarCompanyListItem }) => (
@@ -183,15 +184,15 @@ export const RadarCompanyTable = ({
   companies,
   isUpdating,
   onOpenDetail,
+  allowCrmEdit = false,
   onPriorityChange,
   onStatusChange,
 }: RadarCompanyTableProps) => {
   const [pendingStatus, setPendingStatus] = useState<{ companyId: number; status: CrmStatus } | null>(null);
   const [lostReason, setLostReason] = useState("");
-  const [doNotContactTarget, setDoNotContactTarget] = useState<number | null>(null);
 
   const handleStatusSelect = (companyId: number, currentStatus: CrmStatus, nextStatus: CrmStatus) => {
-    if (nextStatus === currentStatus) return;
+    if (!onStatusChange || nextStatus === currentStatus) return;
 
     if (nextStatus === "lost") {
       setPendingStatus({ companyId, status: nextStatus });
@@ -199,16 +200,11 @@ export const RadarCompanyTable = ({
       return;
     }
 
-    if (nextStatus === "do_not_contact") {
-      setDoNotContactTarget(companyId);
-      return;
-    }
-
     onStatusChange(companyId, nextStatus);
   };
 
   const confirmLost = () => {
-    if (!pendingStatus) return;
+    if (!pendingStatus || !onStatusChange) return;
     const reason = lostReason.trim() || window.prompt("Informe o motivo da perda:")?.trim();
     if (!reason) {
       toast({ title: "Motivo obrigatório para status Perdido", variant: "destructive" });
@@ -217,12 +213,6 @@ export const RadarCompanyTable = ({
     onStatusChange(pendingStatus.companyId, pendingStatus.status, reason);
     setPendingStatus(null);
     setLostReason("");
-  };
-
-  const confirmDoNotContact = () => {
-    if (doNotContactTarget == null) return;
-    onStatusChange(doNotContactTarget, "do_not_contact");
-    setDoNotContactTarget(null);
   };
 
   if (companies.length === 0) {
@@ -268,34 +258,42 @@ export const RadarCompanyTable = ({
               <ContactCell company={company} />
               <DigitalPresenceIcons company={company} />
               <DecisionMakerCell company={company} />
-              <select
-                aria-label="Alterar status"
-                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-                disabled={isUpdating}
-                onChange={(event) =>
-                  handleStatusSelect(company.id, company.status, event.target.value as CrmStatus)
-                }
-                value={company.status}
-              >
-                {CRM_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {CRM_STATUS_LABELS[status]}
-                  </option>
-                ))}
-              </select>
-              <select
-                aria-label="Alterar prioridade"
-                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-                disabled={isUpdating}
-                onChange={(event) => onPriorityChange(company.id, event.target.value as CrmPriority)}
-                value={company.priority}
-              >
-                {CRM_PRIORITIES.map((priority) => (
-                  <option key={priority} value={priority}>
-                    {CRM_PRIORITY_LABELS[priority]}
-                  </option>
-                ))}
-              </select>
+              {allowCrmEdit ? (
+                <select
+                  aria-label="Alterar status"
+                  className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                  disabled={isUpdating}
+                  onChange={(event) =>
+                    handleStatusSelect(company.id, company.status, event.target.value as CrmStatus)
+                  }
+                  value={company.status}
+                >
+                  {CRM_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {CRM_STATUS_LABELS[status]}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <RadarStatusBadge status={company.status} />
+              )}
+              {allowCrmEdit ? (
+                <select
+                  aria-label="Alterar prioridade"
+                  className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                  disabled={isUpdating}
+                  onChange={(event) => onPriorityChange?.(company.id, event.target.value as CrmPriority)}
+                  value={company.priority}
+                >
+                  {CRM_PRIORITIES.map((priority) => (
+                    <option key={priority} value={priority}>
+                      {CRM_PRIORITY_LABELS[priority]}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <RadarPriorityBadge priority={company.priority} />
+              )}
               <NextActionCell company={company} />
               <div className="text-right">
                 <Button onClick={() => onOpenDetail(company.id)} size="sm" type="button" variant="outline">
@@ -335,36 +333,38 @@ export const RadarCompanyTable = ({
             <DecisionMakerCell company={company} />
             <NextActionCell company={company} />
 
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                aria-label="Alterar status"
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-                disabled={isUpdating}
-                onChange={(event) =>
-                  handleStatusSelect(company.id, company.status, event.target.value as CrmStatus)
-                }
-                value={company.status}
-              >
-                {CRM_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {CRM_STATUS_LABELS[status]}
-                  </option>
-                ))}
-              </select>
-              <select
-                aria-label="Alterar prioridade"
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-                disabled={isUpdating}
-                onChange={(event) => onPriorityChange(company.id, event.target.value as CrmPriority)}
-                value={company.priority}
-              >
-                {CRM_PRIORITIES.map((priority) => (
-                  <option key={priority} value={priority}>
-                    {CRM_PRIORITY_LABELS[priority]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {allowCrmEdit ? (
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  aria-label="Alterar status"
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                  disabled={isUpdating}
+                  onChange={(event) =>
+                    handleStatusSelect(company.id, company.status, event.target.value as CrmStatus)
+                  }
+                  value={company.status}
+                >
+                  {CRM_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {CRM_STATUS_LABELS[status]}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Alterar prioridade"
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                  disabled={isUpdating}
+                  onChange={(event) => onPriorityChange?.(company.id, event.target.value as CrmPriority)}
+                  value={company.priority}
+                >
+                  {CRM_PRIORITIES.map((priority) => (
+                    <option key={priority} value={priority}>
+                      {CRM_PRIORITY_LABELS[priority]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
 
             <Button className="w-full" onClick={() => onOpenDetail(company.id)} size="sm" variant="outline">
               <ExternalLink className="mr-2 h-4 w-4" />
@@ -374,41 +374,28 @@ export const RadarCompanyTable = ({
         ))}
       </div>
 
-      <AlertDialog onOpenChange={(open) => !open && setPendingStatus(null)} open={pendingStatus !== null}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Marcar como perdido</AlertDialogTitle>
-            <AlertDialogDescription>
-              Informe o motivo da perda para registrar no histórico comercial.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <textarea
-            className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            onChange={(event) => setLostReason(event.target.value)}
-            placeholder="Ex.: Não tem interesse no momento"
-            value={lostReason}
-          />
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmLost}>Confirmar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog onOpenChange={(open) => !open && setDoNotContactTarget(null)} open={doNotContactTarget !== null}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Marcar como não contatar</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta empresa será removida do funil ativo. Confirma que não devemos mais entrar em contato?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDoNotContact}>Confirmar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {allowCrmEdit ? (
+        <AlertDialog onOpenChange={(open) => !open && setPendingStatus(null)} open={pendingStatus !== null}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Marcar como perdido</AlertDialogTitle>
+              <AlertDialogDescription>
+                Informe o motivo da perda para registrar no histórico comercial.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <textarea
+              className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              onChange={(event) => setLostReason(event.target.value)}
+              placeholder="Ex.: Não tem interesse no momento"
+              value={lostReason}
+            />
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmLost}>Confirmar</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      ) : null}
     </>
   );
 };

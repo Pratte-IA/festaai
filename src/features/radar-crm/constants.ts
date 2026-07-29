@@ -1,38 +1,29 @@
 export const CRM_STATUSES = [
-  "new",
-  "prospecting",
-  "contacted",
-  "responded",
-  "meeting_scheduled",
+  "new_lead",
+  "qualifying",
+  "contact_started",
+  "in_conversation",
+  "demo_scheduled",
   "proposal_sent",
+  "negotiating",
   "won",
   "lost",
-  "do_not_contact",
 ] as const;
 
 export const CRM_STATUS_LABELS: Record<(typeof CRM_STATUSES)[number], string> = {
-  new: "Novo",
-  prospecting: "Em prospecção",
-  contacted: "Contato realizado",
-  responded: "Respondeu",
-  meeting_scheduled: "Reunião agendada",
+  new_lead: "Novo lead",
+  qualifying: "Em qualificação",
+  contact_started: "Contato iniciado",
+  in_conversation: "Em conversa",
+  demo_scheduled: "Demonstração agendada",
   proposal_sent: "Proposta enviada",
-  won: "Ganho",
+  negotiating: "Em negociação",
+  won: "Fechado",
   lost: "Perdido",
-  do_not_contact: "Não contatar",
 };
 
-/** Colunas do Kanban (sem "Não contatar", que fica como filtro/status especial). */
-export const CRM_KANBAN_STATUSES = [
-  "new",
-  "prospecting",
-  "contacted",
-  "responded",
-  "meeting_scheduled",
-  "proposal_sent",
-  "won",
-  "lost",
-] as const;
+/** Colunas do Kanban do CRM Comercial (todas as etapas do funil). */
+export const CRM_KANBAN_STATUSES = CRM_STATUSES;
 
 export const CRM_PRIORITIES = ["high", "medium", "low"] as const;
 
@@ -61,5 +52,18 @@ export const INTERACTION_TYPE_LABELS: Record<(typeof INTERACTION_TYPES)[number],
   note: "Observação",
   other: "Outro",
 };
+
+export const LOST_REASONS = [
+  { value: "no_interest", label: "Sem interesse" },
+  { value: "price", label: "Preço" },
+  { value: "has_system", label: "Já possui sistema" },
+  { value: "not_now", label: "Não é o momento" },
+  { value: "no_response", label: "Não respondeu" },
+  { value: "no_budget", label: "Sem orçamento" },
+  { value: "bad_fit", label: "Não é o perfil ideal" },
+  { value: "competitor", label: "Escolheu concorrente" },
+  { value: "decided_against", label: "Decidiu não avançar" },
+  { value: "other", label: "Outro" },
+] as const;
 
 export const DEFAULT_PAGE_SIZE = 25;

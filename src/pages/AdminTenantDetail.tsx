@@ -25,7 +25,7 @@ const AdminTenantDetail = () => {
       <main className="min-h-screen bg-background px-4 py-8">
         <div className="mx-auto max-w-6xl">
           <Button asChild variant="outline">
-            <Link to="/admin">Voltar para Admin</Link>
+            <Link to="/admin/clientes">Voltar para Admin</Link>
           </Button>
           <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             ID do cliente inválido.
@@ -37,8 +37,8 @@ const AdminTenantDetail = () => {
 
   return (
     <AdminTenantShell
-      backHref="/admin"
-      backLabel="Voltar para Admin"
+      backHref="/admin/clientes"
+      backLabel="Voltar para Clientes"
       description="Escolha como deseja atuar neste cliente."
       tenantId={tenantId}
       title="Painel do cliente"
