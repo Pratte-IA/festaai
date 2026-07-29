@@ -1,7 +1,8 @@
 export interface FinanceiroContratoEntrada {
-  acceptedAt: string;
+  /** Data de referencia da entrada (fechamento_confirmado_em ?? created_at). */
+  referenceAt: string;
   clienteNome: string;
-  contractId: number;
+  contractId: number | null;
   eventoId: number;
   id: number;
   valorEntrada: number;

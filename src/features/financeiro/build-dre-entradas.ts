@@ -5,7 +5,7 @@ const toIsoDate = (value: string) => value.slice(0, 10);
 
 export const mapContratoEntradaToDisplay = (item: FinanceiroContratoEntrada): FinanceiroDisplayItem => ({
   categoria: "entrada_contrato",
-  data_lancamento: toIsoDate(item.acceptedAt),
+  data_lancamento: toIsoDate(item.referenceAt),
   deletable: false,
   descricao: item.clienteNome,
   evento_id: item.eventoId,
@@ -28,7 +28,7 @@ export const mapLancamentoToDisplay = (item: FinanceiroLancamento): FinanceiroDi
   valor: item.valor,
 });
 
-/** Entradas do DRE: apenas sinal/reserva da festa (contrato assinado). */
+/** Entradas do DRE: sinal/reserva da festa (`eventos.valor_entrada`). */
 export const buildDreEntradas = (contratoEntradas: FinanceiroContratoEntrada[]): FinanceiroDisplayItem[] =>
   sortDisplayItems(contratoEntradas.map(mapContratoEntradaToDisplay));
 
@@ -37,7 +37,7 @@ const sortDisplayItems = (items: FinanceiroDisplayItem[]) =>
     (a, b) => b.data_lancamento.localeCompare(a.data_lancamento) || b.id.localeCompare(a.id),
   );
 
-/** Reservas geradas automaticamente na assinatura do contrato. */
+/** Reservas/sinal lancados nas festas (valor_entrada). */
 export const buildEntradasFestasAutomaticas = buildDreEntradas;
 
 /** Receitas avulsas da empresa (ex.: venda de estoque), sem vinculo com festa. */

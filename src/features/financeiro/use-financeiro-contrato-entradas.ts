@@ -1,78 +1,59 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { getEventoEntradaReferenceDate } from "@/features/eventos/event-financial";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
 import { FinanceiroContratoEntrada } from "./display-types";
 import { financeiroQueryKeys } from "./query-keys";
 
-interface ContratoEntradaRow {
-  accepted_at: string;
-  contract_id: number;
-  evento_id: number;
+interface EventoEntradaRow {
+  cliente_nome: string;
+  created_at: string;
+  fechamento_confirmado_em: string | null;
   id: number;
-  eventos: {
-    cliente_nome: string;
-    valor_entrada: number;
-  } | null;
+  valor_entrada: number;
 }
 
-const isDateInRange = (isoTimestamp: string, from: string, to: string) => {
-  const date = isoTimestamp.slice(0, 10);
-  return date >= from && date <= to;
-};
+const isDateInRange = (isoDate: string, from: string, to: string) => isoDate >= from && isoDate <= to;
 
+/**
+ * Entradas de reserva/sinal das festas.
+ * Fonte: `eventos.valor_entrada` (mesma origem do financeiro da festa),
+ * com data de referencia = fechamento_confirmado_em ?? created_at.
+ * Nao depende de assinatura digital do contrato — a maioria das festas
+ * tem entrada lancada sem `evento_contract_acceptances`.
+ */
 const fetchFinanceiroContratoEntradas = async (
   tenantId: number,
   from: string,
   to: string,
 ): Promise<FinanceiroContratoEntrada[]> => {
   const { data, error } = await supabase
-    .from("evento_contract_acceptances")
-    .select(
-      `
-      id,
-      accepted_at,
-      evento_id,
-      contract_id,
-      eventos (
-        cliente_nome,
-        valor_entrada
-      )
-    `,
-    )
+    .from("eventos")
+    .select("id, cliente_nome, valor_entrada, fechamento_confirmado_em, created_at")
     .eq("tenant_id", tenantId)
-    .gte("accepted_at", `${from}T00:00:00`)
-    .lte("accepted_at", `${to}T23:59:59.999`)
-    .returns<ContratoEntradaRow[]>();
+    .gt("valor_entrada", 0)
+    .returns<EventoEntradaRow[]>();
 
   if (error) {
     throw error;
   }
 
-  const seenEventoIds = new Set<number>();
-
   return (data ?? [])
-    .sort((a, b) => b.accepted_at.localeCompare(a.accepted_at))
-    .filter((row) => isDateInRange(row.accepted_at, from, to))
-    .filter((row) => {
-      if (seenEventoIds.has(row.evento_id)) {
-        return false;
-      }
-
-      seenEventoIds.add(row.evento_id);
-      return true;
+    .map((row) => {
+      const referenceDate = getEventoEntradaReferenceDate(row);
+      return {
+        clienteNome: row.cliente_nome || "Cliente",
+        contractId: null,
+        eventoId: row.id,
+        id: row.id,
+        referenceAt: referenceDate,
+        valorEntrada: Number(row.valor_entrada ?? 0),
+      } satisfies FinanceiroContratoEntrada;
     })
-    .map((row) => ({
-      acceptedAt: row.accepted_at,
-      clienteNome: row.eventos?.cliente_nome ?? "Cliente",
-      contractId: row.contract_id,
-      eventoId: row.evento_id,
-      id: row.id,
-      valorEntrada: Number(row.eventos?.valor_entrada ?? 0),
-    }))
-    .filter((item) => item.valorEntrada > 0)
-    .sort((a, b) => b.acceptedAt.localeCompare(a.acceptedAt));
+    .filter((item) => item.valorEntrada > 0 && isDateInRange(item.referenceAt, from, to))
+    .sort((a, b) => b.referenceAt.localeCompare(a.referenceAt) || b.eventoId - a.eventoId);
 };
 
 export const useFinanceiroContratoEntradas = (from: string, to: string) => {

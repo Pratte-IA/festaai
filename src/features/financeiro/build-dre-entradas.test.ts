@@ -21,12 +21,12 @@ const lancamento = (overrides: Partial<FinanceiroLancamento>): FinanceiroLancame
   }) as FinanceiroLancamento;
 
 describe("build-dre-entradas", () => {
-  it("inclui apenas entradas de contrato assinado", () => {
+  it("inclui entradas de reserva das festas", () => {
     const entradas = buildDreEntradas([
       {
-        acceptedAt: "2026-07-05T15:30:00.000Z",
+        referenceAt: "2026-07-05T15:30:00.000Z",
         clienteNome: "Maria",
-        contractId: 10,
+        contractId: null,
         eventoId: 3,
         id: 99,
         valorEntrada: 5000,
@@ -44,7 +44,7 @@ describe("build-dre-entradas", () => {
   it("nao inclui lancamentos manuais ou pagamentos de saldo", () => {
     const entradas = buildDreEntradas([
       {
-        acceptedAt: "2026-07-05T15:30:00.000Z",
+        referenceAt: "2026-07-05T15:30:00.000Z",
         clienteNome: "Maria",
         contractId: 10,
         eventoId: 3,
@@ -74,7 +74,7 @@ describe("build-dre-entradas", () => {
   it("calcula resultado do DRE com contratos e saidas", () => {
     const entradas = buildDreEntradas([
       {
-        acceptedAt: "2026-07-01T10:00:00.000Z",
+        referenceAt: "2026-07-01T10:00:00.000Z",
         clienteNome: "Joao",
         contractId: 1,
         eventoId: 1,

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "@/features/auth";
+import { financeiroQueryKeys } from "@/features/financeiro/query-keys";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
@@ -38,10 +39,13 @@ export const useCreateEvento = () => {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (evento) => {
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.all(currentTenantId),
       });
+      if (Number(evento.valor_entrada) > 0) {
+        void queryClient.invalidateQueries({ queryKey: financeiroQueryKeys.all(currentTenantId) });
+      }
     },
   });
 };

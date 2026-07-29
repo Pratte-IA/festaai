@@ -25,7 +25,7 @@ describe("buildDreStatement", () => {
     const statement = buildDreStatement(
       [
         {
-          acceptedAt: "2026-07-05T15:30:00.000Z",
+          referenceAt: "2026-07-05T15:30:00.000Z",
           clienteNome: "Maria",
           contractId: 10,
           eventoId: 3,
