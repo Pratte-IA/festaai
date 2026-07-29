@@ -54,7 +54,7 @@ const fetchFestasOverviewLancamentos = async (tenantId: number): Promise<Finance
   return data ?? [];
 };
 
-export const useFinanceiroFestasOverview = (search = "") => {
+export const useFinanceiroFestasOverview = (search = "", month = "") => {
   const { currentTenantId } = useCurrentTenant();
 
   const query = useQuery({
@@ -77,7 +77,12 @@ export const useFinanceiroFestasOverview = (search = "") => {
       return [];
     }
 
-    const overview = buildFinanceiroFestasOverview(query.data.eventos, query.data.lancamentos, new Map());
+    let overview = buildFinanceiroFestasOverview(query.data.eventos, query.data.lancamentos, new Map());
+
+    if (month) {
+      overview = overview.filter((row) => (row.dataEvento ?? "").startsWith(month));
+    }
+
     const normalizedSearch = search.trim().toLowerCase();
 
     if (!normalizedSearch) {
@@ -90,7 +95,7 @@ export const useFinanceiroFestasOverview = (search = "") => {
         (row.aniversarianteNome ?? "").toLowerCase().includes(normalizedSearch) ||
         (row.pacoteNome ?? "").toLowerCase().includes(normalizedSearch),
     );
-  }, [query.data, search]);
+  }, [month, query.data, search]);
 
   return {
     data: rows,

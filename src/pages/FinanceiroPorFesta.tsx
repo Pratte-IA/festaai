@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, Wallet } from "lucide-react";
 
 import AppLayout from "@/components/AppLayout";
+import { FinanceiroMonthFilter } from "@/components/financeiro/FinanceiroMonthFilter";
 import { formatFinanceiroCurrency } from "@/components/financeiro/FinanceiroSummaryStats";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useFinanceiroFestasOverview } from "@/features/financeiro";
+import { getDefaultFinanceiroMonth, useFinanceiroFestasOverview } from "@/features/financeiro";
 
 const formatDate = (value: string | null) => {
   if (!value) {
@@ -28,8 +29,9 @@ const formatDate = (value: string | null) => {
 };
 
 const FinanceiroPorFesta = () => {
+  const [month, setMonth] = useState(getDefaultFinanceiroMonth);
   const [search, setSearch] = useState("");
-  const { data: rows, error, isLoading } = useFinanceiroFestasOverview(search);
+  const { data: rows, error, isLoading } = useFinanceiroFestasOverview(search, month);
 
   const empty = !isLoading && !error && rows.length === 0;
 
@@ -66,14 +68,17 @@ const FinanceiroPorFesta = () => {
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="relative max-w-md">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-9"
-                placeholder="Buscar por cliente ou aniversariante"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
+            <div className="flex flex-wrap items-end gap-4">
+              <FinanceiroMonthFilter month={month} onMonthChange={setMonth} />
+              <div className="relative min-w-[220px] max-w-md flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="pl-9"
+                  placeholder="Buscar por cliente ou aniversariante"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </div>
             </div>
 
             {isLoading ? (
@@ -93,7 +98,11 @@ const FinanceiroPorFesta = () => {
             {empty ? (
               <div className="flex flex-col items-center gap-2 py-10 text-center text-muted-foreground">
                 <Wallet className="h-8 w-8 opacity-50" />
-                <p className="text-sm">Nenhuma festa contratada encontrada.</p>
+                <p className="text-sm">
+                  {search.trim()
+                    ? "Nenhuma festa encontrada para a busca e o mês selecionados."
+                    : "Nenhuma festa contratada encontrada neste mês."}
+                </p>
               </div>
             ) : null}
 
