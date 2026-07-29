@@ -86,12 +86,11 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isPlatformAdmin, signOut, user } = useAuth();
+  const { signOut, user } = useAuth();
   const { currentTenant, isLoading: isTenantLoading } = useCurrentTenant();
   const { data: tenantAdminCap } = useTenantAdminCapability();
 
-  const canAccessTenantAdminAreas =
-    Boolean(tenantAdminCap?.isTenantAdmin) || isPlatformAdmin;
+  const canAccessTenantAdminAreas = Boolean(tenantAdminCap?.canAccessTenantAdminAreas);
 
   const sectionsResolved: NavSection[] = [
     vendasSection,

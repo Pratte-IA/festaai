@@ -12,11 +12,11 @@ export const TenantAdminRoute = ({ children }: PropsWithChildren) => {
   const { isPlatformAdmin } = useAuth();
   const { data, isLoading } = useTenantAdminCapability();
 
-  if (isLoading && !isPlatformAdmin) {
+  if (isLoading && !isPlatformAdmin && !data?.canAccessTenantAdminAreas) {
     return <PageContentLoader />;
   }
 
-  if (!isPlatformAdmin && !data?.isTenantAdmin) {
+  if (!data?.canAccessTenantAdminAreas) {
     return (
       <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 rounded-xl border border-border/60 bg-card/40 p-8 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-rosa to-lilas">

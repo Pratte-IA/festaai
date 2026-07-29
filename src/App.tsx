@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AppShell } from "@/components/AppShell";
 import { AuthProvider, PlatformAdminRoute, ProtectedRoute, RootEntry } from "@/features/auth";
 import { GuidedSetupProvider } from "@/features/guided-setup";
@@ -68,6 +69,7 @@ const AdminComercialContratoAceiteDetalhe = lazy(
   () => import("./pages/AdminComercialContratoAceiteDetalhe.tsx"),
 );
 const AdminComercialContratos = lazy(() => import("./pages/AdminComercialContratos.tsx"));
+const AdminRadar = lazy(() => import("./pages/AdminRadar.tsx"));
 const Privacidade = lazy(() => import("./pages/Privacidade.tsx"));
 const Suporte = lazy(() => import("./pages/Suporte.tsx"));
 const SuporteAgente = lazy(() => import("./pages/SuporteAgente.tsx"));
@@ -100,6 +102,12 @@ const LazyPublicRoutes = () => (
   </Suspense>
 );
 
+const AdminPlatformShell = () => (
+  <PlatformAdminRoute>
+    <AdminLayout />
+  </PlatformAdminRoute>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -111,20 +119,23 @@ const App = () => (
             <GuidedSetupProvider>
               <Routes>
                 <Route element={<LazyPublicRoutes />}>
-                  <Route path="/admin/comercial/leads" element={<PlatformAdminRoute><AdminComercialLeads /></PlatformAdminRoute>} />
-                  <Route path="/admin/comercial/ofertas/nova" element={<PlatformAdminRoute><AdminComercialOfertaForm /></PlatformAdminRoute>} />
-                  <Route path="/admin/comercial/ofertas/:id" element={<PlatformAdminRoute><AdminComercialOfertaForm /></PlatformAdminRoute>} />
-                  <Route path="/admin/comercial/ofertas" element={<PlatformAdminRoute><AdminComercialOfertas /></PlatformAdminRoute>} />
-                  <Route path="/admin/comercial/contratos/aceite/:id" element={<PlatformAdminRoute><AdminComercialContratoAceiteDetalhe /></PlatformAdminRoute>} />
-                  <Route path="/admin/comercial/contratos" element={<PlatformAdminRoute><AdminComercialContratos /></PlatformAdminRoute>} />
-                  <Route path="/admin/comercial" element={<PlatformAdminRoute><AdminComercial /></PlatformAdminRoute>} />
-                  <Route path="/admin/agent-requests/:id" element={<PlatformAdminRoute><AdminAgentRequestDetail /></PlatformAdminRoute>} />
-                  <Route path="/admin/agent-requests" element={<PlatformAdminRoute><AdminAgentRequests /></PlatformAdminRoute>} />
-                  <Route path="/admin/tenants/:id/n8n" element={<PlatformAdminRoute><AdminTenantN8nConfig /></PlatformAdminRoute>} />
-                  <Route path="/admin/tenants/:id/configuracao/:section" element={<PlatformAdminRoute><AdminTenantConfigSection /></PlatformAdminRoute>} />
-                  <Route path="/admin/tenants/:id/configuracao" element={<PlatformAdminRoute><AdminTenantConfig /></PlatformAdminRoute>} />
-                  <Route path="/admin/tenants/:id" element={<PlatformAdminRoute><AdminTenantDetail /></PlatformAdminRoute>} />
-                  <Route path="/admin" element={<PlatformAdminRoute><Admin /></PlatformAdminRoute>} />
+                  <Route element={<AdminPlatformShell />}>
+                    <Route path="/admin/comercial/leads" element={<AdminComercialLeads />} />
+                    <Route path="/admin/comercial/ofertas/nova" element={<AdminComercialOfertaForm />} />
+                    <Route path="/admin/comercial/ofertas/:id" element={<AdminComercialOfertaForm />} />
+                    <Route path="/admin/comercial/ofertas" element={<AdminComercialOfertas />} />
+                    <Route path="/admin/comercial/contratos/aceite/:id" element={<AdminComercialContratoAceiteDetalhe />} />
+                    <Route path="/admin/comercial/contratos" element={<AdminComercialContratos />} />
+                    <Route path="/admin/comercial" element={<AdminComercial />} />
+                    <Route path="/admin/radar" element={<AdminRadar />} />
+                    <Route path="/admin/agent-requests/:id" element={<AdminAgentRequestDetail />} />
+                    <Route path="/admin/agent-requests" element={<AdminAgentRequests />} />
+                    <Route path="/admin/tenants/:id/n8n" element={<AdminTenantN8nConfig />} />
+                    <Route path="/admin/tenants/:id/configuracao/:section" element={<AdminTenantConfigSection />} />
+                    <Route path="/admin/tenants/:id/configuracao" element={<AdminTenantConfig />} />
+                    <Route path="/admin/tenants/:id" element={<AdminTenantDetail />} />
+                    <Route path="/admin" element={<Admin />} />
+                  </Route>
                   <Route path="/privacidade" element={<Privacidade />} />
                   <Route path="/contratar/pagamento" element={<ContratarPagamento />} />
                   <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />

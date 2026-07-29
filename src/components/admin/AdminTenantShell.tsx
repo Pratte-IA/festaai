@@ -31,7 +31,7 @@ export const AdminTenantShell = ({
   const { data: tenant, error, isLoading } = useAdminTenant(tenantId);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(81,88,231,0.12),transparent_34%),linear-gradient(180deg,#ffffff_0%,#fbf7ff_100%)] px-4 py-8 text-foreground sm:px-6 lg:px-10">
+    <main className="px-4 py-8 text-foreground sm:px-6 lg:px-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <Button asChild className="w-fit" variant="outline">
           <Link to={backHref}>

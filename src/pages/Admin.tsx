@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Clock, Handshake, LifeBuoy, LogOut, Search, ShieldCheck, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Building2, Clock, Search, ShieldCheck, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -169,8 +169,7 @@ const SummaryCard = ({
 );
 
 const Admin = () => {
-  const navigate = useNavigate();
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortOption, setSortOption] = useState<SortOption>("created-desc");
@@ -207,11 +206,6 @@ const Admin = () => {
     return sortTenants(matchingTenants, sortOption);
   }, [searchTerm, sortOption, statusFilter, tenants]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/login", { replace: true });
-  };
-
   const handleToggleSystem = async (tenant: AdminTenantRow) => {
     const nextArmed = !tenant.system_armed;
     setPendingTenantId(tenant.id);
@@ -236,40 +230,20 @@ const Admin = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(81,88,231,0.12),transparent_34%),linear-gradient(180deg,#ffffff_0%,#fbf7ff_100%)] px-4 py-8 text-foreground sm:px-6 lg:px-10">
+    <main className="px-4 py-8 text-foreground sm:px-6 lg:px-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Voce esta no modo administrador da plataforma.
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight">Admin FestaAI</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Gerencie os clientes da plataforma
-            </p>
-            {profile?.email && (
-              <p className="mt-1 text-xs text-muted-foreground">Conectada como {profile.email}</p>
-            )}
+        <header className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Voce esta no modo administrador da plataforma.
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Button asChild variant="outline">
-              <Link to="/admin/comercial">
-                <Handshake className="mr-2 h-4 w-4" />
-                Comercial
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/admin/agent-requests">
-                <LifeBuoy className="mr-2 h-4 w-4" />
-                Solicitações do agente
-              </Link>
-            </Button>
-            <Button onClick={handleSignOut} variant="outline">
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </Button>
-          </div>
+          <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Gerencie os clientes da plataforma
+          </p>
+          {profile?.email && (
+            <p className="mt-1 text-xs text-muted-foreground">Conectada como {profile.email}</p>
+          )}
         </header>
 
         <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

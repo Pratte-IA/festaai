@@ -12,25 +12,27 @@ interface AdminPageShellProps extends PropsWithChildren {
 }
 
 export const AdminPageShell = ({
-  backHref = "/admin",
-  backLabel = "Voltar para Admin",
+  backHref,
+  backLabel = "Voltar",
   children,
   description,
   title,
 }: AdminPageShellProps) => (
-  <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(81,88,231,0.12),transparent_34%),linear-gradient(180deg,#ffffff_0%,#fbf7ff_100%)] px-4 py-8 text-foreground sm:px-6 lg:px-10">
+  <main className="px-4 py-8 sm:px-6 lg:px-10">
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
-      <Button asChild className="w-fit" variant="outline">
-        <Link to={backHref}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          {backLabel}
-        </Link>
-      </Button>
+      {backHref ? (
+        <Button asChild className="w-fit" variant="outline">
+          <Link to={backHref}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {backLabel}
+          </Link>
+        </Button>
+      ) : null}
 
       <header className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
           <ShieldCheck className="h-3.5 w-3.5" />
-          Admin FestaAI — Comercial
+          Admin FestaAI
         </div>
         <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
         {description ? <p className="mt-2 text-sm text-muted-foreground">{description}</p> : null}

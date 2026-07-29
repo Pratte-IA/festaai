@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, LifeBuoy } from "lucide-react";
 
+import { AdminPageShell } from "@/components/admin/AdminPageShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -84,29 +84,11 @@ const AdminAgentRequests = () => {
   const { data: rows = [], error, isLoading } = useAdminAgentChangeRequests(filters);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(81,88,231,0.12),transparent_34%),linear-gradient(180deg,#ffffff_0%,#fbf7ff_100%)] px-4 py-8 text-foreground sm:px-6 lg:px-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
-              <Button asChild className="h-8 gap-1 px-2" size="sm" variant="ghost">
-                <Link to="/admin">
-                  <ArrowLeft className="h-4 w-4" />
-                  Admin
-                </Link>
-              </Button>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <LifeBuoy className="h-6 w-6" />
-              <h1 className="text-2xl font-bold tracking-tight">Solicitações do agente</h1>
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Fila global de pedidos de ajuste; filtre por cliente, status ou urgência.
-            </p>
-          </div>
-        </header>
-
-        <Card className="rounded-3xl border-white/80 bg-white/90 shadow-sm">
+    <AdminPageShell
+      description="Fila global de pedidos de ajuste; filtre por cliente, status ou urgência."
+      title="Solicitações do agente"
+    >
+      <Card className="rounded-3xl border-white/80 bg-white/90 shadow-sm">
           <CardHeader>
             <CardTitle>Filtros</CardTitle>
             <CardDescription>
@@ -241,8 +223,7 @@ const AdminAgentRequests = () => {
             )}
           </CardContent>
         </Card>
-      </div>
-    </main>
+    </AdminPageShell>
   );
 };
 

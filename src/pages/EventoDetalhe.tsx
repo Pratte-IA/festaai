@@ -377,9 +377,11 @@ const EventoDetalhe = () => {
     }
   };
 
-  const canDeleteLead = adminCapability?.isTenantAdmin ?? false;
+  // Platform admin viewing a tenant must see finance to support the client.
+  const canAccessTenantAdminAreas = Boolean(adminCapability?.canAccessTenantAdminAreas);
+  const canDeleteLead = canAccessTenantAdminAreas;
   const canManageEventFinance =
-    canDeleteLead && (event.funil === "festa" || event.funil === "executadas");
+    canAccessTenantAdminAreas && (event.funil === "festa" || event.funil === "executadas");
   const whatsappUrl = buildWhatsAppUrl(
     event.cliente_telefone,
     event.cliente_nome,

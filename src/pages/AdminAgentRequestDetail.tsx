@@ -109,7 +109,7 @@ const AdminAgentRequestDetail = () => {
 
   if (!Number.isFinite(id)) {
     return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(81,88,231,0.12),transparent_34%),linear-gradient(180deg,#ffffff_0%,#fbf7ff_100%)] px-4 py-8">
+      <main className="px-4 py-8">
         <p className="text-sm text-destructive">ID inválido.</p>
         <Button asChild className="mt-4" variant="outline">
           <Link to="/admin/agent-requests">Voltar</Link>
@@ -119,7 +119,7 @@ const AdminAgentRequestDetail = () => {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(81,88,231,0.12),transparent_34%),linear-gradient(180deg,#ffffff_0%,#fbf7ff_100%)] px-4 py-8 text-foreground sm:px-6 lg:px-10">
+    <main className="px-4 py-8 text-foreground sm:px-6 lg:px-10">
       <div className="mx-auto flex max-w-4xl flex-col gap-6">
         <div className="flex flex-col gap-3">
           <Button asChild className="w-fit gap-1" size="sm" variant="ghost">

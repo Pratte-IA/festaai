@@ -3154,6 +3154,64 @@ export type Database = {
         Args: { retention_days?: number }
         Returns: Json
       }
+      radar_crm_add_interaction: {
+        Args: {
+          p_clear_next_action?: boolean
+          p_company_id: number
+          p_interaction_at?: string
+          p_interaction_type: string
+          p_next_action_at?: string
+          p_next_action_description?: string
+          p_notes?: string
+          p_outcome?: string
+          p_priority?: string
+          p_status?: string
+        }
+        Returns: Json
+      }
+      radar_crm_filter_options: { Args: never; Returns: Json }
+      radar_crm_get_company: { Args: { p_company_id: number }; Returns: Json }
+      radar_crm_list_companies: {
+        Args: {
+          p_assigned_user_id?: string
+          p_category?: string
+          p_city?: string
+          p_cnpj_validated?: boolean
+          p_has_administrator?: boolean
+          p_has_instagram?: boolean
+          p_has_phone?: boolean
+          p_has_website?: boolean
+          p_has_whatsapp?: boolean
+          p_next_action_from?: string
+          p_next_action_to?: string
+          p_overdue_next_action?: boolean
+          p_page?: number
+          p_page_size?: number
+          p_priorities?: string[]
+          p_registration_active?: boolean
+          p_search?: string
+          p_state?: string
+          p_statuses?: string[]
+          p_without_contact?: boolean
+        }
+        Returns: Json
+      }
+      radar_crm_upsert_company: {
+        Args: {
+          p_assigned_user_id?: string
+          p_clear_assigned_user?: boolean
+          p_clear_next_action?: boolean
+          p_company_id: number
+          p_do_not_contact?: boolean
+          p_last_contact_at?: string
+          p_lost_reason?: string
+          p_next_action_at?: string
+          p_next_action_description?: string
+          p_priority?: string
+          p_status?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       evento_contract_status:

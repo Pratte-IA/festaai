@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ClipboardList, FileText, Handshake, Users } from "lucide-react";
+import { ClipboardList, FileText, Handshake, Radar, Users } from "lucide-react";
 
 import { AdminPageShell } from "@/components/admin/AdminPageShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,13 @@ const AdminComercial = () => {
   const { data: offers = [] } = useAdminCommercialOffers("active");
 
   const modules = [
+    {
+      description: "Prospecção e acompanhamento de empresas mapeadas pelo radar comercial.",
+      href: "/admin/radar",
+      icon: Radar,
+      stat: "Abrir radar",
+      title: "Radar Comercial",
+    },
     {
       description: "Solicitações do card Plano sob medida na página de contratação.",
       href: "/admin/comercial/leads",
@@ -38,7 +45,7 @@ const AdminComercial = () => {
       description="Gerencie leads, propostas comerciais e contratos da plataforma FestaAI."
       title="Comercial"
     >
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {modules.map(({ description, href, icon: Icon, stat, title }) => (
           <Link key={href} to={href}>
             <Card className="h-full rounded-2xl border-white/80 bg-white/90 transition-shadow hover:shadow-md">
