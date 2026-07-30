@@ -174,6 +174,7 @@ export interface RadarCompanyCrmState {
   next_action_description: string | null;
   lost_reason: string | null;
   do_not_contact: boolean;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -239,6 +240,22 @@ export interface UpsertCrmPayload {
   doNotContact?: boolean;
   lastContactAt?: string | null;
   notes?: string | null;
+}
+
+export interface UpdateRadarCompanyInfoPayload {
+  companyId: number;
+  name: string;
+  tradeName?: string | null;
+  legalName?: string | null;
+  category?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  email?: string | null;
+  city?: string | null;
+  state?: string | null;
+  address?: string | null;
+  website?: string | null;
+  instagramUrl?: string | null;
 }
 
 export interface RadarKanbanFilters {

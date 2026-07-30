@@ -1,29 +1,22 @@
 import { Link } from "react-router-dom";
-import { ClipboardList, FileText, Handshake, Kanban, Radar, Users } from "lucide-react";
+import { ClipboardList, Handshake, Plus, Users } from "lucide-react";
 
 import { AdminPageShell } from "@/components/admin/AdminPageShell";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminCommercialLeads, useAdminCommercialOffers } from "@/features/comercial";
 
 const AdminComercial = () => {
   const { data: leads = [] } = useAdminCommercialLeads("novo");
-  const { data: offers = [] } = useAdminCommercialOffers("active");
+  const { data: offers = [] } = useAdminCommercialOffers();
+
+  const activeOffersCount = offers.filter((offer) => offer.status === "active").length;
+  const offersStat =
+    offers.length === 0
+      ? "Nenhuma oferta"
+      : `${activeOffersCount} ativas · ${offers.length} no total`;
 
   const modules = [
-    {
-      description: "Prospecção e acompanhamento de empresas mapeadas pelo radar comercial.",
-      href: "/admin/radar",
-      icon: Radar,
-      stat: "Abrir radar",
-      title: "Radar Comercial",
-    },
-    {
-      description: "Funil comercial com Kanban para acompanhar o avanço das oportunidades do Radar.",
-      href: "/admin/crm",
-      icon: Kanban,
-      stat: "Abrir CRM",
-      title: "CRM Comercial",
-    },
     {
       description: "Solicitações do card Plano sob medida na página de contratação.",
       href: "/admin/comercial/leads",
@@ -35,24 +28,26 @@ const AdminComercial = () => {
       description: "Crie propostas personalizadas e copie links exclusivos para formalização.",
       href: "/admin/comercial/ofertas",
       icon: Handshake,
-      stat: `${offers.length} ativas`,
+      stat: offersStat,
       title: "Ofertas privadas",
-    },
-    {
-      description: "Aceites eletrônicos com IP e assinaturas de billing.",
-      href: "/admin/comercial/contratos",
-      icon: FileText,
-      stat: "Ver todos",
-      title: "Contratos",
     },
   ];
 
   return (
     <AdminPageShell
-      description="Gerencie leads, propostas comerciais e contratos da plataforma FestaAI."
+      description="Gerencie leads e propostas comerciais da plataforma FestaAI."
       title="Comercial"
     >
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="flex justify-end">
+        <Button asChild>
+          <Link to="/admin/comercial/ofertas/nova">
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Oferta
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
         {modules.map(({ description, href, icon: Icon, stat, title }) => (
           <Link key={href} to={href}>
             <Card className="h-full rounded-2xl border-white/80 bg-white/90 transition-shadow hover:shadow-md">

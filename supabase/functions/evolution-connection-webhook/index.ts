@@ -24,6 +24,7 @@ import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
 import { phonesMatch } from "../_shared/phone.ts";
 import { upsertPlatformWhatsappConversation } from "../_shared/platform-whatsapp-conversation.ts";
+import { ensureCrmLeadFromPlatformWhatsapp } from "../_shared/radar-crm-from-whatsapp.ts";
 import { isTenantSystemArmed } from "../_shared/system-armed.ts";
 
 const ATENDIMENTO_TEMPLATE_KEY = "atendimento";
@@ -235,10 +236,33 @@ const handlePlatformMessagesUpsert = async (ctx: WebhookContext) => {
         connectionId: ctx.connection.id,
         customerName: message.customerName,
         customerPhone: message.customerPhone,
+        evolutionMessageId: message.id,
+        fromMe: message.fromMe === true,
         messageText: message.text,
         messageTimestamp: message.timestamp,
         messageType: message.type,
       });
+
+      // Garante card no CRM Comercial (contato iniciado se novo / new_lead / qualifying).
+      // Roda em inbound e outbound: conversa pode nascer quando nós iniciamos o contato.
+      try {
+        const crmResult = await ensureCrmLeadFromPlatformWhatsapp(ctx.service, {
+          customerName: message.customerName,
+          customerPhone: message.customerPhone,
+        });
+        if (!crmResult.ok) {
+          console.error(
+            "radar_crm_ensure_lead_from_whatsapp skipped:",
+            "reason" in crmResult ? crmResult.reason : "unknown",
+          );
+        }
+      } catch (crmError) {
+        console.error(
+          "radar_crm_ensure_lead_from_whatsapp failed:",
+          crmError instanceof Error ? crmError.message : crmError,
+        );
+      }
+
       processed += 1;
     } catch (upsertError) {
       console.error(

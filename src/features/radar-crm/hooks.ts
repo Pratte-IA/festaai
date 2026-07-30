@@ -11,6 +11,7 @@ import type {
   RadarFilterOptions,
   RadarKanbanBoardResult,
   RadarKanbanFilters,
+  UpdateRadarCompanyInfoPayload,
   UpsertCrmPayload,
 } from "./types";
 
@@ -159,6 +160,38 @@ export const useUpsertRadarCrm = () => {
         p_do_not_contact: payload.doNotContact,
         p_last_contact_at: payload.lastContactAt ?? undefined,
         p_notes: payload.notes ?? undefined,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: radarCrmQueryKeys.root });
+      void queryClient.invalidateQueries({
+        queryKey: radarCrmQueryKeys.detail(variables.companyId),
+      });
+    },
+  });
+};
+
+export const useUpdateRadarCompanyInfo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: UpdateRadarCompanyInfoPayload) => {
+      const { data, error } = await supabase.rpc("radar_crm_update_company_info", {
+        p_company_id: payload.companyId,
+        p_name: payload.name,
+        p_trade_name: payload.tradeName ?? "",
+        p_legal_name: payload.legalName ?? "",
+        p_category: payload.category ?? "",
+        p_phone: payload.phone ?? "",
+        p_whatsapp: payload.whatsapp ?? "",
+        p_email: payload.email ?? "",
+        p_city: payload.city ?? "",
+        p_state: payload.state ?? "",
+        p_address: payload.address ?? "",
+        p_website: payload.website ?? "",
+        p_instagram_url: payload.instagramUrl ?? "",
       });
       if (error) throw error;
       return data;

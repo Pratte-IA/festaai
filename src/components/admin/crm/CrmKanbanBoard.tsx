@@ -6,11 +6,13 @@ import {
   Copy,
   GripVertical,
   Instagram,
+  Loader2,
   MapPin,
   MessageCircle,
   Phone,
   UserRound,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { RadarPriorityBadge } from "@/components/admin/radar/RadarPriorityBadge";
 import {
@@ -26,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useEnsurePlatformWhatsappConversation } from "@/features/platform-whatsapp";
 import {
   CRM_KANBAN_STATUSES,
   CRM_STATUS_LABELS,
@@ -82,6 +85,8 @@ export const CrmKanbanBoard = ({
   onOpenDetail,
   onStatusChange,
 }: CrmKanbanBoardProps) => {
+  const navigate = useNavigate();
+  const ensureConversation = useEnsurePlatformWhatsappConversation();
   const [localCompanies, setLocalCompanies] = useState(companies);
   const [draggedId, setDraggedId] = useState<number | null>(null);
   const [pendingLost, setPendingLost] = useState<PendingLost | null>(null);
@@ -91,6 +96,7 @@ export const CrmKanbanBoard = ({
   const [demoNextActionAt, setDemoNextActionAt] = useState("");
   const [demoNextActionDescription, setDemoNextActionDescription] = useState("");
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [openingWhatsappId, setOpeningWhatsappId] = useState<number | null>(null);
 
   useEffect(() => {
     setLocalCompanies(companies);
@@ -233,6 +239,41 @@ export const CrmKanbanBoard = ({
     }
   };
 
+  const handleOpenPlatformWhatsapp = async (
+    event: React.MouseEvent,
+    company: RadarCompanyListItem,
+    phone: string,
+  ) => {
+    event.stopPropagation();
+    setOpeningWhatsappId(company.id);
+    try {
+      const result = await ensureConversation.mutateAsync({
+        customerName: company.trade_name ?? company.name,
+        phone,
+      });
+      navigate("/admin/whatsapp", {
+        state: result.isDraft
+          ? {
+              openDraft: result.draft
+                ? { ...result.draft, radar_company_id: company.id }
+                : null,
+            }
+          : {
+              openConversation: result.conversation,
+              radarCompanyId: company.id,
+            },
+      });
+    } catch (error) {
+      toast({
+        title: "Não foi possível abrir no WhatsApp FestaAI",
+        description: error instanceof Error ? error.message : undefined,
+        variant: "destructive",
+      });
+    } finally {
+      setOpeningWhatsappId(null);
+    }
+  };
+
   return (
     <>
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -312,15 +353,20 @@ export const CrmKanbanBoard = ({
                               <div className="flex flex-shrink-0 items-center">
                                 {whatsappUrl ? (
                                   <Button
-                                    asChild
                                     className="h-6 w-6"
-                                    onClick={(event) => event.stopPropagation()}
+                                    disabled={openingWhatsappId === company.id}
+                                    onClick={(event) =>
+                                      void handleOpenPlatformWhatsapp(event, company, phone)
+                                    }
                                     size="icon"
+                                    type="button"
                                     variant="ghost"
                                   >
-                                    <a href={whatsappUrl} rel="noreferrer" target="_blank">
+                                    {openingWhatsappId === company.id ? (
+                                      <Loader2 className="h-3 w-3 animate-spin text-emerald-600" />
+                                    ) : (
                                       <MessageCircle className="h-3 w-3 text-emerald-600" />
-                                    </a>
+                                    )}
                                   </Button>
                                 ) : null}
                                 <Button

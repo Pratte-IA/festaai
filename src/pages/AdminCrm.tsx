@@ -50,7 +50,7 @@ const AdminCrm = () => {
 
   return (
     <AdminPageShell
-      description="Acompanhe o avanço das oportunidades encontradas pelo Radar. Use o Radar Comercial para busca e filtros da base."
+      description="Acompanhe o avanço das oportunidades encontradas pelo Radar. Use Consultar Leads no Radar Comercial para filtrar a base."
       title="CRM Comercial"
     >
       <Card className="rounded-2xl border-white/80 bg-white/90">

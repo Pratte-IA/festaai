@@ -29,16 +29,41 @@ export interface PlatformWhatsappConnection {
 }
 
 export interface PlatformWhatsappConversation {
+  avatar_fetched_at: string | null;
+  avatar_url: string | null;
   connection_id: number;
   created_at: string;
   customer_name: string | null;
   customer_phone: string;
   id: number;
+  is_unread: boolean;
   last_message_at: string | null;
   last_message_preview: string | null;
   lost_reason: string | null;
   stage: PlatformWhatsappStage;
   updated_at: string;
+}
+
+export interface PlatformWhatsappMessage {
+  body: string | null;
+  connection_id: number;
+  conversation_id: number;
+  created_at: string;
+  direction: "inbound" | "outbound";
+  evolution_message_id: string | null;
+  from_me: boolean;
+  id: number;
+  message_type: string;
+  sent_at: string;
+}
+
+/** Contato aberto do CRM sem card no funil (ainda não houve mensagem). */
+export interface PlatformWhatsappDraft {
+  connection_id: number;
+  customer_name: string | null;
+  customer_phone: string;
+  /** ID em radar.market_companies quando veio do CRM. */
+  radar_company_id?: number | null;
 }
 
 export const PLATFORM_WHATSAPP_STAGES: PlatformWhatsappStage[] = [

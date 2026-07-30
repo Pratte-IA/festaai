@@ -15,6 +15,7 @@ export {
   useRadarCompanyList,
   useRadarFilterOptions,
   useRadarKanbanBoard,
+  useUpdateRadarCompanyInfo,
   useUpsertRadarCrm,
 } from "./hooks";
 export { radarCrmQueryKeys } from "./query-keys";
@@ -29,6 +30,7 @@ export type {
   RadarCrmFilters,
   RadarKanbanBoardResult,
   RadarKanbanFilters,
+  UpdateRadarCompanyInfoPayload,
   UpsertCrmPayload,
 } from "./types";
 export {

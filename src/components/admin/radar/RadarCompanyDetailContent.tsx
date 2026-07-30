@@ -9,9 +9,11 @@ import {
   MessageCircle,
   UserRound,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { RadarPriorityBadge } from "@/components/admin/radar/RadarPriorityBadge";
 import { RadarStatusBadge } from "@/components/admin/radar/RadarStatusBadge";
+import { RadarCompanyLeadActionsMenu } from "@/components/admin/radar/RadarCompanyLeadActionsMenu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useEnsurePlatformWhatsappConversation } from "@/features/platform-whatsapp";
 import {
   CRM_PRIORITIES,
   CRM_PRIORITY_LABELS,
@@ -44,6 +47,7 @@ import {
   useAddRadarInteraction,
   useRadarCompanyDetail,
   useRadarFilterOptions,
+  useUpdateRadarCompanyInfo,
   useUpsertRadarCrm,
   type CrmPriority,
   type CrmStatus,
@@ -56,6 +60,8 @@ interface RadarCompanyDetailContentProps {
   companyId: number;
   /** When false, omit the local title block (page shell already shows it). */
   showHeader?: boolean;
+  /** Increment to open the edit form (e.g. from page header menu). */
+  editRequestKey?: number;
 }
 
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
@@ -68,10 +74,14 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
 export const RadarCompanyDetailContent = ({
   companyId,
   showHeader = true,
+  editRequestKey = 0,
 }: RadarCompanyDetailContentProps) => {
+  const navigate = useNavigate();
+  const ensureConversation = useEnsurePlatformWhatsappConversation();
   const { data, error, isLoading } = useRadarCompanyDetail(companyId);
   const { data: filterOptions } = useRadarFilterOptions();
   const upsertCrm = useUpsertRadarCrm();
+  const updateCompanyInfo = useUpdateRadarCompanyInfo();
   const addInteraction = useAddRadarInteraction();
 
   const [status, setStatus] = useState<CrmStatus>("new_lead");
@@ -81,6 +91,21 @@ export const RadarCompanyDetailContent = ({
   const [nextActionDescription, setNextActionDescription] = useState("");
   const [doNotContact, setDoNotContact] = useState(false);
   const [lostReason, setLostReason] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editTradeName, setEditTradeName] = useState("");
+  const [editLegalName, setEditLegalName] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editWhatsapp, setEditWhatsapp] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editState, setEditState] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editWebsite, setEditWebsite] = useState("");
+  const [editInstagramUrl, setEditInstagramUrl] = useState("");
 
   const [interactionType, setInteractionType] = useState<InteractionType>("whatsapp");
   const [interactionNotes, setInteractionNotes] = useState("");
@@ -89,6 +114,7 @@ export const RadarCompanyDetailContent = ({
 
   const [confirmDoNotContact, setConfirmDoNotContact] = useState(false);
   const [confirmLost, setConfirmLost] = useState(false);
+  const [activeTab, setActiveTab] = useState("resumo");
 
   useEffect(() => {
     if (!data?.crm) return;
@@ -99,7 +125,31 @@ export const RadarCompanyDetailContent = ({
     setNextActionDescription(data.crm.next_action_description ?? "");
     setDoNotContact(data.crm.do_not_contact);
     setLostReason(data.crm.lost_reason ?? "");
+    setNotes(data.crm.notes ?? "");
   }, [data]);
+
+  useEffect(() => {
+    if (!data?.company) return;
+    const company = data.company;
+    setEditName(company.name ?? "");
+    setEditTradeName(company.trade_name ?? "");
+    setEditLegalName(company.legal_name ?? "");
+    setEditCategory(company.category ?? "");
+    setEditPhone(company.phone ?? company.phone_unformatted ?? "");
+    setEditWhatsapp(company.whatsapp ?? "");
+    setEditEmail(company.email ?? "");
+    setEditCity(company.city ?? "");
+    setEditState(company.state ?? "");
+    setEditAddress(company.address ?? "");
+    setEditWebsite(company.website ?? "");
+    setEditInstagramUrl(company.instagram_url ?? "");
+  }, [data?.company]);
+
+  useEffect(() => {
+    if (editRequestKey <= 0) return;
+    setActiveTab("resumo");
+    setIsEditingInfo(true);
+  }, [editRequestKey]);
 
   const company = data?.company;
   const phone = company?.whatsapp ?? company?.phone ?? company?.phone_unformatted ?? null;
@@ -128,6 +178,7 @@ export const RadarCompanyDetailContent = ({
         nextActionDescription: nextActionDescription || null,
         lostReason: status === "lost" ? lostReason.trim() : null,
         doNotContact,
+        notes,
       });
       toast({ title: "CRM atualizado" });
     } catch {
@@ -151,11 +202,58 @@ export const RadarCompanyDetailContent = ({
         nextActionDescription: nextActionDescription || null,
         lostReason: status === "lost" ? lostReason.trim() : null,
         doNotContact,
+        notes,
       });
       toast({ title: "CRM atualizado" });
     } catch {
       toast({ title: "Erro ao salvar CRM", variant: "destructive" });
     }
+  };
+
+  const handleSaveCompanyInfo = async () => {
+    if (!editName.trim()) {
+      toast({ title: "Informe o nome da empresa", variant: "destructive" });
+      return;
+    }
+
+    try {
+      await updateCompanyInfo.mutateAsync({
+        companyId,
+        name: editName.trim(),
+        tradeName: editTradeName,
+        legalName: editLegalName,
+        category: editCategory,
+        phone: editPhone,
+        whatsapp: editWhatsapp,
+        email: editEmail,
+        city: editCity,
+        state: editState,
+        address: editAddress,
+        website: editWebsite,
+        instagramUrl: editInstagramUrl,
+      });
+      setIsEditingInfo(false);
+      toast({ title: "Dados do lead atualizados" });
+    } catch {
+      toast({ title: "Erro ao salvar dados do lead", variant: "destructive" });
+    }
+  };
+
+  const cancelEditInfo = () => {
+    if (!company) return;
+    setEditName(company.name ?? "");
+    setEditTradeName(company.trade_name ?? "");
+    setEditLegalName(company.legal_name ?? "");
+    setEditCategory(company.category ?? "");
+    setEditPhone(company.phone ?? company.phone_unformatted ?? "");
+    setEditWhatsapp(company.whatsapp ?? "");
+    setEditEmail(company.email ?? "");
+    setEditCity(company.city ?? "");
+    setEditState(company.state ?? "");
+    setEditAddress(company.address ?? "");
+    setEditWebsite(company.website ?? "");
+    setEditInstagramUrl(company.instagram_url ?? "");
+    setIsEditingInfo(false);
   };
 
   const handleAddInteraction = async () => {
@@ -181,9 +279,31 @@ export const RadarCompanyDetailContent = ({
     }
   };
 
-  const handleQuickContact = () => {
-    if (whatsappUrl) {
-      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  const handleQuickContact = async () => {
+    if (!phone) return;
+    try {
+      const result = await ensureConversation.mutateAsync({
+        customerName: company?.trade_name ?? company?.name ?? null,
+        phone,
+      });
+      navigate("/admin/whatsapp", {
+        state: result.isDraft
+          ? {
+              openDraft: result.draft
+                ? { ...result.draft, radar_company_id: companyId }
+                : null,
+            }
+          : {
+              openConversation: result.conversation,
+              radarCompanyId: companyId,
+            },
+      });
+    } catch (err) {
+      toast({
+        title: "Não foi possível abrir no WhatsApp FestaAI",
+        description: err instanceof Error ? err.message : undefined,
+        variant: "destructive",
+      });
     }
   };
 
@@ -198,9 +318,18 @@ export const RadarCompanyDetailContent = ({
   return (
     <div className="space-y-4">
         {showHeader ? (
-          <div className="space-y-1">
-            <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-            {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 space-y-1">
+              <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+              {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
+            </div>
+            <RadarCompanyLeadActionsMenu
+              companyId={companyId}
+              onEditInfo={() => {
+                setActiveTab("resumo");
+                setIsEditingInfo(true);
+              }}
+            />
           </div>
         ) : null}
 
@@ -231,8 +360,18 @@ export const RadarCompanyDetailContent = ({
 
             <div className="flex flex-wrap gap-2">
               {whatsappUrl ? (
-                <Button onClick={handleQuickContact} size="sm" type="button" variant="outline">
-                  <MessageCircle className="mr-2 h-4 w-4 text-emerald-600" />
+                <Button
+                  disabled={ensureConversation.isPending}
+                  onClick={() => void handleQuickContact()}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  {ensureConversation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-emerald-600" />
+                  ) : (
+                    <MessageCircle className="mr-2 h-4 w-4 text-emerald-600" />
+                  )}
                   WhatsApp
                 </Button>
               ) : null}
@@ -266,7 +405,7 @@ export const RadarCompanyDetailContent = ({
               ) : null}
             </div>
 
-            <Tabs defaultValue="resumo">
+            <Tabs onValueChange={setActiveTab} value={activeTab}>
               <TabsList className="flex h-auto flex-wrap">
                 <TabsTrigger value="resumo">Resumo</TabsTrigger>
                 <TabsTrigger value="dados">Dados empresariais</TabsTrigger>
@@ -276,43 +415,171 @@ export const RadarCompanyDetailContent = ({
               </TabsList>
 
               <TabsContent className="space-y-4 pt-4" value="resumo">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <InfoRow
-                    label="Nome fantasia"
-                    value={displayOrFallback(
-                      data?.validated_cnpj?.trade_name ?? company.trade_name ?? company.name,
-                    )}
-                  />
-                  <InfoRow
-                    label="Razão social"
-                    value={displayOrFallback(
-                      data?.validated_cnpj?.legal_name ?? company.legal_name,
-                    )}
-                  />
-                  <InfoRow
-                    label="CNPJ"
-                    value={formatCnpjDisplay(
-                      data?.validated_cnpj?.cnpj_formatted ??
-                        company.cnpj_formatted ??
-                        data?.validated_cnpj?.cnpj ??
-                        company.cnpj,
-                    )}
-                  />
-                  <InfoRow label="Telefone" value={formatPhoneDisplay(phone)} />
-                  <InfoRow label="E-mail" value={displayOrFallback(company.email)} />
-                  <InfoRow
-                    label="Endereço"
-                    value={displayOrFallback(
-                      data?.validated_cnpj?.full_address ?? company.address,
-                    )}
-                  />
-                  {company.rating != null ? (
+                {isEditingInfo ? (
+                  <div className="space-y-4 rounded-xl border p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">Editar dados do lead</p>
+                      <div className="flex gap-2">
+                        <Button
+                          disabled={updateCompanyInfo.isPending}
+                          onClick={cancelEditInfo}
+                          size="sm"
+                          type="button"
+                          variant="ghost"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          disabled={updateCompanyInfo.isPending}
+                          onClick={() => void handleSaveCompanyInfo()}
+                          size="sm"
+                          type="button"
+                        >
+                          {updateCompanyInfo.isPending ? "Salvando..." : "Salvar"}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-trade-name">Nome fantasia</Label>
+                        <Input
+                          id="edit-trade-name"
+                          onChange={(event) => setEditTradeName(event.target.value)}
+                          value={editTradeName}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-name">Nome</Label>
+                        <Input
+                          id="edit-name"
+                          onChange={(event) => setEditName(event.target.value)}
+                          value={editName}
+                        />
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label htmlFor="edit-legal-name">Razão social</Label>
+                        <Input
+                          id="edit-legal-name"
+                          onChange={(event) => setEditLegalName(event.target.value)}
+                          value={editLegalName}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-category">Categoria</Label>
+                        <Input
+                          id="edit-category"
+                          onChange={(event) => setEditCategory(event.target.value)}
+                          value={editCategory}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-email">E-mail</Label>
+                        <Input
+                          id="edit-email"
+                          onChange={(event) => setEditEmail(event.target.value)}
+                          type="email"
+                          value={editEmail}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-phone">Telefone</Label>
+                        <Input
+                          id="edit-phone"
+                          onChange={(event) => setEditPhone(event.target.value)}
+                          value={editPhone}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-whatsapp">WhatsApp</Label>
+                        <Input
+                          id="edit-whatsapp"
+                          onChange={(event) => setEditWhatsapp(event.target.value)}
+                          value={editWhatsapp}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-city">Cidade</Label>
+                        <Input
+                          id="edit-city"
+                          onChange={(event) => setEditCity(event.target.value)}
+                          value={editCity}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-state">Estado</Label>
+                        <Input
+                          id="edit-state"
+                          onChange={(event) => setEditState(event.target.value)}
+                          value={editState}
+                        />
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label htmlFor="edit-address">Endereço</Label>
+                        <Input
+                          id="edit-address"
+                          onChange={(event) => setEditAddress(event.target.value)}
+                          value={editAddress}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-website">Site</Label>
+                        <Input
+                          id="edit-website"
+                          onChange={(event) => setEditWebsite(event.target.value)}
+                          value={editWebsite}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="edit-instagram">Instagram</Label>
+                        <Input
+                          id="edit-instagram"
+                          onChange={(event) => setEditInstagramUrl(event.target.value)}
+                          placeholder="https://instagram.com/..."
+                          value={editInstagramUrl}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <InfoRow
-                      label="Avaliação Google"
-                      value={`${company.rating}${company.reviews_count != null ? ` (${company.reviews_count} avaliações)` : ""}`}
+                      label="Nome fantasia"
+                      value={displayOrFallback(
+                        data?.validated_cnpj?.trade_name ?? company.trade_name ?? company.name,
+                      )}
                     />
-                  ) : null}
-                </div>
+                    <InfoRow
+                      label="Razão social"
+                      value={displayOrFallback(
+                        data?.validated_cnpj?.legal_name ?? company.legal_name,
+                      )}
+                    />
+                    <InfoRow
+                      label="CNPJ"
+                      value={formatCnpjDisplay(
+                        data?.validated_cnpj?.cnpj_formatted ??
+                          company.cnpj_formatted ??
+                          data?.validated_cnpj?.cnpj ??
+                          company.cnpj,
+                      )}
+                    />
+                    <InfoRow label="Telefone" value={formatPhoneDisplay(phone)} />
+                    <InfoRow label="E-mail" value={displayOrFallback(company.email)} />
+                    <InfoRow
+                      label="Endereço"
+                      value={displayOrFallback(
+                        data?.validated_cnpj?.full_address ?? company.address,
+                      )}
+                    />
+                    {company.rating != null ? (
+                      <InfoRow
+                        label="Avaliação Google"
+                        value={`${company.rating}${company.reviews_count != null ? ` (${company.reviews_count} avaliações)` : ""}`}
+                      />
+                    ) : null}
+                  </div>
+                )}
 
                 {data?.assigned_user ? (
                   <InfoRow
@@ -463,9 +730,9 @@ export const RadarCompanyDetailContent = ({
               <TabsContent className="space-y-4 pt-4" value="acompanhamento">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label>Status</Label>
+                    <Label>Etapa</Label>
                     <select
-                      aria-label="Status CRM"
+                      aria-label="Etapa CRM"
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                       onChange={(event) => setStatus(event.target.value as CrmStatus)}
                       value={status}
@@ -539,6 +806,15 @@ export const RadarCompanyDetailContent = ({
                       />
                     </div>
                   ) : null}
+
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label>Notas internas</Label>
+                    <Textarea
+                      onChange={(event) => setNotes(event.target.value)}
+                      placeholder="Anotações sobre o lead"
+                      value={notes}
+                    />
+                  </div>
 
                   <label className="flex items-center gap-2 sm:col-span-2">
                     <Checkbox

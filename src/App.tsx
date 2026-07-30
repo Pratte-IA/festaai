@@ -75,6 +75,8 @@ const AdminComercialContratoAceiteDetalhe = lazy(
 );
 const AdminComercialContratos = lazy(() => import("./pages/AdminComercialContratos.tsx"));
 const AdminRadar = lazy(() => import("./pages/AdminRadar.tsx"));
+const AdminRadarGerarLeads = lazy(() => import("./pages/AdminRadarGerarLeads.tsx"));
+const AdminRadarLeads = lazy(() => import("./pages/AdminRadarLeads.tsx"));
 const AdminCrm = lazy(() => import("./pages/AdminCrm.tsx"));
 const AdminCrmLead = lazy(() => import("./pages/AdminCrmLead.tsx"));
 const Privacidade = lazy(() => import("./pages/Privacidade.tsx"));
@@ -134,6 +136,8 @@ const App = () => (
                     <Route path="/admin/comercial/contratos/aceite/:id" element={<AdminComercialContratoAceiteDetalhe />} />
                     <Route path="/admin/comercial/contratos" element={<AdminComercialContratos />} />
                     <Route path="/admin/comercial" element={<AdminComercial />} />
+                    <Route path="/admin/radar/gerar" element={<AdminRadarGerarLeads />} />
+                    <Route path="/admin/radar/consultar" element={<AdminRadarLeads />} />
                     <Route path="/admin/radar" element={<AdminRadar />} />
                     <Route path="/admin/crm/:companyId" element={<AdminCrmLead />} />
                     <Route path="/admin/crm" element={<AdminCrm />} />

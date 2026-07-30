@@ -22,6 +22,7 @@ export const useAdminCommercialLeads = (statusFilter = "all") =>
       return (data ?? []) as CommercialLead[];
     },
     queryKey: comercialQueryKeys.adminLeads(statusFilter),
+    refetchInterval: statusFilter === "novo" ? 30000 : false,
   });
 
 export const useAdminCommercialLead = (id: number | null) =>

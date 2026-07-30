@@ -1631,11 +1631,14 @@ export type Database = {
       }
       platform_whatsapp_conversations: {
         Row: {
+          avatar_fetched_at: string | null
+          avatar_url: string | null
           connection_id: number
           created_at: string
           customer_name: string | null
           customer_phone: string
           id: number
+          is_unread: boolean
           last_message_at: string | null
           last_message_preview: string | null
           lost_reason: string | null
@@ -1643,11 +1646,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_fetched_at?: string | null
+          avatar_url?: string | null
           connection_id: number
           created_at?: string
           customer_name?: string | null
           customer_phone: string
           id?: number
+          is_unread?: boolean
           last_message_at?: string | null
           last_message_preview?: string | null
           lost_reason?: string | null
@@ -1655,11 +1661,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_fetched_at?: string | null
+          avatar_url?: string | null
           connection_id?: number
           created_at?: string
           customer_name?: string | null
           customer_phone?: string
           id?: number
+          is_unread?: boolean
           last_message_at?: string | null
           last_message_preview?: string | null
           lost_reason?: string | null
@@ -1672,6 +1681,60 @@ export type Database = {
             columns: ["connection_id"]
             isOneToOne: false
             referencedRelation: "whatsapp_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_whatsapp_messages: {
+        Row: {
+          body: string | null
+          connection_id: number
+          conversation_id: number
+          created_at: string
+          direction: string
+          evolution_message_id: string | null
+          from_me: boolean
+          id: number
+          message_type: string
+          sent_at: string
+        }
+        Insert: {
+          body?: string | null
+          connection_id: number
+          conversation_id: number
+          created_at?: string
+          direction: string
+          evolution_message_id?: string | null
+          from_me?: boolean
+          id?: number
+          message_type?: string
+          sent_at?: string
+        }
+        Update: {
+          body?: string | null
+          connection_id?: number
+          conversation_id?: number
+          created_at?: string
+          direction?: string
+          evolution_message_id?: string | null
+          from_me?: boolean
+          id?: number
+          message_type?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_whatsapp_messages_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_whatsapp_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "platform_whatsapp_conversations"
             referencedColumns: ["id"]
           },
         ]

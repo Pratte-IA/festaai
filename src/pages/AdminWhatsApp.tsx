@@ -1,39 +1,83 @@
-import { useState } from "react";
-import { ExternalLink, Kanban, MessageCircle, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Kanban, Phone } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { AdminPageShell } from "@/components/admin/AdminPageShell";
+import { PlatformWhatsappChatView } from "@/components/admin/PlatformWhatsappChatView";
 import { PlatformWhatsappKanbanBoard } from "@/components/admin/PlatformWhatsappKanbanBoard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  PLATFORM_WHATSAPP_STAGE_LABELS,
+  useMarkPlatformWhatsappConversationRead,
   usePlatformWhatsappConnections,
   usePlatformWhatsappConversations,
   useUpdatePlatformWhatsappConversationStage,
   type PlatformWhatsappConversation,
+  type PlatformWhatsappDraft,
   type PlatformWhatsappStage,
 } from "@/features/platform-whatsapp";
 import { toast } from "@/hooks/use-toast";
-import { formatDateBR } from "@/lib/date";
-import { formatBrazilPhone, toWhatsAppMePhone } from "@/lib/phone";
+
+interface WhatsappLocationState {
+  openConversation?: PlatformWhatsappConversation;
+  openDraft?: PlatformWhatsappDraft;
+  radarCompanyId?: number;
+}
 
 const AdminWhatsApp = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { data: connections = [], isLoading: isLoadingConnections } = usePlatformWhatsappConnections();
   const { data: conversations = [], error, isLoading } = usePlatformWhatsappConversations();
   const updateStage = useUpdatePlatformWhatsappConversationStage();
-  const [selected, setSelected] = useState<PlatformWhatsappConversation | null>(null);
+  const markRead = useMarkPlatformWhatsappConversationRead();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedOverride, setSelectedOverride] = useState<PlatformWhatsappConversation | null>(null);
+  const [selectedDraft, setSelectedDraft] = useState<PlatformWhatsappDraft | null>(null);
+  const [radarCompanyId, setRadarCompanyId] = useState<number | null>(null);
 
   const platformConnection = connections[0] ?? null;
   const isConnected = platformConnection?.status === "connected";
+  const unreadCount = conversations.filter((conversation) => conversation.is_unread).length;
+  const selectedConversation =
+    selectedId == null
+      ? null
+      : (conversations.find((conversation) => conversation.id === selectedId) ??
+        (selectedOverride?.id === selectedId ? selectedOverride : null));
+  const isChatOpen = selectedConversation != null || selectedDraft != null;
+
+  useEffect(() => {
+    const state = location.state as WhatsappLocationState | null;
+    if (!state?.openConversation && !state?.openDraft) return;
+
+    if (state.openConversation) {
+      setSelectedDraft(null);
+      setSelectedOverride(state.openConversation);
+      setSelectedId(state.openConversation.id);
+      setRadarCompanyId(state.radarCompanyId ?? null);
+      if (state.openConversation.is_unread) {
+        void markRead.mutateAsync(state.openConversation.id);
+      }
+    } else if (state.openDraft) {
+      setSelectedId(null);
+      setSelectedOverride(null);
+      setSelectedDraft(state.openDraft);
+      setRadarCompanyId(state.openDraft.radar_company_id ?? state.radarCompanyId ?? null);
+    }
+
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location.pathname, location.state, navigate]);
+
+  const handleOpenDetail = (conversation: PlatformWhatsappConversation) => {
+    setSelectedDraft(null);
+    setSelectedOverride(conversation);
+    setSelectedId(conversation.id);
+    setRadarCompanyId(null);
+    if (conversation.is_unread) {
+      void markRead.mutateAsync(conversation.id);
+    }
+  };
 
   const handleStageChange = async (
     conversationId: number,
@@ -53,16 +97,32 @@ const AdminWhatsApp = () => {
     }
   };
 
-  const selectedWhatsappUrl = selected
-    ? (() => {
-        const mePhone = toWhatsAppMePhone(selected.customer_phone);
-        return mePhone ? `https://wa.me/${mePhone}` : null;
-      })()
-    : null;
+  if (isChatOpen) {
+    return (
+      <main className="px-4 pt-4 sm:px-6 lg:px-10">
+        <PlatformWhatsappChatView
+          conversation={selectedConversation}
+          draft={selectedDraft}
+          radarCompanyId={radarCompanyId}
+          onBack={() => {
+            setSelectedId(null);
+            setSelectedOverride(null);
+            setSelectedDraft(null);
+            setRadarCompanyId(null);
+          }}
+          onConversationReady={(conversation) => {
+            setSelectedDraft(null);
+            setSelectedOverride(conversation);
+            setSelectedId(conversation.id);
+          }}
+        />
+      </main>
+    );
+  }
 
   return (
     <AdminPageShell
-      description="Gerencie as conversas do WhatsApp FestaAI por etapa. Cada card é uma conversa ativa no número da plataforma."
+      description="Gerencie as conversas do WhatsApp FestaAI por etapa. Clique no card para abrir o chat, ou no lápis para editar nome e etapa."
       title="WhatsApp"
     >
       <div className="space-y-4">
@@ -104,6 +164,9 @@ const AdminWhatsApp = () => {
                     ? "Carregando..."
                     : `${conversations.length} conversa${conversations.length === 1 ? "" : "s"} no funil`}
                 </span>
+                {!isLoading && unreadCount > 0 ? (
+                  <Badge className="bg-emerald-600 hover:bg-emerald-600">{unreadCount} sem ler</Badge>
+                ) : null}
               </div>
               {platformConnection?.phone ? (
                 <Badge variant="secondary" className="gap-1.5 font-normal">
@@ -126,72 +189,13 @@ const AdminWhatsApp = () => {
               <PlatformWhatsappKanbanBoard
                 conversations={conversations}
                 isUpdating={updateStage.isPending}
-                onOpenDetail={setSelected}
+                onOpenDetail={handleOpenDetail}
                 onStageChange={handleStageChange}
               />
             )}
           </CardContent>
         </Card>
       </div>
-
-      <Sheet open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
-        <SheetContent className="sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>
-              {selected?.customer_name?.trim() ||
-                (selected ? formatBrazilPhone(selected.customer_phone) : "Conversa")}
-            </SheetTitle>
-            <SheetDescription>Detalhes da conversa WhatsApp (MVP sem inbox).</SheetDescription>
-          </SheetHeader>
-
-          {selected ? (
-            <div className="mt-6 space-y-4">
-              <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Telefone</p>
-                <p className="text-sm font-medium">{formatBrazilPhone(selected.customer_phone)}</p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Etapa</p>
-                <Badge variant="outline">{PLATFORM_WHATSAPP_STAGE_LABELS[selected.stage]}</Badge>
-              </div>
-
-              {selected.last_message_preview ? (
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Última mensagem
-                  </p>
-                  <p className="rounded-lg border bg-muted/30 p-3 text-sm text-foreground">
-                    {selected.last_message_preview}
-                  </p>
-                  {selected.last_message_at ? (
-                    <p className="text-xs text-muted-foreground">{formatDateBR(selected.last_message_at)}</p>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {selected.stage === "perdido" && selected.lost_reason ? (
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Motivo da perda
-                  </p>
-                  <p className="text-sm">{selected.lost_reason}</p>
-                </div>
-              ) : null}
-
-              {selectedWhatsappUrl ? (
-                <Button asChild className="w-full gap-2">
-                  <a href={selectedWhatsappUrl} rel="noopener noreferrer" target="_blank">
-                    <MessageCircle className="h-4 w-4" />
-                    Abrir no WhatsApp
-                    <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-                  </a>
-                </Button>
-              ) : null}
-            </div>
-          ) : null}
-        </SheetContent>
-      </Sheet>
     </AdminPageShell>
   );
 };

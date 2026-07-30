@@ -293,6 +293,29 @@ export const buildPlatformInstanceName = () => {
   return `festaai-platform-${Date.now()}-${suffix}`;
 };
 
+/** Busca URL da foto de perfil do contato na Evolution (pode retornar null). */
+export const fetchEvolutionProfilePictureUrl = async (
+  instanceName: string,
+  number: string,
+): Promise<string | null> => {
+  const digits = number.replace(/\D/g, "");
+  if (!digits) return null;
+
+  const result = await evolutionFetch(`/chat/fetchProfilePictureUrl/${encodeURIComponent(instanceName)}`, {
+    method: "POST",
+    body: JSON.stringify({ number: digits }),
+  });
+
+  if (!result.ok || !result.body) return null;
+
+  const url =
+    (typeof result.body.profilePictureUrl === "string" && result.body.profilePictureUrl) ||
+    (typeof result.body.profilePicture === "string" && result.body.profilePicture) ||
+    null;
+
+  return url && url.startsWith("http") ? url : null;
+};
+
 export const extractInstanceApiKey = (payload: Record<string, unknown> | null): string | null => {
   if (!payload) return null;
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Check, Copy, GripVertical, MessageCircle, Phone } from "lucide-react";
+import { GripVertical, Pencil } from "lucide-react";
 
+import { ContactAvatar } from "@/components/admin/ContactAvatar";
+import { PlatformWhatsappLeadEditDialog } from "@/components/admin/PlatformWhatsappLeadEditDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,10 +22,18 @@ import {
   type PlatformWhatsappConversation,
   type PlatformWhatsappStage,
 } from "@/features/platform-whatsapp";
-import { toast } from "@/hooks/use-toast";
 import { formatDateBR } from "@/lib/date";
-import { formatBrazilPhone, toWhatsAppMePhone } from "@/lib/phone";
+import { formatBrazilPhone } from "@/lib/phone";
 import { cn } from "@/lib/utils";
+
+const initialsFromName = (name: string | null, phone: string) => {
+  const source = name?.trim() || phone;
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
+  }
+  return source.slice(0, 2).toUpperCase();
+};
 
 interface PlatformWhatsappKanbanBoardProps {
   conversations: PlatformWhatsappConversation[];
@@ -41,11 +51,6 @@ interface PendingLost {
   previousStage: PlatformWhatsappStage;
 }
 
-const buildWhatsappUrl = (phone: string) => {
-  const mePhone = toWhatsAppMePhone(phone);
-  return mePhone ? `https://wa.me/${mePhone}` : null;
-};
-
 export const PlatformWhatsappKanbanBoard = ({
   conversations,
   isUpdating,
@@ -56,7 +61,9 @@ export const PlatformWhatsappKanbanBoard = ({
   const [draggedId, setDraggedId] = useState<number | null>(null);
   const [pendingLost, setPendingLost] = useState<PendingLost | null>(null);
   const [lostReason, setLostReason] = useState("");
-  const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [editingConversation, setEditingConversation] = useState<PlatformWhatsappConversation | null>(
+    null,
+  );
 
   useEffect(() => {
     setLocalConversations(conversations);
@@ -119,25 +126,20 @@ export const PlatformWhatsappKanbanBoard = ({
     applyOptimisticStage(conversationId, "perdido", previousStage, { lostReason: reason });
   };
 
-  const handleCopyPhone = async (event: React.MouseEvent, conversationId: number, phone: string) => {
-    event.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(formatBrazilPhone(phone) || phone);
-      setCopiedId(conversationId);
-      toast({ title: "Telefone copiado" });
-      window.setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      toast({ title: "Não foi possível copiar", variant: "destructive" });
-    }
-  };
-
   return (
     <>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {PLATFORM_WHATSAPP_STAGES.map((stage) => {
-          const stageConversations = localConversations.filter(
-            (conversation) => conversation.stage === stage,
-          );
+          const stageConversations = localConversations
+            .filter((conversation) => conversation.stage === stage)
+            .sort((a, b) => {
+              if (a.is_unread !== b.is_unread) return a.is_unread ? -1 : 1;
+              const aTime = a.last_message_at ? Date.parse(a.last_message_at) : 0;
+              const bTime = b.last_message_at ? Date.parse(b.last_message_at) : 0;
+              return bTime - aTime;
+            });
+
+          const unreadInStage = stageConversations.filter((conversation) => conversation.is_unread).length;
 
           return (
             <div
@@ -151,17 +153,22 @@ export const PlatformWhatsappKanbanBoard = ({
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                   {stageConversations.length}
                 </span>
+                {unreadInStage > 0 ? (
+                  <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                    {unreadInStage} nova{unreadInStage === 1 ? "" : "s"}
+                  </span>
+                ) : null}
               </div>
 
               <div className="min-h-[240px] space-y-2 rounded-xl border border-border/30 bg-muted/20 p-2">
                 {stageConversations.map((conversation) => {
                   const displayPhone = formatBrazilPhone(conversation.customer_phone);
-                  const whatsappUrl = buildWhatsappUrl(conversation.customer_phone);
 
                   return (
                     <div
                       className={cn(
                         "cursor-grab rounded-xl border bg-white/90 p-3 shadow-sm transition-all active:cursor-grabbing hover:border-primary/30",
+                        conversation.is_unread && "border-emerald-400/70 bg-emerald-50/50",
                         draggedId === conversation.id && "scale-95 opacity-50",
                         isUpdating && "pointer-events-none opacity-70",
                       )}
@@ -171,63 +178,96 @@ export const PlatformWhatsappKanbanBoard = ({
                       onDragStart={() => setDraggedId(conversation.id)}
                     >
                       <div className="mb-2 flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-foreground">
-                            {conversation.customer_name?.trim() || displayPhone || conversation.customer_phone}
-                          </p>
-                          {conversation.customer_name?.trim() ? (
-                            <p className="truncate text-xs text-muted-foreground">{displayPhone}</p>
-                          ) : null}
+                        <div className="flex min-w-0 items-start gap-2.5">
+                          <ContactAvatar
+                            avatarUrl={conversation.avatar_url}
+                            className="mt-0.5"
+                            initials={initialsFromName(
+                              conversation.customer_name,
+                              conversation.customer_phone,
+                            )}
+                            name={
+                              conversation.customer_name?.trim() ||
+                              displayPhone ||
+                              conversation.customer_phone
+                            }
+                            size="sm"
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              {conversation.is_unread ? (
+                                <span
+                                  aria-hidden
+                                  className="h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+                                  title="Não lida"
+                                />
+                              ) : null}
+                              <p
+                                className={cn(
+                                  "truncate text-sm text-foreground",
+                                  conversation.is_unread ? "font-bold" : "font-semibold",
+                                )}
+                              >
+                                {conversation.customer_name?.trim() ||
+                                  displayPhone ||
+                                  conversation.customer_phone}
+                              </p>
+                            </div>
+                            {conversation.customer_name?.trim() ? (
+                              <p
+                                className={cn(
+                                  "truncate text-xs",
+                                  conversation.is_unread
+                                    ? "font-medium text-foreground"
+                                    : "text-muted-foreground",
+                                )}
+                              >
+                                {displayPhone}
+                              </p>
+                            ) : null}
+                          </div>
                         </div>
-                        <GripVertical className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />
+                        <div className="flex shrink-0 items-center gap-1">
+                          {conversation.is_unread ? (
+                            <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                              Nova
+                            </span>
+                          ) : null}
+                          <Button
+                            aria-label="Editar lead"
+                            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                            size="icon"
+                            type="button"
+                            variant="ghost"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setEditingConversation(conversation);
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                        </div>
                       </div>
 
                       {conversation.last_message_preview ? (
-                        <p className="mb-2 line-clamp-2 text-xs text-muted-foreground">
+                        <p
+                          className={cn(
+                            "mb-2 line-clamp-2 text-xs",
+                            conversation.is_unread
+                              ? "font-medium text-foreground"
+                              : "text-muted-foreground",
+                          )}
+                        >
                           {conversation.last_message_preview}
                         </p>
                       ) : null}
 
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] text-muted-foreground">
-                          {conversation.last_message_at
-                            ? formatDateBR(conversation.last_message_at)
-                            : "—"}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            className="h-7 w-7"
-                            size="icon"
-                            type="button"
-                            variant="ghost"
-                            onClick={(event) =>
-                              void handleCopyPhone(event, conversation.id, conversation.customer_phone)
-                            }
-                          >
-                            {copiedId === conversation.id ? (
-                              <Check className="h-3.5 w-3.5 text-primary" />
-                            ) : (
-                              <Copy className="h-3.5 w-3.5" />
-                            )}
-                          </Button>
-                          {whatsappUrl ? (
-                            <Button
-                              asChild
-                              className="h-7 w-7"
-                              size="icon"
-                              type="button"
-                              variant="ghost"
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              <a href={whatsappUrl} rel="noopener noreferrer" target="_blank">
-                                <MessageCircle className="h-3.5 w-3.5" />
-                              </a>
-                            </Button>
-                          ) : (
-                            <Phone className="h-3.5 w-3.5 text-muted-foreground/50" />
-                          )}
-                        </div>
-                      </div>
+                      <span className="text-[11px] text-muted-foreground">
+                        {conversation.last_message_at
+                          ? formatDateBR(conversation.last_message_at)
+                          : "—"}
+                      </span>
                     </div>
                   );
                 })}
@@ -267,6 +307,20 @@ export const PlatformWhatsappKanbanBoard = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PlatformWhatsappLeadEditDialog
+        conversation={editingConversation}
+        open={editingConversation != null}
+        onOpenChange={(open) => {
+          if (!open) setEditingConversation(null);
+        }}
+        onSaved={(updated) => {
+          setLocalConversations((current) =>
+            current.map((item) => (item.id === updated.id ? updated : item)),
+          );
+          setEditingConversation(null);
+        }}
+      />
     </>
   );
 };
