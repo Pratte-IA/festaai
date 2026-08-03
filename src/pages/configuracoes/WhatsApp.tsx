@@ -39,6 +39,7 @@ const statusVariant: Record<WhatsappConnectionStatus, "default" | "secondary" | 
 interface ConnectionCardProps {
   connection: WhatsappConnection;
   isFetching: boolean;
+  isRegeneratingQr: boolean;
   isSwitchingNumber: boolean;
   onDelete: (connectionId: number) => Promise<void>;
   onRegenerateQr: (connectionId: number) => Promise<void>;
@@ -48,6 +49,7 @@ interface ConnectionCardProps {
 const ConnectionCard = ({
   connection,
   isFetching,
+  isRegeneratingQr,
   isSwitchingNumber,
   onDelete,
   onRegenerateQr,
@@ -109,7 +111,7 @@ const ConnectionCard = ({
               variant="outline"
               size="sm"
               className="gap-2"
-              disabled={isSwitchingNumber}
+              disabled={isSwitchingNumber || isRegeneratingQr}
               onClick={() => void onSwitchNumber(connection.id)}
             >
               {isSwitchingNumber ? (
@@ -120,18 +122,21 @@ const ConnectionCard = ({
               Trocar número
             </Button>
           )}
-          {connection.status !== "connected" && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => void onRegenerateQr(connection.id)}
-            >
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={isRegeneratingQr || isSwitchingNumber}
+            onClick={() => void onRegenerateQr(connection.id)}
+          >
+            {isRegeneratingQr ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
               <RefreshCw className="h-4 w-4" />
-              Regenerar QR Code
-            </Button>
-          )}
+            )}
+            Regenerar QR Code
+          </Button>
           <Button
             type="button"
             variant="destructive"
@@ -150,6 +155,7 @@ const ConnectionCard = ({
 
 const ConfiguracoesWhatsApp = () => {
   const [connectionName, setConnectionName] = useState("WhatsApp Principal");
+  const [regeneratingConnectionId, setRegeneratingConnectionId] = useState<number | null>(null);
   const [switchingConnectionId, setSwitchingConnectionId] = useState<number | null>(null);
   const { data: connections = [], error, isFetching, isLoading, refetch } = useWhatsappConnections();
   const createConnection = useCreateWhatsappConnection();
@@ -203,6 +209,17 @@ const ConfiguracoesWhatsApp = () => {
   };
 
   const handleRegenerateQr = async (connectionId: number) => {
+    const connection = connections.find((item) => item.id === connectionId);
+    if (connection?.status === "connected") {
+      const confirmed = window.confirm(
+        `Regenerar o QR Code da conexão "${connection.name}"?\n\n` +
+          "A sessão atual será encerrada para gerar um novo código. " +
+          "Use isso quando a conexão cair e for preciso escanear novamente.",
+      );
+      if (!confirmed) return;
+    }
+
+    setRegeneratingConnectionId(connectionId);
     try {
       await regenerateQr.mutateAsync(connectionId);
       toast({
@@ -215,6 +232,8 @@ const ConfiguracoesWhatsApp = () => {
         description: regenerateError instanceof Error ? regenerateError.message : "Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setRegeneratingConnectionId(null);
     }
   };
 
@@ -268,7 +287,7 @@ const ConfiguracoesWhatsApp = () => {
   };
 
   return (
-    <div className="max-w-4xl space-y-4">
+    <div data-guided-setup-allowed className="max-w-4xl space-y-4">
       <SettingsPageHeader
         title={SETTINGS_PAGE_META["integracoes/whatsapp"].title}
         description={SETTINGS_PAGE_META["integracoes/whatsapp"].description}
@@ -357,6 +376,7 @@ const ConfiguracoesWhatsApp = () => {
               key={connection.id}
               connection={connection}
               isFetching={isFetching}
+              isRegeneratingQr={regeneratingConnectionId === connection.id}
               isSwitchingNumber={switchingConnectionId === connection.id}
               onDelete={handleDelete}
               onRegenerateQr={handleRegenerateQr}

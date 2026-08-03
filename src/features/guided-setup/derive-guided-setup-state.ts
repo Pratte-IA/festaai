@@ -176,7 +176,10 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     completed.push("checklist");
   }
 
-  if (whatsappResult.data?.some((connection) => connection.status === "connected")) {
+  // Considera o passo concluído se já houve conexão cadastrada — não só enquanto
+  // o status estiver "connected". Assim a queda da sessão não relocka a plataforma
+  // nem impede regenerar o QR Code.
+  if ((whatsappResult.data?.length ?? 0) > 0) {
     completed.push("whatsapp");
   }
 

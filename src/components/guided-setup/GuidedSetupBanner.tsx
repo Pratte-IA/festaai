@@ -6,9 +6,9 @@ import { GUIDED_SETUP_ROUTE } from "@/features/guided-setup";
 import { useGuidedSetup } from "@/features/guided-setup/guided-setup-provider";
 
 export const GuidedSetupBanner = () => {
-  const { isAdmin, isComplete, isLoading, isOnSetupRoute } = useGuidedSetup();
+  const { hasResolvedSetupStatus, isAdmin, isComplete, isLoading, isOnSetupRoute } = useGuidedSetup();
 
-  if (isLoading || isOnSetupRoute || isComplete) return null;
+  if (isLoading || isOnSetupRoute || isComplete || !hasResolvedSetupStatus) return null;
 
   return (
     <div className="border-b border-primary/25 bg-primary/10 px-4 py-3">

@@ -35,6 +35,7 @@ const statusVariant: Record<WhatsappConnectionStatus, "default" | "secondary" | 
 interface ConnectionCardProps {
   connection: PlatformWhatsappConnection;
   isFetching: boolean;
+  isRegeneratingQr: boolean;
   isSwitchingNumber: boolean;
   onDelete: (connectionId: number) => Promise<void>;
   onRegenerateQr: (connectionId: number) => Promise<void>;
@@ -44,6 +45,7 @@ interface ConnectionCardProps {
 const ConnectionCard = ({
   connection,
   isFetching,
+  isRegeneratingQr,
   isSwitchingNumber,
   onDelete,
   onRegenerateQr,
@@ -102,7 +104,7 @@ const ConnectionCard = ({
           {connection.status === "connected" ? (
             <Button
               className="gap-2"
-              disabled={isSwitchingNumber}
+              disabled={isSwitchingNumber || isRegeneratingQr}
               size="sm"
               type="button"
               variant="outline"
@@ -116,18 +118,21 @@ const ConnectionCard = ({
               Trocar número
             </Button>
           ) : null}
-          {connection.status !== "connected" ? (
-            <Button
-              className="gap-2"
-              size="sm"
-              type="button"
-              variant="outline"
-              onClick={() => void onRegenerateQr(connection.id)}
-            >
+          <Button
+            className="gap-2"
+            disabled={isRegeneratingQr || isSwitchingNumber}
+            size="sm"
+            type="button"
+            variant="outline"
+            onClick={() => void onRegenerateQr(connection.id)}
+          >
+            {isRegeneratingQr ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
               <RefreshCw className="h-4 w-4" />
-              Regenerar QR Code
-            </Button>
-          ) : null}
+            )}
+            Regenerar QR Code
+          </Button>
           <Button
             className="gap-2"
             size="sm"
@@ -146,6 +151,7 @@ const ConnectionCard = ({
 
 const AdminConexoes = () => {
   const [connectionName, setConnectionName] = useState("WhatsApp FestaAI");
+  const [regeneratingConnectionId, setRegeneratingConnectionId] = useState<number | null>(null);
   const [switchingConnectionId, setSwitchingConnectionId] = useState<number | null>(null);
   const { data: connections = [], error, isFetching, isLoading, refetch } = usePlatformWhatsappConnections();
   const createConnection = useCreatePlatformWhatsappConnection();
@@ -183,6 +189,17 @@ const AdminConexoes = () => {
   };
 
   const handleRegenerateQr = async (connectionId: number) => {
+    const connection = connections.find((item) => item.id === connectionId);
+    if (connection?.status === "connected") {
+      const confirmed = window.confirm(
+        `Regenerar o QR Code da conexão "${connection.name}"?\n\n` +
+          "A sessão atual será encerrada para gerar um novo código. " +
+          "Use isso quando a conexão cair e for preciso escanear novamente.",
+      );
+      if (!confirmed) return;
+    }
+
+    setRegeneratingConnectionId(connectionId);
     try {
       await regenerateQr.mutateAsync(connectionId);
       toast({
@@ -195,6 +212,8 @@ const AdminConexoes = () => {
         title: "Não foi possível regenerar o QR Code",
         variant: "destructive",
       });
+    } finally {
+      setRegeneratingConnectionId(null);
     }
   };
 
@@ -338,6 +357,7 @@ const AdminConexoes = () => {
               <ConnectionCard
                 connection={connection}
                 isFetching={isFetching}
+                isRegeneratingQr={regeneratingConnectionId === connection.id}
                 isSwitchingNumber={switchingConnectionId === connection.id}
                 key={connection.id}
                 onDelete={handleDelete}

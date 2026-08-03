@@ -90,7 +90,7 @@ export const useIsGuidedSetupComplete = () => {
 
     const allStepsComplete = isGuidedSetupComplete(completedSteps);
     const explicitlyFinished = Boolean(
-      progressQuery.data?.completedAt && progressQuery.data.currentStep === "completed",
+      progressQuery.data?.currentStep === "completed" || progressQuery.data?.completedAt,
     );
 
     return {

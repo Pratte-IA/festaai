@@ -2,7 +2,11 @@ import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 import { resolveAuthedPlatformAdmin, resolveAuthedTenantMember } from "../_shared/auth-tenant.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
-import { tryFetchQrCode, syncConnectionWebhook } from "../_shared/evolution-client.ts";
+import {
+  logoutEvolutionInstance,
+  syncConnectionWebhook,
+  tryFetchQrCode,
+} from "../_shared/evolution-client.ts";
 
 const bodySchema = z.object({
   connectionId: z.number().int().positive(),
@@ -59,6 +63,12 @@ Deno.serve(async (req) => {
       // best-effort — corrige token Evolution ↔ banco antes de novo QR
     }
 
+    try {
+      await logoutEvolutionInstance(connection.instance_name);
+    } catch {
+      // best-effort — sessão pode já ter caído
+    }
+
     const qrCode = await tryFetchQrCode(connection.instance_name);
 
     if (!qrCode) {
@@ -76,6 +86,7 @@ Deno.serve(async (req) => {
       .from("whatsapp_connections")
       .update({
         last_error: null,
+        phone: null,
         qr_code: qrCode,
         status: "connecting",
       })

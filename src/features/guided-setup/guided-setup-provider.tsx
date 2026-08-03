@@ -11,6 +11,7 @@ import { GUIDED_SETUP_ROUTE } from "./guided-setup-steps";
 import { useIsGuidedSetupComplete } from "./use-tenant-guided-setup";
 
 interface GuidedSetupContextValue {
+  hasResolvedSetupStatus: boolean;
   isAdmin: boolean;
   isComplete: boolean;
   isLoading: boolean;
@@ -34,20 +35,29 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
   const { isPlatformAdmin, user } = useAuth();
   const { currentTenantId } = useCurrentTenant();
   const { data: adminCapability, isLoading: isAdminLoading } = useTenantAdminCapability();
-  const { isComplete, isLoading: isProgressLoading } = useIsGuidedSetupComplete();
+  const {
+    data: setupStatus,
+    isComplete,
+    isLoading: isProgressLoading,
+  } = useIsGuidedSetupComplete();
 
   const isOnSetupRoute = location.pathname.startsWith(GUIDED_SETUP_ROUTE);
   const isOnAuthFlowRoute = isAuthFlowRoute(location.pathname);
   const mustSetPassword = userMustSetPassword(user);
   const isAdmin = Boolean(adminCapability?.isTenantAdmin);
   const isLoading = isAdminLoading || isProgressLoading;
+  const hasResolvedSetupStatus = setupStatus != null;
   const isPlatformAdminViewing =
     isPlatformAdmin &&
     currentTenantId !== null &&
     getPlatformAdminViewingTenantId() === currentTenantId;
 
+  // Só trava a plataforma quando o progresso foi carregado e está incompleto.
+  // Se o status não resolveu (tenant ausente, RLS, rede), não bloqueia ações críticas
+  // como regenerar QR do WhatsApp.
   const isReadOnlyMode =
     !isLoading &&
+    hasResolvedSetupStatus &&
     !isComplete &&
     !isOnSetupRoute &&
     !isOnAuthFlowRoute &&
@@ -63,6 +73,7 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
     if (
       mustSetPassword ||
       isLoading ||
+      !hasResolvedSetupStatus ||
       isComplete ||
       !isAdmin ||
       isOnSetupRoute ||
@@ -79,6 +90,7 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
     sessionStorage.setItem(storageKey, "1");
     navigate(GUIDED_SETUP_ROUTE, { replace: true });
   }, [
+    hasResolvedSetupStatus,
     isAdmin,
     isComplete,
     isLoading,
@@ -91,13 +103,14 @@ export const GuidedSetupProvider = ({ children }: PropsWithChildren) => {
 
   const value = useMemo(
     () => ({
+      hasResolvedSetupStatus,
       isAdmin,
       isComplete,
       isLoading,
       isOnSetupRoute,
       isReadOnlyMode,
     }),
-    [isAdmin, isComplete, isLoading, isOnSetupRoute, isReadOnlyMode],
+    [hasResolvedSetupStatus, isAdmin, isComplete, isLoading, isOnSetupRoute, isReadOnlyMode],
   );
 
   return <GuidedSetupContext.Provider value={value}>{children}</GuidedSetupContext.Provider>;
