@@ -35,7 +35,9 @@ import {
   useUpdateEvento,
 } from "@/features/eventos";
 import {
+  formatCompetenciaMonthYear,
   getFinanceiroCategoriaLabel,
+  toCompetenciaMonthStart,
   useDeleteFinanceiroLancamento,
   useEventoFinanceiroSummary,
 } from "@/features/financeiro";
@@ -440,6 +442,7 @@ const EventoFinanceiro = () => {
 
             {expandedForm?.type === "despesa" ? (
               <LancamentoInlineForm
+                defaultCompetenciaMonth={event.data_evento}
                 eventoId={validEventoId}
                 mode="despesa_evento"
                 onCancel={closeForm}
@@ -456,6 +459,7 @@ const EventoFinanceiro = () => {
                   key={item.id}
                   categoria={getFinanceiroCategoriaLabel(item.categoria)}
                   data={item.data_lancamento}
+                  dataCompetencia={item.data_competencia}
                   descricao={item.descricao}
                   onDelete={() => handleDeleteLancamento(item.id)}
                   valor={item.valor}
@@ -617,6 +621,7 @@ const PagamentoRecebidoRow = ({
 const LancamentoRow = ({
   categoria,
   data,
+  dataCompetencia = null,
   descricao,
   negative = false,
   onDelete,
@@ -624,28 +629,38 @@ const LancamentoRow = ({
 }: {
   categoria: string;
   data: string;
+  dataCompetencia?: string | null;
   descricao: string | null;
   negative?: boolean;
   onDelete: () => void;
   valor: number;
-}) => (
-  <div className="flex items-center justify-between gap-3 rounded-lg border border-border/30 bg-muted/40 p-2.5">
-    <div>
-      <p className="text-sm font-medium text-foreground">
-        {categoria}
-        {descricao ? ` · ${descricao}` : ""}
-      </p>
-      <p className="text-xs text-muted-foreground">{formatIsoDateBR(data)}</p>
+}) => {
+  const competenciaLabel = dataCompetencia
+    ? formatCompetenciaMonthYear(toCompetenciaMonthStart(dataCompetencia))
+    : null;
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-border/30 bg-muted/40 p-2.5">
+      <div>
+        <p className="text-sm font-medium text-foreground">
+          {categoria}
+          {descricao ? ` · ${descricao}` : ""}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {formatIsoDateBR(data)}
+          {competenciaLabel ? ` · Competência ${competenciaLabel}` : ""}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className={`text-sm font-medium ${negative ? "text-destructive" : ""}`}>
+          {formatFinanceiroCurrency(valor)}
+        </span>
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={onDelete}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
-    <div className="flex items-center gap-2">
-      <span className={`text-sm font-medium ${negative ? "text-destructive" : ""}`}>
-        {formatFinanceiroCurrency(valor)}
-      </span>
-      <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={onDelete}>
-        <Trash2 className="h-4 w-4" />
-      </Button>
-    </div>
-  </div>
-);
+  );
+};
 
 export default EventoFinanceiro;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { CompetenciaMonthInput } from "@/components/financeiro/CompetenciaMonthInput";
 import { InlineFormActions, InlineFormShell } from "@/components/financeiro/InlineFormActions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import {
   FINANCEIRO_CATEGORIAS_SAIDA,
+  isValidCompetenciaMonth,
+  parseCompetenciaMonth,
   resolveFinanceiroLancamentoValor,
   useCreateFinanceiroLancamento,
 } from "@/features/financeiro";
@@ -47,9 +50,18 @@ export const LancamentoGeralInlineForm = ({
 
   const handleDataLancamentoChange = (value: string) => {
     setDataLancamento(value);
-    if (showCompetencia && value && !competenciaMonth) {
-      setCompetenciaMonth(value.slice(0, 7));
+    if (!showCompetencia) {
+      return;
     }
+
+    const fromPagamento = parseCompetenciaMonth(value);
+    if (!fromPagamento) {
+      return;
+    }
+
+    setCompetenciaMonth((current) =>
+      !current || !isValidCompetenciaMonth(current) ? fromPagamento : current,
+    );
   };
 
   const handleSubmit = async () => {
@@ -57,6 +69,7 @@ export const LancamentoGeralInlineForm = ({
     const valorResolvido = resolvedCategoria
       ? resolveFinanceiroLancamentoValor(resolvedCategoria, parsedValor)
       : null;
+    const competenciaValida = parseCompetenciaMonth(competenciaMonth);
 
     if (!dataLancamento || valorResolvido == null) {
       toast({
@@ -76,10 +89,10 @@ export const LancamentoGeralInlineForm = ({
       return;
     }
 
-    if (showCompetencia && !competenciaMonth) {
+    if (showCompetencia && !competenciaValida) {
       toast({
-        title: "Competencia obrigatoria",
-        description: "Informe o mes em que a despesa entra no resultado.",
+        title: "Competencia invalida",
+        description: "Informe um mes/ano valido para a Competencia (ex.: 08/2026).",
         variant: "destructive",
       });
       return;
@@ -88,7 +101,7 @@ export const LancamentoGeralInlineForm = ({
     try {
       await createLancamento.mutateAsync({
         categoria: resolvedCategoria,
-        data_competencia: showCompetencia ? `${competenciaMonth}-01` : undefined,
+        data_competencia: showCompetencia && competenciaValida ? `${competenciaValida}-01` : undefined,
         data_lancamento: dataLancamento,
         descricao: complemento.trim() || null,
         eventoId: null,
@@ -126,6 +139,7 @@ export const LancamentoGeralInlineForm = ({
           <Input
             id="despesa-geral-pagamento"
             type="date"
+            autoComplete="off"
             value={dataLancamento}
             onChange={(event) => handleDataLancamentoChange(event.target.value)}
           />
@@ -139,11 +153,10 @@ export const LancamentoGeralInlineForm = ({
         {showCompetencia ? (
           <div className="space-y-1.5">
             <Label htmlFor="despesa-geral-competencia">Mes no resultado</Label>
-            <Input
+            <CompetenciaMonthInput
               id="despesa-geral-competencia"
-              type="month"
               value={competenciaMonth}
-              onChange={(event) => setCompetenciaMonth(event.target.value)}
+              onChange={setCompetenciaMonth}
             />
             <p className="text-[11px] leading-snug text-muted-foreground">
               Em qual mes essa despesa entra na Competencia.

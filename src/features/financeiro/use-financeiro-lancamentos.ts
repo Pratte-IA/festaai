@@ -4,6 +4,7 @@ import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
+import { parseCompetenciaMonth } from "./month-range";
 import { financeiroQueryKeys } from "./query-keys";
 import { FinanceiroLancamento } from "./types";
 
@@ -25,9 +26,18 @@ interface CreateFinanceiroLancamentoInput {
   valor: number;
 }
 
-const toMonthStart = (dateValue: string) => {
-  const [year, month] = dateValue.slice(0, 10).split("-");
-  return `${year}-${month}-01`;
+const resolveDataCompetencia = (input: CreateFinanceiroLancamentoInput): string => {
+  const fromCompetencia = parseCompetenciaMonth(input.data_competencia);
+  if (fromCompetencia) {
+    return `${fromCompetencia}-01`;
+  }
+
+  const fromPagamento = parseCompetenciaMonth(input.data_lancamento);
+  if (fromPagamento) {
+    return `${fromPagamento}-01`;
+  }
+
+  throw new Error("Mes de competencia invalido.");
 };
 
 const fetchFinanceiroLancamentos = async (
@@ -87,9 +97,7 @@ export const useCreateFinanceiroLancamento = () => {
         throw new Error("Sessao ou tenant atual indisponivel.");
       }
 
-      const dataCompetencia = input.data_competencia
-        ? toMonthStart(input.data_competencia)
-        : toMonthStart(input.data_lancamento);
+      const dataCompetencia = resolveDataCompetencia(input);
 
       const { data, error } = await supabase
         .from("financeiro_lancamentos")

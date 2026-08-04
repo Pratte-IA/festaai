@@ -529,6 +529,7 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
         id: message.id,
         mediaBase64,
         mediaMimetype,
+        replyTo: message.replyTo,
         text: message.text as string,
         timestamp: message.timestamp,
         type: message.type,

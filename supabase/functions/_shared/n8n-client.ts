@@ -1,4 +1,18 @@
+/** Versão genérica de payloads outbound (boas-vindas, sete-dias, etc.). */
 export const N8N_PAYLOAD_VERSION = 1;
+
+/**
+ * Versão do contrato inbound messages.upsert.
+ * v2: inclui message.replyTo (mensagem citada/respondida).
+ */
+export const N8N_INBOUND_PAYLOAD_VERSION = 2;
+
+export interface N8nReplyTo {
+  id: string | null;
+  text: string | null;
+  type: string | null;
+  participant: string | null;
+}
 
 export interface N8nInboundPayload {
   connection: {
@@ -15,6 +29,7 @@ export interface N8nInboundPayload {
     id: string | null;
     mediaBase64: string | null;
     mediaMimetype: string | null;
+    replyTo: N8nReplyTo | null;
     text: string;
     timestamp: string | null;
     type: string;
@@ -131,6 +146,7 @@ export const buildN8nInboundPayload = (input: {
     id: string | null;
     mediaBase64: string | null;
     mediaMimetype: string | null;
+    replyTo: N8nReplyTo | null;
     text: string;
     timestamp: string | null;
     type: string;
@@ -153,10 +169,10 @@ export const buildN8nInboundPayload = (input: {
     id: input.tenant.id,
     slug: input.tenant.slug,
   },
-  version: N8N_PAYLOAD_VERSION,
+  version: N8N_INBOUND_PAYLOAD_VERSION,
 });
 
-/** Payload resumido para persistência em logs (sem raw completo). */
+/** Payload resumido para persistência em logs (sem raw completo / sem PII de texto). */
 export const buildLogPayload = (payload: N8nInboundPayload) => ({
   connection: payload.connection,
   event: payload.event,
@@ -164,8 +180,10 @@ export const buildLogPayload = (payload: N8nInboundPayload) => ({
     customerPhone: payload.message.customerPhone,
     fromMe: payload.message.fromMe,
     hasMediaBase64: Boolean(payload.message.mediaBase64),
+    hasReplyTo: Boolean(payload.message.replyTo),
     id: payload.message.id,
     mediaMimetype: payload.message.mediaMimetype,
+    replyToId: payload.message.replyTo?.id ?? null,
     type: payload.message.type,
   },
   tenant: payload.tenant,

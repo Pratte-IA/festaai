@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { CompetenciaMonthInput } from "@/components/financeiro/CompetenciaMonthInput";
 import { InlineFormActions, InlineFormShell } from "@/components/financeiro/InlineFormActions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import {
   FINANCEIRO_CATEGORIAS_SAIDA,
+  isValidCompetenciaMonth,
+  parseCompetenciaMonth,
   resolveFinanceiroLancamentoValor,
   useCreateFinanceiroLancamento,
 } from "@/features/financeiro";
@@ -21,6 +24,8 @@ export type LancamentoInlineFormMode = "entrada_evento" | "despesa_evento";
 export type LancamentoInlineFormVariant = "adicional" | "desconto" | "despesa";
 
 interface LancamentoInlineFormProps {
+  /** Preferência inicial do mês de competência (ex.: data_evento da festa). */
+  defaultCompetenciaMonth?: string | null;
   eventoId: number;
   mode: LancamentoInlineFormMode;
   onCancel: () => void;
@@ -34,6 +39,7 @@ const fixedCategoriaByVariant: Record<Exclude<LancamentoInlineFormVariant, "desp
 };
 
 export const LancamentoInlineForm = ({
+  defaultCompetenciaMonth = null,
   eventoId,
   mode,
   onCancel,
@@ -48,7 +54,9 @@ export const LancamentoInlineForm = ({
   const showCompetencia = isDespesa;
 
   const [dataLancamento, setDataLancamento] = useState("");
-  const [competenciaMonth, setCompetenciaMonth] = useState("");
+  const [competenciaMonth, setCompetenciaMonth] = useState(
+    () => parseCompetenciaMonth(defaultCompetenciaMonth) ?? "",
+  );
   const [valor, setValor] = useState("");
   const [complemento, setComplemento] = useState("");
   const [categoria, setCategoria] = useState("");
@@ -58,9 +66,19 @@ export const LancamentoInlineForm = ({
 
   const handleDataLancamentoChange = (value: string) => {
     setDataLancamento(value);
-    if (showCompetencia && value && !competenciaMonth) {
-      setCompetenciaMonth(value.slice(0, 7));
+    if (!showCompetencia) {
+      return;
     }
+
+    const fromPagamento = parseCompetenciaMonth(value);
+    if (!fromPagamento) {
+      return;
+    }
+
+    // Só preenche/corrige se vazio ou inválido (ex.: autofill 0002-08 do browser).
+    setCompetenciaMonth((current) =>
+      !current || !isValidCompetenciaMonth(current) ? fromPagamento : current,
+    );
   };
 
   const handleSubmit = async () => {
@@ -68,6 +86,7 @@ export const LancamentoInlineForm = ({
     const valorResolvido = resolvedCategoria
       ? resolveFinanceiroLancamentoValor(resolvedCategoria, parsedValor)
       : null;
+    const competenciaValida = parseCompetenciaMonth(competenciaMonth);
 
     if (!dataLancamento || valorResolvido == null) {
       toast({
@@ -89,10 +108,10 @@ export const LancamentoInlineForm = ({
       return;
     }
 
-    if (showCompetencia && !competenciaMonth) {
+    if (showCompetencia && !competenciaValida) {
       toast({
-        title: "Competencia obrigatoria",
-        description: "Informe o mes em que a despesa entra no resultado.",
+        title: "Competencia invalida",
+        description: "Informe um mes/ano valido para a Competencia (ex.: 08/2026).",
         variant: "destructive",
       });
       return;
@@ -101,7 +120,7 @@ export const LancamentoInlineForm = ({
     try {
       await createLancamento.mutateAsync({
         categoria: resolvedCategoria,
-        data_competencia: showCompetencia ? `${competenciaMonth}-01` : undefined,
+        data_competencia: showCompetencia && competenciaValida ? `${competenciaValida}-01` : undefined,
         data_lancamento: dataLancamento,
         descricao: complemento.trim() || null,
         eventoId,
@@ -148,6 +167,7 @@ export const LancamentoInlineForm = ({
           <Input
             id={`evento-lancamento-pagamento-${variant}`}
             type="date"
+            autoComplete="off"
             value={dataLancamento}
             onChange={(event) => handleDataLancamentoChange(event.target.value)}
           />
@@ -161,11 +181,10 @@ export const LancamentoInlineForm = ({
         {showCompetencia ? (
           <div className="space-y-1.5">
             <Label htmlFor="evento-despesa-competencia">Mes no resultado</Label>
-            <Input
+            <CompetenciaMonthInput
               id="evento-despesa-competencia"
-              type="month"
               value={competenciaMonth}
-              onChange={(event) => setCompetenciaMonth(event.target.value)}
+              onChange={setCompetenciaMonth}
             />
             <p className="text-[11px] leading-snug text-muted-foreground">
               Em qual mes essa despesa entra na Competencia.

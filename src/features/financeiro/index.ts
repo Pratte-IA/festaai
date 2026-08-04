@@ -52,9 +52,13 @@ export {
 } from "./dre-utils";
 export type { DashboardDescricaoRow, DreCategoriaTotal } from "./dre-utils";
 export {
+  COMPETENCIA_MONTH_INPUT_MAX,
+  COMPETENCIA_MONTH_INPUT_MIN,
   formatFinanceiroMonthLabel,
   getDefaultFinanceiroMonth,
   getMonthRange,
+  isValidCompetenciaMonth,
+  parseCompetenciaMonth,
 } from "./month-range";
 export {
   buildEventoFinanceiroSummary,

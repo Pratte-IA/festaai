@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { CompetenciaMonthInput } from "@/components/financeiro/CompetenciaMonthInput";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,6 +23,8 @@ import {
   FINANCEIRO_CATEGORIAS_ENTRADA,
   FINANCEIRO_CATEGORIAS_SAIDA,
   isFinanceiroCategoriaDesconto,
+  isValidCompetenciaMonth,
+  parseCompetenciaMonth,
   resolveFinanceiroLancamentoValor,
   useCreateFinanceiroLancamento,
 } from "@/features/financeiro";
@@ -82,14 +85,24 @@ export const LancamentoFormDialog = ({
 
   const handleDataLancamentoChange = (value: string) => {
     setDataLancamento(value);
-    if (isDespesa && value && !competenciaMonth) {
-      setCompetenciaMonth(value.slice(0, 7));
+    if (!isDespesa) {
+      return;
     }
+
+    const fromPagamento = parseCompetenciaMonth(value);
+    if (!fromPagamento) {
+      return;
+    }
+
+    setCompetenciaMonth((current) =>
+      !current || !isValidCompetenciaMonth(current) ? fromPagamento : current,
+    );
   };
 
   const handleSubmit = async () => {
     const parsedValor = Number(valor);
     const valorResolvido = categoria ? resolveFinanceiroLancamentoValor(categoria, parsedValor) : null;
+    const competenciaValida = parseCompetenciaMonth(competenciaMonth);
 
     if (!dataLancamento || valorResolvido == null) {
       toast({
@@ -111,10 +124,10 @@ export const LancamentoFormDialog = ({
       return;
     }
 
-    if (isDespesa && !competenciaMonth) {
+    if (isDespesa && !competenciaValida) {
       toast({
-        title: "Competencia obrigatoria",
-        description: "Informe o mes em que a despesa entra no resultado.",
+        title: "Competencia invalida",
+        description: "Informe um mes/ano valido para a Competencia (ex.: 08/2026).",
         variant: "destructive",
       });
       return;
@@ -123,7 +136,7 @@ export const LancamentoFormDialog = ({
     try {
       await createLancamento.mutateAsync({
         categoria,
-        data_competencia: isDespesa ? `${competenciaMonth}-01` : undefined,
+        data_competencia: isDespesa && competenciaValida ? `${competenciaValida}-01` : undefined,
         data_lancamento: dataLancamento,
         descricao: complemento.trim() || null,
         eventoId: mode === "despesa_geral" || mode === "entrada_geral" ? null : eventoId ?? null,
@@ -166,6 +179,7 @@ export const LancamentoFormDialog = ({
             <Input
               id="data-lancamento"
               type="date"
+              autoComplete="off"
               value={dataLancamento}
               onChange={(event) => handleDataLancamentoChange(event.target.value)}
             />
@@ -179,11 +193,10 @@ export const LancamentoFormDialog = ({
           {isDespesa ? (
             <div className="space-y-2">
               <Label htmlFor="competencia-lancamento">Mes no resultado</Label>
-              <Input
+              <CompetenciaMonthInput
                 id="competencia-lancamento"
-                type="month"
                 value={competenciaMonth}
-                onChange={(event) => setCompetenciaMonth(event.target.value)}
+                onChange={setCompetenciaMonth}
               />
               <p className="text-xs text-muted-foreground">
                 Em qual mes essa despesa entra na Competencia.
