@@ -3287,6 +3287,21 @@ export type Database = {
       }
       radar_crm_filter_options: { Args: never; Returns: Json }
       radar_crm_get_company: { Args: { p_company_id: number }; Returns: Json }
+      radar_list_market_coverage: { Args: never; Returns: Json }
+      radar_list_market_search_runs: { Args: { p_limit?: number }; Returns: Json }
+      radar_list_market_search_terms: { Args: { p_segment: string }; Returns: Json }
+      radar_start_market_search: {
+        Args: {
+          p_city: string
+          p_max_results_per_term: number
+          p_notes?: string
+          p_search_name: string
+          p_search_terms: string[]
+          p_segment: string
+          p_state: string
+        }
+        Returns: Json
+      }
       radar_crm_kanban_board: {
         Args: {
           p_assigned_user_id?: string
