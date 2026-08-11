@@ -55,10 +55,11 @@ export const ensureVendasLeadFromWhatsapp = async (
   const { data: vendasEventos, error: queryError } = await service
     .from("eventos")
     .select(
-      "id, cliente_telefone, etapa, followup_0b_enviado_em, followup_4_enviado_em, followup_status",
+      "id, cliente_telefone, etapa, status_interno, followup_0b_enviado_em, followup_4_enviado_em, followup_status",
     )
     .eq("tenant_id", input.tenantId)
     .eq("funil", "vendas")
+    .neq("status_interno", "cancelado")
     .order("updated_at", { ascending: false });
 
   if (queryError) throw queryError;

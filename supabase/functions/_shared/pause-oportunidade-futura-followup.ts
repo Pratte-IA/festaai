@@ -14,12 +14,24 @@ export interface PauseOportunidadeFuturaFollowupInput {
 export interface PauseOportunidadeFuturaFollowupResult {
   eventoId: number | null;
   paused: boolean;
+  pausedEventoIds: number[];
   vendasEventoId: number | null;
   vendasLeadAction: "created" | "reused" | "reactivated" | null;
 }
 
 const selectSourceFields =
   "id, aniversariante_data_nascimento, aniversariante_idade, aniversariante_nome, aniversariante_personagem, aniversariante_tema, cliente_bairro, cliente_cep, cliente_cidade, cliente_cpf, cliente_email, cliente_estado, cliente_nome, cliente_numero, cliente_rg, cliente_rua, cliente_telefone, etapa, fof1_enviado_em, fof2_enviado_em, fof3_enviado_em, fof_festa_alvo, fof_resposta_cliente_em, fof_status, funil, status_interno";
+
+type OfMatch = Record<string, unknown> & { id: number };
+
+const isActiveFofMatch = (evento: Record<string, unknown>): boolean => {
+  const hasFofSent =
+    typeof evento.fof1_enviado_em === "string" ||
+    typeof evento.fof2_enviado_em === "string" ||
+    typeof evento.fof3_enviado_em === "string";
+
+  return hasFofSent && evento.fof_status === "ativo";
+};
 
 export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
   admin: ServiceClient,
@@ -36,33 +48,27 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
 
   if (listError) throw listError;
 
-  const match = (candidates ?? []).find((evento) => {
-    const hasFofSent =
-      typeof evento.fof1_enviado_em === "string" ||
-      typeof evento.fof2_enviado_em === "string" ||
-      typeof evento.fof3_enviado_em === "string";
-
-    if (!hasFofSent) return false;
-    if (evento.fof_status !== "ativo") return false;
+  const matches = (candidates ?? []).filter((evento) => {
+    if (!isActiveFofMatch(evento)) return false;
 
     return phonesMatch(
       typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : null,
       input.customerPhone,
     );
-  });
+  }) as OfMatch[];
 
-  if (!match) {
-    return { eventoId: null, paused: false, vendasEventoId: null, vendasLeadAction: null };
-  }
-
-  if (match.fof_status === "pausado_resposta") {
+  if (matches.length === 0) {
     return {
-      eventoId: match.id as number,
+      eventoId: null,
       paused: false,
+      pausedEventoIds: [],
       vendasEventoId: null,
       vendasLeadAction: null,
     };
   }
+
+  // Preferência: festa alvo / card mais recente como origem dos dados de vendas.
+  const primary = matches[0];
 
   const respostaBR = new Date(input.respondedAt).toLocaleString("pt-BR", {
     timeZone: "America/Sao_Paulo",
@@ -74,39 +80,43 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
   });
 
   const targetPartyDate =
-    typeof match.fof_festa_alvo === "string"
-      ? match.fof_festa_alvo
-      : null;
+    typeof primary.fof_festa_alvo === "string" ? primary.fof_festa_alvo : null;
 
-  const { error: pauseError } = await admin
-    .from("eventos")
-    .update({
-      fof_resposta_cliente_em: input.respondedAt,
-      fof_status: "pausado_resposta",
-    })
-    .eq("tenant_id", input.tenantId)
-    .eq("id", match.id)
-    .eq("etapa", "oportunidade_futura")
-    .eq("fof_status", "ativo");
+  const pausedEventoIds: number[] = [];
 
-  if (pauseError) throw pauseError;
+  for (const match of matches) {
+    const { error: pauseError } = await admin
+      .from("eventos")
+      .update({
+        fof_resposta_cliente_em: input.respondedAt,
+        fof_status: "pausado_resposta",
+      })
+      .eq("tenant_id", input.tenantId)
+      .eq("id", match.id)
+      .eq("etapa", "oportunidade_futura")
+      .eq("fof_status", "ativo");
 
-  await admin.from("evento_notas").insert({
-    evento_id: match.id,
-    tenant_id: input.tenantId,
-    texto:
-      `[Automação] Cliente respondeu ao follow-up FOF (oportunidade futura) — ${respostaBR}\n` +
-      "Sequência FOF pausada. Lead de vendas será criado ou reaproveitado.",
-  });
+    if (pauseError) throw pauseError;
+    pausedEventoIds.push(match.id as number);
+
+    await admin.from("evento_notas").insert({
+      evento_id: match.id,
+      tenant_id: input.tenantId,
+      texto:
+        `[Automação] Cliente respondeu ao follow-up FOF (oportunidade futura) — ${respostaBR}\n` +
+        "Sequência FOF pausada. Lead de vendas será criado ou reaproveitado.",
+    });
+  }
 
   const storedPhone = normalizeBrazilPhoneForStorage(
-    typeof match.cliente_telefone === "string" ? match.cliente_telefone : input.customerPhone,
+    typeof primary.cliente_telefone === "string" ? primary.cliente_telefone : input.customerPhone,
   );
 
   if (!storedPhone) {
     return {
-      eventoId: match.id as number,
+      eventoId: primary.id as number,
       paused: true,
+      pausedEventoIds,
       vendasEventoId: null,
       vendasLeadAction: null,
     };
@@ -114,9 +124,10 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
 
   const { data: vendasEventos, error: vendasError } = await admin
     .from("eventos")
-    .select("id, cliente_telefone, etapa, status_interno")
+    .select("id, cliente_telefone, etapa, status_interno, data_evento")
     .eq("tenant_id", input.tenantId)
     .eq("funil", "vendas")
+    .neq("status_interno", "cancelado")
     .order("updated_at", { ascending: false });
 
   if (vendasError) throw vendasError;
@@ -147,51 +158,44 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
         tenant_id: input.tenantId,
         texto:
           `[Automação] Lead reativado em Contato Inicial após resposta ao FOF — ${respostaBR}\n` +
-          `Origem: evento #${match.id} (oportunidade futura).` +
+          `Origem: evento #${primary.id} (oportunidade futura).` +
           (targetPartyDate ? `\nData alvo sugerida: ${targetPartyDate}.` : ""),
       });
 
       await admin.from("evento_notas").insert({
-        evento_id: match.id,
+        evento_id: primary.id,
         tenant_id: input.tenantId,
         texto: `[Automação] Lead de vendas #${existingVendas.id} reativado em Contato Inicial.`,
       });
 
       return {
-        eventoId: match.id as number,
+        eventoId: primary.id as number,
         paused: true,
+        pausedEventoIds,
         vendasEventoId: existingVendas.id as number,
         vendasLeadAction: "reactivated",
       };
     }
 
-    const updates: Record<string, unknown> = {};
-    if (targetPartyDate) {
-      updates.data_evento = targetPartyDate;
-    }
-
-    if (Object.keys(updates).length > 0) {
-      await admin.from("eventos").update(updates).eq("id", existingVendas.id);
-    }
-
+    // Cotação já em andamento: não sobrescreve data_evento nem etapa.
     await admin.from("evento_notas").insert({
       evento_id: existingVendas.id,
       tenant_id: input.tenantId,
       texto:
         `[Automação] Cliente respondeu ao FOF (oportunidade futura) — ${respostaBR}\n` +
-        `Lead de vendas reaproveitado. Origem: evento #${match.id}.` +
-        (targetPartyDate ? `\nData alvo sugerida: ${targetPartyDate}.` : ""),
+        `Lead de vendas reaproveitado sem alterar a cotação. Origem: evento #${primary.id}.`,
     });
 
     await admin.from("evento_notas").insert({
-      evento_id: match.id,
+      evento_id: primary.id,
       tenant_id: input.tenantId,
-      texto: `[Automação] Lead de vendas existente #${existingVendas.id} reaproveitado (sem criar card novo).`,
+      texto: `[Automação] Lead de vendas existente #${existingVendas.id} reaproveitado (sem criar card novo; cotação preservada).`,
     });
 
     return {
-      eventoId: match.id as number,
+      eventoId: primary.id as number,
       paused: true,
+      pausedEventoIds,
       vendasEventoId: existingVendas.id as number,
       vendasLeadAction: "reused",
     };
@@ -217,7 +221,7 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
 
     if (existingFesta) {
       await admin.from("evento_notas").insert({
-        evento_id: match.id,
+        evento_id: primary.id,
         tenant_id: input.tenantId,
         texto:
           `[Automação] Cliente respondeu ao FOF, mas já existe festa ativa #${existingFesta.id} — ` +
@@ -225,8 +229,9 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
       });
 
       return {
-        eventoId: match.id as number,
+        eventoId: primary.id as number,
         paused: true,
+        pausedEventoIds,
         vendasEventoId: existingFesta.id as number,
         vendasLeadAction: null,
       };
@@ -234,28 +239,28 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
   }
 
   const clienteNome =
-    typeof match.cliente_nome === "string" && match.cliente_nome.trim()
-      ? match.cliente_nome.trim()
+    typeof primary.cliente_nome === "string" && primary.cliente_nome.trim()
+      ? primary.cliente_nome.trim()
       : "Lead WhatsApp";
 
   const { data: created, error: insertError } = await admin
     .from("eventos")
     .insert({
-      aniversariante_data_nascimento: match.aniversariante_data_nascimento ?? null,
-      aniversariante_idade: match.aniversariante_idade ?? null,
-      aniversariante_nome: match.aniversariante_nome ?? null,
-      aniversariante_personagem: match.aniversariante_personagem ?? null,
-      aniversariante_tema: match.aniversariante_tema ?? null,
-      cliente_bairro: match.cliente_bairro ?? null,
-      cliente_cep: match.cliente_cep ?? null,
-      cliente_cidade: match.cliente_cidade ?? null,
-      cliente_cpf: match.cliente_cpf ?? null,
-      cliente_email: match.cliente_email ?? null,
-      cliente_estado: match.cliente_estado ?? null,
+      aniversariante_data_nascimento: primary.aniversariante_data_nascimento ?? null,
+      aniversariante_idade: primary.aniversariante_idade ?? null,
+      aniversariante_nome: primary.aniversariante_nome ?? null,
+      aniversariante_personagem: primary.aniversariante_personagem ?? null,
+      aniversariante_tema: primary.aniversariante_tema ?? null,
+      cliente_bairro: primary.cliente_bairro ?? null,
+      cliente_cep: primary.cliente_cep ?? null,
+      cliente_cidade: primary.cliente_cidade ?? null,
+      cliente_cpf: primary.cliente_cpf ?? null,
+      cliente_email: primary.cliente_email ?? null,
+      cliente_estado: primary.cliente_estado ?? null,
       cliente_nome: clienteNome,
-      cliente_numero: match.cliente_numero ?? null,
-      cliente_rg: match.cliente_rg ?? null,
-      cliente_rua: match.cliente_rua ?? null,
+      cliente_numero: primary.cliente_numero ?? null,
+      cliente_rg: primary.cliente_rg ?? null,
+      cliente_rua: primary.cliente_rua ?? null,
       cliente_telefone: storedPhone,
       data_evento: targetPartyDate,
       etapa: "contato_inicial",
@@ -275,19 +280,20 @@ export const pauseOportunidadeFuturaFollowupOnCustomerReply = async (
     tenant_id: input.tenantId,
     texto:
       `[Automação] Lead criado em Contato Inicial após resposta ao FOF — ${respostaBR}\n` +
-      `Origem: evento #${match.id} (oportunidade futura).` +
+      `Origem: evento #${primary.id} (oportunidade futura).` +
       (targetPartyDate ? `\nData alvo sugerida: ${targetPartyDate}.` : ""),
   });
 
   await admin.from("evento_notas").insert({
-    evento_id: match.id,
+    evento_id: primary.id,
     tenant_id: input.tenantId,
     texto: `[Automação] Novo lead de vendas #${created.id} criado em Contato Inicial.`,
   });
 
   return {
-    eventoId: match.id as number,
+    eventoId: primary.id as number,
     paused: true,
+    pausedEventoIds,
     vendasEventoId: created.id as number,
     vendasLeadAction: "created",
   };

@@ -2,6 +2,7 @@ import { persistAgentOutboundAutomationMessage } from "./agent-memory.ts";
 import { resolveAutomationConnectionId } from "./automation-bindings.ts";
 import { formatCompanyDisplayName } from "./company-display-name.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
+import { hasVendasLeadBlockingFof } from "./fof-lead-guards.ts";
 import {
   buildOportunidadeFuturaMessage,
   buildOportunidadeFuturaNota,
@@ -218,6 +219,31 @@ export const dispatchOportunidadeFuturaFollowup = async (
       errorMessage: null,
       responseStatus: null,
       skippedReason: "Cliente sem celular válido para envio do follow-up.",
+    };
+  }
+
+  const { data: vendasBlockingRows, error: vendasBlockingError } = await admin
+    .from("eventos")
+    .select("cliente_telefone, status_interno, tenant_id")
+    .eq("tenant_id", input.tenant.id)
+    .eq("funil", "vendas")
+    .neq("status_interno", "cancelado");
+
+  if (vendasBlockingError) throw vendasBlockingError;
+
+  if (
+    hasVendasLeadBlockingFof(
+      typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : customerPhone,
+      vendasBlockingRows ?? [],
+      input.tenant.id,
+    )
+  ) {
+    return {
+      dispatched: false,
+      errorMessage: null,
+      responseStatus: null,
+      skippedReason:
+        "Já existe lead em Vendas neste telefone — FOF não dispara (cotação/histórico separado).",
     };
   }
 

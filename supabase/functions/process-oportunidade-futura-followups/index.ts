@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 import { dispatchOportunidadeFuturaFollowup } from "../_shared/dispatch-oportunidade-futura-followup.ts";
+import { selectFofDispatchEligibleIds } from "../_shared/fof-lead-guards.ts";
 import {
   addYearsToIsoDate,
   getBrazilTodayIsoDate,
@@ -39,6 +40,7 @@ type TenantInfo = { id: number; name: string; slug: string };
 type EventoCandidate = {
   id: number;
   tenant_id: number;
+  cliente_telefone: string | null;
   data_evento: string | null;
   fof1_enviado_em: string | null;
   fof2_enviado_em: string | null;
@@ -177,7 +179,7 @@ Deno.serve(async (req) => {
     const { data: candidates, error: listError } = await supabase
       .from("eventos")
       .select(
-        "id, tenant_id, data_evento, fof1_enviado_em, fof2_enviado_em, fof3_enviado_em, fof_festa_alvo, fof_status",
+        "id, tenant_id, cliente_telefone, data_evento, fof1_enviado_em, fof2_enviado_em, fof3_enviado_em, fof_festa_alvo, fof_status",
       )
       .eq("funil", "executadas")
       .eq("etapa", "oportunidade_futura")
@@ -231,9 +233,34 @@ Deno.serve(async (req) => {
         isPastPartyForFof(evento.data_evento, todayIso),
     );
 
+    const tenantIds = [...new Set(pastPartyCandidates.map((evento) => evento.tenant_id))];
+    let vendasBlocking: Array<{
+      cliente_telefone: string | null;
+      status_interno: string | null;
+      tenant_id: number;
+    }> = [];
+
+    if (tenantIds.length > 0) {
+      const { data: vendasRows, error: vendasError } = await supabase
+        .from("eventos")
+        .select("cliente_telefone, status_interno, tenant_id")
+        .in("tenant_id", tenantIds)
+        .eq("funil", "vendas")
+        .neq("status_interno", "cancelado");
+
+      if (vendasError) throw vendasError;
+      vendasBlocking = vendasRows ?? [];
+    }
+
+    const eligibility = selectFofDispatchEligibleIds(pastPartyCandidates, vendasBlocking);
+    const eligibleIdSet = new Set(eligibility.eligibleIds);
+
     const prepared: EventoCandidate[] = [];
 
+    // Só prepara (grava fof_festa_alvo / ciclo) nos OF elegíveis — histórico restante intocado.
     for (const evento of pastPartyCandidates) {
+      if (!eligibleIdSet.has(evento.id)) continue;
+
       const withTarget = { ...evento };
       const target = await ensureFofTargetDate(supabase, withTarget, todayIso);
       if (!target) continue;
@@ -341,6 +368,10 @@ Deno.serve(async (req) => {
       fof3: {
         dispatchResults: fof3Results,
         eligible: fof3Eligible.length,
+      },
+      guards: {
+        eligibleForDispatch: eligibility.eligibleIds.length,
+        skipped: eligibility.skipped,
       },
       processedAt: now,
       todayBrazil: todayIso,
