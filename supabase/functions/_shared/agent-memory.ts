@@ -63,6 +63,32 @@ const langChainRoleFromAgentRole = (role: PersistAgentMessageInput["role"]): str
   return "ai";
 };
 
+/**
+ * Formato que o Postgres Chat Memory do n8n grava e lê.
+ * O node achata `{ type, data: { content } }` em `{ type, content, ... }` na escrita;
+ * na leitura, tudo exceto `type` vira `kwargs` da AIMessage. Se o texto ficar só em
+ * `data.content`, o modelo recebe o turno de IA vazio.
+ */
+export const buildN8nChatHistoryStoredMessage = (
+  role: PersistAgentMessageInput["role"],
+  content: string,
+): Record<string, unknown> => {
+  const type = langChainRoleFromAgentRole(role);
+  const message: Record<string, unknown> = {
+    additional_kwargs: {},
+    content,
+    response_metadata: {},
+    type,
+  };
+
+  if (type === "ai") {
+    message.invalid_tool_calls = [];
+    message.tool_calls = [];
+  }
+
+  return message;
+};
+
 /** Grava mensagem outbound/inbound também no histórico LangChain do n8n. */
 export const persistN8nChatHistoryMessage = async (
   service: AgentMessageService,
@@ -70,13 +96,9 @@ export const persistN8nChatHistoryMessage = async (
 ): Promise<void> => {
   const phoneKey = toWhatsAppPhoneKey(input.customerPhone) ?? input.customerPhone;
   const sessionId = buildAgentSessionId(input.tenantId, phoneKey);
-  const langChainRole = langChainRoleFromAgentRole(input.role);
 
   const { error } = await service.from(AGENT_MEMORY_TABLE_NAME).insert({
-    message: {
-      data: { content: input.content },
-      type: langChainRole,
-    },
+    message: buildN8nChatHistoryStoredMessage(input.role, input.content),
     session_id: sessionId,
   });
 

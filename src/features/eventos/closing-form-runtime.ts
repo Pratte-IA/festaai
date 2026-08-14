@@ -1,4 +1,4 @@
-import type { Additional, PackageData } from "@/data/packagesData";
+import type { Additional, PackageData, PricingTier } from "@/data/packagesData";
 import { itemsToLines, packageHasBuffet } from "@/data/packagesData";
 import { DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO } from "@/features/eventos/contracts/contract-template-types";
 import {
@@ -16,6 +16,8 @@ import type { Json } from "@/lib/supabase/database.types";
 import { formatIsoDateBR } from "@/lib/date";
 
 const EMPTY_RESPONSE_LABEL = "Não informado";
+
+const roundCurrency = (value: number) => Math.round(value * 100) / 100;
 
 const formatDateValue = (value: string): string => formatIsoDateBR(value) || value;
 
@@ -222,21 +224,29 @@ export const getPackageFromPrice = (
   return positive.length > 0 ? Math.min(...positive) : 0;
 };
 
-export const getPackagePriceForGuests = (
-  pkg: PackageData,
+/**
+ * Faixa âncora da tabela: o maior `maxGuests` que ainda cabe na quantidade pedida.
+ * Ex.: 31–39 usam a faixa 30; 41–49 usam a 40; 85 usa a 80.
+ * Abaixo da primeira faixa, usa a primeira (preço cadastrado, sem interpolar para baixo).
+ */
+export const resolveFloorPricingTier = (
+  tiers: PricingTier[],
   guestCount: number,
+): PricingTier | null => {
+  if (tiers.length === 0) return null;
+
+  const sorted = [...tiers].sort((a, b) => a.maxGuests - b.maxGuests);
+  const floor = [...sorted].reverse().find((tier) => tier.maxGuests <= guestCount);
+  return floor ?? sorted[0] ?? null;
+};
+
+const resolveTierPriceForBand = (
+  tier: PricingTier,
+  schedule: PackageData["pricingSchedule"],
   eventDate?: string | null,
   isHoliday?: (date: string) => boolean,
 ): number => {
-  const tiers = pkg.pricingTiers ?? [];
-  const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
   const bands = schedule.bands ?? [];
-  if (tiers.length === 0) return 0;
-
-  const tier =
-    tiers.find((item) => guestCount >= item.minGuests && guestCount <= item.maxGuests) ??
-    tiers[tiers.length - 1];
-
   if (bands.length === 0) return 0;
 
   if (eventDate) {
@@ -247,6 +257,26 @@ export const getPackagePriceForGuests = (
   const prices = bands.map((band) => getTierBandPrice(tier.bandPrices, band.id));
   const positive = prices.filter((price) => price > 0);
   return positive.length > 0 ? Math.min(...positive) : prices[0] ?? 0;
+};
+
+export const getPackagePriceForGuests = (
+  pkg: PackageData,
+  guestCount: number,
+  eventDate?: string | null,
+  isHoliday?: (date: string) => boolean,
+): number => {
+  const tiers = pkg.pricingTiers ?? [];
+  const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
+  if (tiers.length === 0) return 0;
+
+  const tier = resolveFloorPricingTier(tiers, guestCount);
+  if (!tier) return 0;
+
+  const basePrice = resolveTierPriceForBand(tier, schedule, eventDate, isHoliday);
+  const anchorGuests = tier.maxGuests;
+  if (anchorGuests <= 0 || guestCount <= anchorGuests) return basePrice;
+
+  return roundCurrency((basePrice / anchorGuests) * guestCount);
 };
 
 export const resolvePackagePrice = (

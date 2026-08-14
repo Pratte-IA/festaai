@@ -40,7 +40,7 @@ describe("evento-guest-pricing", () => {
       },
     ] as Parameters<typeof recalculateEventoGuestPricing>[0]["packages"];
 
-    const result = recalculateEventoGuestPricing({
+    const interpolated = recalculateEventoGuestPricing({
       dataEvento: "2026-08-15",
       guestCount: 100,
       pacoteId: 1,
@@ -49,8 +49,20 @@ describe("evento-guest-pricing", () => {
       valorPacote: 3000,
     });
 
-    expect(result.valor_pacote).toBe(3500);
-    expect(result.valor_total).toBe(4000);
+    expect(interpolated.valor_pacote).toBe(3333.33);
+    expect(interpolated.valor_total).toBe(3833.33);
+
+    const exactNextTier = recalculateEventoGuestPricing({
+      dataEvento: "2026-08-15",
+      guestCount: 120,
+      pacoteId: 1,
+      packages,
+      valorAdicionais: 500,
+      valorPacote: 3000,
+    });
+
+    expect(exactNextTier.valor_pacote).toBe(3500);
+    expect(exactNextTier.valor_total).toBe(4000);
   });
 
   it("registra historico quando convidados mudam apos contrato assinado", () => {

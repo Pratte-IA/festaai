@@ -34,6 +34,7 @@ import {
   isValidPackageAutomationName,
   sanitizePackageAutomationNameInput,
 } from "@/lib/package-automation-name";
+import { collapsePackageGuestPricing } from "@/data/expand-pricing-tiers";
 import {
   Users, UtensilsCrossed, Gamepad2, UsersRound,
   Plus, X, Check, ChevronRight, ChevronLeft,
@@ -154,7 +155,7 @@ const PackageWizard = ({
   const [isSaving, setIsSaving] = useState(false);
   const [pkg, setPkg] = useState<PackageData>(() =>
     initialPackage
-      ? clonePackage(initialPackage)
+      ? collapsePackageGuestPricing(clonePackage(initialPackage))
       : { ...createEmptyPackage(), estrutura: cloneEstrutura(tenantEstrutura) },
   );
   const [automationNameTouched, setAutomationNameTouched] = useState(() =>
@@ -251,7 +252,7 @@ const PackageWizard = ({
       const saved = await onSave(payload, { close });
       if (!saved) return false;
 
-      setPkg(clonePackage(saved));
+      setPkg(collapsePackageGuestPricing(clonePackage(saved)));
       return true;
     } finally {
       setIsSaving(false);
@@ -959,8 +960,10 @@ const PrecosStep = ({
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Defina faixas de convidados (padrão de {GUEST_TIER_SPAN} em {GUEST_TIER_SPAN}) e o valor para
-        cada grupo de dias.
+        Cadastre o valor de cada faixa (padrão de {GUEST_TIER_SPAN} em {GUEST_TIER_SPAN}, por exemplo
+        30, 40, 50). Quantidades intermediárias são calculadas automaticamente: valor da faixa ÷
+        convidados da faixa × quantidade escolhida. Ex.: R$ 3.000 para 30 convidados → 31 convidados
+        = R$ 3.100. A faixa 40 vale para 41 a 49; a faixa 80 vale para 81 a 89.
       </p>
 
       <div className="overflow-x-auto">

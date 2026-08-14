@@ -1,16 +1,7 @@
 import type { PackageData } from "@/data/packagesData";
+import { isInterpolatedPricingTier } from "@/data/expand-pricing-tiers";
 
-export const GUEST_COUNT_STEP = 10;
-
-export const snapGuestCountDownToStep = (value: number): number => {
-  if (!Number.isFinite(value) || value <= 0) return GUEST_COUNT_STEP;
-  return Math.max(GUEST_COUNT_STEP, Math.floor(value / GUEST_COUNT_STEP) * GUEST_COUNT_STEP);
-};
-
-export const snapGuestCountToStep = (value: number): number => {
-  if (!Number.isFinite(value) || value <= 0) return GUEST_COUNT_STEP;
-  return Math.max(GUEST_COUNT_STEP, Math.round(value / GUEST_COUNT_STEP) * GUEST_COUNT_STEP);
-};
+const DEFAULT_MAX_GUEST_COUNT = 200;
 
 export const resolveMaxGuestsFromPackages = (packages: PackageData[]): number | null => {
   let max = 0;
@@ -21,26 +12,44 @@ export const resolveMaxGuestsFromPackages = (packages: PackageData[]): number | 
     });
   });
 
-  return max > 0 ? snapGuestCountDownToStep(max) : null;
+  return max > 0 ? max : null;
+};
+
+export const resolveMinGuestCount = (packages: PackageData[]): number => {
+  let min = Number.POSITIVE_INFINITY;
+
+  packages.forEach((pkg) => {
+    pkg.pricingTiers.forEach((tier) => {
+      if (isInterpolatedPricingTier(tier)) return;
+      if (tier.minGuests > 0 && tier.minGuests < min) min = tier.minGuests;
+    });
+  });
+
+  return Number.isFinite(min) ? min : 1;
 };
 
 export const resolveMaxGuestCount = (
   venueCapacity: number | null | undefined,
   packages: PackageData[],
 ): number | null => {
-  const venueMax =
-    venueCapacity != null && venueCapacity > 0 ? snapGuestCountDownToStep(venueCapacity) : null;
+  const venueMax = venueCapacity != null && venueCapacity > 0 ? venueCapacity : null;
   const packageMax = resolveMaxGuestsFromPackages(packages);
 
   if (venueMax != null && packageMax != null) return Math.min(venueMax, packageMax);
   return venueMax ?? packageMax;
 };
 
-export const buildGuestCountOptions = (maxGuestCount: number | null): number[] => {
-  const max = maxGuestCount != null && maxGuestCount >= GUEST_COUNT_STEP ? maxGuestCount : 200;
+export const buildGuestCountOptions = (
+  maxGuestCount: number | null,
+  minGuestCount = 1,
+): number[] => {
+  const max =
+    maxGuestCount != null && maxGuestCount >= 1 ? maxGuestCount : DEFAULT_MAX_GUEST_COUNT;
+  const min = Math.max(1, minGuestCount);
+  const start = Math.min(min, max);
   const options: number[] = [];
 
-  for (let count = GUEST_COUNT_STEP; count <= max; count += GUEST_COUNT_STEP) {
+  for (let count = start; count <= max; count += 1) {
     options.push(count);
   }
 
@@ -54,12 +63,14 @@ export const normalizeGuestCountValue = (
   const digits = rawValue.replace(/\D/g, "");
   if (!digits) return "";
 
-  const snapped = snapGuestCountToStep(Number(digits));
+  const count = Number(digits);
+  if (!Number.isFinite(count) || count <= 0) return "";
+
   if (maxGuestCount != null && maxGuestCount > 0) {
-    return String(Math.min(snapped, maxGuestCount));
+    return String(Math.min(count, maxGuestCount));
   }
 
-  return String(snapped);
+  return String(count);
 };
 
 export const validateGuestCountValue = (
@@ -70,12 +81,8 @@ export const validateGuestCountValue = (
   if (!trimmed) return "Este campo é obrigatório.";
 
   const count = Number(trimmed);
-  if (!Number.isFinite(count) || count <= 0) {
+  if (!Number.isFinite(count) || count <= 0 || !Number.isInteger(count)) {
     return "Informe uma quantidade válida de convidados.";
-  }
-
-  if (count % GUEST_COUNT_STEP !== 0) {
-    return `Informe a quantidade de convidados de ${GUEST_COUNT_STEP} em ${GUEST_COUNT_STEP}.`;
   }
 
   if (maxGuestCount != null && maxGuestCount > 0 && count > maxGuestCount) {
@@ -87,8 +94,8 @@ export const validateGuestCountValue = (
 
 export const buildGuestCountHelperText = (maxGuestCount: number | null): string => {
   if (maxGuestCount != null && maxGuestCount > 0) {
-    return `Selecione de ${GUEST_COUNT_STEP} em ${GUEST_COUNT_STEP} convidados, até o máximo de ${maxGuestCount} pessoas (capacidade do salão).`;
+    return `Selecione a quantidade de convidados, até o máximo de ${maxGuestCount} pessoas (capacidade do salão). Quantidades entre as faixas da tabela (ex.: 31 a 39) usam o valor da faixa anterior, proporcional por pessoa.`;
   }
 
-  return `Selecione a quantidade de convidados de ${GUEST_COUNT_STEP} em ${GUEST_COUNT_STEP}.`;
+  return "Selecione a quantidade de convidados. Quantidades entre as faixas da tabela (ex.: 31 a 39) usam o valor da faixa anterior, proporcional por pessoa.";
 };

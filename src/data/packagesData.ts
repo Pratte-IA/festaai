@@ -184,6 +184,8 @@ export interface PricingTier {
   minGuests: number;
   maxGuests: number;
   bandPrices: Record<string, number>;
+  /** Gerada automaticamente entre as faixas cadastradas pelo tenant (ex.: 31 a 39 a partir de 30). */
+  interpolated?: boolean;
 }
 
 const toNonNegativeNumber = (value: unknown): number => {
@@ -220,6 +222,7 @@ const normalizePricingTier = (
     minGuests: toNonNegativeNumber(tier.minGuests),
     maxGuests: toNonNegativeNumber(tier.maxGuests),
     bandPrices,
+    ...(tier.interpolated === true ? { interpolated: true } : {}),
   };
 };
 

@@ -542,10 +542,12 @@ export const EventoFormDialog = ({
               />
               {hasLinkedPackagePricing ? (
                 <p className="text-xs text-muted-foreground">
-                  O valor do pacote é recalculado automaticamente conforme a tabela de preços
+                  O valor do pacote é recalculado automaticamente conforme a tabela de preços.
+                  Quantidades entre faixas (ex.: 31 a 39) usam o valor da faixa anterior, proporcional
+                  por pessoa.
                   {form.data_evento.trim()
-                    ? " e a data do evento (dia da semana/feriado)."
-                    : "; informe a data do evento para aplicar o preço de sábado, domingo ou feriado."}
+                    ? " A data do evento define o preço de dia útil, fim de semana ou feriado."
+                    : " Informe a data do evento para aplicar o preço de sábado, domingo ou feriado."}
                 </p>
               ) : null}
             </Field>

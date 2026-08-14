@@ -54,6 +54,7 @@ import {
   buildGuestCountOptions,
   normalizeGuestCountValue,
   resolveMaxGuestCount,
+  resolveMinGuestCount,
   validateGuestCountValue,
 } from "@/features/eventos/guest-count-input";
 import type { Evento } from "@/features/eventos/types";
@@ -285,9 +286,14 @@ export const ClientContractForm = ({
     [config.maxVenueGuestCapacity, config.packages],
   );
 
+  const minGuestCount = useMemo(
+    () => resolveMinGuestCount(config.packages),
+    [config.packages],
+  );
+
   const guestCountOptions = useMemo(
-    () => buildGuestCountOptions(maxGuestCount),
-    [maxGuestCount],
+    () => buildGuestCountOptions(maxGuestCount, minGuestCount),
+    [maxGuestCount, minGuestCount],
   );
 
   const guestCountHelperText = useMemo(

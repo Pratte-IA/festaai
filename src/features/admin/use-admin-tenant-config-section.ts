@@ -7,12 +7,7 @@ import {
 import { parseOutboundWebhookUrls } from "@/features/admin/admin-tenant-n8n-settings";
 import { parseTenantContractTemplateParams } from "@/features/eventos/contracts/contract-template-params";
 import type { GuidedSetupStepKey } from "@/features/guided-setup";
-import {
-  normalizeBuffetBlock,
-  normalizeEquipe,
-  normalizePackagePricing,
-  parsePackageItems,
-} from "@/data/packagesData";
+import { collapsePricingTiersToAnchors } from "@/data/expand-pricing-tiers";
 import { supabase } from "@/lib/supabase/client";
 
 export const adminTenantConfigSectionQueryKey = (tenantId: number, section: GuidedSetupStepKey) =>
@@ -40,13 +35,14 @@ const fetchSectionData = async (tenantId: number, section: GuidedSetupStepKey) =
       if (error) throw error;
       return (data ?? []).map((row) => {
         const { tiers } = normalizePackagePricing(row.pricing_tiers);
+        const anchorTiers = collapsePricingTiersToAnchors(tiers);
         return {
           ...row,
           buffet: normalizeBuffetBlock(row.buffet),
-          equipe: normalizeEquipe(row.equipe, tiers.map((tier) => tier.id)),
+          equipe: normalizeEquipe(row.equipe, anchorTiers.map((tier) => tier.id)),
           includedItems: parsePackageItems(row.included_items),
           excludedItems: parsePackageItems(row.excluded_items),
-          pricingTiers: tiers,
+          pricingTiers: anchorTiers,
         };
       });
     }

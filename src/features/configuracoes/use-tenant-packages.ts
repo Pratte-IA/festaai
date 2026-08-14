@@ -19,6 +19,7 @@ import { guidedSetupQueryKeys } from "@/features/guided-setup/query-keys";
 import { resolvePackageAutomationNameForSave, buildPackageAutomationName } from "@/lib/package-automation-name";
 import { seedDefaultChecklistForPackage } from "./seed-default-checklist";
 import { syncTenantAdditionals } from "./sync-tenant-additionals";
+import { expandPackageGuestPricing } from "@/data/expand-pricing-tiers";
 
 type PackageInput = Omit<PackageData, "id">;
 type AdditionalInput = Omit<Additional, "id">;
@@ -103,6 +104,17 @@ const packageMetadataPayload = (pkg: PackageData | PackageInput) => ({
   included_items: (pkg.includedItems ?? []) as unknown as Json,
   rules: pkg.rules?.trim() || null,
 });
+
+const packagePricingPayload = (pkg: PackageData | PackageInput) => {
+  const prepared = expandPackageGuestPricing(pkg);
+  return {
+    equipe: prepared.equipe as unknown as Json,
+    pricing_tiers: serializePackagePricing(
+      prepared.pricingSchedule,
+      prepared.pricingTiers,
+    ) as unknown as Json,
+  };
+};
 
 const invalidatePackages = (
   queryClient: ReturnType<typeof useQueryClient>,
@@ -231,14 +243,13 @@ export const useUpdateTenantPackage = () => {
           .from("tenant_packages")
           .update({
             ...packageMetadataPayload(pkg),
+            ...packagePricingPayload(pkg),
             active: pkg.active ?? true,
             buffet: pkg.buffet as unknown as Json,
             description: pkg.description,
-            equipe: pkg.equipe as unknown as Json,
             estrutura: pkg.estrutura as unknown as Json,
             name: pkg.name.trim(),
             name_automacao: nameAutomacao,
-            pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
             sort_order: pkg.sortOrder ?? 0,
             updated_by: user.id,
           })
@@ -287,15 +298,14 @@ export const useCreateTenantPackage = () => {
           .from("tenant_packages")
           .insert({
             ...packageMetadataPayload(pkg),
+            ...packagePricingPayload(pkg),
             active: pkg.active ?? true,
             buffet: pkg.buffet as unknown as Json,
             created_by: user.id,
             description: pkg.description,
-            equipe: pkg.equipe as unknown as Json,
             estrutura: pkg.estrutura as unknown as Json,
             name: pkg.name.trim(),
             name_automacao: nameAutomacao,
-            pricing_tiers: serializePackagePricing(pkg.pricingSchedule, pkg.pricingTiers) as unknown as Json,
             sort_order: nextSortOrder,
             tenant_id: currentTenantId,
             updated_by: user.id,
@@ -414,6 +424,7 @@ export const useDuplicateTenantPackage = () => {
         existingAutomationNames,
         explicitAutomationName: buildPackageAutomationName(duplicateDisplayName),
       });
+      const expandedSource = expandPackageGuestPricing(mapPackageRow(source));
 
       const { data, error } = await supabase
         .from("tenant_packages")
@@ -423,14 +434,17 @@ export const useDuplicateTenantPackage = () => {
           created_by: user.id,
           description: source.description,
           duration_minutes: source.duration_minutes,
-          equipe: source.equipe,
+          equipe: expandedSource.equipe as unknown as Json,
           estrutura: source.estrutura,
           excluded_items: source.excluded_items,
           included_guests: source.included_guests,
           included_items: source.included_items,
           name: duplicateDisplayName,
           name_automacao: nameAutomacao,
-          pricing_tiers: source.pricing_tiers,
+          pricing_tiers: serializePackagePricing(
+            expandedSource.pricingSchedule,
+            expandedSource.pricingTiers,
+          ) as unknown as Json,
           rules: source.rules,
           sort_order: nextSortOrder,
           tenant_id: currentTenantId,

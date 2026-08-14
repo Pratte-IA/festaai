@@ -15,6 +15,7 @@ import PackageWizard from "./PackageWizard";
 import { useCurrentTenant } from "@/features/tenants";
 import { formatDurationMinutes } from "@/lib/duration";
 import { formatEquipeForTier, getEquipeQuantity, packageHasBuffet } from "@/data/packagesData";
+import { collapsePricingTiersToAnchors } from "@/data/expand-pricing-tiers";
 import { getTierBandPrice } from "@/data/pricing-schedule";
 import {
   Users,
@@ -46,7 +47,7 @@ const formatCurrency = (value: number) =>
 const getPackageHeaderStats = (packages: PackageData[]) => {
   const activePackages = packages.filter((pkg) => pkg.active !== false);
   const tierCount = activePackages.reduce(
-    (sum, pkg) => sum + (pkg.pricingTiers?.length ?? 0),
+    (sum, pkg) => sum + collapsePricingTiersToAnchors(pkg.pricingTiers ?? []).length,
     0,
   );
   const maxGuests = activePackages.reduce((max, pkg) => {
@@ -281,7 +282,7 @@ const PackagesConfig = ({
         {packages.map((pkg, packageIndex) => {
           const isExpanded = expandedPkg === pkg.id;
           const isInactive = pkg.active === false;
-          const pricingTiers = pkg.pricingTiers ?? [];
+          const pricingTiers = collapsePricingTiersToAnchors(pkg.pricingTiers ?? []);
           const pricingBands = pkg.pricingSchedule?.bands ?? [];
           const minTierGuests = pricingTiers[0]?.minGuests ?? 0;
           const maxTierGuests = pricingTiers[pricingTiers.length - 1]?.maxGuests ?? 0;
