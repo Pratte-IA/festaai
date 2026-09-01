@@ -295,6 +295,8 @@ const archiveDuplicateVendasLeads = async (
   }
 };
 
+const PUBLIC_FORM_BLOCKED_TENANT_STATUSES = new Set(["canceled", "suspended"]);
+
 const resolveTenant = async (
   admin: ReturnType<typeof createClient>,
   tenantSlug: string,
@@ -306,7 +308,8 @@ const resolveTenant = async (
     .maybeSingle();
 
   if (error) throw error;
-  if (!data || data.status !== "active") return null;
+  // Alinhado a canAccessTenantApp: trial e past_due podem usar o formulário público.
+  if (!data || PUBLIC_FORM_BLOCKED_TENANT_STATUSES.has(String(data.status))) return null;
   return data;
 };
 
