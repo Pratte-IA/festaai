@@ -23,6 +23,7 @@ import {
   Send,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { AllUnitsReadToggle } from "@/components/tenants/UnitSwitcher";
 import { ReportComponentProps, ReportPeriod } from "@/features/reports";
 
 const reports = [
@@ -166,8 +167,13 @@ const Relatorios = () => {
           >
             ← Voltar aos relatórios
           </button>
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+            </div>
+            <AllUnitsReadToggle />
+          </div>
         </div>
         <div className="glass-card mb-6 grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
           {!hidePeriodFilter ? (
@@ -206,9 +212,12 @@ const Relatorios = () => {
 
   return (
     <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
-        <p className="text-sm text-muted-foreground mt-1">Relatórios acionáveis para impulsionar vendas</p>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
+          <p className="text-sm text-muted-foreground mt-1">Relatórios acionáveis para impulsionar vendas</p>
+        </div>
+        <AllUnitsReadToggle />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

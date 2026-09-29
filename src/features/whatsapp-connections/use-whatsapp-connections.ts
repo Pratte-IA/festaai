@@ -42,17 +42,18 @@ const invokeWhatsappFunction = async <T>(functionName: string, body: Record<stri
 };
 
 export const useWhatsappConnections = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
     queryFn: async () => {
       const result = await invokeWhatsappFunction<WhatsappConnectionsResponse>("list-whatsapp-connections", {
         tenantId: currentTenantId as number,
+        unitId: currentUnitId as number,
       });
       return result.connections;
     },
-    queryKey: queryKey(currentTenantId),
+    queryKey: [...queryKey(currentTenantId), currentUnitId],
     refetchInterval: (query) => {
       const connections = query.state.data ?? [];
       return connections.some((connection) => connection.status === "connecting") ? 5000 : false;
@@ -62,13 +63,16 @@ export const useWhatsappConnections = () => {
 
 export const useCreateWhatsappConnection = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useMutation({
     mutationFn: async (name: string) => {
+      if (!currentUnitId) throw new Error("Selecione a casa antes de criar o WhatsApp.");
+
       const result = await invokeWhatsappFunction<WhatsappConnectionResponse>("create-whatsapp-connection", {
         name,
         tenantId: currentTenantId as number,
+        unitId: currentUnitId,
       });
       return result.connection;
     },

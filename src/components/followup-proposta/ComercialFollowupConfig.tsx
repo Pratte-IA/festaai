@@ -83,7 +83,7 @@ interface ComercialFollowupConfigProps {
 }
 
 export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowupConfigProps) => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const { data: companyProfile } = useTenantCompanyProfile();
   const { getTemplate, handleSave, isLoading, savingKey, setDraftBody } = useFollowupTemplateEditor();
 
@@ -140,7 +140,7 @@ export const ComercialFollowupConfig = ({ showSettingsHeader }: ComercialFollowu
   );
 
   const previewLinkFormulario = currentTenant
-    ? buildPublicContractFormUrl(currentTenant.slug, CONTRACT_SIGNATURE_FOLLOWUP_PREVIEW.eventoId)
+    ? buildPublicContractFormUrl(currentTenant.slug, CONTRACT_SIGNATURE_FOLLOWUP_PREVIEW.eventoId, currentUnit)
     : "https://festaai.com.br/formulario/sua-casa?evento=123";
 
   const previewFu0 = useMemo(

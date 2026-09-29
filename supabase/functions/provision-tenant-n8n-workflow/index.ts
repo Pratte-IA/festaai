@@ -6,6 +6,7 @@ import { provisionTenantN8nWorkflow } from "../_shared/n8n-provision.ts";
 
 const bodySchema = z.object({
   tenantId: z.number().int().positive(),
+  unitId: z.number().int().positive().optional(),
 });
 
 Deno.serve(async (req) => {
@@ -36,7 +37,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-      const result = await provisionTenantN8nWorkflow(service, tenant);
+      const result = await provisionTenantN8nWorkflow(service, tenant, payload.unitId);
 
       return jsonResponse({
         ok: true,
@@ -57,15 +58,29 @@ Deno.serve(async (req) => {
       });
     } catch (provisionError) {
       const message = provisionError instanceof Error ? provisionError.message : "Erro ao provisionar N8N.";
-      await service.from("tenant_automation_settings").upsert(
-        {
-          inbound_automation_enabled: false,
-          n8n_last_error: message,
-          n8n_provision_status: "error",
-          tenant_id: tenantId,
-        },
-        { onConflict: "tenant_id" },
-      );
+      let unitId = payload.unitId ?? null;
+      if (unitId == null) {
+        const matriz = await service
+          .from("tenant_units")
+          .select("id")
+          .eq("tenant_id", tenantId)
+          .eq("kind", "matriz")
+          .maybeSingle();
+        unitId = typeof matriz.data?.id === "number" ? matriz.data.id : null;
+      }
+
+      if (unitId != null) {
+        await service.from("tenant_automation_settings").upsert(
+          {
+            inbound_automation_enabled: false,
+            n8n_last_error: message,
+            n8n_provision_status: "error",
+            tenant_id: tenantId,
+            unit_id: unitId,
+          },
+          { onConflict: "unit_id" },
+        );
+      }
       throw provisionError;
     }
   } catch (error) {

@@ -127,6 +127,7 @@ export type Database = {
           role: string
           session_id: string
           tenant_id: number
+          unit_id: number
         }
         Insert: {
           connection_id?: number | null
@@ -139,6 +140,7 @@ export type Database = {
           role: string
           session_id: string
           tenant_id: number
+          unit_id?: number
         }
         Update: {
           connection_id?: number | null
@@ -184,6 +186,7 @@ export type Database = {
           n8n_status: string
           payload: Json | null
           tenant_id: number | null
+          unit_id: number | null
         }
         Insert: {
           connection_id?: number | null
@@ -199,6 +202,7 @@ export type Database = {
           n8n_status?: string
           payload?: Json | null
           tenant_id?: number | null
+          unit_id?: number | null
         }
         Update: {
           connection_id?: number | null
@@ -517,6 +521,7 @@ export type Database = {
           id: number
           motivo: string | null
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -527,6 +532,7 @@ export type Database = {
           id?: number
           motivo?: string | null
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -742,6 +748,7 @@ export type Database = {
           referencia_id: number | null
           referencia_tipo: string | null
           tenant_id: number
+          unit_id: number
           tipo: string
           updated_at: string
           updated_by: string | null
@@ -761,6 +768,7 @@ export type Database = {
           referencia_id?: number | null
           referencia_tipo?: string | null
           tenant_id: number
+          unit_id?: number
           tipo: string
           updated_at?: string
           updated_by?: string | null
@@ -1401,6 +1409,7 @@ export type Database = {
           sete_dias_whatsapp_enviado_em: string | null
           status_interno: string
           tenant_id: number
+          unit_id: number
           tipo_evento: string
           updated_at: string
           updated_by: string | null
@@ -1495,6 +1504,7 @@ export type Database = {
           sete_dias_whatsapp_enviado_em?: string | null
           status_interno?: string
           tenant_id: number
+          unit_id?: number
           tipo_evento?: string
           updated_at?: string
           updated_by?: string | null
@@ -1920,6 +1930,7 @@ export type Database = {
           show_in_form: boolean
           sort_order: number
           tenant_id: number
+          unit_id: number
           term_key: string | null
           title: string
           updated_at: string
@@ -1938,6 +1949,7 @@ export type Database = {
           show_in_form?: boolean
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           term_key?: string | null
           title: string
           updated_at?: string
@@ -1985,6 +1997,7 @@ export type Database = {
           price: number
           sort_order: number
           tenant_id: number
+          unit_id: number
           type: string
           updated_at: string
           updated_by: string | null
@@ -2002,6 +2015,7 @@ export type Database = {
           price?: number
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           type?: string
           updated_at?: string
           updated_by?: string | null
@@ -2019,6 +2033,7 @@ export type Database = {
           price?: number
           sort_order?: number
           tenant_id?: number
+          unit_id?: number
           type?: string
           updated_at?: string
           updated_by?: string | null
@@ -2051,6 +2066,7 @@ export type Database = {
           system_armed: boolean
           system_armed_at: string | null
           tenant_id: number
+          unit_id: number
           updated_at: string
         }
         Insert: {
@@ -2070,6 +2086,7 @@ export type Database = {
           system_armed?: boolean
           system_armed_at?: string | null
           tenant_id: number
+          unit_id?: number
           updated_at?: string
         }
         Update: {
@@ -2089,6 +2106,7 @@ export type Database = {
           system_armed?: boolean
           system_armed_at?: string | null
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
         }
         Relationships: [
@@ -2111,6 +2129,7 @@ export type Database = {
           package_id: number
           sort_order: number
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2123,6 +2142,7 @@ export type Database = {
           package_id: number
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2135,6 +2155,7 @@ export type Database = {
           package_id?: number
           sort_order?: number
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2165,6 +2186,7 @@ export type Database = {
           label: string
           sort_order: number
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2177,6 +2199,7 @@ export type Database = {
           label: string
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2189,6 +2212,7 @@ export type Database = {
           label?: string
           sort_order?: number
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2228,6 +2252,7 @@ export type Database = {
           section: string
           sort_order: number
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
           usage_ai: boolean
@@ -2255,6 +2280,7 @@ export type Database = {
           section: string
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
           usage_ai?: boolean
@@ -2282,6 +2308,7 @@ export type Database = {
           section?: string
           sort_order?: number
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
           usage_ai?: boolean
@@ -2315,6 +2342,7 @@ export type Database = {
           required: boolean
           sort_order: number
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2331,6 +2359,7 @@ export type Database = {
           required?: boolean
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2347,6 +2376,7 @@ export type Database = {
           required?: boolean
           sort_order?: number
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2373,6 +2403,7 @@ export type Database = {
           setup_tipo: string
           setup_valor: number
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2388,6 +2419,7 @@ export type Database = {
           setup_tipo?: string
           setup_valor?: number
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2403,6 +2435,7 @@ export type Database = {
           setup_tipo?: string
           setup_valor?: number
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2433,6 +2466,7 @@ export type Database = {
           legal_representative_cpf: string | null
           legal_representative_name: string | null
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2452,6 +2486,7 @@ export type Database = {
           legal_representative_cpf?: string | null
           legal_representative_name?: string | null
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2471,6 +2506,7 @@ export type Database = {
           legal_representative_cpf?: string | null
           legal_representative_name?: string | null
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2495,6 +2531,7 @@ export type Database = {
           created_at: string
           id: number
           tenant_id: number
+          unit_id: number
           terms_version: number
           user_agent: string | null
         }
@@ -2508,6 +2545,7 @@ export type Database = {
           created_at?: string
           id?: number
           tenant_id: number
+          unit_id?: number
           terms_version: number
           user_agent?: string | null
         }
@@ -2521,6 +2559,7 @@ export type Database = {
           created_at?: string
           id?: number
           tenant_id?: number
+          unit_id?: number
           terms_version?: number
           user_agent?: string | null
         }
@@ -2540,6 +2579,7 @@ export type Database = {
           models_configured_at: string | null
           template_params: Json
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2548,6 +2588,7 @@ export type Database = {
           models_configured_at?: string | null
           template_params?: Json
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2556,6 +2597,7 @@ export type Database = {
           models_configured_at?: string | null
           template_params?: Json
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2581,6 +2623,7 @@ export type Database = {
           template_html: string
           template_key: string
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
           version: number
@@ -2596,6 +2639,7 @@ export type Database = {
           template_html: string
           template_key: string
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
           version?: number
@@ -2611,6 +2655,7 @@ export type Database = {
           template_html?: string
           template_key?: string
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
           version?: number
@@ -2645,6 +2690,7 @@ export type Database = {
           remaining_pix_installments: boolean
           rescheduling_policy: string | null
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2667,6 +2713,7 @@ export type Database = {
           remaining_pix_installments?: boolean
           rescheduling_policy?: string | null
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2689,6 +2736,7 @@ export type Database = {
           remaining_pix_installments?: boolean
           rescheduling_policy?: string | null
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2708,6 +2756,7 @@ export type Database = {
           completed_steps: string[]
           current_step: string
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2716,6 +2765,7 @@ export type Database = {
           completed_steps?: string[]
           current_step?: string
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2724,6 +2774,7 @@ export type Database = {
           completed_steps?: string[]
           current_step?: string
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2789,6 +2840,7 @@ export type Database = {
           recurs_annually: boolean
           scope: string
           tenant_id: number
+          unit_id: number
           updated_at: string
         }
         Insert: {
@@ -2801,6 +2853,7 @@ export type Database = {
           recurs_annually?: boolean
           scope: string
           tenant_id: number
+          unit_id?: number
           updated_at?: string
         }
         Update: {
@@ -2833,6 +2886,7 @@ export type Database = {
           id: number
           key: string
           tenant_id: number
+          unit_id: number
           title: string
           updated_at: string
           updated_by: string | null
@@ -2844,6 +2898,7 @@ export type Database = {
           id?: number
           key: string
           tenant_id: number
+          unit_id?: number
           title: string
           updated_at?: string
           updated_by?: string | null
@@ -2855,6 +2910,7 @@ export type Database = {
           id?: number
           key?: string
           tenant_id?: number
+          unit_id?: number
           title?: string
           updated_at?: string
           updated_by?: string | null
@@ -2889,6 +2945,7 @@ export type Database = {
           rules: string | null
           sort_order: number
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2911,6 +2968,7 @@ export type Database = {
           rules?: string | null
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2933,6 +2991,7 @@ export type Database = {
           rules?: string | null
           sort_order?: number
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -2963,6 +3022,7 @@ export type Database = {
           payment_type: string
           sort_order: number
           tenant_id: number
+          unit_id: number
           updated_at: string
           updated_by: string | null
         }
@@ -2982,6 +3042,7 @@ export type Database = {
           payment_type: string
           sort_order?: number
           tenant_id: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -3001,6 +3062,7 @@ export type Database = {
           payment_type?: string
           sort_order?: number
           tenant_id?: number
+          unit_id?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -3100,6 +3162,7 @@ export type Database = {
           scope: string
           status: string
           tenant_id: number | null
+          unit_id: number | null
           type: string
           updated_at: string
           webhook_url: string | null
@@ -3204,11 +3267,119 @@ export type Database = {
           },
         ]
       }
+      tenant_estrutura_settings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          estrutura: Json
+          tenant_id: number
+          unit_id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          estrutura?: Json
+          tenant_id: number
+          unit_id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          estrutura?: Json
+          tenant_id?: number
+          unit_id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_estrutura_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_units: {
+        Row: {
+          created_at: string
+          document: string | null
+          email: string | null
+          id: number
+          kind: string
+          name: string
+          parent_unit_id: number | null
+          phone: string | null
+          slug: string
+          status: string
+          tenant_id: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: number
+          kind: string
+          name: string
+          parent_unit_id?: number | null
+          phone?: string | null
+          slug: string
+          status?: string
+          tenant_id: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: number
+          kind?: string
+          name?: string
+          parent_unit_id?: number | null
+          phone?: string | null
+          slug?: string
+          status?: string
+          tenant_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_units_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      create_tenant_filial: {
+        Args: { p_name: string; p_slug: string; p_tenant_id: number }
+        Returns: {
+          created_at: string
+          document: string | null
+          email: string | null
+          id: number
+          kind: string
+          name: string
+          parent_unit_id: number | null
+          phone: string | null
+          slug: string
+          status: string
+          tenant_id: number
+          updated_at: string
+        }
+      }
       check_tenant_holidays: {
         Args: { p_dates: string[]; p_tenant_id: number }
         Returns: {

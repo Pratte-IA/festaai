@@ -41,10 +41,10 @@ const mapCompanyProfileRow = (row: CompanyProfileRow): TenantCompanyProfile => (
 });
 
 export const useTenantCompanyProfile = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
     queryFn: async (): Promise<TenantCompanyProfile | null> => {
       const { data, error } = await supabase
         .from("tenant_company_profiles")
@@ -52,6 +52,7 @@ export const useTenantCompanyProfile = () => {
           "tenant_id, company_name, cnpj, address_cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state, legal_representative_name, legal_representative_cpf, completed_at",
         )
         .eq("tenant_id", currentTenantId as number)
+        .eq("unit_id", currentUnitId as number)
         .maybeSingle();
 
       if (error) throw error;
@@ -59,18 +60,18 @@ export const useTenantCompanyProfile = () => {
 
       return mapCompanyProfileRow(data as CompanyProfileRow);
     },
-    queryKey: guidedSetupQueryKeys.companyProfile(currentTenantId),
+    queryKey: [...guidedSetupQueryKeys.companyProfile(currentTenantId), currentUnitId],
   });
 };
 
 export const useSaveTenantCompanyProfile = () => {
   const queryClient = useQueryClient();
-  const { currentTenant, currentTenantId } = useCurrentTenant();
+  const { currentTenant, currentTenantId, currentUnit, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: TenantCompanyProfileInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -89,6 +90,7 @@ export const useSaveTenantCompanyProfile = () => {
         legal_representative_cpf: onlyDigits(input.legalRepresentativeCpf),
         legal_representative_name: input.legalRepresentativeName.trim(),
         tenant_id: currentTenantId,
+        unit_id: currentUnitId,
         updated_by: user.id,
       };
 
@@ -96,6 +98,7 @@ export const useSaveTenantCompanyProfile = () => {
         .from("tenant_company_profiles")
         .select("tenant_id")
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .maybeSingle();
 
       if (existingError) throw existingError;
@@ -105,6 +108,7 @@ export const useSaveTenantCompanyProfile = () => {
             .from("tenant_company_profiles")
             .update(normalized)
             .eq("tenant_id", currentTenantId)
+            .eq("unit_id", currentUnitId)
             .select(
               "tenant_id, company_name, cnpj, address_cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state, legal_representative_name, legal_representative_cpf, completed_at",
             )
@@ -119,25 +123,39 @@ export const useSaveTenantCompanyProfile = () => {
 
       if (error) throw error;
 
-      const { error: tenantError } = await supabase
-        .from("tenants")
+      const { error: unitError } = await supabase
+        .from("tenant_units")
         .update({
           document: onlyDigits(input.cnpj),
           name: input.companyName.trim(),
         })
-        .eq("id", currentTenantId);
+        .eq("id", currentUnitId);
 
-      if (tenantError) throw tenantError;
+      if (unitError) throw unitError;
 
-      if (currentTenant?.name !== input.companyName.trim()) {
-        void queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      if (currentUnit?.kind === "matriz") {
+        const { error: tenantError } = await supabase
+          .from("tenants")
+          .update({
+            document: onlyDigits(input.cnpj),
+            name: input.companyName.trim(),
+          })
+          .eq("id", currentTenantId);
+
+        if (tenantError) throw tenantError;
+
+        if (currentTenant?.name !== input.companyName.trim()) {
+          void queryClient.invalidateQueries({ queryKey: ["tenants"] });
+        }
       }
+
+      void queryClient.invalidateQueries({ queryKey: ["tenant-units", currentTenantId] });
 
       return mapCompanyProfileRow(data as CompanyProfileRow);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: guidedSetupQueryKeys.companyProfile(currentTenantId),
+        queryKey: [...guidedSetupQueryKeys.companyProfile(currentTenantId), currentUnitId],
       });
       void queryClient.invalidateQueries({
         queryKey: guidedSetupQueryKeys.derived(currentTenantId),

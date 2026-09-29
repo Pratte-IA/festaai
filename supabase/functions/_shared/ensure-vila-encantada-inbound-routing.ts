@@ -187,10 +187,21 @@ export const ensureVilaEncantadaInboundRouting = async (
     }),
   ]);
 
+  const { data: matriz, error: matrizError } = await service
+    .from("tenant_units")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("kind", "matriz")
+    .maybeSingle();
+
+  if (matrizError) throw matrizError;
+  if (!matriz?.id) return null;
+
   const { data: settings, error: settingsError } = await service
     .from("tenant_automation_settings")
     .select("automation_template_bindings")
     .eq("tenant_id", tenantId)
+    .eq("unit_id", matriz.id)
     .maybeSingle();
 
   if (settingsError) throw settingsError;
@@ -211,8 +222,9 @@ export const ensureVilaEncantadaInboundRouting = async (
       n8n_inbound_webhook_url: VILA_ENCANTADA_N8N_INBOUND_WEBHOOK_URL,
       n8n_provision_status: "active",
       tenant_id: tenantId,
+      unit_id: matriz.id,
     },
-    { onConflict: "tenant_id" },
+    { onConflict: "unit_id" },
   );
 
   if (upsertError) throw upsertError;

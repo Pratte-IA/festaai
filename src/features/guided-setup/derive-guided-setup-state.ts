@@ -18,7 +18,10 @@ export interface DerivedGuidedSetupState {
   isComplete: boolean;
 }
 
-export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedGuidedSetupState> => {
+export const deriveGuidedSetupState = async (
+  tenantId: number,
+  unitId: number,
+): Promise<DerivedGuidedSetupState> => {
   const completed: GuidedSetupStepKey[] = [];
 
   const [
@@ -40,58 +43,71 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
       .from("tenant_company_profiles")
       .select("completed_at")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .maybeSingle(),
     supabase
       .from("tenant_packages")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
+      .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId),
     supabase
       .from("tenant_additionals")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
+      .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId),
     supabase
       .from("tenant_estrutura_settings")
       .select("estrutura")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .maybeSingle(),
     supabase
       .from("tenant_financial_settings")
       .select("tenant_id")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .maybeSingle(),
     supabase
       .from("tenant_holidays")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
+      .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId),
     supabase
       .from("tenant_contract_module_settings")
       .select("models_configured_at")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .maybeSingle(),
     supabase
       .from("tenant_contract_module_acceptances")
       .select("id")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .limit(1)
       .maybeSingle(),
     supabase
       .from("tenant_checklist_categories")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
-    supabase.from("whatsapp_connections").select("status").eq("tenant_id", tenantId),
+      .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId),
+    supabase.from("whatsapp_connections").select("status").eq("tenant_id", tenantId)
+      .eq("unit_id", unitId),
     supabase
       .from("tenant_automation_settings")
       .select("automation_template_bindings")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .maybeSingle(),
     supabase
       .from("tenant_closing_form_fields")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
+      .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId),
     supabase
       .from("tenant_satisfaction_survey_questions")
       .select("id", { count: "exact", head: true })
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .eq("active", true),
   ]);
 
@@ -121,7 +137,7 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     completed.push("adicionais");
   }
 
-  const estrutura = estruturaResult.data?.estrutura as EstruturaBlock | null | undefined;
+  const estrutura = estruturaResult.data?.estrutura as unknown as EstruturaBlock | null | undefined;
   if (Array.isArray(estrutura?.brinquedos) && estrutura.brinquedos.length > 0) {
     completed.push("estrutura");
   }
@@ -146,6 +162,7 @@ export const deriveGuidedSetupState = async (tenantId: number): Promise<DerivedG
     .from("tenant_message_templates")
     .select("key")
     .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
     .in("key", [
       "follow-up-proposta-1-data-livre",
       "follow-up-proposta-1-data-indisponivel",

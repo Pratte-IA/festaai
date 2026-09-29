@@ -1,4 +1,5 @@
-/** Automações que disparam via webhook N8N (configuração manual na admin). */
+import type { TablesInsert } from "@/lib/supabase/database.types";
+
 export const N8N_AUTOMATION_WEBHOOKS = [
   {
     key: "atendimento",
@@ -104,7 +105,8 @@ export const mapAdminTenantN8nSettingsRow = (
 export const buildN8nSettingsPayload = (
   form: AdminTenantN8nSettingsForm,
   tenantId: number,
-): Record<string, unknown> => {
+  unitId: number,
+): TablesInsert<"tenant_automation_settings"> => {
   const inboundWebhook = form.webhookUrls.atendimento.trim();
   const outboundWebhookUrls = serializeOutboundWebhookUrls({
     "boas-vindas": form.webhookUrls["boas-vindas"],
@@ -113,12 +115,13 @@ export const buildN8nSettingsPayload = (
 
   const inboundActive = form.inboundAutomationEnabled && Boolean(inboundWebhook);
 
-  const payload: Record<string, unknown> = {
+  const payload: TablesInsert<"tenant_automation_settings"> = {
     inbound_automation_enabled: inboundActive,
     n8n_inbound_webhook_url: inboundWebhook || null,
     n8n_outbound_webhook_urls: outboundWebhookUrls,
     n8n_provision_status: inboundActive ? "active" : "draft",
     tenant_id: tenantId,
+    unit_id: unitId,
   };
 
   if (form.clearLastError) {

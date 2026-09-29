@@ -1,3 +1,4 @@
+import { resolveEventoUnitId } from "./tenant-unit.ts";
 import { persistAgentOutboundAutomationMessage } from "./agent-memory.ts";
 import { resolveAutomationConnectionId } from "./automation-bindings.ts";
 import { formatCompanyDisplayName } from "./company-display-name.ts";
@@ -40,11 +41,13 @@ const resolveCompanyLegalName = async (
   admin: ServiceClient,
   tenantId: number,
   fallbackName: string,
+  unitId: number,
 ): Promise<string> => {
   const { data, error } = await admin
     .from("tenant_company_profiles")
     .select("company_name")
     .eq("tenant_id", tenantId)
+    .eq("unit_id", unitId)
     .maybeSingle();
 
   if (error) throw error;
@@ -57,12 +60,14 @@ const loadTenantTemplateBody = async (
   admin: ServiceClient,
   tenantId: number,
   templateKey: string,
+  unitId: number,
 ): Promise<string | null> => {
   const { data, error } = await admin
     .from("tenant_message_templates")
     .select("body")
     .eq("tenant_id", tenantId)
     .eq("key", templateKey)
+    .eq("unit_id", unitId)
     .maybeSingle();
 
   if (error) throw error;
@@ -75,10 +80,13 @@ export const dispatchPropostaFollowup0 = async (
   admin: ServiceClient,
   input: DispatchPropostaFollowup0Input,
 ): Promise<DispatchPropostaFollowup0Result> => {
+  const unitId = await resolveEventoUnitId(admin, input.eventoId, input.tenant.id);
+
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
     .select("automation_template_bindings, system_armed")
     .eq("tenant_id", input.tenant.id)
+    .eq("unit_id", unitId)
     .maybeSingle();
 
   if (settingsError) {
@@ -246,8 +254,9 @@ export const dispatchPropostaFollowup0 = async (
     admin,
     input.tenant.id,
     PROPOSTA_FOLLOWUP_0_TEMPLATE_CONTATO_INICIAL,
+    unitId,
   );
-  const companyLegalName = await resolveCompanyLegalName(admin, input.tenant.id, input.tenant.name);
+  const companyLegalName = await resolveCompanyLegalName(admin, input.tenant.id, input.tenant.name, unitId);
 
   const messageText = buildPropostaFollowup0Message({
     clienteNome: typeof evento.cliente_nome === "string" ? evento.cliente_nome : null,
@@ -306,6 +315,7 @@ export const dispatchPropostaFollowup0 = async (
 
     await persistAgentOutboundAutomationMessage(admin, {
       connectionId,
+      unitId,
       content: messageText,
       customerPhone,
       messageId: sendResult.messageId,

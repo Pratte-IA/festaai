@@ -17,6 +17,7 @@ import {
 const bodySchema = z.object({
   scope: z.enum(["tenant", "platform"]).default("tenant"),
   tenantId: z.number().int().positive().optional(),
+  unitId: z.number().int().positive().optional(),
 });
 
 Deno.serve(async (req) => {
@@ -50,6 +51,9 @@ Deno.serve(async (req) => {
       listQuery = listQuery.eq("scope", "platform");
     } else {
       listQuery = listQuery.eq("tenant_id", tenantId).eq("scope", "tenant");
+      if (payload.unitId) {
+        listQuery = listQuery.eq("unit_id", payload.unitId);
+      }
     }
 
     const { data: connections, error: listError } = await listQuery;

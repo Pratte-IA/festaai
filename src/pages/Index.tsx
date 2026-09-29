@@ -5,8 +5,9 @@ import { DashboardCommercialActivity } from "@/components/dashboard/DashboardCom
 import { DashboardNeedsAttention } from "@/components/dashboard/DashboardNeedsAttention";
 import { DashboardTodayGuide } from "@/components/dashboard/DashboardTodayGuide";
 import { PublicFormCopyButton } from "@/components/formulario-contratacao/PublicFormCopyButton";
-import { CreditCard, Clock, Wallet, Receipt, DollarSign } from "lucide-react";
+import { AllUnitsReadToggle } from "@/components/tenants/UnitSwitcher";
 import { useDashboardData } from "@/features/dashboard";
+import { Clock, CreditCard, DollarSign, Receipt, Wallet } from "lucide-react";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
@@ -27,7 +28,10 @@ const Dashboard = () => {
             Seu guia do dia — o que fazer agora e o que o FestaAI cuida por você
           </p>
         </div>
-        <PublicFormCopyButton />
+        <div className="flex items-center gap-2">
+          <AllUnitsReadToggle />
+          <PublicFormCopyButton />
+        </div>
       </div>
 
       {error && (

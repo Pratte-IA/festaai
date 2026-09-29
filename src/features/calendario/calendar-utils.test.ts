@@ -115,7 +115,7 @@ describe("buildMonthDays", () => {
       2026,
       3,
       [baseEvento({ id: 7, data_evento: "2026-04-25" })],
-      [{ id: 1, tenant_id: 1, data: "2026-04-25", motivo: null, created_by: null, updated_by: null, created_at: "", updated_at: "" }],
+      [{ id: 1, tenant_id: 1, unit_id: 1, data: "2026-04-25", motivo: null, created_by: null, updated_by: null, created_at: "", updated_at: "" }],
     );
 
     const day25 = days.find((day) => day.date === "2026-04-25");

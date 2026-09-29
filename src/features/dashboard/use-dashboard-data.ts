@@ -70,7 +70,8 @@ interface DashboardData {
 }
 
 const dashboardQueryKeys = {
-  data: (tenantId: number | null) => ["dashboard", tenantId, "data"] as const,
+  data: (tenantId: number | null, unitId: number | null, includeAllUnits: boolean) =>
+    ["dashboard", tenantId, unitId, includeAllUnits, "data"] as const,
 };
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -309,12 +310,12 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
 };
 
 export const useDashboardData = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId, includeAllUnits } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
     queryFn: () => fetchDashboardData(currentTenantId as number),
-    queryKey: dashboardQueryKeys.data(currentTenantId),
+    queryKey: dashboardQueryKeys.data(currentTenantId, currentUnitId, includeAllUnits),
     staleTime: 1000 * 30,
   });
 };

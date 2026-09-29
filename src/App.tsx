@@ -157,7 +157,9 @@ const App = () => (
                   <Route path="/contratar/iniciar/:planSlug" element={<ContratarIniciar />} />
                   <Route path="/contratar/oferta/:token" element={<ContratarOferta />} />
                   <Route path="/contratar" element={<Contratar />} />
+                  <Route path="/formulario/:tenantSlug/:unitSlug" element={<FormularioCliente />} />
                   <Route path="/formulario/:tenantSlug" element={<FormularioCliente />} />
+                  <Route path="/pesquisa/:tenantSlug/:unitSlug/:eventoId" element={<PesquisaCliente />} />
                   <Route path="/pesquisa/:tenantSlug/:eventoId" element={<PesquisaCliente />} />
                   <Route path="/nova-senha" element={<NovaSenha />} />
                   <Route path="*" element={<NotFound />} />

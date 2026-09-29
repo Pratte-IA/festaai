@@ -29,6 +29,7 @@ export interface PersistAgentMessageInput {
   metadata?: Record<string, unknown>;
   role: "human" | "ai" | "system";
   tenantId: number;
+  unitId?: number | null;
 }
 
 export const persistAgentConversationMessage = async (
@@ -47,6 +48,7 @@ export const persistAgentConversationMessage = async (
     role: input.role,
     session_id: sessionId,
     tenant_id: input.tenantId,
+    ...(typeof input.unitId === "number" ? { unit_id: input.unitId } : {}),
   });
 
   if (!error) return;

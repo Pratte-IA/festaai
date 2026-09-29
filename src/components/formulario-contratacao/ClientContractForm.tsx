@@ -95,12 +95,14 @@ interface ClientContractFormProps {
   config: ClientContractFormConfig;
   linkedEventoId?: number | null;
   onSuccess?: (result: ClientContractFormSubmitResult) => void;
+  unitSlug?: string;
 }
 
 export const ClientContractForm = ({
   config,
   linkedEventoId = null,
   onSuccess,
+  unitSlug,
 }: ClientContractFormProps) => {
   const submitForm = useSubmitClientContractForm();
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
@@ -820,6 +822,7 @@ export const ClientContractForm = ({
             )
           : undefined,
         tenantSlug: config.tenantSlug,
+        unitSlug,
         balancePaymentSchedule: balancePaymentOption,
         linkedEventoId,
       });
@@ -1206,6 +1209,7 @@ export const ClientContractForm = ({
       <ClientContractSigningStep
         submitResult={submitResult}
         tenantSlug={config.tenantSlug}
+        unitSlug={unitSlug}
         onSuccess={(result) => {
           clearClientContractFormDraft(config.tenantSlug);
           setAcceptResult(result);

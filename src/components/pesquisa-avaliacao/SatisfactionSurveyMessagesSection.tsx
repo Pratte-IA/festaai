@@ -24,7 +24,7 @@ interface SatisfactionSurveyMessagesSectionProps {
 export const SatisfactionSurveyMessagesSection = ({
   showFollowupLink = true,
 }: SatisfactionSurveyMessagesSectionProps) => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const { data: companyProfile } = useTenantCompanyProfile();
 
   const companyLegalName =
@@ -40,9 +40,10 @@ export const SatisfactionSurveyMessagesSection = ({
         surveyUrl: buildPublicSatisfactionSurveyUrl(
           tenantSlug,
           SATISFACTION_SURVEY_DISPATCH_PREVIEW.eventoId,
+          currentUnit,
         ),
       }),
-    [companyLegalName, tenantSlug],
+    [companyLegalName, currentUnit, tenantSlug],
   );
 
   const companyDisplayName = formatCompanyDisplayName(companyLegalName);

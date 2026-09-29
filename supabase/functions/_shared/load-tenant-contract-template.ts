@@ -20,6 +20,7 @@ export interface TenantContractTemplateForGeneration {
 
 export interface LoadTenantContractTemplateOptions {
   packageId?: number | string | null;
+  unitId?: number | null;
 }
 
 export const loadTenantContractTemplateForGeneration = async (
@@ -27,11 +28,16 @@ export const loadTenantContractTemplateForGeneration = async (
   tenantId: number,
   options?: LoadTenantContractTemplateOptions,
 ): Promise<TenantContractTemplateForGeneration> => {
-  const { data: moduleSettings, error: moduleSettingsError } = await admin
+  let moduleQuery = admin
     .from("tenant_contract_module_settings")
     .select("default_template_key, template_params")
-    .eq("tenant_id", tenantId)
-    .maybeSingle();
+    .eq("tenant_id", tenantId);
+
+  if (typeof options?.unitId === "number") {
+    moduleQuery = moduleQuery.eq("unit_id", options.unitId);
+  }
+
+  const { data: moduleSettings, error: moduleSettingsError } = await moduleQuery.maybeSingle();
 
   if (moduleSettingsError) throw moduleSettingsError;
 
@@ -58,6 +64,10 @@ export const loadTenantContractTemplateForGeneration = async (
     .select("id, template_html, template_key, version")
     .eq("tenant_id", tenantId)
     .eq("is_active", true);
+
+  if (typeof options?.unitId === "number") {
+    templateQuery = templateQuery.eq("unit_id", options.unitId);
+  }
 
   if (resolvedTemplateKey) {
     templateQuery = templateQuery.eq("template_key", resolvedTemplateKey);

@@ -43,6 +43,7 @@ interface WebhookContext {
     scope: ConnectionScope;
     status: string;
     tenant_id: number | null;
+    unit_id: number | null;
   } | null;
   eventName: string | null;
   instanceName: string | null;
@@ -310,13 +311,18 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
     return;
   }
 
-  const { data: automationSettings } = await ctx.service
+  let settingsQuery = ctx.service
     .from("tenant_automation_settings")
     .select(
       "automation_template_bindings, inbound_automation_enabled, n8n_inbound_webhook_url, n8n_provision_status, n8n_routing_key, system_armed",
     )
-    .eq("tenant_id", tenant.id)
-    .maybeSingle();
+    .eq("tenant_id", tenant.id);
+
+  if (typeof ctx.connection.unit_id === "number") {
+    settingsQuery = settingsQuery.eq("unit_id", ctx.connection.unit_id);
+  }
+
+  const { data: automationSettings } = await settingsQuery.maybeSingle();
 
   const tenantWebhookUrl =
     typeof automationSettings?.n8n_inbound_webhook_url === "string"
@@ -657,7 +663,7 @@ Deno.serve(async (req) => {
 
     const { data: connection } = await service
       .from("whatsapp_connections")
-      .select("id, tenant_id, status, name, instance_name, phone, scope")
+      .select("id, tenant_id, unit_id, status, name, instance_name, phone, scope")
       .eq("instance_name", instanceName)
       .maybeSingle();
 

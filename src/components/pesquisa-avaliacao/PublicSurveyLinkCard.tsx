@@ -15,12 +15,12 @@ interface PublicSurveyLinkCardProps {
 }
 
 export const PublicSurveyLinkCard = ({ eventoId }: PublicSurveyLinkCardProps) => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const [copied, setCopied] = useState(false);
 
   if (!currentTenant?.slug) return null;
 
-  const publicUrl = buildPublicSatisfactionSurveyUrl(currentTenant.slug, eventoId);
+  const publicUrl = buildPublicSatisfactionSurveyUrl(currentTenant.slug, eventoId, currentUnit);
   const automationActive = isPostPartyAutomationActive();
 
   const handleCopy = async () => {

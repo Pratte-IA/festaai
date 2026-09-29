@@ -8,16 +8,16 @@ import { supabase } from "@/lib/supabase/client";
 import { eventosQueryKeys } from "./query-keys";
 import { Evento, EventoInsert } from "./types";
 
-type CreateEventoInput = Omit<EventoInsert, "created_by" | "tenant_id" | "updated_by">;
+type CreateEventoInput = Omit<EventoInsert, "created_by" | "tenant_id" | "unit_id" | "updated_by">;
 
 export const useCreateEvento = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: CreateEventoInput): Promise<Evento> => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessao ou tenant atual indisponivel.");
       }
 
@@ -27,6 +27,7 @@ export const useCreateEvento = () => {
           ...input,
           created_by: user.id,
           tenant_id: currentTenantId,
+          unit_id: currentUnitId,
           updated_by: user.id,
         })
         .select("*")

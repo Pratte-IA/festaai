@@ -32,5 +32,11 @@ export interface ClientSatisfactionSurveySubmitResult {
   submittedAt: string;
 }
 
-export const buildPublicSatisfactionSurveyUrl = (tenantSlug: string, eventoId: number) =>
-  `${typeof window !== "undefined" ? window.location.origin : ""}/pesquisa/${tenantSlug}/${eventoId}`;
+export const buildPublicSatisfactionSurveyUrl = (
+  tenantSlug: string,
+  eventoId: number,
+  unit?: { kind: string; slug: string } | null,
+) => {
+  const house = unit?.kind === "filial" ? `/${unit.slug}` : "";
+  return `${typeof window !== "undefined" ? window.location.origin : ""}/pesquisa/${tenantSlug}${house}/${eventoId}`;
+};

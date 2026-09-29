@@ -2,6 +2,7 @@ import {
   buildEventoFinanceiroValores,
   type EventoFinanceiroValores,
 } from "./event-financial.ts";
+import { resolveEventoUnitId } from "./tenant-unit.ts";
 import { forwardToN8n, N8N_PAYLOAD_VERSION } from "./n8n-client.ts";
 import { isTenantSystemArmed, SYSTEM_NOT_ARMED_SKIP_REASON } from "./system-armed.ts";
 
@@ -175,10 +176,13 @@ export const dispatchSeteDiasAntesReminder = async (
   admin: ServiceClient,
   input: DispatchSeteDiasAntesInput,
 ): Promise<DispatchSeteDiasAntesResult> => {
+  const unitId = await resolveEventoUnitId(admin, input.eventoId, input.tenant.id);
+
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
     .select("automation_template_bindings, n8n_outbound_webhook_urls, system_armed")
     .eq("tenant_id", input.tenant.id)
+    .eq("unit_id", unitId)
     .maybeSingle();
 
   if (settingsError) {

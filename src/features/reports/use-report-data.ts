@@ -6,7 +6,8 @@ import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
 const reportsQueryKeys = {
-  data: (tenantId: number | null) => ["reports", tenantId, "data"] as const,
+  data: (tenantId: number | null, unitId: number | null, includeAllUnits: boolean) =>
+    ["reports", tenantId, unitId, includeAllUnits, "data"] as const,
 };
 
 export interface ReportData {
@@ -72,12 +73,12 @@ const fetchReportData = async (tenantId: number): Promise<ReportData> => {
 };
 
 export const useReportData = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId, includeAllUnits } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
     queryFn: () => fetchReportData(currentTenantId as number),
-    queryKey: reportsQueryKeys.data(currentTenantId),
+    queryKey: reportsQueryKeys.data(currentTenantId, currentUnitId, includeAllUnits),
     staleTime: 1000 * 30,
   });
 };

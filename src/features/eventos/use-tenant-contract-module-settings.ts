@@ -188,12 +188,12 @@ const resolveDefaultTemplateKey = (enabledKeys: ContractTemplateKey[]): Contract
 
 export const useSaveContractModuleModels = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: SaveContractModuleModelsInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -245,6 +245,7 @@ export const useSaveContractModuleModels = () => {
           template_html: definition.placeholderHtml,
           template_key: key,
           tenant_id: currentTenantId,
+          unit_id: currentUnitId,
           updated_by: user.id,
           version: 1,
         });
@@ -258,9 +259,10 @@ export const useSaveContractModuleModels = () => {
           {
             default_template_key: defaultTemplateKey,
             tenant_id: currentTenantId,
+            unit_id: currentUnitId,
             updated_by: user.id,
           },
-          { onConflict: "tenant_id" },
+          { onConflict: "unit_id" },
         )
         .select("tenant_id, models_configured_at, default_template_key, template_params, updated_at")
         .single();
@@ -295,12 +297,12 @@ interface SaveContractTemplateParamsInput {
 
 export const useSaveContractTemplateParams = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: SaveContractTemplateParamsInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -317,9 +319,10 @@ export const useSaveContractTemplateParams = () => {
           {
             template_params: input.params,
             tenant_id: currentTenantId,
+            unit_id: currentUnitId,
             updated_by: user.id,
           },
-          { onConflict: "tenant_id" },
+          { onConflict: "unit_id" },
         )
         .select("tenant_id, models_configured_at, default_template_key, template_params, updated_at")
         .single();
@@ -338,12 +341,12 @@ export const useSaveContractTemplateParams = () => {
 
 export const useCompleteContractModelsReview = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: CompleteContractModelsReviewInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -363,9 +366,10 @@ export const useCompleteContractModelsReview = () => {
             models_configured_at: now,
             template_params: input.params,
             tenant_id: currentTenantId,
+            unit_id: currentUnitId,
             updated_by: user.id,
           },
-          { onConflict: "tenant_id" },
+          { onConflict: "unit_id" },
         )
         .select("tenant_id, models_configured_at, default_template_key, template_params, updated_at")
         .single();
@@ -394,12 +398,12 @@ interface SaveContractTemplateHtmlInput {
 
 export const useSaveContractTemplateHtml = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: SaveContractTemplateHtmlInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -442,12 +446,12 @@ interface RestoreContractTemplateHtmlInput {
 
 export const useRestoreContractTemplateHtml = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: RestoreContractTemplateHtmlInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -482,12 +486,12 @@ export const useRestoreContractTemplateHtml = () => {
 /** Substitui stubs legados no banco pelo contrato base completo do sistema. */
 export const useSyncLegacyContractTemplates = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async () => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -540,12 +544,12 @@ export const useSyncLegacyContractTemplates = () => {
 
 export const useRestartContractModuleSetup = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async () => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -571,9 +575,10 @@ export const useRestartContractModuleSetup = () => {
             models_configured_at: null,
             template_params: {},
             tenant_id: currentTenantId,
+            unit_id: currentUnitId,
             updated_by: user.id,
           },
-          { onConflict: "tenant_id" },
+          { onConflict: "unit_id" },
         );
 
       if (settingsError) throw settingsError;

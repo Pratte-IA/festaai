@@ -72,8 +72,13 @@ export interface ClientContractAcceptResult {
 
 export const PUBLIC_FORM_SECTIONS: ClosingFormSection[] = CLIENT_FORM_SECTIONS;
 
-export const buildPublicFormUrl = (tenantSlug: string, eventoId?: number | null) => {
-  const base = `${typeof window !== "undefined" ? window.location.origin : ""}/formulario/${tenantSlug}`;
+export const buildPublicFormUrl = (
+  tenantSlug: string,
+  eventoId?: number | null,
+  unit?: { kind: string; slug: string } | null,
+) => {
+  const house = unit?.kind === "filial" ? `/${unit.slug}` : "";
+  const base = `${typeof window !== "undefined" ? window.location.origin : ""}/formulario/${tenantSlug}${house}`;
   if (!eventoId) return base;
   return `${base}?evento=${eventoId}`;
 };

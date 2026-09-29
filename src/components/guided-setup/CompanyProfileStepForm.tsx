@@ -70,7 +70,7 @@ interface CompanyProfileStepFormProps {
 }
 
 export const CompanyProfileStepForm = ({ onCompleted }: CompanyProfileStepFormProps) => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const queryClient = useQueryClient();
   const { data: profile, isLoading } = useTenantCompanyProfile();
   const saveProfile = useSaveTenantCompanyProfile();
@@ -99,14 +99,18 @@ export const CompanyProfileStepForm = ({ onCompleted }: CompanyProfileStepFormPr
       return;
     }
 
-    if (currentTenant) {
+    if (currentUnit) {
       setForm((current) => ({
         ...current,
-        companyName: current.companyName || currentTenant.name,
-        cnpj: current.cnpj || (currentTenant.document ? formatCnpjInput(currentTenant.document) : ""),
+        companyName: current.companyName || currentUnit.name,
+        cnpj:
+          current.cnpj ||
+          (currentUnit.kind === "matriz" && currentTenant?.document
+            ? formatCnpjInput(currentTenant.document)
+            : ""),
       }));
     }
-  }, [currentTenant, profile]);
+  }, [currentTenant, currentUnit, profile]);
 
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [field]: value }));

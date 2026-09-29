@@ -8,9 +8,10 @@ import {
 } from "@/features/eventos/post-party-automation";
 
 const PesquisaCliente = () => {
-  const { tenantSlug, eventoId: eventoIdParam } = useParams<{
+  const { tenantSlug, unitSlug, eventoId: eventoIdParam } = useParams<{
     eventoId: string;
     tenantSlug: string;
+    unitSlug?: string;
   }>();
 
   const eventoId = eventoIdParam ? Number(eventoIdParam) : NaN;
@@ -48,7 +49,7 @@ const PesquisaCliente = () => {
             </p>
           </div>
         ) : (
-          <ClientSatisfactionSurveyForm eventoId={eventoId} tenantSlug={tenantSlug} />
+          <ClientSatisfactionSurveyForm eventoId={eventoId} tenantSlug={tenantSlug} unitSlug={unitSlug} />
         )}
       </main>
     </div>

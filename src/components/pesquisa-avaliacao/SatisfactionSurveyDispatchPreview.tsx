@@ -11,7 +11,7 @@ import { useCurrentTenant } from "@/features/tenants";
 import { formatCompanyDisplayName } from "@/lib/company-display-name";
 
 export const SatisfactionSurveyDispatchPreview = () => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const { data: companyProfile } = useTenantCompanyProfile();
 
   const previewMessage = useMemo(() => {
@@ -22,6 +22,7 @@ export const SatisfactionSurveyDispatchPreview = () => {
     const surveyUrl = buildPublicSatisfactionSurveyUrl(
       tenantSlug,
       SATISFACTION_SURVEY_DISPATCH_PREVIEW.eventoId,
+      currentUnit,
     );
 
     return buildSatisfactionSurveyDispatchMessage({
@@ -30,7 +31,7 @@ export const SatisfactionSurveyDispatchPreview = () => {
       companyLegalName,
       surveyUrl,
     });
-  }, [companyProfile?.companyName, currentTenant?.name, currentTenant?.slug]);
+  }, [companyProfile?.companyName, currentTenant?.name, currentTenant?.slug, currentUnit]);
 
   const companyDisplayName = formatCompanyDisplayName(
     companyProfile?.companyName?.trim() || currentTenant?.name?.trim() || "Sua Casa de Festas",

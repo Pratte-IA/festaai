@@ -43,7 +43,7 @@ interface PosFestaFollowupConfigProps {
 }
 
 export const PosFestaFollowupConfig = ({ showSettingsHeader }: PosFestaFollowupConfigProps) => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const { data: companyProfile } = useTenantCompanyProfile();
   const { getTemplate, handleSave, isLoading, savingKey, setDraftBody } = useFollowupTemplateEditor();
 
@@ -61,7 +61,7 @@ export const PosFestaFollowupConfig = ({ showSettingsHeader }: PosFestaFollowupC
   );
 
   const previewLinkPesquisa = currentTenant
-    ? buildPublicSatisfactionSurveyUrl(currentTenant.slug, SATISFACTION_SURVEY_FOLLOWUP_PREVIEW.eventoId)
+    ? buildPublicSatisfactionSurveyUrl(currentTenant.slug, SATISFACTION_SURVEY_FOLLOWUP_PREVIEW.eventoId, currentUnit)
     : "https://festaai.com.br/pesquisa/sua-casa/123";
 
   const previewPesquisaFollowup = useMemo(

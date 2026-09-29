@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 interface ClientSatisfactionSurveyFormProps {
   eventoId: number;
   tenantSlug: string;
+  unitSlug?: string;
 }
 
 const ScaleQuestion = ({
@@ -94,6 +95,7 @@ const ChoiceQuestion = ({
 export const ClientSatisfactionSurveyForm = ({
   eventoId,
   tenantSlug,
+  unitSlug,
 }: ClientSatisfactionSurveyFormProps) => {
   const submitSurvey = useSubmitClientSatisfactionSurvey();
 
@@ -124,6 +126,7 @@ export const ClientSatisfactionSurveyForm = ({
         clientPhone,
         eventoId,
         tenantSlug,
+        unitSlug,
       });
 
       setConfig(loaded);
@@ -151,6 +154,7 @@ export const ClientSatisfactionSurveyForm = ({
         eventoId,
         responses,
         tenantSlug,
+        unitSlug,
       });
 
       setSubmitMessage(result.message);

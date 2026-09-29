@@ -198,12 +198,12 @@ export const useTenantMessageTemplates = () => {
 
 export const useSaveTenantMessageTemplate = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (template: MessageTemplate) => {
-      if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
+      if (!currentTenantId || !currentUnitId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
       const { error } = await supabase.from("tenant_message_templates").upsert(
         {
@@ -211,9 +211,10 @@ export const useSaveTenantMessageTemplate = () => {
           key: template.key,
           tenant_id: currentTenantId,
           title: template.title,
+          unit_id: currentUnitId,
           updated_by: user.id,
         },
-        { onConflict: "tenant_id,key" },
+        { onConflict: "unit_id,key" },
       );
 
       if (error) throw error;
@@ -276,12 +277,12 @@ export const useTenantFinancialSettings = () => {
 
 export const useSaveTenantFinancialSettings = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (settings: FinancialSettings) => {
-      if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
+      if (!currentTenantId || !currentUnitId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
       const { error } = await supabase.from("tenant_financial_settings").upsert({
         cancellation_policy: settings.cancellation_policy?.trim() || null,
@@ -301,8 +302,9 @@ export const useSaveTenantFinancialSettings = () => {
         remaining_pix_installments: settings.remaining_pix_installments,
         rescheduling_policy: settings.rescheduling_policy?.trim() || null,
         tenant_id: currentTenantId,
+        unit_id: currentUnitId,
         updated_by: user.id,
-      });
+      }, { onConflict: "unit_id" });
 
       if (error) throw error;
     },

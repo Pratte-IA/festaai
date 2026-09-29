@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useClientContractFormConfig } from "@/features/public-contract-form";
 
 const FormularioCliente = () => {
-  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const { tenantSlug, unitSlug } = useParams<{ tenantSlug: string; unitSlug?: string }>();
   const [searchParams] = useSearchParams();
   const linkedEventoId = Number(searchParams.get("evento"));
   const validLinkedEventoId =
     Number.isInteger(linkedEventoId) && linkedEventoId > 0 ? linkedEventoId : null;
-  const { data: config, error, isLoading } = useClientContractFormConfig(tenantSlug);
+  const { data: config, error, isLoading } = useClientContractFormConfig(tenantSlug, unitSlug);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -41,7 +41,7 @@ const FormularioCliente = () => {
         )}
 
         {config && (
-          <ClientContractForm config={config} linkedEventoId={validLinkedEventoId} />
+          <ClientContractForm config={config} linkedEventoId={validLinkedEventoId} unitSlug={unitSlug} />
         )}
       </main>
     </div>

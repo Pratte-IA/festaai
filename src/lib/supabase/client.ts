@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 import { Database } from "./database.types";
+import { applyUnitRequestHeaders } from "./unit-request";
 
 type PublicEnvKey = "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY";
 
@@ -22,5 +23,12 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     persistSession: true,
+  },
+  global: {
+    fetch: (input, init) => {
+      const headers = new Headers(init?.headers);
+      applyUnitRequestHeaders(headers);
+      return fetch(input, { ...init, headers });
+    },
   },
 });

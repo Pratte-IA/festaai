@@ -155,6 +155,7 @@ export interface SubmitClientContractFormInput {
     valor_pacote?: number;
   };
   tenantSlug: string;
+  unitSlug?: string;
 }
 
 export interface AcceptClientContractInput {
@@ -167,10 +168,14 @@ export interface AcceptClientContractInput {
   contractId: number;
   eventoId: number;
   tenantSlug: string;
+  unitSlug?: string;
   termAcceptances: Array<{ accepted: boolean; termId: number }>;
 }
 
-export const useClientContractFormConfig = (tenantSlug: string | undefined) =>
+export const useClientContractFormConfig = (
+  tenantSlug: string | undefined,
+  unitSlug?: string,
+) =>
   useQuery({
     enabled: Boolean(tenantSlug),
     queryFn: async (): Promise<ClientContractFormConfig> => {
@@ -180,6 +185,7 @@ export const useClientContractFormConfig = (tenantSlug: string | undefined) =>
           body: {
             action: "load",
             tenantSlug,
+            unitSlug: unitSlug || undefined,
           },
         },
       );
@@ -191,7 +197,7 @@ export const useClientContractFormConfig = (tenantSlug: string | undefined) =>
 
       return mapConfig(data);
     },
-    queryKey: ["public-contract-form", tenantSlug],
+    queryKey: ["public-contract-form", tenantSlug, unitSlug ?? "matriz"],
     retry: false,
     staleTime: 0,
     refetchOnMount: "always",

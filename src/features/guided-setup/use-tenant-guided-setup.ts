@@ -40,15 +40,16 @@ const mapProgressRow = (row: ProgressRow): TenantGuidedSetupProgress => {
 };
 
 export const useTenantGuidedSetupProgress = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
     queryFn: async (): Promise<TenantGuidedSetupProgress | null> => {
       const { data, error } = await supabase
         .from("tenant_guided_setup_progress")
         .select("tenant_id, current_step, completed_steps, completed_at")
         .eq("tenant_id", currentTenantId as number)
+        .eq("unit_id", currentUnitId as number)
         .maybeSingle();
 
       if (error) throw error;
@@ -56,17 +57,17 @@ export const useTenantGuidedSetupProgress = () => {
 
       return mapProgressRow(data as ProgressRow);
     },
-    queryKey: guidedSetupQueryKeys.progress(currentTenantId),
+    queryKey: [...guidedSetupQueryKeys.progress(currentTenantId), currentUnitId],
   });
 };
 
 export const useDerivedGuidedSetupState = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
-    queryFn: async () => deriveGuidedSetupState(currentTenantId as number),
-    queryKey: guidedSetupQueryKeys.derived(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
+    queryFn: async () => deriveGuidedSetupState(currentTenantId as number, currentUnitId as number),
+    queryKey: [...guidedSetupQueryKeys.derived(currentTenantId), currentUnitId],
   });
 };
 
@@ -129,21 +130,22 @@ interface CompleteGuidedSetupStepInput {
 
 export const useCompleteGuidedSetupStep = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ stepKey }: CompleteGuidedSetupStepInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
-      const derivedState = await deriveGuidedSetupState(currentTenantId);
+      const derivedState = await deriveGuidedSetupState(currentTenantId, currentUnitId);
 
       const { data: existing, error: existingError } = await supabase
         .from("tenant_guided_setup_progress")
         .select("tenant_id, current_step, completed_steps, completed_at")
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .maybeSingle();
 
       if (existingError) throw existingError;
@@ -161,6 +163,7 @@ export const useCompleteGuidedSetupStep = () => {
         completed_steps: completedSteps,
         current_step: allComplete ? "completed" : (nextStep ?? "completed"),
         tenant_id: currentTenantId,
+        unit_id: currentUnitId,
         updated_by: user.id,
       };
 
@@ -169,6 +172,7 @@ export const useCompleteGuidedSetupStep = () => {
           .from("tenant_guided_setup_progress")
           .update(payload)
           .eq("tenant_id", currentTenantId)
+          .eq("unit_id", currentUnitId)
           .select("tenant_id, current_step, completed_steps, completed_at")
           .single();
 
@@ -202,12 +206,12 @@ interface ReopenGuidedSetupStepInput {
 
 export const useReopenGuidedSetupStep = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ stepKey }: ReopenGuidedSetupStepInput) => {
-      if (!currentTenantId || !user) {
+      if (!currentTenantId || !currentUnitId || !user) {
         throw new Error("Sessão ou tenant atual indisponível.");
       }
 
@@ -215,6 +219,7 @@ export const useReopenGuidedSetupStep = () => {
         .from("tenant_guided_setup_progress")
         .select("tenant_id, current_step, completed_steps, completed_at")
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .maybeSingle();
 
       if (existingError) throw existingError;
@@ -233,6 +238,7 @@ export const useReopenGuidedSetupStep = () => {
           updated_by: user.id,
         })
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .select("tenant_id, current_step, completed_steps, completed_at")
         .single();
 

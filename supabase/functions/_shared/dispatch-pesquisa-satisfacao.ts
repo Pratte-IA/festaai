@@ -1,3 +1,4 @@
+import { resolveEventoUnitId, resolveFilialPublicSlug } from "./tenant-unit.ts";
 import { formatCompanyDisplayName } from "./company-display-name.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
 import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
@@ -58,11 +59,13 @@ const resolveCompanyLegalName = async (
   admin: ServiceClient,
   tenantId: number,
   fallbackName: string,
+  unitId: number,
 ): Promise<string> => {
   const { data, error } = await admin
     .from("tenant_company_profiles")
     .select("company_name")
     .eq("tenant_id", tenantId)
+    .eq("unit_id", unitId)
     .maybeSingle();
 
   if (error) throw error;
@@ -92,10 +95,13 @@ export const dispatchPesquisaSatisfacaoAfterPostParty = async (
   admin: ServiceClient,
   input: DispatchPesquisaSatisfacaoInput,
 ): Promise<DispatchPesquisaSatisfacaoResult> => {
+  const unitId = await resolveEventoUnitId(admin, input.eventoId, input.tenant.id);
+
   const { data: settings, error: settingsError } = await admin
     .from("tenant_automation_settings")
     .select("automation_template_bindings, system_armed")
     .eq("tenant_id", input.tenant.id)
+    .eq("unit_id", unitId)
     .maybeSingle();
 
   if (settingsError) {
@@ -216,9 +222,11 @@ export const dispatchPesquisaSatisfacaoAfterPostParty = async (
     admin,
     input.tenant.id,
     input.tenant.name,
+    unitId,
   );
   const appUrl = (Deno.env.get("APP_URL") ?? "https://festaai.com.br").replace(/\/$/, "");
-  const surveyUrl = buildPublicSatisfactionSurveyUrl(appUrl, input.tenant.slug, input.eventoId);
+  const filialSlug = await resolveFilialPublicSlug(admin, unitId);
+  const surveyUrl = buildPublicSatisfactionSurveyUrl(appUrl, input.tenant.slug, input.eventoId, filialSlug);
   const messageText = buildSatisfactionSurveyDispatchMessage({
     aniversarianteNome:
       typeof evento.aniversariante_nome === "string" ? evento.aniversariante_nome : null,

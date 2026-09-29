@@ -21,12 +21,14 @@ interface ClientContractSigningStepProps {
   onSuccess?: (result: ClientContractAcceptResult) => void;
   submitResult: ClientContractFormSubmitResult;
   tenantSlug: string;
+  unitSlug?: string;
 }
 
 export const ClientContractSigningStep = ({
   onSuccess,
   submitResult,
   tenantSlug,
+  unitSlug,
 }: ClientContractSigningStepProps) => {
   const acceptContract = useAcceptClientContract();
 
@@ -71,6 +73,7 @@ export const ClientContractSigningStep = ({
         contractId: submitResult.contractId,
         eventoId: submitResult.eventoId,
         tenantSlug,
+        unitSlug,
         termAcceptances: submitResult.signingTerms
           .filter((term) => term.active)
           .map((term) => ({

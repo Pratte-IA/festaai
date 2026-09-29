@@ -69,12 +69,12 @@ export const useTenantEstruturaSettings = () => {
 
 export const useSaveTenantEstruturaSettings = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (estrutura: EstruturaBlock) => {
-      if (!currentTenantId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
+      if (!currentTenantId || !currentUnitId || !user) throw new Error("Sessao ou tenant atual indisponivel.");
 
       const normalized: EstruturaBlock = {
         brinquedos: [...estrutura.brinquedos],
@@ -88,9 +88,10 @@ export const useSaveTenantEstruturaSettings = () => {
           created_by: user.id,
           estrutura: asJson,
           tenant_id: currentTenantId,
+          unit_id: currentUnitId,
           updated_by: user.id,
         },
-        { onConflict: "tenant_id" },
+        { onConflict: "unit_id" },
       );
 
       if (upsertError && !isMissingRelationError(upsertError)) {
@@ -101,6 +102,7 @@ export const useSaveTenantEstruturaSettings = () => {
         .from("tenant_packages")
         .update({ estrutura: asJson, updated_by: user.id })
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .eq("active", true);
 
       if (pkgError) throw pkgError;

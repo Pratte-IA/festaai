@@ -131,21 +131,27 @@ Deno.serve(async (req) => {
       return tenant;
     };
 
-    const loadSystemArmedAt = async (tenantId: number) => {
-      if (systemArmedAtCache.has(tenantId)) return systemArmedAtCache.get(tenantId) ?? null;
+    const loadSystemArmedAt = async (tenantId: number, unitId: number | null) => {
+      const cacheKey = unitId ?? tenantId * -1;
+      if (systemArmedAtCache.has(cacheKey)) return systemArmedAtCache.get(cacheKey) ?? null;
 
-      const { data, error } = await supabase
+      let query = supabase
         .from("tenant_automation_settings")
         .select("system_armed_at")
-        .eq("tenant_id", tenantId)
-        .maybeSingle();
+        .eq("tenant_id", tenantId);
+
+      if (typeof unitId === "number") {
+        query = query.eq("unit_id", unitId);
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
       const armedAt =
         typeof data?.system_armed_at === "string" && data.system_armed_at.trim()
           ? data.system_armed_at
           : null;
-      systemArmedAtCache.set(tenantId, armedAt);
+      systemArmedAtCache.set(cacheKey, armedAt);
       return armedAt;
     };
 
@@ -157,6 +163,7 @@ Deno.serve(async (req) => {
     let fu0Candidates: Array<{
       id: number;
       tenant_id: number;
+      unit_id: number | null;
       cliente_telefone: string | null;
       contato_inicial_ultima_mensagem_em: string | null;
       status_interno?: string;
@@ -166,7 +173,7 @@ Deno.serve(async (req) => {
       const { data, error: fu0ListError } = await supabase
         .from("eventos")
         .select(
-          "id, tenant_id, cliente_telefone, contato_inicial_ultima_mensagem_em, status_interno",
+          "id, tenant_id, unit_id, cliente_telefone, contato_inicial_ultima_mensagem_em, status_interno",
         )
         .eq("funil", "vendas")
         .eq("etapa", "contato_inicial")
@@ -188,7 +195,10 @@ Deno.serve(async (req) => {
             typeof evento.cliente_telefone === "string" ? evento.cliente_telefone : null,
           tenantId: evento.tenant_id,
         });
-        const systemArmedAt = await loadSystemArmedAt(evento.tenant_id);
+        const systemArmedAt = await loadSystemArmedAt(
+          evento.tenant_id,
+          typeof evento.unit_id === "number" ? evento.unit_id : null,
+        );
         const awaitingSince = clampAwaitingSinceToSystemArmedAt(rawAwaitingSince, systemArmedAt);
 
         // Mantém a coluna sincronizada (Kanban / auditoria), inclusive zerando

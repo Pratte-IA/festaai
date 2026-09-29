@@ -13,7 +13,6 @@ import {
   LogOut,
   UserCircle,
   UserCog,
-  Building2,
   CreditCard,
   LifeBuoy,
   Wallet,
@@ -25,6 +24,7 @@ import {
 import { useAuth } from "@/features/auth";
 import { useCurrentTenant } from "@/features/tenants";
 import { useTenantAdminCapability } from "@/features/tenants/use-tenant-admin-capability";
+import { UnitSwitcher } from "@/components/tenants/UnitSwitcher";
 import { prefetchRoute } from "@/lib/prefetch-route";
 import { toast } from "@/hooks/use-toast";
 
@@ -101,7 +101,7 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { currentTenant, isLoading: isTenantLoading } = useCurrentTenant();
+  const { isLoading: isTenantLoading } = useCurrentTenant();
   const { data: tenantAdminCap } = useTenantAdminCapability();
 
   const canAccessTenantAdminAreas = Boolean(tenantAdminCap?.canAccessTenantAdminAreas);
@@ -206,15 +206,7 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
       >
         <div className="space-y-2.5">
           <div className="flex gap-2">
-            <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-            <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-sidebar-accent-foreground">
-                {isTenantLoading ? "Carregando empresa…" : currentTenant?.name ?? "Sem empresa ativa"}
-              </p>
-              <p className="truncate text-[11px] text-sidebar-foreground">
-                {isTenantLoading ? "…" : currentTenant?.slug ?? "Tenant"}
-              </p>
-            </div>
+            <UnitSwitcher isTenantLoading={isTenantLoading} />
           </div>
           <div className="border-t border-sidebar-border/50" />
           <div className="flex gap-2">

@@ -5,7 +5,7 @@ import {
   getBrazilMobilePhoneValidationError,
   phonesMatch,
 } from "../_shared/phone.ts";
-import { formatCompanyDisplayName } from "../_shared/company-display-name.ts";
+import { resolveTenantUnit } from "../_shared/tenant-unit.ts";
 import { dispatchSatisfactionSurveyNpsBaixa } from "../_shared/dispatch-satisfaction-survey-nps-baixa.ts";
 import {
   isPostPartyAutomationActive,
@@ -51,6 +51,7 @@ const loadSchema = z.object({
   clientPhone: z.string().min(8).max(30),
   eventoId: z.number().int().positive(),
   tenantSlug: z.string().min(2).max(80),
+  unitSlug: z.string().min(2).max(80).optional(),
 });
 
 const submitSchema = z.object({
@@ -59,6 +60,7 @@ const submitSchema = z.object({
   eventoId: z.number().int().positive(),
   responses: z.record(z.string()),
   tenantSlug: z.string().min(2).max(80),
+  unitSlug: z.string().min(2).max(80).optional(),
 });
 
 const requestSchema = z.discriminatedUnion("action", [loadSchema, submitSchema]);
@@ -91,12 +93,14 @@ const resolveTenant = async (
 const resolveCompanyName = async (
   admin: ReturnType<typeof createClient>,
   tenantId: number,
+  unitId: number,
   fallbackName: string,
 ) => {
   const { data, error } = await admin
     .from("tenant_company_profiles")
     .select("company_name")
     .eq("tenant_id", tenantId)
+    .eq("unit_id", unitId)
     .maybeSingle();
 
   if (error) throw error;
@@ -160,7 +164,7 @@ const loadEventoForSurvey = async (
   const { data, error } = await admin
     .from("eventos")
     .select(
-      "id, aniversariante_nome, cliente_nome, cliente_telefone, data_evento, etapa, funil, satisfaction_survey_preenchido_em",
+      "id, aniversariante_nome, cliente_nome, cliente_telefone, data_evento, etapa, funil, satisfaction_survey_preenchido_em, unit_id",
     )
     .eq("tenant_id", tenantId)
     .eq("id", eventoId)
@@ -168,6 +172,26 @@ const loadEventoForSurvey = async (
 
   if (error) throw error;
   return data;
+};
+
+const resolveSurveyUnitId = async (
+  admin: ReturnType<typeof createClient>,
+  tenantId: number,
+  eventoUnitId: number | null,
+  unitSlug?: string,
+) => {
+  if (unitSlug) {
+    const unit = await resolveTenantUnit(admin, tenantId, unitSlug);
+    if (typeof eventoUnitId === "number" && eventoUnitId !== unit.id) {
+      return null;
+    }
+    return unit.id;
+  }
+
+  if (typeof eventoUnitId === "number") return eventoUnitId;
+
+  const matriz = await resolveTenantUnit(admin, tenantId);
+  return matriz.id;
 };
 
 const validateSurveyResponses = (
@@ -231,6 +255,16 @@ const handleLoad = async (
     return jsonResponse({ error: "Festa não encontrada." }, 404);
   }
 
+  const unitId = await resolveSurveyUnitId(
+    admin,
+    tenant.id,
+    typeof evento.unit_id === "number" ? evento.unit_id : null,
+    payload.unitSlug,
+  );
+  if (!unitId) {
+    return jsonResponse({ error: "Festa não encontrada." }, 404);
+  }
+
   if (!phonesMatch(evento.cliente_telefone, payload.clientPhone)) {
     return jsonResponse({ error: "Telefone não confere com o cadastro desta festa." }, 403);
   }
@@ -251,12 +285,13 @@ const handleLoad = async (
     }, 400);
   }
 
-  const companyName = await resolveCompanyName(admin, tenant.id, tenant.name);
+  const companyName = await resolveCompanyName(admin, tenant.id, unitId, tenant.name);
 
   const { data: questionRows, error: questionsError } = await admin
     .from("tenant_satisfaction_survey_questions")
     .select("id, label, question_key, question_type, required, active, sort_order, config")
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", unitId)
     .eq("active", true)
     .order("sort_order", { ascending: true })
     .order("id", { ascending: true });
@@ -322,6 +357,16 @@ const handleSubmit = async (
     return jsonResponse({ error: "Festa não encontrada." }, 404);
   }
 
+  const unitId = await resolveSurveyUnitId(
+    admin,
+    tenant.id,
+    typeof evento.unit_id === "number" ? evento.unit_id : null,
+    payload.unitSlug,
+  );
+  if (!unitId) {
+    return jsonResponse({ error: "Festa não encontrada." }, 404);
+  }
+
   if (!phonesMatch(evento.cliente_telefone, payload.clientPhone)) {
     return jsonResponse({ error: "Telefone não confere com o cadastro desta festa." }, 403);
   }
@@ -338,6 +383,7 @@ const handleSubmit = async (
     .from("tenant_satisfaction_survey_questions")
     .select("id, label, question_key, question_type, required, active, sort_order, config")
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", unitId)
     .eq("active", true);
 
   if (questionsError) throw questionsError;

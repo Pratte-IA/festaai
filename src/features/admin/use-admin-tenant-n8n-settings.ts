@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
 import {
@@ -43,15 +44,16 @@ export const useAdminTenantN8nSettings = (tenantId: number | null) =>
 
 export const useSaveAdminTenantN8nSettings = (tenantId: number | null) => {
   const queryClient = useQueryClient();
+  const { currentUnitId } = useCurrentTenant();
 
   return useMutation({
     mutationFn: async (form: AdminTenantN8nSettingsForm) => {
-      if (!tenantId) throw new Error("Tenant inválido.");
+      if (!tenantId || !currentUnitId) throw new Error("Tenant ou casa inválidos.");
 
-      const payload = buildN8nSettingsPayload(form, tenantId);
+      const payload = buildN8nSettingsPayload(form, tenantId, currentUnitId);
 
       const { error } = await supabase.from("tenant_automation_settings").upsert(payload, {
-        onConflict: "tenant_id",
+        onConflict: "unit_id",
       });
 
       if (error) throw error;

@@ -44,7 +44,9 @@ export const buildPublicContractFormUrl = (
   appUrl: string,
   tenantSlug: string,
   eventoId: number,
+  unitSlug?: string | null,
 ): string => {
   const base = appUrl.replace(/\/$/, "");
-  return `${base}/formulario/${tenantSlug}?evento=${eventoId}`;
+  const house = unitSlug ? `/${unitSlug}` : "";
+  return `${base}/formulario/${tenantSlug}${house}?evento=${eventoId}`;
 };

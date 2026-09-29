@@ -6,17 +6,7 @@ import {
 import { findWebhookNodeName, patchTenantWorkflowNodes } from "./n8n-workflow-patch.ts";
 
 type ServiceClient = {
-  from: (table: string) => {
-    select: (columns: string) => {
-      eq: (column: string, value: number | string) => {
-        maybeSingle: () => Promise<{ data: Record<string, unknown> | null; error: unknown }>;
-      };
-    };
-    upsert: (
-      values: Record<string, unknown>,
-      options: { onConflict: string },
-    ) => Promise<{ error: unknown }>;
-  };
+  from: (table: string) => any;
 };
 
 export type N8nProvisionStatus = "draft" | "active" | "error";
@@ -338,12 +328,30 @@ const findOrchestratorWorkflow = (
 export const provisionTenantN8nWorkflow = async (
   service: ServiceClient,
   tenant: { id: number; name: string; slug: string },
+  unitId?: number | null,
 ): Promise<ProvisionTenantN8nResult> => {
+  let resolvedUnitId = unitId ?? null;
+  if (resolvedUnitId == null) {
+    const matriz = await service
+      .from("tenant_units")
+      .select("id")
+      .eq("tenant_id", tenant.id)
+      .eq("kind", "matriz")
+      .maybeSingle();
+    if (matriz.error) throw matriz.error;
+    resolvedUnitId = typeof matriz.data?.id === "number" ? matriz.data.id : null;
+  }
+
+  if (resolvedUnitId == null) {
+    throw new Error("Matriz não encontrada para provisionar a automação.");
+  }
+
   if (!isN8nWorkflowProvisioningEnabled()) {
     const { data: existing } = await service
       .from("tenant_automation_settings")
       .select("n8n_provision_status, n8n_workflow_id, n8n_workflows")
       .eq("tenant_id", tenant.id)
+      .eq("unit_id", resolvedUnitId)
       .maybeSingle();
 
     const workflowId =
@@ -371,6 +379,7 @@ export const provisionTenantN8nWorkflow = async (
     .from("tenant_automation_settings")
     .select("n8n_provision_status, n8n_workflow_id, n8n_workflows")
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", resolvedUnitId)
     .maybeSingle();
 
   if (existing?.n8n_workflow_id && existing.n8n_provision_status !== "error") {
@@ -462,8 +471,9 @@ export const provisionTenantN8nWorkflow = async (
       n8n_workflow_id: orchestratorId,
       n8n_workflows: clonedWorkflows,
       tenant_id: tenant.id,
+      unit_id: resolvedUnitId,
     },
-    { onConflict: "tenant_id" },
+    { onConflict: "unit_id" },
   );
 
   if (upsertError) throw upsertError;

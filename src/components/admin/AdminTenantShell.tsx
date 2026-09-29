@@ -1,9 +1,20 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PropsWithChildren } from "react";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 
+import { setPlatformAdminViewingTenantId } from "@/features/admin/platform-admin-viewing";
+import { useCurrentTenant } from "@/features/tenants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAdminTenant } from "@/features/admin";
 
 interface AdminTenantShellProps extends PropsWithChildren {
@@ -29,6 +40,18 @@ export const AdminTenantShell = ({
   title,
 }: AdminTenantShellProps) => {
   const { data: tenant, error, isLoading } = useAdminTenant(tenantId);
+  const { currentTenantId, currentUnit, currentUnitId, setCurrentTenantId, setCurrentUnitId, units } =
+    useCurrentTenant();
+
+  useEffect(() => {
+    if (!Number.isInteger(tenantId) || tenantId <= 0) return;
+    if (currentTenantId === tenantId) return;
+
+    setPlatformAdminViewingTenantId(tenantId, currentTenantId);
+    setCurrentTenantId(tenantId);
+  }, [currentTenantId, setCurrentTenantId, tenantId]);
+
+  const houseUnits = units.filter((unit) => unit.tenant_id === tenantId && unit.status === "active");
 
   return (
     <main className="px-4 py-8 text-foreground sm:px-6 lg:px-10">
@@ -59,6 +82,31 @@ export const AdminTenantShell = ({
             </div>
             {tenant ? <Badge variant={getStatusVariant(tenant.status)}>{tenant.status}</Badge> : null}
           </div>
+          {houseUnits.length > 0 ? (
+            <div className="mt-4 max-w-xs space-y-2">
+              <Label htmlFor="admin-tenant-unit">Casa</Label>
+              <Select
+                value={currentUnitId ? String(currentUnitId) : undefined}
+                onValueChange={(value) => setCurrentUnitId(Number(value))}
+              >
+                <SelectTrigger id="admin-tenant-unit">
+                  <SelectValue placeholder="Selecione a casa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {houseUnits.map((unit) => (
+                    <SelectItem key={unit.id} value={String(unit.id)}>
+                      {unit.kind === "matriz" ? "Matriz" : "Filial"} · {unit.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {currentUnit ? (
+                <p className="text-xs text-muted-foreground">
+                  A configuração abaixo vale só para {currentUnit.name}.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </header>
 
         {isLoading ? (

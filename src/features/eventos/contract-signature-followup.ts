@@ -35,8 +35,13 @@ O link continua disponível:
 
 Qualquer dúvida, estamos por aqui! 💛`;
 
-export const buildPublicContractFormUrl = (tenantSlug: string, eventoId: number) => {
-  const base = `${typeof window !== "undefined" ? window.location.origin : "https://festaai.com.br"}/formulario/${tenantSlug}`;
+export const buildPublicContractFormUrl = (
+  tenantSlug: string,
+  eventoId: number,
+  unit?: { kind: string; slug: string } | null,
+) => {
+  const house = unit?.kind === "filial" ? `/${unit.slug}` : "";
+  const base = `${typeof window !== "undefined" ? window.location.origin : "https://festaai.com.br"}/formulario/${tenantSlug}${house}`;
   return `${base}?evento=${eventoId}`;
 };
 

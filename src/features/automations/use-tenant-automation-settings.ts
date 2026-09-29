@@ -38,11 +38,11 @@ export const useTenantAutomationSettings = () => {
 
 export const useUpdateAutomationTemplateBindings = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useMutation({
     mutationFn: async (bindings: AutomationTemplateBindingRow[]) => {
-      if (!currentTenantId) throw new Error("Tenant atual indisponível.");
+      if (!currentTenantId || !currentUnitId) throw new Error("Tenant atual indisponível.");
 
       const serialized = serializeAutomationTemplateBindings(bindings);
 
@@ -50,8 +50,9 @@ export const useUpdateAutomationTemplateBindings = () => {
         {
           automation_template_bindings: serialized,
           tenant_id: currentTenantId,
+          unit_id: currentUnitId,
         },
-        { onConflict: "tenant_id" },
+        { onConflict: "unit_id" },
       );
 
       if (upsertError) throw upsertError;

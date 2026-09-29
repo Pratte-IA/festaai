@@ -13,12 +13,12 @@ interface EventoPublicFormLinkCardProps {
 }
 
 export const EventoPublicFormLinkCard = ({ evento }: EventoPublicFormLinkCardProps) => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const [copied, setCopied] = useState(false);
 
   if (!currentTenant?.slug || evento.funil !== "vendas") return null;
 
-  const publicUrl = buildPublicFormUrl(currentTenant.slug, evento.id);
+  const publicUrl = buildPublicFormUrl(currentTenant.slug, evento.id, currentUnit);
 
   const handleCopy = async () => {
     try {

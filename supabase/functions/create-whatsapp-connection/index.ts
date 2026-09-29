@@ -18,6 +18,7 @@ const bodySchema = z.object({
   name: z.string().trim().min(2).max(120),
   scope: z.enum(["tenant", "platform"]).default("tenant"),
   tenantId: z.number().int().positive().optional(),
+  unitId: z.number().int().positive().optional(),
 });
 
 Deno.serve(async (req) => {
@@ -35,6 +36,10 @@ Deno.serve(async (req) => {
 
     if (!isPlatform && payload.tenantId == null) {
       return jsonResponse({ ok: false, error: "tenantId é obrigatório." }, 400);
+    }
+
+    if (!isPlatform && payload.unitId == null) {
+      return jsonResponse({ ok: false, error: "unitId é obrigatório." }, 400);
     }
 
     const auth = isPlatform
@@ -132,6 +137,7 @@ Deno.serve(async (req) => {
         scope: isPlatform ? "platform" : "tenant",
         status: "connecting",
         tenant_id: tenantId,
+        unit_id: isPlatform ? null : payload.unitId,
         type: "whatsapp",
         webhook_url: webhookUrl,
       })

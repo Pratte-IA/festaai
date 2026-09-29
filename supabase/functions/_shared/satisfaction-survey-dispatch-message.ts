@@ -39,4 +39,8 @@ export const buildPublicSatisfactionSurveyUrl = (
   appUrl: string,
   tenantSlug: string,
   eventoId: number,
-): string => `${appUrl.replace(/\/$/, "")}/pesquisa/${tenantSlug}/${eventoId}`;
+  unitSlug?: string | null,
+): string => {
+  const house = unitSlug ? `/${unitSlug}` : "";
+  return `${appUrl.replace(/\/$/, "")}/pesquisa/${tenantSlug}${house}/${eventoId}`;
+};

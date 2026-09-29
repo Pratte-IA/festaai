@@ -5,5 +5,7 @@ export { useCurrentTenant } from "./use-current-tenant";
 export { tenantAdminCapabilityQueryKey, useTenantAdminCapability } from "./use-tenant-admin-capability";
 export type { TenantAdminCapability } from "./use-tenant-admin-capability";
 export { tenantsQueryKey, useTenants } from "./use-tenants";
+export { slugifyUnitName, useCreateFilial } from "./use-create-filial";
+export { tenantUnitsQueryKey, useTenantUnits } from "./use-tenant-units";
 export type { TenantContextValue } from "./tenant-context";
-export type { Tenant, TenantStatus } from "./types";
+export type { Tenant, TenantStatus, TenantUnit, TenantUnitKind } from "./types";

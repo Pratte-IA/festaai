@@ -7,12 +7,12 @@ import { buildPublicFormUrl } from "@/features/public-contract-form";
 import { toast } from "@/hooks/use-toast";
 
 export const PublicFormCopyButton = () => {
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, currentUnit } = useCurrentTenant();
   const [copied, setCopied] = useState(false);
 
   if (!currentTenant?.slug) return null;
 
-  const publicUrl = buildPublicFormUrl(currentTenant.slug);
+  const publicUrl = buildPublicFormUrl(currentTenant.slug, null, currentUnit);
 
   const handleCopy = async () => {
     try {

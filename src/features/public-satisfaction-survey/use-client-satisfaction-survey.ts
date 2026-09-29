@@ -26,6 +26,7 @@ export interface LoadClientSatisfactionSurveyInput {
   clientPhone: string;
   eventoId: number;
   tenantSlug: string;
+  unitSlug?: string;
 }
 
 export interface SubmitClientSatisfactionSurveyInput extends LoadClientSatisfactionSurveyInput {

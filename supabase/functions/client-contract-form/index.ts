@@ -8,6 +8,7 @@ import {
   parseTenantContractTemplateParams,
 } from "../_shared/evento-contract-builder.ts";
 import { loadTenantContractTemplateForGeneration } from "../_shared/load-tenant-contract-template.ts";
+import { resolveTenantUnit } from "../_shared/tenant-unit.ts";
 import { dispatchBoasVindasAfterContractSigned } from "../_shared/dispatch-boas-vindas.ts";
 import { computeClosingFormValorSaldo } from "../_shared/event-financial.ts";
 import { buildPhoneLookupVariants } from "../_shared/phone-lookup.ts";
@@ -66,6 +67,7 @@ const EVENTO_FIELD_KEYS = new Set([
 const loadSchema = z.object({
   action: z.literal("load"),
   tenantSlug: z.string().min(2).max(80),
+  unitSlug: z.string().min(2).max(80).optional(),
 });
 
 const submitFieldSchema = z.object({
@@ -100,6 +102,7 @@ const submitSchema = z.object({
     })
     .optional(),
   tenantSlug: z.string().min(2).max(80),
+  unitSlug: z.string().min(2).max(80).optional(),
 });
 
 const acceptContractSchema = z.object({
@@ -113,6 +116,7 @@ const acceptContractSchema = z.object({
   contractId: z.number().int().positive(),
   eventoId: z.number().int().positive(),
   tenantSlug: z.string().min(2).max(80),
+  unitSlug: z.string().min(2).max(80).optional(),
   termAcceptances: z
     .array(
       z.object({
@@ -189,6 +193,7 @@ const EVENTO_MATCH_SELECT =
 const loadFunnelLeadCandidates = async (
   admin: ReturnType<typeof createClient>,
   tenantId: number,
+  unitId: number,
   options: {
     clientName: string | null;
     linkedEventoId: number | null;
@@ -208,6 +213,7 @@ const loadFunnelLeadCandidates = async (
       .from("eventos")
       .select(EVENTO_MATCH_SELECT)
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .eq("id", options.linkedEventoId)
       .maybeSingle();
 
@@ -221,6 +227,7 @@ const loadFunnelLeadCandidates = async (
       .from("eventos")
       .select(EVENTO_MATCH_SELECT)
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .in("funil", ["vendas", "festa"])
       .in("cliente_telefone", phoneVariants);
 
@@ -239,6 +246,7 @@ const loadFunnelLeadCandidates = async (
       .from("eventos")
       .select(EVENTO_MATCH_SELECT)
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .in("funil", ["vendas", "festa"])
       .ilike("cliente_nome", sanitizedName);
 
@@ -329,6 +337,7 @@ const mapPublicTerm = (term: Record<string, unknown>) => ({
 const generateEventoContractForPublicFlow = async (
   admin: ReturnType<typeof createClient>,
   tenantId: number,
+  unitId: number,
   eventoId: number,
 ) => {
   const [
@@ -343,8 +352,8 @@ const generateEventoContractForPublicFlow = async (
     companyProfileResult,
     moduleSettingsResult,
   ] = await Promise.all([
-    admin.from("eventos").select("*").eq("tenant_id", tenantId).eq("id", eventoId).maybeSingle(),
-    admin.from("tenant_closing_form_fields").select("*").eq("tenant_id", tenantId),
+    admin.from("eventos").select("*").eq("tenant_id", tenantId).eq("unit_id", unitId).eq("id", eventoId).maybeSingle(),
+    admin.from("tenant_closing_form_fields").select("*").eq("tenant_id", tenantId).eq("unit_id", unitId),
     admin
       .from("evento_closing_responses")
       .select("field_id, value")
@@ -354,6 +363,7 @@ const generateEventoContractForPublicFlow = async (
       .from("tenant_acceptance_terms")
       .select("*")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .eq("active", true)
       .order("sort_order", { ascending: true }),
     admin
@@ -361,7 +371,7 @@ const generateEventoContractForPublicFlow = async (
       .select("term_id, accepted")
       .eq("tenant_id", tenantId)
       .eq("evento_id", eventoId),
-    admin.from("tenant_financial_settings").select("*").eq("tenant_id", tenantId).maybeSingle(),
+    admin.from("tenant_financial_settings").select("*").eq("tenant_id", tenantId).eq("unit_id", unitId).maybeSingle(),
     admin
       .from("evento_contracts")
       .select("id", { count: "exact", head: true })
@@ -374,11 +384,12 @@ const generateEventoContractForPublicFlow = async (
       .eq("evento_id", eventoId)
       .eq("status", "generated")
       .maybeSingle(),
-    admin.from("tenant_company_profiles").select("*").eq("tenant_id", tenantId).maybeSingle(),
+    admin.from("tenant_company_profiles").select("*").eq("tenant_id", tenantId).eq("unit_id", unitId).maybeSingle(),
     admin
       .from("tenant_contract_module_settings")
       .select("template_params")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .maybeSingle(),
   ]);
 
@@ -387,6 +398,7 @@ const generateEventoContractForPublicFlow = async (
 
   const resolvedTemplate = await loadTenantContractTemplateForGeneration(admin, tenantId, {
     packageId: eventoResult.data.pacote_id as number | null,
+    unitId,
   });
 
   const acceptedContract = await admin
@@ -422,6 +434,7 @@ const generateEventoContractForPublicFlow = async (
       .from("tenant_packages")
       .select("*")
       .eq("tenant_id", tenantId)
+      .eq("unit_id", unitId)
       .eq("id", eventoResult.data.pacote_id)
       .maybeSingle();
 
@@ -492,11 +505,17 @@ const generateEventoContractForPublicFlow = async (
   return inserted;
 };
 
-const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: string) => {
+const handleLoad = async (
+  admin: ReturnType<typeof createClient>,
+  tenantSlug: string,
+  unitSlug?: string,
+) => {
   const tenant = await resolveTenant(admin, tenantSlug);
   if (!tenant) {
     return jsonResponse({ error: "Espaço não encontrado." }, 404);
   }
+
+  const unit = await resolveTenantUnit(admin, tenant.id, unitSlug);
 
   const [fieldsResult, termsResult, packagesResult, additionalsResult, paymentMethodsResult, financialResult, moduleSettingsResult] =
     await Promise.all([
@@ -506,6 +525,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
           "id, section, label, field_key, field_type, required, active, sort_order, is_system, description, config, category, package_ids",
         )
         .eq("tenant_id", tenant.id)
+        .eq("unit_id", unit.id)
         .eq("active", true)
         .order("section", { ascending: true })
         .order("sort_order", { ascending: true }),
@@ -515,6 +535,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
           "id, title, content, is_required, active, sort_order, appears_in_contract, show_in_form, show_at_signing, term_key",
         )
         .eq("tenant_id", tenant.id)
+        .eq("unit_id", unit.id)
         .eq("active", true)
         .eq("show_in_form", true)
         .order("sort_order", { ascending: true }),
@@ -524,29 +545,34 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
           "id, name, name_automacao, description, active, included_guests, pricing_tiers, included_items, excluded_items, buffet, equipe, estrutura, duration_minutes, rules, sort_order",
         )
         .eq("tenant_id", tenant.id)
+        .eq("unit_id", unit.id)
         .eq("active", true)
         .order("sort_order", { ascending: true }),
       admin
         .from("tenant_additionals")
         .select("id, name, description, category, type, price, active, sort_order, is_required, package_ids")
         .eq("tenant_id", tenant.id)
+        .eq("unit_id", unit.id)
         .eq("active", true)
         .order("sort_order", { ascending: true }),
       admin
         .from("tenant_payment_methods")
         .select("id, name, payment_type, active, allowed_for_deposit, allowed_for_remaining_balance, sort_order")
         .eq("tenant_id", tenant.id)
+        .eq("unit_id", unit.id)
         .eq("active", true)
         .order("sort_order", { ascending: true }),
       admin
         .from("tenant_financial_settings")
         .select("*")
         .eq("tenant_id", tenant.id)
+        .eq("unit_id", unit.id)
         .maybeSingle(),
       admin
         .from("tenant_contract_module_settings")
         .select("template_params")
         .eq("tenant_id", tenant.id)
+        .eq("unit_id", unit.id)
         .maybeSingle(),
     ]);
 
@@ -568,6 +594,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
       "id, title, content, is_required, active, sort_order, appears_in_contract, show_in_form, show_at_signing",
     )
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", unit.id)
     .eq("active", true)
     .eq("show_at_signing", true)
     .order("sort_order", { ascending: true });
@@ -633,6 +660,7 @@ const handleLoad = async (admin: ReturnType<typeof createClient>, tenantSlug: st
     signingTerms: (signingTermsResult.data ?? []).map(mapPublicTerm),
     tenantName: tenant.name,
     tenantSlug: tenant.slug,
+    unitSlug: unit.kind === "filial" ? unit.slug : null,
   });
 };
 
@@ -756,6 +784,8 @@ const handleSubmit = async (
     return jsonResponse({ error: "Espaço não encontrado." }, 404);
   }
 
+  const unit = await resolveTenantUnit(admin, tenant.id, payload.unitSlug);
+
   const phoneField = payload.fields.find((field) => field.fieldKey === "cliente_telefone");
   const phoneValue = phoneField ? (payload.fieldValues[phoneField.id] ?? "").trim() : "";
 
@@ -777,7 +807,7 @@ const handleSubmit = async (
   const clientName = nameField ? (payload.fieldValues[nameField.id] ?? "").trim() : null;
   const clientEmail = emailField ? (payload.fieldValues[emailField.id] ?? "").trim() : null;
 
-  const funnelEventos = await loadFunnelLeadCandidates(admin, tenant.id, {
+  const funnelEventos = await loadFunnelLeadCandidates(admin, tenant.id, unit.id, {
     clientName,
     linkedEventoId: payload.linkedEventoId ?? null,
     normalizedPhone,
@@ -798,6 +828,7 @@ const handleSubmit = async (
     .from("tenant_financial_settings")
     .select("max_installments")
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", unit.id)
     .maybeSingle();
 
   applyBalancePaymentSchedule(eventoUpdates, payload.balancePaymentSchedule, financialSettings);
@@ -846,6 +877,7 @@ const handleSubmit = async (
         origem: "formulario_publico",
         tenant_id: tenant.id,
         tipo_evento: "festa",
+        unit_id: unit.id,
       })
       .select("id, funil, etapa, cliente_nome, cliente_cpf, cliente_email, cliente_telefone")
       .single();
@@ -885,12 +917,13 @@ const handleSubmit = async (
     if (acceptanceError) throw acceptanceError;
   }
 
-  const contract = await generateEventoContractForPublicFlow(admin, tenant.id, targetEventoId);
+  const contract = await generateEventoContractForPublicFlow(admin, tenant.id, unit.id, targetEventoId);
 
   const { data: signingTerms, error: signingTermsError } = await admin
     .from("tenant_acceptance_terms")
     .select("id, title, content, is_required, active, sort_order, appears_in_contract, show_in_form, show_at_signing")
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", unit.id)
     .eq("active", true)
     .eq("show_at_signing", true)
     .order("sort_order", { ascending: true });
@@ -924,10 +957,13 @@ const handleAcceptContract = async (
     return jsonResponse({ error: "Espaço não encontrado." }, 404);
   }
 
+  const unit = await resolveTenantUnit(admin, tenant.id, payload.unitSlug);
+
   const { data: evento, error: eventoError } = await admin
     .from("eventos")
     .select("id, funil, etapa, cliente_nome, cliente_email, cliente_telefone")
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", unit.id)
     .eq("id", payload.eventoId)
     .maybeSingle();
 
@@ -956,6 +992,7 @@ const handleAcceptContract = async (
     .from("tenant_acceptance_terms")
     .select("id, title, content, is_required, active, show_at_signing")
     .eq("tenant_id", tenant.id)
+    .eq("unit_id", unit.id)
     .eq("active", true)
     .eq("show_at_signing", true);
 
@@ -1045,7 +1082,7 @@ const handleAcceptContract = async (
     if (updateEventoError) throw updateEventoError;
 
     if (funnelMigration) {
-      const funnelEventos = await loadFunnelLeadCandidates(admin, tenant.id, {
+      const funnelEventos = await loadFunnelLeadCandidates(admin, tenant.id, unit.id, {
         clientName: evento.cliente_nome,
         linkedEventoId: payload.eventoId,
         normalizedPhone: evento.cliente_telefone ?? "",
@@ -1131,7 +1168,7 @@ Deno.serve(async (request) => {
     }
 
     if (parsed.data.action === "load") {
-      return await handleLoad(admin, parsed.data.tenantSlug);
+      return await handleLoad(admin, parsed.data.tenantSlug, parsed.data.unitSlug);
     }
 
     if (parsed.data.action === "accept_contract") {
