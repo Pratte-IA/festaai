@@ -145,7 +145,11 @@ export const useAuthSession = (): UseAuthSessionResult => {
 
       setSession(nextSession);
       setError(null);
-      void applyProfile(nextSession?.user ?? null);
+      // Fora do callback: consultar o banco aqui dentro segura o lock de auth
+      // e qualquer outra chamada (incluindo o formulário público) fica pendente.
+      window.setTimeout(() => {
+        void applyProfile(nextSession?.user ?? null);
+      }, 0);
     });
 
     void loadSession();

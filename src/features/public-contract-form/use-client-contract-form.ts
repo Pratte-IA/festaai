@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { FunctionsHttpError } from "@supabase/supabase-js";
 
 import type { ClosingFormField } from "@/features/configuracoes/closing-form-types";
 import {
@@ -10,7 +9,7 @@ import {
   type Additional,
   type PackageData,
 } from "@/data/packagesData";
-import { supabase } from "@/lib/supabase/client";
+import { invokePublicFunction } from "@/lib/supabase/invoke-public-function";
 
 import type {
   ClientContractAcceptResult,
@@ -18,20 +17,6 @@ import type {
   ClientContractFormSubmitResult,
 } from "./types";
 import type { BalancePaymentOption } from "./balance-payment-option";
-
-const resolveFunctionError = async (error: unknown) => {
-  if (error instanceof FunctionsHttpError) {
-    try {
-      const body = (await error.context.json()) as { error?: string };
-      if (body.error) return body.error;
-    } catch {
-      // mantém mensagem padrão
-    }
-  }
-
-  if (error instanceof Error && error.message) return error.message;
-  return "Tente novamente em instantes.";
-};
 
 const mapPackage = (row: Record<string, unknown>): PackageData => {
   const { schedule, tiers } = normalizePackagePricing(row.pricingTiers);
@@ -179,21 +164,11 @@ export const useClientContractFormConfig = (
   useQuery({
     enabled: Boolean(tenantSlug),
     queryFn: async (): Promise<ClientContractFormConfig> => {
-      const { data, error } = await supabase.functions.invoke<Record<string, unknown>>(
-        "client-contract-form",
-        {
-          body: {
-            action: "load",
-            tenantSlug,
-            unitSlug: unitSlug || undefined,
-          },
-        },
-      );
-
-      if (error) throw new Error(await resolveFunctionError(error));
-      if (!data || typeof data.error === "string") {
-        throw new Error(typeof data?.error === "string" ? data.error : "Formulário indisponível.");
-      }
+      const data = await invokePublicFunction<Record<string, unknown>>("client-contract-form", {
+        action: "load",
+        tenantSlug,
+        unitSlug: unitSlug || undefined,
+      });
 
       return mapConfig(data);
     },
@@ -205,46 +180,18 @@ export const useClientContractFormConfig = (
 
 export const useSubmitClientContractForm = () =>
   useMutation({
-    mutationFn: async (payload: SubmitClientContractFormInput): Promise<ClientContractFormSubmitResult> => {
-      const { data, error } = await supabase.functions.invoke<ClientContractFormSubmitResult>(
-        "client-contract-form",
-        {
-          body: {
-            action: "submit",
-            ...payload,
-          },
-        },
-      );
-
-      if (error) throw new Error(await resolveFunctionError(error));
-      if (!data) throw new Error("Resposta vazia ao enviar o formulário.");
-      if ("error" in data && typeof (data as { error?: string }).error === "string") {
-        throw new Error((data as { error: string }).error);
-      }
-
-      return data;
-    },
+    mutationFn: async (payload: SubmitClientContractFormInput): Promise<ClientContractFormSubmitResult> =>
+      invokePublicFunction<ClientContractFormSubmitResult>("client-contract-form", {
+        action: "submit",
+        ...payload,
+      }),
   });
 
 export const useAcceptClientContract = () =>
   useMutation({
-    mutationFn: async (payload: AcceptClientContractInput): Promise<ClientContractAcceptResult> => {
-      const { data, error } = await supabase.functions.invoke<ClientContractAcceptResult>(
-        "client-contract-form",
-        {
-          body: {
-            action: "accept_contract",
-            ...payload,
-          },
-        },
-      );
-
-      if (error) throw new Error(await resolveFunctionError(error));
-      if (!data) throw new Error("Resposta vazia ao assinar o contrato.");
-      if ("error" in data && typeof (data as { error?: string }).error === "string") {
-        throw new Error((data as { error: string }).error);
-      }
-
-      return data;
-    },
+    mutationFn: async (payload: AcceptClientContractInput): Promise<ClientContractAcceptResult> =>
+      invokePublicFunction<ClientContractAcceptResult>("client-contract-form", {
+        action: "accept_contract",
+        ...payload,
+      }),
   });
