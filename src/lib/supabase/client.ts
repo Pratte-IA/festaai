@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 import { Database } from "./database.types";
-import { applyUnitRequestHeaders } from "./unit-request";
+import { applyUnitRequestHeaders, resolveRequestUrl } from "./unit-request";
 
 type PublicEnvKey = "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY";
 
@@ -27,7 +27,13 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   global: {
     fetch: (input, init) => {
       const headers = new Headers(init?.headers);
-      applyUnitRequestHeaders(headers);
+      const url = resolveRequestUrl(input);
+      // Cabeçalhos de unidade são só para o PostgREST (RLS). Em Edge Functions
+      // eles disparam preflight e o browser bloqueia a chamada se o CORS
+      // da função não os listar — o formulário público quebrava com isso.
+      if (!url.includes("/functions/v1/")) {
+        applyUnitRequestHeaders(headers);
+      }
       return fetch(input, { ...init, headers });
     },
   },

@@ -11,6 +11,12 @@ export const syncUnitRequest = (next: UnitRequestScope) => {
 
 export const getUnitRequest = () => unitRequest;
 
+export const resolveRequestUrl = (input: RequestInfo | URL) => {
+  if (typeof input === "string") return input;
+  if (input instanceof URL) return input.href;
+  return input.url;
+};
+
 export const applyUnitRequestHeaders = (headers: Headers) => {
   if (unitRequest.unitId != null) {
     headers.set("x-festaai-unit-id", String(unitRequest.unitId));
