@@ -28,6 +28,9 @@ const requiredEnv = (key: string) => {
 
 const optionalEnv = (key: string) => Deno.env.get(key) ?? "";
 
+/** Janela para reenviar a pesquisa quando a transição ocorreu e o WhatsApp não saiu. */
+const SURVEY_DISPATCH_RETRY_MS = 14 * 24 * 60 * 60 * 1000;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -107,6 +110,47 @@ Deno.serve(async (req) => {
       return tenant;
     };
 
+    const dispatchSurvey = async (eventoId: number, tenantId: number) => {
+      try {
+        const tenant = await loadTenant(tenantId);
+        if (!tenant) {
+          dispatchResults.push({
+            dispatched: false,
+            eventoId,
+            skippedReason: "Tenant não encontrado para disparo da pesquisa.",
+          });
+          return;
+        }
+
+        const dispatchResult = await dispatchPesquisaSatisfacaoAfterPostParty(supabase, {
+          eventoId,
+          tenant,
+          triggeredAt: now,
+        });
+
+        dispatchResults.push({
+          dispatched: dispatchResult.dispatched,
+          eventoId,
+          skippedReason: dispatchResult.skippedReason,
+        });
+
+        if (dispatchResult.errorMessage) {
+          errors.push({
+            eventoId,
+            message: dispatchResult.errorMessage,
+          });
+        }
+      } catch (dispatchError) {
+        errors.push({
+          eventoId,
+          message:
+            dispatchError instanceof Error
+              ? dispatchError.message
+              : "Erro ao disparar pesquisa de satisfação.",
+        });
+      }
+    };
+
     for (const evento of eligible) {
       const { error: updateError } = await supabase
         .from("eventos")
@@ -130,45 +174,28 @@ Deno.serve(async (req) => {
 
       movedCount += 1;
       movedEventIds.push(evento.id);
+      await dispatchSurvey(evento.id, evento.tenant_id);
+    }
 
-      try {
-        const tenant = await loadTenant(evento.tenant_id);
-        if (!tenant) {
-          dispatchResults.push({
-            dispatched: false,
-            eventoId: evento.id,
-            skippedReason: "Tenant não encontrado para disparo da pesquisa.",
-          });
-          continue;
-        }
+    const retrySince = new Date(Date.parse(now) - SURVEY_DISPATCH_RETRY_MS).toISOString();
+    const { data: pendingSurveys, error: pendingError } = await supabase
+      .from("eventos")
+      .select("id, tenant_id")
+      .eq("funil", "executadas")
+      .eq("etapa", "aguardando_feedback")
+      .eq("status_interno", "ativo")
+      .is("satisfaction_survey_whatsapp_enviado_em", null)
+      .gte("executadas_transicao_em", retrySince);
 
-        const dispatchResult = await dispatchPesquisaSatisfacaoAfterPostParty(supabase, {
-          eventoId: evento.id,
-          tenant,
-          triggeredAt: now,
-        });
+    if (pendingError) throw pendingError;
 
-        dispatchResults.push({
-          dispatched: dispatchResult.dispatched,
-          eventoId: evento.id,
-          skippedReason: dispatchResult.skippedReason,
-        });
+    const attemptedIds = new Set(movedEventIds);
+    let retriedCount = 0;
 
-        if (dispatchResult.errorMessage) {
-          errors.push({
-            eventoId: evento.id,
-            message: dispatchResult.errorMessage,
-          });
-        }
-      } catch (dispatchError) {
-        errors.push({
-          eventoId: evento.id,
-          message:
-            dispatchError instanceof Error
-              ? dispatchError.message
-              : "Erro ao disparar pesquisa de satisfação.",
-        });
-      }
+    for (const evento of pendingSurveys ?? []) {
+      if (attemptedIds.has(evento.id)) continue;
+      retriedCount += 1;
+      await dispatchSurvey(evento.id, evento.tenant_id);
     }
 
     return jsonResponse({
@@ -177,6 +204,7 @@ Deno.serve(async (req) => {
       dispatchResults,
       effectiveDate: POST_PARTY_AUTOMATION_EFFECTIVE_DATE,
       eligible: eligible.length,
+      retriedCount,
       errors,
       movedCount,
       movedEventIds,
