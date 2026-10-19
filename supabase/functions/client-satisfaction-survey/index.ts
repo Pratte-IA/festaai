@@ -5,6 +5,7 @@ import {
   getBrazilMobilePhoneValidationError,
   phonesMatch,
 } from "../_shared/phone.ts";
+import { formatCompanyDisplayName } from "../_shared/company-display-name.ts";
 import { resolveTenantUnit } from "../_shared/tenant-unit.ts";
 import { dispatchSatisfactionSurveyNpsBaixa } from "../_shared/dispatch-satisfaction-survey-nps-baixa.ts";
 import {

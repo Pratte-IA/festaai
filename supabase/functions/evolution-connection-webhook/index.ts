@@ -22,7 +22,12 @@ import {
 } from "../_shared/contato-inicial-followup.ts";
 import { resolveAutomationConnectionId } from "../_shared/automation-bindings.ts";
 import { buildLogPayload, buildN8nInboundPayload, forwardToN8n } from "../_shared/n8n-client.ts";
+import { buildPhoneLookupVariants } from "../_shared/phone-lookup.ts";
 import { phonesMatch } from "../_shared/phone.ts";
+import {
+  PESQUISA_SATISFACAO_INBOUND_TEMPLATE_KEY,
+  shouldForwardSatisfactionSurveyReply,
+} from "../_shared/satisfaction-survey-reply-forward.ts";
 import { upsertPlatformWhatsappConversation } from "../_shared/platform-whatsapp-conversation.ts";
 import { ensureCrmLeadFromPlatformWhatsapp } from "../_shared/radar-crm-from-whatsapp.ts";
 import { isTenantSystemArmed } from "../_shared/system-armed.ts";
@@ -329,27 +334,51 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       ? automationSettings.n8n_inbound_webhook_url
       : null;
 
+  const connectionMatchesBinding = async (connectionId: number | null) => {
+    if (connectionId == null) return false;
+    if (connectionId === ctx.connection.id) return true;
+
+    const { data: boundConnection } = await ctx.service
+      .from("whatsapp_connections")
+      .select("id, instance_name, phone")
+      .eq("id", connectionId)
+      .maybeSingle();
+
+    if (!boundConnection) return false;
+
+    return (
+      boundConnection.instance_name === ctx.connection.instance_name ||
+      phonesMatch(boundConnection.phone, ctx.connection.phone)
+    );
+  };
+
   const atendimentoConnectionId = resolveAutomationConnectionId(
     automationSettings?.automation_template_bindings,
     ATENDIMENTO_TEMPLATE_KEY,
   );
+  const pesquisaConnectionId = resolveAutomationConnectionId(
+    automationSettings?.automation_template_bindings,
+    PESQUISA_SATISFACAO_INBOUND_TEMPLATE_KEY,
+  );
 
-  let isAtendimentoConnection =
-    atendimentoConnectionId !== null && atendimentoConnectionId === ctx.connection.id;
+  const isAtendimentoConnection = await connectionMatchesBinding(atendimentoConnectionId);
+  const isPesquisaConnection = await connectionMatchesBinding(pesquisaConnectionId);
 
-  if (!isAtendimentoConnection && atendimentoConnectionId !== null) {
-    const { data: boundConnection } = await ctx.service
-      .from("whatsapp_connections")
-      .select("id, instance_name, phone")
-      .eq("id", atendimentoConnectionId)
-      .maybeSingle();
+  const customerReceivedSatisfactionSurvey = async (customerPhone: string) => {
+    const variants = buildPhoneLookupVariants(customerPhone);
+    if (variants.length === 0) return false;
 
-    if (boundConnection) {
-      isAtendimentoConnection =
-        boundConnection.instance_name === ctx.connection.instance_name ||
-        phonesMatch(boundConnection.phone, ctx.connection.phone);
-    }
-  }
+    const { data, error } = await ctx.service
+      .from("eventos")
+      .select("id")
+      .eq("tenant_id", tenant.id)
+      .not("satisfaction_survey_whatsapp_enviado_em", "is", null)
+      .in("cliente_telefone", variants)
+      .limit(1);
+
+    if (error) throw error;
+    return (data?.length ?? 0) > 0;
+  };
 
   const systemArmed = isTenantSystemArmed(automationSettings);
 
@@ -474,7 +503,21 @@ const handleMessagesUpsert = async (ctx: WebhookContext) => {
       }
     }
 
-    if (!canForward) {
+    const forwardSurveyReply = shouldForwardSatisfactionSurveyReply({
+      fromMe: message.fromMe,
+      hasSurveySentToPhone:
+        isPesquisaConnection && !message.fromMe && typeof message.customerPhone === "string"
+          ? await customerReceivedSatisfactionSurvey(message.customerPhone)
+          : false,
+      inboundAutomationEnabled: automationSettings?.inbound_automation_enabled === true,
+      isAtendimentoConnection,
+      isPesquisaConnection,
+      systemArmed,
+      webhookReady:
+        automationSettings?.n8n_provision_status === "active" && Boolean(tenantWebhookUrl),
+    });
+
+    if (!canForward && !forwardSurveyReply) {
       const skipMessage =
         atendimentoConnectionId === null
           ? "Automação de Atendimento sem número WhatsApp vinculado."
