@@ -44,6 +44,26 @@ describe("expandPricingTiersWithInterpolatedGuests", () => {
     expect(byGuests[80]?.bandPrices["band-weekdays"]).toBe(8000);
   });
 
+  it("escala a tabela de cada ano nas faixas intermediarias", () => {
+    const expanded = expandPricingTiersWithInterpolatedGuests([
+      {
+        ...anchors[0],
+        bandPricesByYear: {
+          "2026": { "band-weekdays": 3000, "band-weekend": 3600 },
+          "2027": { "band-weekdays": 3300, "band-weekend": 3900 },
+        },
+      },
+      anchors[1],
+    ]);
+    const guests31 = expanded.find((tier) => tier.maxGuests === 31);
+
+    expect(guests31?.bandPricesByYear?.["2026"]["band-weekdays"]).toBe(3100);
+    expect(guests31?.bandPricesByYear?.["2027"]["band-weekdays"]).toBe(3410);
+    expect(expanded.find((tier) => tier.maxGuests === 30)?.bandPricesByYear?.["2027"]["band-weekdays"]).toBe(
+      3300,
+    );
+  });
+
   it("e idempotente quando as faixas ja foram expandidas", () => {
     const once = expandPricingTiersWithInterpolatedGuests(anchors);
     const twice = expandPricingTiersWithInterpolatedGuests(once);

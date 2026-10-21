@@ -24,6 +24,29 @@ export const scaleBandPrices = (
   );
 };
 
+const cloneBandPricesByYear = (
+  bandPricesByYear: PricingTier["bandPricesByYear"],
+): PricingTier["bandPricesByYear"] => {
+  if (!bandPricesByYear) return undefined;
+  return Object.fromEntries(
+    Object.entries(bandPricesByYear).map(([year, prices]) => [year, { ...prices }]),
+  );
+};
+
+const scaleBandPricesByYear = (
+  bandPricesByYear: PricingTier["bandPricesByYear"],
+  fromGuests: number,
+  toGuests: number,
+): PricingTier["bandPricesByYear"] => {
+  if (!bandPricesByYear) return undefined;
+  return Object.fromEntries(
+    Object.entries(bandPricesByYear).map(([year, prices]) => [
+      year,
+      scaleBandPrices(prices, fromGuests, toGuests),
+    ]),
+  );
+};
+
 export const collapsePricingTiersToAnchors = (tiers: PricingTier[]): PricingTier[] =>
   [...tiers]
     .filter((tier) => !isInterpolatedPricingTier(tier))
@@ -37,8 +60,10 @@ export const expandPricingTiersWithInterpolatedGuests = (tiers: PricingTier[]): 
 
   for (let index = 0; index < anchors.length; index += 1) {
     const current = anchors[index];
+    const anchorYearPrices = cloneBandPricesByYear(current.bandPricesByYear);
     expanded.push({
       bandPrices: { ...current.bandPrices },
+      ...(anchorYearPrices ? { bandPricesByYear: anchorYearPrices } : {}),
       id: current.id,
       maxGuests: current.maxGuests,
       minGuests: current.minGuests,
@@ -52,8 +77,14 @@ export const expandPricingTiersWithInterpolatedGuests = (tiers: PricingTier[]): 
     if (fromGuests <= 0 || toGuests <= fromGuests + 1) continue;
 
     for (let guestCount = fromGuests + 1; guestCount < toGuests; guestCount += 1) {
+      const scaledYearPrices = scaleBandPricesByYear(
+        current.bandPricesByYear,
+        fromGuests,
+        guestCount,
+      );
       expanded.push({
         bandPrices: scaleBandPrices(current.bandPrices, fromGuests, guestCount),
+        ...(scaledYearPrices ? { bandPricesByYear: scaledYearPrices } : {}),
         id: buildInterpolatedTierId(current.id, guestCount),
         interpolated: true,
         maxGuests: guestCount,

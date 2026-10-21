@@ -19,6 +19,7 @@ import {
   isAdditionalApplicableToPackage,
   type PackageData,
 } from "@/data/packagesData";
+import { describePackagePriceYear } from "@/data/package-year-prices";
 import {
   buildAcceptanceResponsesPayload,
   buildDefaultTermResponses,
@@ -340,6 +341,13 @@ export const ClientContractForm = ({
 
   const resolveSelectedPackage = () =>
     config.packages.find((pkg) => pkg.id === selectedPackageId) ?? null;
+  const selectedPackageForNotice = resolveSelectedPackage();
+  const clientPriceYearNotice = selectedPackageForNotice
+    ? describePackagePriceYear(
+        selectedPackageForNotice.pricingTiers ?? [],
+        resolveEventDateFromFieldValues(fieldValues, fieldIdByKey),
+      )
+    : null;
 
   const resolvePacoteValue = (
     values: Record<string, string>,
@@ -1127,6 +1135,13 @@ export const ClientContractForm = ({
               ))}
             </SelectContent>
           </Select>
+          {clientPriceYearNotice ? (
+            <p
+              className={`text-xs ${clientPriceYearNotice.usedFallback ? "text-warning" : "text-muted-foreground"}`}
+            >
+              {clientPriceYearNotice.message}
+            </p>
+          ) : null}
           {errors.pacote && <p className="text-xs text-destructive">{errors.pacote}</p>}
         </div>
       )}

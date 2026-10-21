@@ -25,6 +25,7 @@ import {
   isAdditionalApplicableToPackage,
 } from "@/data/packagesData";
 import type { PackageData } from "@/data/packagesData";
+import { describePackagePriceYear } from "@/data/package-year-prices";
 import {
   ClosingFormField,
   ClosingFormSection,
@@ -637,6 +638,9 @@ export const ClosingFormDialog = ({
     const selectedPackage = resolveSelectedPackage();
     const guestCount = resolveGuestCount(evento, fieldValues, fieldIdByKey);
     const selectedPrice = selectedPackage ? resolvePacoteValue(fieldValues, selectedPackage) : undefined;
+    const priceYearNotice = selectedPackage
+      ? describePackagePriceYear(selectedPackage.pricingTiers ?? [], closingEventDate)
+      : null;
 
     return (
       <div className="space-y-4">
@@ -670,6 +674,11 @@ export const ClosingFormDialog = ({
                 <span className="font-medium text-foreground">{formatCurrency(selectedPrice)}</span>
               </p>
             )}
+            {priceYearNotice ? (
+              <p className={`text-xs ${priceYearNotice.usedFallback ? "text-warning" : "text-muted-foreground"}`}>
+                {priceYearNotice.message}
+              </p>
+            ) : null}
           </div>
         )}
 

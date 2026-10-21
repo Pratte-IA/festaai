@@ -20,7 +20,6 @@ import {
   formatBandDays,
   getTierBandPrice,
   PRICING_SCHEDULE_PRESETS,
-  remapTierBandPrices,
   type PricingSchedulePresetId,
 } from "@/data/pricing-schedule";
 import type { EstruturaBlock } from "@/data/packagesData";
@@ -35,6 +34,15 @@ import {
   sanitizePackageAutomationNameInput,
 } from "@/lib/package-automation-name";
 import { collapsePackageGuestPricing } from "@/data/expand-pricing-tiers";
+import {
+  clearTierYearPrices,
+  copyTierYearPrices,
+  isPackageYearExplicit,
+  listEditablePriceYears,
+  readTierBandPricesForYear,
+  remapTierPricesForSchedule,
+  setTierBandPriceForYear,
+} from "@/data/package-year-prices";
 import {
   Users, UtensilsCrossed, Gamepad2, UsersRound,
   Plus, X, Check, ChevronRight, ChevronLeft,
@@ -113,6 +121,13 @@ const clonePackage = (pkg: PackageData): PackageData => ({
   pricingTiers: pkg.pricingTiers.map((tier) => ({
     ...tier,
     bandPrices: { ...tier.bandPrices },
+    ...(tier.bandPricesByYear
+      ? {
+          bandPricesByYear: Object.fromEntries(
+            Object.entries(tier.bandPricesByYear).map(([year, prices]) => [year, { ...prices }]),
+          ),
+        }
+      : {}),
   })),
 });
 
@@ -162,6 +177,8 @@ const PackageWizard = ({
     Boolean(initialPackage?.nameAutomacao?.trim()),
   );
   const isPersistedPackage = isPersistedPackageId(initialPackage?.id);
+  const [priceYear, setPriceYear] = useState(() => new Date().getFullYear());
+  const referencePriceYear = new Date().getFullYear();
 
   const updatePricingTiers = (tiers: PackageData["pricingTiers"]) =>
     setPkg((current) => ({
@@ -176,14 +193,9 @@ const PackageWizard = ({
       return {
         ...current,
         pricingSchedule: nextSchedule,
-        pricingTiers: current.pricingTiers.map((tier) => ({
-          ...tier,
-          bandPrices: remapTierBandPrices(
-            tier.bandPrices,
-            current.pricingSchedule.bands,
-            nextSchedule.bands,
-          ),
-        })),
+        pricingTiers: current.pricingTiers.map((tier) =>
+          remapTierPricesForSchedule(tier, current.pricingSchedule.bands, nextSchedule.bands),
+        ),
       };
     });
   };
@@ -653,8 +665,11 @@ const PackageWizard = ({
 
             {currentStep.key === "precos" && (
               <PrecosStep
+                priceYear={priceYear}
+                referenceYear={referencePriceYear}
                 schedule={pkg.pricingSchedule}
                 tiers={pkg.pricingTiers}
+                onPriceYearChange={setPriceYear}
                 onScheduleChange={updatePricingSchedule}
                 onTiersChange={updatePricingTiers}
               />
@@ -708,7 +723,7 @@ const PackageWizard = ({
         </div>
 
         {/* Preview lateral */}
-        <PackagePreview pkg={pkg} />
+        <PackagePreview pkg={pkg} priceYear={priceYear} />
       </div>
     </div>
   );
@@ -866,18 +881,28 @@ const EquipeStep = ({
 };
 
 const PrecosStep = ({
+  priceYear,
+  referenceYear,
   schedule,
   tiers: tiersProp,
+  onPriceYearChange,
   onScheduleChange,
   onTiersChange,
 }: {
+  priceYear: number;
+  referenceYear: number;
   schedule: PricingSchedule;
   tiers: PricingTier[];
+  onPriceYearChange: (year: number) => void;
   onScheduleChange: (presetId: PricingSchedulePresetId) => void;
   onTiersChange: (tiers: PricingTier[]) => void;
 }) => {
   const tiers = tiersProp ?? [];
   const bands = schedule.bands;
+  const editableYears = listEditablePriceYears(tiers);
+  const selectedYear = editableYears.includes(priceYear) ? priceYear : referenceYear;
+  const yearIsExplicit = isPackageYearExplicit(tiers, selectedYear);
+  const followsReferenceYear = selectedYear !== referenceYear && !yearIsExplicit;
 
   const updateTier = (id: string, patch: Partial<PricingTier>) =>
     onTiersChange(tiers.map((t) => (t.id === id ? { ...t, ...patch } : t)));
@@ -885,9 +910,15 @@ const PrecosStep = ({
   const updateBandPrice = (tierId: string, bandId: string, price: number) =>
     onTiersChange(
       tiers.map((tier) =>
-        tier.id === tierId
-          ? { ...tier, bandPrices: { ...tier.bandPrices, [bandId]: price } }
-          : tier,
+        setTierBandPriceForYear(
+          tier,
+          selectedYear,
+          bandId,
+          tier.id === tierId
+            ? price
+            : getTierBandPrice(readTierBandPricesForYear(tier, selectedYear), bandId),
+          referenceYear,
+        ),
       ),
     );
 
@@ -902,12 +933,25 @@ const PrecosStep = ({
         id: crypto.randomUUID(),
         minGuests: min,
         maxGuests: min + GUEST_TIER_SPAN - 1,
-        bandPrices: last
-          ? { ...last.bandPrices }
-          : createEmptyBandPrices(bands),
+        bandPrices: last ? { ...last.bandPrices } : createEmptyBandPrices(bands),
+        ...(last?.bandPricesByYear
+          ? {
+              bandPricesByYear: Object.fromEntries(
+                Object.entries(last.bandPricesByYear).map(([year, prices]) => [year, { ...prices }]),
+              ),
+            }
+          : {}),
       },
     ]);
   };
+
+  const copyReferenceYear = () =>
+    onTiersChange(
+      tiers.map((tier) => copyTierYearPrices(tier, referenceYear, selectedYear, referenceYear)),
+    );
+
+  const followReferenceYear = () =>
+    onTiersChange(tiers.map((tier) => clearTierYearPrices(tier, selectedYear, referenceYear)));
 
   return (
     <div className="space-y-5">
@@ -959,6 +1003,56 @@ const PrecosStep = ({
         )}
       </div>
 
+      <div className="rounded-xl border border-border/50 p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-medium text-foreground">Ano da festa</p>
+          <div className="flex flex-wrap gap-2">
+            {editableYears.map((year) => (
+              <button
+                key={year}
+                type="button"
+                onClick={() => onPriceYearChange(year)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  year === selectedYear
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/60 text-foreground hover:bg-muted"
+                }`}
+              >
+                {year}
+                {year === referenceYear ? " · vigente" : year === referenceYear + 1 ? " · próximo" : ""}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {selectedYear === referenceYear
+            ? "Estes valores valem para festas neste ano. Nome, buffet e equipe continuam os mesmos."
+            : followsReferenceYear
+              ? `Festas em ${selectedYear} usam os mesmos valores de ${referenceYear} até você alterar um preço.`
+              : `Estes valores valem só para festas em ${selectedYear}.`}
+        </p>
+        {selectedYear !== referenceYear && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={copyReferenceYear}
+              className="px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-foreground hover:border-primary hover:text-primary transition-colors"
+            >
+              Copiar valores de {referenceYear}
+            </button>
+            {yearIsExplicit && (
+              <button
+                type="button"
+                onClick={followReferenceYear}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Usar os mesmos valores de {referenceYear}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       <p className="text-sm text-muted-foreground">
         Cadastre o valor de cada faixa (padrão de {GUEST_TIER_SPAN} em {GUEST_TIER_SPAN}, por exemplo
         30, 40, 50). Quantidades intermediárias são calculadas automaticamente: valor da faixa ÷
@@ -1006,7 +1100,7 @@ const PrecosStep = ({
                 {bands.map((band) => (
                   <td key={band.id} className="py-2 px-2">
                     <CurrencyInput
-                      value={getTierBandPrice(tier.bandPrices, band.id)}
+                      value={getTierBandPrice(readTierBandPricesForYear(tier, selectedYear), band.id)}
                       onChange={(price) => updateBandPrice(tier.id, band.id, price)}
                       placeholder="0,00"
                       className="input-base w-full min-w-[100px] text-sm tabular-nums"
@@ -1040,7 +1134,7 @@ const PrecosStep = ({
   );
 };
 
-const PackagePreview = ({ pkg }: { pkg: PackageData }) => (
+const PackagePreview = ({ pkg, priceYear }: { pkg: PackageData; priceYear: number }) => (
   <div className="lg:col-span-1">
     <div className="glass-card p-5 lg:sticky lg:top-4 space-y-4">
       <div className="flex items-center gap-2 pb-3 border-b border-border">
@@ -1107,7 +1201,7 @@ const PackagePreview = ({ pkg }: { pkg: PackageData }) => (
 
       <div className="pt-3 border-t border-border space-y-1.5">
         <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
-          Tabela de preços
+          Tabela de preços · {priceYear}
         </p>
         {pkg.pricingTiers.length === 0 && (
           <p className="text-xs text-muted-foreground italic">Nenhuma faixa cadastrada</p>
@@ -1128,7 +1222,9 @@ const PackagePreview = ({ pkg }: { pkg: PackageData }) => (
                     bandIndex === 0 ? "text-foreground" : "text-rosa"
                   }`}
                 >
-                  {formatCurrency(getTierBandPrice(tier.bandPrices, band.id))}
+                  {formatCurrency(
+                    getTierBandPrice(readTierBandPricesForYear(tier, priceYear), band.id),
+                  )}
                 </span>
               </div>
             ))}

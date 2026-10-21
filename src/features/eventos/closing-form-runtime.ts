@@ -1,5 +1,7 @@
 import type { Additional, PackageData, PricingTier } from "@/data/packagesData";
 import { itemsToLines, packageHasBuffet } from "@/data/packagesData";
+import { collapsePricingTiersToAnchors } from "@/data/expand-pricing-tiers";
+import { collectPackagePriceYears, resolveTierBandPricesForDate } from "@/data/package-year-prices";
 import { DEFAULT_ALUGUEL_ESPACO_HORA_TERMINO } from "@/features/eventos/contracts/contract-template-types";
 import {
   DEFAULT_PRICING_SCHEDULE,
@@ -200,15 +202,19 @@ export const getPackageFromPrice = (
   eventDate?: string | null,
   isHoliday?: (date: string) => boolean,
 ): number => {
-  const tiers = pkg.pricingTiers ?? [];
+  const tiers = collapsePricingTiersToAnchors(pkg.pricingTiers ?? []);
   const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
   const bands = schedule.bands ?? [];
+  const catalogYears = collectPackagePriceYears(tiers);
   if (tiers.length === 0) return 0;
+
+  const pricesForTier = (tier: PricingTier) =>
+    resolveTierBandPricesForDate(tier, eventDate, catalogYears).bandPrices;
 
   if (eventDate && bands.length > 0) {
     const band = resolvePricingBandForDate(schedule, eventDate, isHoliday);
     if (band) {
-      const tierPrices = tiers.map((item) => getTierBandPrice(item.bandPrices, band.id));
+      const tierPrices = tiers.map((item) => getTierBandPrice(pricesForTier(item), band.id));
       const positiveTierPrices = tierPrices.filter((price) => price > 0);
       if (positiveTierPrices.length > 0) return Math.min(...positiveTierPrices);
     }
@@ -216,7 +222,7 @@ export const getPackageFromPrice = (
 
   const prices = tiers.flatMap((tier) =>
     bands.length > 0
-      ? bands.map((band) => getTierBandPrice(tier.bandPrices, band.id))
+      ? bands.map((band) => getTierBandPrice(pricesForTier(tier), band.id))
       : [0],
   );
 
@@ -245,16 +251,19 @@ const resolveTierPriceForBand = (
   schedule: PackageData["pricingSchedule"],
   eventDate?: string | null,
   isHoliday?: (date: string) => boolean,
+  catalogYears: number[] = [],
 ): number => {
   const bands = schedule.bands ?? [];
   if (bands.length === 0) return 0;
 
+  const { bandPrices } = resolveTierBandPricesForDate(tier, eventDate, catalogYears);
+
   if (eventDate) {
     const band = resolvePricingBandForDate(schedule, eventDate, isHoliday);
-    if (band) return getTierBandPrice(tier.bandPrices, band.id);
+    if (band) return getTierBandPrice(bandPrices, band.id);
   }
 
-  const prices = bands.map((band) => getTierBandPrice(tier.bandPrices, band.id));
+  const prices = bands.map((band) => getTierBandPrice(bandPrices, band.id));
   const positive = prices.filter((price) => price > 0);
   return positive.length > 0 ? Math.min(...positive) : prices[0] ?? 0;
 };
@@ -265,14 +274,15 @@ export const getPackagePriceForGuests = (
   eventDate?: string | null,
   isHoliday?: (date: string) => boolean,
 ): number => {
-  const tiers = pkg.pricingTiers ?? [];
+  const tiers = collapsePricingTiersToAnchors(pkg.pricingTiers ?? []);
   const schedule = pkg.pricingSchedule ?? DEFAULT_PRICING_SCHEDULE;
+  const catalogYears = collectPackagePriceYears(tiers);
   if (tiers.length === 0) return 0;
 
   const tier = resolveFloorPricingTier(tiers, guestCount);
   if (!tier) return 0;
 
-  const basePrice = resolveTierPriceForBand(tier, schedule, eventDate, isHoliday);
+  const basePrice = resolveTierPriceForBand(tier, schedule, eventDate, isHoliday, catalogYears);
   const anchorGuests = tier.maxGuests;
   if (anchorGuests <= 0 || guestCount <= anchorGuests) return basePrice;
 

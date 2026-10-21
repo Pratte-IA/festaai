@@ -16,6 +16,7 @@ import { useCurrentTenant } from "@/features/tenants";
 import { formatDurationMinutes } from "@/lib/duration";
 import { formatEquipeForTier, getEquipeQuantity, packageHasBuffet } from "@/data/packagesData";
 import { collapsePricingTiersToAnchors } from "@/data/expand-pricing-tiers";
+import { collectPackagePriceYears, readTierBandPricesForYear } from "@/data/package-year-prices";
 import { getTierBandPrice } from "@/data/pricing-schedule";
 import {
   Users,
@@ -284,6 +285,7 @@ const PackagesConfig = ({
           const isInactive = pkg.active === false;
           const pricingTiers = collapsePricingTiersToAnchors(pkg.pricingTiers ?? []);
           const pricingBands = pkg.pricingSchedule?.bands ?? [];
+          const priceYears = collectPackagePriceYears(pricingTiers);
           const minTierGuests = pricingTiers[0]?.minGuests ?? 0;
           const maxTierGuests = pricingTiers[pricingTiers.length - 1]?.maxGuests ?? 0;
           const guestLabel = pkg.includedGuests
@@ -329,6 +331,12 @@ const PackagesConfig = ({
                       {pricingTiers.length}{" "}
                       {pricingTiers.length === 1 ? "faixa de preço" : "faixas de preço"}
                     </span>
+                    {priceYears.length > 0 && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                        <span>preços {priceYears.length === 2 ? `${priceYears[0]} e ${priceYears[1]}` : priceYears.join(", ")}</span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -343,8 +351,13 @@ const PackagesConfig = ({
                         <div key={band.id} className="text-right max-w-[120px]">
                           <p
                             className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5 truncate"
-                            title={band.label}
+                            title={
+                              priceYears.length > 0
+                                ? `${new Date().getFullYear()} · ${band.label}`
+                                : band.label
+                            }
                           >
+                            {priceYears.length > 0 ? `${new Date().getFullYear()} · ` : ""}
                             {band.label}
                           </p>
                           <p
@@ -630,30 +643,41 @@ const PackagesConfig = ({
 
                   {/* Pricing Tiers Detail */}
                   {pricingTiers.length > 0 && (
-                    <div className="rounded-xl bg-card/60 p-4">
-                      <p className="text-sm font-semibold text-foreground mb-1">Faixas de preço</p>
-                      {pricingBands.length > 0 && (
-                        <p className="text-xs text-muted-foreground mb-3">
-                          {pricingBands.map((b) => b.label).join(" · ")}
-                        </p>
-                      )}
-                      <div className="space-y-2">
-                        {pricingTiers.map((tier) => (
-                          <div key={tier.id} className="text-sm py-1.5 border-b border-border/30 last:border-0">
-                            <p className="text-muted-foreground mb-1">
-                              {tier.minGuests}–{tier.maxGuests} convidados
-                            </p>
-                            <div className="flex flex-wrap gap-x-4 gap-y-1">
-                              {pricingBands.map((band) => (
-                                <span key={band.id} className="text-foreground">
-                                  <span className="text-muted-foreground text-xs mr-1">{band.label}</span>
-                                  {formatCurrency(getTierBandPrice(tier.bandPrices, band.id))}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+                    <div className="rounded-xl bg-card/60 p-4 space-y-4">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground mb-1">Faixas de preço</p>
+                        {pricingBands.length > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            {pricingBands.map((band) => band.label).join(" · ")}
+                          </p>
+                        )}
                       </div>
+                      {(priceYears.length > 0 ? priceYears : [null]).map((year) => (
+                        <div key={year ?? "base"} className="space-y-2">
+                          {year != null && (
+                            <p className="text-xs font-medium text-foreground">{year}</p>
+                          )}
+                          {pricingTiers.map((tier) => {
+                            const bandPrices =
+                              year == null ? tier.bandPrices : readTierBandPricesForYear(tier, year);
+                            return (
+                              <div key={`${year ?? "base"}-${tier.id}`} className="text-sm py-1.5 border-b border-border/30 last:border-0">
+                                <p className="text-muted-foreground mb-1">
+                                  {tier.minGuests}–{tier.maxGuests} convidados
+                                </p>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                  {pricingBands.map((band) => (
+                                    <span key={band.id} className="text-foreground">
+                                      <span className="text-muted-foreground text-xs mr-1">{band.label}</span>
+                                      {formatCurrency(getTierBandPrice(bandPrices, band.id))}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

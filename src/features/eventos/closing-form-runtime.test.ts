@@ -64,4 +64,28 @@ describe("getPackagePriceForGuests", () => {
     expect(getPackagePriceForGuests(carrossel, 50)).toBe(5279);
     expect(getPackagePriceForGuests(carrossel, 50, "2026-07-18")).toBe(5779);
   });
+
+  it("usa a tabela do ano da festa e cai no ano mais recente cadastrado", () => {
+    const pkg = {
+      id: "1",
+      pricingSchedule: cafeColonial.pricingSchedule,
+      pricingTiers: [
+        {
+          id: "t30",
+          minGuests: 21,
+          maxGuests: 30,
+          bandPrices: { "band-weekdays": 3000, "band-weekend": 3600 },
+          bandPricesByYear: {
+            "2026": { "band-weekdays": 3000, "band-weekend": 3600 },
+            "2027": { "band-weekdays": 3300, "band-weekend": 4000 },
+          },
+        },
+      ],
+    } as unknown as PackageData;
+
+    expect(getPackagePriceForGuests(pkg, 30, "2026-03-11")).toBe(3000);
+    expect(getPackagePriceForGuests(pkg, 30, "2027-03-13")).toBe(4000);
+    expect(getPackagePriceForGuests(pkg, 31, "2027-03-13")).toBe(4133.33);
+    expect(getPackagePriceForGuests(pkg, 30, "2028-01-08")).toBe(4000);
+  });
 });

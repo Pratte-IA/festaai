@@ -1,3 +1,4 @@
+import { alignPackageBandPricesToCalendarYear } from "@/data/package-year-prices";
 import {
   buildPricingSchedule,
   DEFAULT_PRICING_SCHEDULE,
@@ -183,7 +184,10 @@ export interface PricingTier {
   id: string;
   minGuests: number;
   maxGuests: number;
+  /** Tabela vigente. Quando existe `bandPricesByYear`, espelha o ano civil corrente. */
   bandPrices: Record<string, number>;
+  /** Preços por ano da festa. Ausente: `bandPrices` vale para qualquer ano. */
+  bandPricesByYear?: Record<string, Record<string, number>>;
   /** Gerada automaticamente entre as faixas cadastradas pelo tenant (ex.: 31 a 39 a partir de 30). */
   interpolated?: boolean;
 }
@@ -193,35 +197,79 @@ const toNonNegativeNumber = (value: unknown): number => {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 };
 
-const normalizePricingTier = (
-  tier: Record<string, unknown>,
-  schedule: PricingSchedule,
-): PricingTier => {
-  const bandPrices: Record<string, number> = {};
+const isPriceYearKey = (value: string): boolean => {
+  if (!/^\d{4}$/.test(value)) return false;
+  const year = Number(value);
+  return year >= 2000 && year <= 2100;
+};
 
-  if (tier.bandPrices && typeof tier.bandPrices === "object") {
-    for (const [bandId, price] of Object.entries(tier.bandPrices as Record<string, unknown>)) {
+const normalizeBandPriceMap = (
+  raw: unknown,
+  schedule: PricingSchedule,
+  fallback?: Record<string, number>,
+): Record<string, number> => {
+  const bandPrices: Record<string, number> = { ...(fallback ?? {}) };
+
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    for (const [bandId, price] of Object.entries(raw as Record<string, unknown>)) {
       bandPrices[bandId] = toNonNegativeNumber(price);
     }
-  } else {
-    const weekday = toNonNegativeNumber(tier.weekdayPrice);
-    const weekend = toNonNegativeNumber(tier.weekendPrice);
-    schedule.bands.forEach((band, index) => {
-      bandPrices[band.id] = index === 0 ? weekday : index === 1 ? weekend : 0;
-    });
   }
 
   for (const band of schedule.bands) {
     if (!(band.id in bandPrices)) {
-      bandPrices[band.id] = 0;
+      bandPrices[band.id] = fallback?.[band.id] ?? 0;
     }
   }
+
+  return bandPrices;
+};
+
+const normalizeBandPricesByYear = (
+  raw: unknown,
+  schedule: PricingSchedule,
+  fallback: Record<string, number>,
+): Record<string, Record<string, number>> | undefined => {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return undefined;
+
+  const bandPricesByYear: Record<string, Record<string, number>> = {};
+  for (const [year, prices] of Object.entries(raw as Record<string, unknown>)) {
+    if (!isPriceYearKey(year)) continue;
+    if (typeof prices !== "object" || prices === null || Array.isArray(prices)) continue;
+    bandPricesByYear[year] = normalizeBandPriceMap(prices, schedule, fallback);
+  }
+
+  return Object.keys(bandPricesByYear).length > 0 ? bandPricesByYear : undefined;
+};
+
+const normalizePricingTier = (
+  tier: Record<string, unknown>,
+  schedule: PricingSchedule,
+): PricingTier => {
+  const bandPrices =
+    tier.bandPrices && typeof tier.bandPrices === "object"
+      ? normalizeBandPriceMap(tier.bandPrices, schedule)
+      : normalizeBandPriceMap(
+          Object.fromEntries(
+            schedule.bands.map((band, index) => [
+              band.id,
+              index === 0
+                ? toNonNegativeNumber(tier.weekdayPrice)
+                : index === 1
+                  ? toNonNegativeNumber(tier.weekendPrice)
+                  : 0,
+            ]),
+          ),
+          schedule,
+        );
+  const bandPricesByYear = normalizeBandPricesByYear(tier.bandPricesByYear, schedule, bandPrices);
 
   return {
     id: typeof tier.id === "string" && tier.id ? tier.id : crypto.randomUUID(),
     minGuests: toNonNegativeNumber(tier.minGuests),
     maxGuests: toNonNegativeNumber(tier.maxGuests),
     bandPrices,
+    ...(bandPricesByYear ? { bandPricesByYear } : {}),
     ...(tier.interpolated === true ? { interpolated: true } : {}),
   };
 };
@@ -257,7 +305,7 @@ export const serializePackagePricing = (
   tiers: PricingTier[],
 ): PricingTiersPayload => ({
   schedule,
-  tiers,
+  tiers: alignPackageBandPricesToCalendarYear(tiers),
 });
 
 export const normalizeBuffetBlock = (raw: unknown): BuffetBlock => {

@@ -19,6 +19,7 @@ import {
   isAdditionalApplicableToPackage,
 } from "@/data/packagesData";
 import type { PackageData } from "@/data/packagesData";
+import { describePackagePriceYear } from "@/data/package-year-prices";
 import {
   ClosingFormField,
   ClosingFormSection,
@@ -518,6 +519,9 @@ export const FormPreviewPanel = () => {
         ? resolvePricingBandForDate(selectedPackage.pricingSchedule, eventDate, resolveIsHoliday)
         : null;
     const isHoliday = eventDate ? resolveIsHoliday(eventDate) : false;
+    const priceYearNotice = selectedPackage
+      ? describePackagePriceYear(selectedPackage.pricingTiers ?? [], eventDate)
+      : null;
 
     return (
       <div className="space-y-4">
@@ -560,6 +564,11 @@ export const FormPreviewPanel = () => {
                 ) : null}
               </p>
             )}
+            {priceYearNotice ? (
+              <p className={`text-xs ${priceYearNotice.usedFallback ? "text-warning" : "text-muted-foreground"}`}>
+                {priceYearNotice.message}
+              </p>
+            ) : null}
           </div>
         )}
 

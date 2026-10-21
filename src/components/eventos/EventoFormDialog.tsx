@@ -2,6 +2,7 @@ import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState
 import { z } from "zod";
 
 import { PackageData } from "@/data/packagesData";
+import { describePackagePriceYear } from "@/data/package-year-prices";
 import { useTenantPackages } from "@/features/configuracoes";
 import {
   Evento,
@@ -298,6 +299,11 @@ export const EventoFormDialog = ({
   const totalValue = moneyValue(form.valor_pacote) + moneyValue(form.valor_adicionais);
   const linkedPacoteId = form.pacote_id ? Number(form.pacote_id) : initialEvento?.pacote_id ?? null;
   const hasLinkedPackagePricing = Boolean(linkedPacoteId && availablePackages.length > 0);
+  const selectedCatalogPackage =
+    availablePackages.find((pkg) => pkg.id === form.pacote_id) ?? null;
+  const priceYearNotice = selectedCatalogPackage
+    ? describePackagePriceYear(selectedCatalogPackage.pricingTiers ?? [], form.data_evento || null)
+    : null;
 
   const updateForm = (values: Partial<EventoFormState>) => {
     setForm((currentForm) => ({ ...currentForm, ...values }));
@@ -598,6 +604,11 @@ export const EventoFormDialog = ({
               {hasLinkedPackagePricing ? (
                 <p className="text-xs text-muted-foreground">
                   Calculado automaticamente pela tabela de preços do pacote selecionado.
+                </p>
+              ) : null}
+              {priceYearNotice ? (
+                <p className={`text-xs ${priceYearNotice.usedFallback ? "text-warning" : "text-muted-foreground"}`}>
+                  {priceYearNotice.message}
                 </p>
               ) : null}
             </Field>
