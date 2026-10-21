@@ -13,6 +13,7 @@ import {
 } from "@/features/eventos/use-tenant-contract-module-settings";
 import { useTenantAdminCapability } from "@/features/tenants/use-tenant-admin-capability";
 import { toast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/error-message";
 import { cn } from "@/lib/utils";
 
 const templateIcons: Record<ContractTemplateKey, typeof Building2> = {
@@ -66,7 +67,7 @@ export const ContractModelsSetupPrompt = () => {
     } catch (error) {
       toast({
         title: "Não foi possível salvar os modelos",
-        description: error instanceof Error ? error.message : "Tente novamente em instantes.",
+        description: getErrorMessage(error, "Tente novamente em instantes."),
         variant: "destructive",
       });
     }

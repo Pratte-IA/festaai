@@ -75,15 +75,16 @@ const mapSettingsRow = (row: ModuleSettingsRow): TenantContractModuleSettings =>
 });
 
 export const useTenantContractModuleSettings = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
     queryFn: async (): Promise<TenantContractModuleSettings | null> => {
       const { data, error } = await supabase
         .from("tenant_contract_module_settings")
         .select("tenant_id, models_configured_at, default_template_key, template_params, updated_at")
         .eq("tenant_id", currentTenantId as number)
+        .eq("unit_id", currentUnitId as number)
         .maybeSingle();
 
       if (error) throw error;
@@ -91,20 +92,21 @@ export const useTenantContractModuleSettings = () => {
 
       return mapSettingsRow(data as ModuleSettingsRow);
     },
-    queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId),
+    queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId, currentUnitId),
   });
 };
 
 export const useTenantContractTypeOptions = () => {
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId } = useCurrentTenant();
 
   return useQuery({
-    enabled: Boolean(currentTenantId),
+    enabled: Boolean(currentTenantId && currentUnitId),
     queryFn: async (): Promise<TenantContractTypeOption[]> => {
       const { data, error } = await supabase
         .from("tenant_contract_templates")
         .select("id, template_key, is_active, is_default, template_html, version")
         .eq("tenant_id", currentTenantId as number)
+        .eq("unit_id", currentUnitId as number)
         .in("template_key", [...CONTRACT_TEMPLATE_KEYS]);
 
       if (error) throw error;
@@ -129,7 +131,7 @@ export const useTenantContractTypeOptions = () => {
         };
       }).sort((a, b) => a.definition.sortOrder - b.definition.sortOrder);
     },
-    queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+    queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId, currentUnitId),
   });
 };
 
@@ -202,8 +204,13 @@ export const useSaveContractModuleModels = () => {
       }
 
       const defaultTemplateKey = resolveDefaultTemplateKey(input.enabledKeys);
+      const orderedKeys = [...CONTRACT_TEMPLATE_KEYS].sort((left, right) => {
+        if (left === defaultTemplateKey) return 1;
+        if (right === defaultTemplateKey) return -1;
+        return 0;
+      });
 
-      for (const key of CONTRACT_TEMPLATE_KEYS) {
+      for (const key of orderedKeys) {
         const enabled = input.enabledKeys.includes(key);
         const definition = CONTRACT_TEMPLATE_DEFINITIONS[key];
 
@@ -211,6 +218,7 @@ export const useSaveContractModuleModels = () => {
           .from("tenant_contract_templates")
           .select("id, template_html")
           .eq("tenant_id", currentTenantId)
+          .eq("unit_id", currentUnitId)
           .eq("template_key", key)
           .maybeSingle();
 
@@ -231,6 +239,7 @@ export const useSaveContractModuleModels = () => {
               updated_by: user.id,
             })
             .eq("tenant_id", currentTenantId)
+            .eq("unit_id", currentUnitId)
             .eq("id", existing.id);
 
           if (updateError) throw updateError;
@@ -273,10 +282,10 @@ export const useSaveContractModuleModels = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId),
+        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
@@ -333,7 +342,7 @@ export const useSaveContractTemplateParams = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId),
+        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId, currentUnitId),
       });
     },
   });
@@ -380,10 +389,10 @@ export const useCompleteContractModelsReview = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId),
+        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId, currentUnitId),
       });
     },
   });
@@ -420,6 +429,7 @@ export const useSaveContractTemplateHtml = () => {
           version: input.version + 1,
         })
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .eq("id", Number(input.templateId))
         .eq("template_key", input.templateKey);
 
@@ -429,7 +439,7 @@ export const useSaveContractTemplateHtml = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
@@ -465,6 +475,7 @@ export const useRestoreContractTemplateHtml = () => {
           version: input.version + 1,
         })
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .eq("id", Number(input.templateId))
         .eq("template_key", input.templateKey);
 
@@ -474,7 +485,7 @@ export const useRestoreContractTemplateHtml = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
@@ -499,6 +510,7 @@ export const useSyncLegacyContractTemplates = () => {
         .from("tenant_contract_templates")
         .select("id, template_html, template_key, version")
         .eq("tenant_id", currentTenantId)
+        .eq("unit_id", currentUnitId)
         .in("template_key", [...CONTRACT_TEMPLATE_KEYS]);
 
       if (error) throw error;
@@ -523,6 +535,7 @@ export const useSyncLegacyContractTemplates = () => {
             version: row.version + 1,
           })
           .eq("tenant_id", currentTenantId)
+          .eq("unit_id", currentUnitId)
           .eq("id", row.id);
 
         if (updateError) throw updateError;
@@ -533,7 +546,7 @@ export const useSyncLegacyContractTemplates = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
@@ -562,6 +575,7 @@ export const useRestartContractModuleSetup = () => {
             updated_by: user.id,
           })
           .eq("tenant_id", currentTenantId)
+          .eq("unit_id", currentUnitId)
           .eq("template_key", key);
 
         if (templateError) throw templateError;
@@ -585,10 +599,10 @@ export const useRestartContractModuleSetup = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId),
+        queryKey: eventosQueryKeys.contractModuleSettings(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
-        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId),
+        queryKey: eventosQueryKeys.contractTypeTemplates(currentTenantId, currentUnitId),
       });
       void queryClient.invalidateQueries({
         queryKey: eventosQueryKeys.contractTemplate(currentTenantId),
