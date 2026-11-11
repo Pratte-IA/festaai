@@ -231,9 +231,11 @@ export const getPackageFromPrice = (
 };
 
 /**
- * Faixa âncora da tabela: o maior `maxGuests` que ainda cabe na quantidade pedida.
- * Ex.: 31–39 usam a faixa 30; 41–49 usam a 40; 85 usa a 80.
- * Abaixo da primeira faixa, usa a primeira (preço cadastrado, sem interpolar para baixo).
+ * Faixa cadastrada que cobre a quantidade pedida.
+ * Dentro da faixa (min–max), usa o preço fixo cadastrado.
+ * Abaixo da primeira faixa, usa a primeira.
+ * Em buraco entre faixas, mantém o preço da faixa anterior.
+ * Acima da última faixa, escala proporcionalmente a partir do max dela.
  */
 export const resolveFloorPricingTier = (
   tiers: PricingTier[],
@@ -242,7 +244,17 @@ export const resolveFloorPricingTier = (
   if (tiers.length === 0) return null;
 
   const sorted = [...tiers].sort((a, b) => a.maxGuests - b.maxGuests);
-  const floor = [...sorted].reverse().find((tier) => tier.maxGuests <= guestCount);
+  const containing = sorted.find(
+    (tier) => tier.minGuests <= guestCount && guestCount <= tier.maxGuests,
+  );
+  if (containing) return containing;
+
+  if (guestCount < sorted[0].minGuests) return sorted[0];
+
+  const last = sorted[sorted.length - 1];
+  if (guestCount > last.maxGuests) return last;
+
+  const floor = [...sorted].reverse().find((tier) => tier.maxGuests < guestCount);
   return floor ?? sorted[0] ?? null;
 };
 
@@ -283,10 +295,11 @@ export const getPackagePriceForGuests = (
   if (!tier) return 0;
 
   const basePrice = resolveTierPriceForBand(tier, schedule, eventDate, isHoliday, catalogYears);
-  const anchorGuests = tier.maxGuests;
-  if (anchorGuests <= 0 || guestCount <= anchorGuests) return basePrice;
+  const lastMaxGuests = Math.max(...tiers.map((item) => item.maxGuests));
+  // Preço fixo da faixa cadastrada. Só escala se passar do teto da última faixa.
+  if (lastMaxGuests <= 0 || guestCount <= lastMaxGuests) return basePrice;
 
-  return roundCurrency((basePrice / anchorGuests) * guestCount);
+  return roundCurrency((basePrice / lastMaxGuests) * guestCount);
 };
 
 export const resolvePackagePrice = (

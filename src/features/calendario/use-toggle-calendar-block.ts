@@ -14,21 +14,27 @@ interface ToggleCalendarBlockInput {
 
 export const useToggleCalendarBlock = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId, includeAllUnits } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: ToggleCalendarBlockInput) => {
-      if (!currentTenantId || !user) {
-        throw new Error("Sessao ou tenant atual indisponivel.");
+      if (!currentTenantId || !currentUnitId || !user) {
+        throw new Error("Sessao, unidade ou tenant atual indisponivel.");
       }
 
       if (input.isBlocked && input.blockId) {
-        const { error } = await supabase
+        let deleteQuery = supabase
           .from("calendar_blocks")
           .delete()
           .eq("id", input.blockId)
           .eq("tenant_id", currentTenantId);
+
+        if (!includeAllUnits) {
+          deleteQuery = deleteQuery.eq("unit_id", currentUnitId);
+        }
+
+        const { error } = await deleteQuery;
 
         if (error) {
           throw error;
@@ -41,6 +47,7 @@ export const useToggleCalendarBlock = () => {
         created_by: user.id,
         data: input.date,
         tenant_id: currentTenantId,
+        unit_id: currentUnitId,
         updated_by: user.id,
       });
 
@@ -50,7 +57,7 @@ export const useToggleCalendarBlock = () => {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: calendarioQueryKeys.all(currentTenantId),
+        queryKey: calendarioQueryKeys.all(currentTenantId, currentUnitId, includeAllUnits),
       });
     },
   });

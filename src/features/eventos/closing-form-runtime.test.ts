@@ -21,13 +21,14 @@ const cafeColonial = {
 } as unknown as PackageData;
 
 describe("getPackagePriceForGuests", () => {
-  it("usa a faixa de convidados correta em todos os pacotes com tabela", () => {
+  it("usa o preço fixo da faixa cadastrada para qualquer quantidade dentro dela", () => {
     expect(getPackagePriceForGuests(cafeColonial, 80, "2026-07-10")).toBe(9362.18);
-    expect(getPackagePriceForGuests(cafeColonial, 85, "2026-07-10")).toBe(9947.32);
+    expect(getPackagePriceForGuests(cafeColonial, 85, "2026-07-10")).toBe(10213.85);
     expect(getPackagePriceForGuests(cafeColonial, 90, "2026-07-10")).toBe(10213.85);
+    expect(getPackagePriceForGuests(cafeColonial, 71, "2026-07-10")).toBe(9362.18);
   });
 
-  it("interpola quantidades intermediarias a partir da faixa inferior", () => {
+  it("mantém o preço da faixa em toda a amplitude min–max", () => {
     const pkg = {
       id: "1",
       pricingSchedule: cafeColonial.pricingSchedule,
@@ -39,11 +40,14 @@ describe("getPackagePriceForGuests", () => {
     } as unknown as PackageData;
 
     expect(getPackagePriceForGuests(pkg, 30)).toBe(3000);
-    expect(getPackagePriceForGuests(pkg, 31)).toBe(3100);
-    expect(getPackagePriceForGuests(pkg, 39)).toBe(3900);
+    expect(getPackagePriceForGuests(pkg, 31)).toBe(4000);
+    expect(getPackagePriceForGuests(pkg, 39)).toBe(4000);
     expect(getPackagePriceForGuests(pkg, 40)).toBe(4000);
-    expect(getPackagePriceForGuests(pkg, 41)).toBe(4100);
-    expect(getPackagePriceForGuests(pkg, 49)).toBe(4900);
+    // Buraco entre 40 e 71: mantém a faixa anterior.
+    expect(getPackagePriceForGuests(pkg, 41)).toBe(4000);
+    expect(getPackagePriceForGuests(pkg, 49)).toBe(4000);
+    expect(getPackagePriceForGuests(pkg, 71)).toBe(8000);
+    // Acima da última faixa: escala proporcionalmente.
     expect(getPackagePriceForGuests(pkg, 85)).toBe(8500);
   });
 
@@ -85,7 +89,28 @@ describe("getPackagePriceForGuests", () => {
 
     expect(getPackagePriceForGuests(pkg, 30, "2026-03-11")).toBe(3000);
     expect(getPackagePriceForGuests(pkg, 30, "2027-03-13")).toBe(4000);
+    // Acima do max da única faixa: escala a partir do preço do ano.
     expect(getPackagePriceForGuests(pkg, 31, "2027-03-13")).toBe(4133.33);
     expect(getPackagePriceForGuests(pkg, 30, "2028-01-08")).toBe(4000);
+  });
+
+  it("usa o preço cadastrado da faixa WeKids (sem interpolar dentro da faixa)", () => {
+    const prata = {
+      id: "10",
+      pricingSchedule: cafeColonial.pricingSchedule,
+      pricingTiers: [
+        { id: "t50", minGuests: 50, maxGuests: 59, bandPrices: { "band-weekdays": 4990, "band-weekend": 5290 } },
+        { id: "t60", minGuests: 60, maxGuests: 69, bandPrices: { "band-weekdays": 5390, "band-weekend": 5790 } },
+        { id: "t70", minGuests: 70, maxGuests: 79, bandPrices: { "band-weekdays": 5890, "band-weekend": 6190 } },
+        { id: "t80", minGuests: 80, maxGuests: 89, bandPrices: { "band-weekdays": 6290, "band-weekend": 6690 } },
+        { id: "t100", minGuests: 100, maxGuests: 100, bandPrices: { "band-weekdays": 7390, "band-weekend": 7790 } },
+      ],
+    } as unknown as PackageData;
+
+    expect(getPackagePriceForGuests(prata, 70, "2027-01-09")).toBe(6190);
+    expect(getPackagePriceForGuests(prata, 60, "2027-03-14")).toBe(5790);
+    expect(getPackagePriceForGuests(prata, 80, "2027-04-10")).toBe(6690);
+    expect(getPackagePriceForGuests(prata, 100, "2027-07-31")).toBe(7790);
+    expect(getPackagePriceForGuests(prata, 100, "2027-02-12")).toBe(7390);
   });
 });
