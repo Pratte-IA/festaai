@@ -12,15 +12,17 @@ export const isEventDateAvailableForTenant = async (
   const date = dateIso.trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
 
-  const { data: block, error: blockError } = await admin
+  // Pode haver mais de um block por data (ex.: feriados por unidade).
+  // Usamos limit(1) para não quebrar o maybeSingle com PGRST116.
+  const { data: blocks, error: blockError } = await admin
     .from("calendar_blocks")
     .select("id")
     .eq("tenant_id", tenantId)
     .eq("data", date)
-    .maybeSingle();
+    .limit(1);
 
   if (blockError) throw blockError;
-  if (block) return false;
+  if (blocks?.[0]) return false;
 
   const { data: festas, error: festasError } = await admin
     .from("eventos")
