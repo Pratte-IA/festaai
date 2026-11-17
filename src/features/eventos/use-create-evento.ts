@@ -5,6 +5,7 @@ import { financeiroQueryKeys } from "@/features/financeiro/query-keys";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
+import { resolveUnitIdForFunnel } from "./funnel-visibility";
 import { eventosQueryKeys } from "./query-keys";
 import { Evento, EventoInsert } from "./types";
 
@@ -12,12 +13,14 @@ type CreateEventoInput = Omit<EventoInsert, "created_by" | "tenant_id" | "unit_i
 
 export const useCreateEvento = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId, currentUnitId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId, units } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: CreateEventoInput): Promise<Evento> => {
-      if (!currentTenantId || !currentUnitId || !user) {
+      const unitId = resolveUnitIdForFunnel(input.funil, currentUnitId, units);
+
+      if (!currentTenantId || !unitId || !user) {
         throw new Error("Sessao ou tenant atual indisponivel.");
       }
 
@@ -27,7 +30,7 @@ export const useCreateEvento = () => {
           ...input,
           created_by: user.id,
           tenant_id: currentTenantId,
-          unit_id: currentUnitId,
+          unit_id: unitId,
           updated_by: user.id,
         })
         .select("*")

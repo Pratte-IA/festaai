@@ -5,6 +5,7 @@ import { financeiroQueryKeys } from "@/features/financeiro/query-keys";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
+import { resolveUnitIdForFunnel } from "./funnel-visibility";
 import { eventosQueryKeys } from "./query-keys";
 import { Evento, EventoUpdate } from "./types";
 
@@ -20,7 +21,7 @@ const touchesFinanceiroEntrada = (values: UpdateEventoInput["values"]) =>
 
 export const useUpdateEvento = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId, units } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
@@ -29,10 +30,18 @@ export const useUpdateEvento = () => {
         throw new Error("Sessao ou tenant atual indisponivel.");
       }
 
+      const nextValues = { ...values };
+      if (nextValues.funil === "vendas") {
+        const matrizUnitId = resolveUnitIdForFunnel("vendas", currentUnitId, units);
+        if (matrizUnitId) {
+          nextValues.unit_id = matrizUnitId;
+        }
+      }
+
       const { data, error } = await supabase
         .from("eventos")
         .update({
-          ...values,
+          ...nextValues,
           updated_by: user.id,
         })
         .eq("id", eventoId)

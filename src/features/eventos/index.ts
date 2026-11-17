@@ -5,6 +5,13 @@ export {
   salesStages,
   stageMap,
 } from "./constants";
+export {
+  getDefaultFunnelForUnit,
+  getFunnelTabsForUnit,
+  isVendasAvailableForUnit,
+  resolveFunnelForUnit,
+  resolveUnitIdForFunnel,
+} from "./funnel-visibility";
 export { eventosQueryKeys } from "./query-keys";
 export { filterExecutadasFunnelEvents, filterExecutadasFunnelEventsByPartyDate } from "./filter-executadas-funnel-events";
 export { filterEventosBySearch, matchesEventoSearch } from "./filter-eventos-by-search";

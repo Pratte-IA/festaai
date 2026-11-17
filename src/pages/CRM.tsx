@@ -8,12 +8,16 @@ import KanbanBoard from "@/components/KanbanBoard";
 import {
   FunnelType,
   filterEventosBySearch,
-  funnelTabs,
+  getDefaultFunnelForUnit,
+  getFunnelTabsForUnit,
   isArchivedCrmEvento,
+  isVendasAvailableForUnit,
+  resolveFunnelForUnit,
   stageMap,
   useCreateEvento,
   useEventos,
 } from "@/features/eventos";
+import { useCurrentTenant } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
@@ -24,11 +28,17 @@ const isFunnelType = (value: string | null): value is FunnelType =>
 const CRM = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { currentUnit } = useCurrentTenant();
   const funilParam = searchParams.get("funil");
   const etapaParam = searchParams.get("etapa");
-  const [activeFunnel, setActiveFunnel] = useState<FunnelType>(() =>
-    isFunnelType(funilParam) ? funilParam : "vendas",
-  );
+  const availableTabs = useMemo(() => getFunnelTabsForUnit(currentUnit), [currentUnit]);
+  const defaultFunnel = useMemo(() => getDefaultFunnelForUnit(currentUnit), [currentUnit]);
+  const canUseVendas = isVendasAvailableForUnit(currentUnit);
+
+  const [activeFunnel, setActiveFunnel] = useState<FunnelType>(() => {
+    const fromParam = isFunnelType(funilParam) ? funilParam : defaultFunnel;
+    return resolveFunnelForUnit(fromParam, currentUnit);
+  });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,9 +53,12 @@ const CRM = () => {
 
   useEffect(() => {
     if (isFunnelType(funilParam)) {
-      setActiveFunnel(funilParam);
+      setActiveFunnel(resolveFunnelForUnit(funilParam, currentUnit));
+      return;
     }
-  }, [funilParam]);
+
+    setActiveFunnel((current) => resolveFunnelForUnit(current, currentUnit));
+  }, [currentUnit, funilParam]);
 
   const handleCreateEvento = async (values: EventoFormValues) => {
     try {
@@ -87,7 +100,7 @@ const CRM = () => {
 
       {/* Funnel tabs */}
       <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit mb-6">
-        {funnelTabs.map((tab) => (
+        {availableTabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveFunnel(tab.key)}
@@ -101,6 +114,13 @@ const CRM = () => {
           </button>
         ))}
       </div>
+
+      {!canUseVendas && (
+        <p className="-mt-2 mb-6 max-w-2xl text-sm text-muted-foreground">
+          O funil de Vendas fica centralizado na matriz. Troque para a matriz no seletor de casas para
+          gerenciar leads comerciais.
+        </p>
+      )}
 
       {activeFunnel === "executadas" && (
         <p className="-mt-2 mb-6 max-w-2xl text-sm text-muted-foreground">

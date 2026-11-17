@@ -5,10 +5,12 @@ import {
   FunnelType,
   funnelTabs,
   getDefaultStageForFunnel,
+  getFunnelTabsForUnit,
   stageMap,
   Stage,
   useUpdateEvento,
 } from "@/features/eventos";
+import { useCurrentTenant } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -41,10 +43,18 @@ export const MoveEventoFunnelDialog = ({
   onSuccess,
   open,
 }: MoveEventoFunnelDialogProps) => {
+  const { currentUnit } = useCurrentTenant();
   const updateEvento = useUpdateEvento();
   const [targetFunnel, setTargetFunnel] = useState<FunnelType>(evento.funil);
   const [targetStage, setTargetStage] = useState<Stage>(evento.etapa);
 
+  const availableFunnelTabs = useMemo(() => {
+    const tabs = getFunnelTabsForUnit(currentUnit);
+    if (evento.funil === "vendas" && !tabs.some((tab) => tab.key === "vendas")) {
+      return [...tabs, { key: "vendas" as const, label: "Vendas" }];
+    }
+    return tabs;
+  }, [currentUnit, evento.funil]);
   const stages = useMemo(() => stageMap[targetFunnel], [targetFunnel]);
   const currentFunnelLabel = funnelTabs.find((tab) => tab.key === evento.funil)?.label ?? evento.funil;
 
@@ -120,7 +130,7 @@ export const MoveEventoFunnelDialog = ({
                 <SelectValue placeholder="Selecione o funil" />
               </SelectTrigger>
               <SelectContent>
-                {funnelTabs.map((tab) => (
+                {availableFunnelTabs.map((tab) => (
                   <SelectItem key={tab.key} value={tab.key}>
                     {tab.label}
                   </SelectItem>

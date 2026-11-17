@@ -7,6 +7,7 @@ import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
 
 import { buildPackageEventoUpdates } from "./closing-form-runtime";
+import { resolveUnitIdForFunnel } from "./funnel-visibility";
 import { eventosQueryKeys } from "./query-keys";
 import { LeadCsvRowParsed } from "./parse-leads-csv";
 import { resolvePackageByName } from "./resolve-package-by-name";
@@ -48,7 +49,7 @@ const enrichLeadRowWithPackage = (
 
 export const useBulkCreateEventos = () => {
   const queryClient = useQueryClient();
-  const { currentTenantId } = useCurrentTenant();
+  const { currentTenantId, currentUnitId, units } = useCurrentTenant();
   const { user } = useAuth();
 
   return useMutation({
@@ -67,10 +68,15 @@ export const useBulkCreateEventos = () => {
         const batch = rows.slice(offset, offset + INSERT_BATCH_SIZE);
         const payloads = batch.map((row) => {
           const enriched = enrichLeadRowWithPackage(row, packages);
+          const unitId = resolveUnitIdForFunnel(enriched.funil, currentUnitId, units);
+          if (!unitId) {
+            throw new Error("Unidade atual indisponivel para importacao.");
+          }
           return {
             ...enriched,
             created_by: user.id,
             tenant_id: currentTenantId,
+            unit_id: unitId,
             updated_by: user.id,
           };
         });

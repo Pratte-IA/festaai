@@ -8,15 +8,17 @@ import {
   Evento,
   EventType,
   FunnelType,
-  funnelTabs,
   getDefaultStageForFunnel,
+  getFunnelTabsForUnit,
   isStageValidForFunnel,
+  resolveFunnelForUnit,
   recalculateEventoGuestPricing,
   resolvePackageByName,
   stageMap,
   Stage,
 } from "@/features/eventos";
 import { buildPackageEventoUpdates } from "@/features/eventos/closing-form-runtime";
+import { useCurrentTenant } from "@/features/tenants";
 import { normalizeBrazilMobilePhoneForStorage, toBrazilPhoneInputValue } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import {
@@ -197,6 +199,7 @@ export const EventoFormDialog = ({
   open,
   packages: packagesProp = [],
 }: EventoFormDialogProps) => {
+  const { currentUnit } = useCurrentTenant();
   const { data: tenantPackages = [] } = useTenantPackages();
   const availablePackages = useMemo(
     () =>
@@ -205,9 +208,19 @@ export const EventoFormDialog = ({
         .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || Number(a.id) - Number(b.id)),
     [packagesProp, tenantPackages],
   );
+  const availableFunnelTabs = useMemo(() => {
+    const tabs = getFunnelTabsForUnit(currentUnit);
+    if (initialEvento?.funil === "vendas" && !tabs.some((tab) => tab.key === "vendas")) {
+      return [...tabs, { key: "vendas" as const, label: "Vendas" }];
+    }
+    return tabs;
+  }, [currentUnit, initialEvento?.funil]);
+  const resolvedInitialFunnel = initialEvento?.funil
+    ? initialEvento.funil
+    : resolveFunnelForUnit(initialFunnel, currentUnit);
 
   const [form, setForm] = useState<EventoFormState>(() =>
-    getInitialFormState(initialEvento, initialFunnel, availablePackages),
+    getInitialFormState(initialEvento, resolvedInitialFunnel, availablePackages),
   );
   const [formError, setFormError] = useState<string | null>(null);
   const wasOpenRef = useRef(false);
@@ -263,11 +276,11 @@ export const EventoFormDialog = ({
     packagesSyncedRef.current = false;
     setForm(
       applyPackagePricingToFormState(
-        getInitialFormState(initialEvento, initialFunnel, availablePackages),
+        getInitialFormState(initialEvento, resolvedInitialFunnel, availablePackages),
       ),
     );
     setFormError(null);
-  }, [applyPackagePricingToFormState, availablePackages, initialEvento, initialFunnel, open]);
+  }, [applyPackagePricingToFormState, availablePackages, initialEvento, open, resolvedInitialFunnel]);
 
   useEffect(() => {
     if (!open) {
@@ -468,7 +481,7 @@ export const EventoFormDialog = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {funnelTabs.map((funnel) => (
+                  {availableFunnelTabs.map((funnel) => (
                     <SelectItem key={funnel.key} value={funnel.key}>
                       {funnel.label}
                     </SelectItem>
