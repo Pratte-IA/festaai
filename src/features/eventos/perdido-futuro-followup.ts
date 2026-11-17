@@ -24,7 +24,7 @@ export const DEFAULT_PERDIDO_FUTURO_FUP1_DATA_LIVRE = `Oi, {{primeiro_nome}}! Tu
 
 Lembrei da festa do(a) {{nome_aniversariante}}, prevista para {{data_festa}}, e passei para saber se vocês já decidiram onde será a comemoração. 🎉
 
-Consultei nossa agenda e tenho uma boa notícia: essa data ainda está disponível para vocês. ✨
+Consultei nossa agenda: {{resumo_agenda_casas}} ✨
 
 Como faltam cerca de 60 dias, este é um ótimo momento para organizar tudo com calma, definir os detalhes e garantir a data antes que ela seja reservada.
 
@@ -34,7 +34,7 @@ export const DEFAULT_PERDIDO_FUTURO_FUP1_DATA_INDISPONIVEL = `Oi, {{primeiro_nom
 
 Lembrei da festa do(a) {{nome_aniversariante}}, prevista para {{data_festa}}, e passei para saber se vocês já decidiram onde será a comemoração. 🎉
 
-Consultei nossa agenda e essa data já foi reservada, mas ainda temos outras opções próximas disponíveis. ✨
+Consultei nossa agenda: {{resumo_agenda_casas}} Ainda temos outras opções próximas disponíveis. ✨
 
 Como faltam cerca de 60 dias, ainda dá tempo de organizar uma festa linda, com tranquilidade e todo o carinho que esse momento merece.
 

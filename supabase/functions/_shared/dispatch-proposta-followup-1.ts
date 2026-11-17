@@ -2,7 +2,11 @@ import { resolveEventoUnitId } from "./tenant-unit.ts";
 import { persistAgentOutboundAutomationMessage } from "./agent-memory.ts";
 import { resolveAutomationConnectionId } from "./automation-bindings.ts";
 import { formatCompanyDisplayName } from "./company-display-name.ts";
-import { isEventDateAvailableForTenant } from "./event-date-availability.ts";
+import {
+  formatAgendaCasasNotaLines,
+  formatResumoAgendaCasas,
+  getEventDateAvailabilityByUnits,
+} from "./event-date-availability.ts";
 import { sendEvolutionTextMessage } from "./evolution-send-text.ts";
 import { resolveWhatsAppPhoneForOutbound } from "./phone.ts";
 import {
@@ -251,8 +255,10 @@ export const dispatchPropostaFollowup1 = async (
 
   if (secretError) throw secretError;
 
-  const dateAvailable = await isEventDateAvailableForTenant(admin, input.tenant.id, dataEvento);
-  const variante: PropostaFollowup1Variante = dateAvailable ? "data_livre" : "data_indisponivel";
+  const agenda = await getEventDateAvailabilityByUnits(admin, input.tenant.id, dataEvento);
+  const variante: PropostaFollowup1Variante = agenda.anyAvailable ? "data_livre" : "data_indisponivel";
+  const resumoAgendaCasas = formatResumoAgendaCasas(agenda.units, dataEvento);
+  const agendaCasasNota = formatAgendaCasasNotaLines(agenda.units);
   const templateKey = propostaFollowup1VarianteToTemplateKey(variante);
   const templateBody = await loadTenantTemplateBody(admin, input.tenant.id, templateKey, unitId);
   const companyLegalName = await resolveCompanyLegalName(admin, input.tenant.id, input.tenant.name, unitId);
@@ -263,6 +269,7 @@ export const dispatchPropostaFollowup1 = async (
     clienteNome: typeof evento.cliente_nome === "string" ? evento.cliente_nome : null,
     companyLegalName,
     dataEvento,
+    resumoAgendaCasas,
     templateBody,
     variante,
   });
@@ -313,6 +320,7 @@ export const dispatchPropostaFollowup1 = async (
       evento_id: input.eventoId,
       tenant_id: input.tenant.id,
       texto: buildPropostaFollowup1Nota({
+        agendaCasasNota,
         dataEvento,
         enviadoEm: input.triggeredAt,
         variante,

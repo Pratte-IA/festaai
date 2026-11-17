@@ -2,7 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { buildNeedsAttention, type NeedsAttention } from "./build-needs-attention";
 import { countNewLeadsToday } from "./count-new-leads-today";
-import { sumFestaOpenBalance, sumFestaOverdueOpenBalance } from "./festa-open-balance";
+import {
+  buildReceivableByEventMap,
+  sumFestaOpenBalance,
+  sumFestaOverdueOpenBalance,
+} from "./festa-open-balance";
 import { buildMonthRevenueBreakdown } from "./month-revenue";
 import {
   buildCommercialActivity,
@@ -14,6 +18,7 @@ import {
 import { buildFestaAiDailyStatus, type FestaAiDailyStatus } from "./festa-ai-daily-status";
 import { buildOperationalGuide, type DashboardOperationalGuide } from "./operational-guide";
 import { Evento, EventoPagamento } from "@/features/eventos";
+import type { FinanceiroLancamento } from "@/features/financeiro/types";
 import type { TenantTarefaEvento, TenantTarefaListItem } from "@/features/tarefas/types";
 import { useCurrentTenant } from "@/features/tenants";
 import { supabase } from "@/lib/supabase/client";
@@ -160,8 +165,14 @@ const mapDashboardTarefa = (row: DashboardTarefaRow): TenantTarefaListItem => {
 const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
   const { startIso, endIso, startDate, endDate } = getMonthRange();
 
-  const [eventsResult, paymentsResult, tarefasResult, contractsResult, acceptedContractsResult] =
-    await Promise.all([
+  const [
+    eventsResult,
+    paymentsResult,
+    lancamentosResult,
+    tarefasResult,
+    contractsResult,
+    acceptedContractsResult,
+  ] = await Promise.all([
     supabase
       .from("eventos")
       .select("*")
@@ -173,6 +184,16 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       .select("*")
       .eq("tenant_id", tenantId)
       .returns<EventoPagamento[]>(),
+    supabase
+      .from("financeiro_lancamentos")
+      .select("evento_id, valor, categoria, origem, tipo")
+      .eq("tenant_id", tenantId)
+      .eq("tipo", "entrada")
+      .neq("categoria", "pagamento_contrato")
+      .not("evento_id", "is", null)
+      .returns<
+        Pick<FinanceiroLancamento, "categoria" | "evento_id" | "origem" | "tipo" | "valor">[]
+      >(),
     supabase
       .from("evento_tarefas")
       .select(
@@ -236,6 +257,8 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
 
   const events = eventsResult.data ?? [];
   const payments = paymentsResult.data ?? [];
+  // Ajustes de receita (desconto/adicional) são opcionais: se falhar, usa valor_total.
+  const lancamentos = lancamentosResult.error ? [] : (lancamentosResult.data ?? []);
   const tarefas = (tarefasResult.data ?? []).map(mapDashboardTarefa);
   const contractSignatureEventoIds = (contractsResult.data ?? []).map((contract) => contract.evento_id);
   const signedContracts = (acceptedContractsResult.data ?? []).filter(
@@ -253,14 +276,16 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
     paidByEvent.set(payment.evento_id, (paidByEvent.get(payment.evento_id) ?? 0) + payment.valor);
   });
 
+  const receivableByEvent = buildReceivableByEventMap(events, lancamentos);
+
   const monthRange = { startIso, endIso, startDate, endDate };
   const { monthFestaEntradas, monthPaymentsReceived, monthRevenue } = buildMonthRevenueBreakdown(
     events,
     payments,
     monthRange,
   );
-  const toReceive = sumFestaOpenBalance(events, paidByEvent);
-  const pendingBalance = sumFestaOverdueOpenBalance(events, paidByEvent);
+  const toReceive = sumFestaOpenBalance(events, paidByEvent, receivableByEvent);
+  const pendingBalance = sumFestaOverdueOpenBalance(events, paidByEvent, new Date(), receivableByEvent);
   const upcomingParties = events
     .filter((event) => event.tipo_evento === "festa" && event.data_evento && event.data_evento >= startDate)
     .sort((left, right) => String(left.data_evento).localeCompare(String(right.data_evento)))
@@ -278,10 +303,10 @@ const fetchDashboardData = async (tenantId: number): Promise<DashboardData> => {
       };
     });
 
-  const operationalGuide = buildOperationalGuide(events, payments, tarefas);
+  const operationalGuide = buildOperationalGuide(events, payments, tarefas, { receivableByEvent });
   const festaAiDailyStatus = buildFestaAiDailyStatus(events, contractSignatureEventoIds);
   const commercialActivity = buildCommercialActivity(events, signedContracts);
-  const needsAttention = buildNeedsAttention(events, payments);
+  const needsAttention = buildNeedsAttention(events, payments, { receivableByEvent });
   const leadsThisMonth = countNewLeadsThisMonth(events);
 
   return {

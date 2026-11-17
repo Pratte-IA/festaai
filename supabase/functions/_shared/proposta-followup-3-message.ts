@@ -1,3 +1,4 @@
+import { applyFollowupAgendaResumo } from "./apply-followup-agenda-resumo.ts";
 import { extractFirstName, formatCompanyDisplayName } from "./company-display-name.ts";
 import {
   PROPOSTA_FOLLOWUP_3_TEMPLATE_DATA_INDISPONIVEL,
@@ -11,6 +12,8 @@ export const DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA = `Oi, {{primeiro_nome}}! Tudo b
 
 Passei aqui de novo sobre a festa de {{nome_aniversariante}} na data {{data_festa}}.
 
+{{resumo_agenda_casas}}
+
 Às vezes, só pela proposta, não dá para sentir tudo que a {{nome_empresa}} oferece: o espaço, os brinquedos, a estrutura, o carinho nos detalhes e como a festa pode ficar linda para a família aproveitar de verdade. ✨
 
 Por isso, queria te fazer um convite: que tal vir na {{nome_empresa}} pessoalmente?
@@ -23,7 +26,9 @@ export const DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL = `Oi, {{primeiro_nom
 
 Passei aqui de novo sobre a festa de {{nome_aniversariante}}.
 
-A data {{data_festa}} acabou sendo reservada por outra família, mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}}. ✨
+{{resumo_agenda_casas}}
+
+Mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}}. ✨
 
 Que tal vir conhecer o espaço pessoalmente? Assim você vê tudo com calma, tira suas dúvidas e a gente já aproveita para olhar juntas outras datas disponíveis.
 
@@ -40,6 +45,7 @@ export interface BuildPropostaFollowup3MessageInput {
   clienteNome: string | null;
   companyLegalName: string;
   dataEvento: string;
+  resumoAgendaCasas: string;
   templateBody?: string | null;
   variante: PropostaFollowup3Variante;
 }
@@ -64,14 +70,18 @@ export const buildPropostaFollowup3Message = (
   const nomeEmpresa = formatCompanyDisplayName(input.companyLegalName);
   const dataFesta = formatPropostaFollowupDateBR(input.dataEvento);
 
-  return template
+  const rendered = template
     .replaceAll("{{primeiro_nome}}", primeiroNome)
     .replaceAll("{{nome_aniversariante}}", nomeAniversariante)
     .replaceAll("{{data_festa}}", dataFesta)
-    .replaceAll("{{nome_empresa}}", nomeEmpresa);
+    .replaceAll("{{nome_empresa}}", nomeEmpresa)
+    .replaceAll("{{resumo_agenda_casas}}", input.resumoAgendaCasas);
+
+  return applyFollowupAgendaResumo(rendered, template, input.resumoAgendaCasas);
 };
 
 export const buildPropostaFollowup3Nota = (input: {
+  agendaCasasNota: string;
   dataEvento: string;
   enviadoEm: string;
   variante: PropostaFollowup3Variante;
@@ -89,8 +99,8 @@ export const buildPropostaFollowup3Nota = (input: {
 
   const varianteLabel =
     input.variante === "data_livre"
-      ? "data livre (convite de visita)"
-      : "data indisponível (reservada por outra família)";
+      ? "data livre (convite de visita — ao menos uma casa liberada)"
+      : "data indisponível (todas as casas fechadas)";
 
-  return `[Automação] Follow-up 3 enviado — ${enviadoBR}\nVariante: ${varianteLabel}\nData verificada: ${dataBR}`;
+  return `[Automação] Follow-up 3 enviado — ${enviadoBR}\nVariante: ${varianteLabel}\nData verificada: ${dataBR}\n${input.agendaCasasNota}`;
 };

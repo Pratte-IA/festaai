@@ -84,6 +84,8 @@ describe("buildNeedsAttention", () => {
         funil: "executadas",
         etapa: "redes_sociais",
         data_evento: "2026-07-10",
+        valor_entrada: 0,
+        valor_total: 5000,
       }),
       baseEvent({
         id: 9,
@@ -91,11 +93,14 @@ describe("buildNeedsAttention", () => {
         funil: "executadas",
         etapa: "redes_sociais",
         data_evento: "2026-08-01",
+        valor_entrada: 0,
+        valor_total: 5000,
       }),
     ];
 
     const attention = buildNeedsAttention(events, [], { referenceDate });
 
+    // id1 (festa). id8 é executada sem pagamento registrado → fora do financeiro
     expect(attention.sections.find((s) => s.id === "financeiro")?.items).toHaveLength(1);
     expect(attention.sections.find((s) => s.id === "follows-parados")?.items).toHaveLength(1);
     expect(attention.sections.find((s) => s.id === "organizar-boas-vindas")?.items).toHaveLength(1);
@@ -106,6 +111,32 @@ describe("buildNeedsAttention", () => {
       expect.stringContaining("Prova social"),
     ]);
     expect(attention.totalCount).toBe(5);
+  });
+
+  it("inclui executada com saldo em atraso na secao financeiro", () => {
+    const attention = buildNeedsAttention(
+      [
+        baseEvent({
+          id: 137,
+          cliente_nome: "Alessandra",
+          funil: "executadas",
+          etapa: "redes_sociais",
+          data_evento: "2026-11-06",
+          valor_entrada: 3740.5,
+          valor_total: 5736.8,
+        }),
+      ],
+      [],
+      {
+        receivableByEvent: new Map([[137, 4734.8]]),
+        referenceDate: new Date(2026, 10, 17, 12, 0, 0, 0),
+      },
+    );
+
+    const financeiro = attention.sections.find((s) => s.id === "financeiro")?.items ?? [];
+    expect(financeiro).toHaveLength(1);
+    expect(financeiro[0]?.title).toContain("Alessandra");
+    expect(financeiro[0]?.description).toMatch(/R\$\s*994/);
   });
 
   it("detecta follow pausado por resposta do cliente", () => {

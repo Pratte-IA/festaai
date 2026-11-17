@@ -46,11 +46,17 @@ export const buildPerdidoFuturoFup1PreviewMessage = (input: {
   const template = resolveTemplateBody(input.variante, input.templateBody);
   const dataFesta = formatIsoDateBR(input.dataEvento);
 
+  const resumoAgendaCasas =
+    input.variante === "data_livre"
+      ? `Sobre a data ${dataFesta}: na Classic ainda está liberada e na Premium já está fechada.`
+      : `Sobre a data ${dataFesta}: na Classic já está fechada e na Premium já está fechada.`;
+
   return template
     .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
     .replaceAll("{{nome_aniversariante}}", resolveAniversarianteLabel(input.aniversarianteNome))
     .replaceAll("{{data_festa}}", dataFesta)
-    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName));
+    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName))
+    .replaceAll("{{resumo_agenda_casas}}", resumoAgendaCasas);
 };
 
 export const buildPerdidoFuturoFup1PreviewMessages = (input: {

@@ -29,6 +29,8 @@ const sectionAccent: Record<NeedsAttentionSectionId, string> = {
   "prova-social-mkt": "bg-lilas/15 text-lilas",
 };
 
+const MAX_VISIBLE_ITEMS = 5;
+
 const NeedsAttentionSectionCard = ({
   onItemClick,
   section,
@@ -37,6 +39,8 @@ const NeedsAttentionSectionCard = ({
   section: NeedsAttentionSection;
 }) => {
   const Icon = sectionIcons[section.id];
+  const visibleItems = section.items.slice(0, MAX_VISIBLE_ITEMS);
+  const hiddenCount = Math.max(section.items.length - visibleItems.length, 0);
 
   return (
     <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
@@ -61,7 +65,7 @@ const NeedsAttentionSectionCard = ({
         <p className="px-1 text-xs text-muted-foreground">{section.emptyMessage}</p>
       ) : (
         <div className="space-y-1.5">
-          {section.items.map((item) => (
+          {visibleItems.map((item) => (
             <button
               key={`${section.id}-${item.eventoId}`}
               className="flex w-full flex-col rounded-lg bg-background/60 px-3 py-2 text-left transition-colors hover:bg-muted/70"
@@ -72,6 +76,9 @@ const NeedsAttentionSectionCard = ({
               <span className="text-xs text-muted-foreground">{item.description}</span>
             </button>
           ))}
+          {hiddenCount > 0 ? (
+            <p className="px-1 pt-1 text-xs text-muted-foreground">+ {hiddenCount} outros</p>
+          ) : null}
         </div>
       )}
     </div>

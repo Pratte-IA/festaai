@@ -28,20 +28,31 @@ const baseEvent = (overrides: Partial<Evento>): Evento =>
 describe("buildDashboardAlerts", () => {
   const referenceDate = new Date(2026, 6, 21, 12, 0, 0, 0);
 
-  it("alerta saldo apenas em festa com recebivel vencido e saldo real", () => {
+  it("alerta saldo em festa ou executadas com recebivel vencido e saldo real", () => {
     const events = [
       // Vencimento 18/07 — em atraso, funil festa
       baseEvent({ id: 1, cliente_nome: "Atrasada", data_evento: "2026-07-25" }),
       // Festa futura sem vencimento ainda
       baseEvent({ id: 2, cliente_nome: "Futura", data_evento: "2026-08-15" }),
-      // Executada — considerada quitada
+      // Executada com pagamento parcial e saldo em atraso
       baseEvent({
         id: 3,
         cliente_nome: "Executada",
         funil: "executadas",
         etapa: "aguardando_feedback",
         data_evento: "2026-06-13",
+        valor_entrada: 1000,
+        valor_total: 5000,
+      }),
+      // Executada legada sem pagamento — fora do alerta de saldo
+      baseEvent({
+        id: 5,
+        cliente_nome: "Legada",
+        funil: "executadas",
+        etapa: "aguardando_feedback",
+        data_evento: "2026-06-10",
         valor_entrada: 0,
+        valor_total: 5000,
       }),
       // Vendas não entra no alerta de saldo
       baseEvent({
@@ -57,8 +68,9 @@ describe("buildDashboardAlerts", () => {
     const alerts = buildDashboardAlerts(events, [], { referenceDate });
     const prazo = alerts.filter((alert) => alert.type === "prazo");
 
-    expect(prazo).toHaveLength(1);
-    expect(prazo[0]?.title).toContain("Atrasada");
+    expect(prazo).toHaveLength(2);
+    expect(prazo.map((alert) => alert.title).join(" ")).toMatch(/Atrasada/);
+    expect(prazo.map((alert) => alert.title).join(" ")).toMatch(/Executada/);
     expect(prazo[0]?.description).toMatch(/vencimento ja ultrapassado/);
   });
 

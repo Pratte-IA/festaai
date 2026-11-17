@@ -222,10 +222,12 @@ export const buildOperationalGuide = (
   events: Evento[],
   payments: EventoPagamento[],
   tarefas: TenantTarefaListItem[],
+  options?: { receivableByEvent?: Map<number, number> },
 ): DashboardOperationalGuide => {
   const weekRange = getWeekRange();
   const monthRange = getMonthDateRange();
   const todayIso = getTodayIsoDate();
+  const receivableByEvent = options?.receivableByEvent;
 
   const paidByEvent = new Map<number, number>();
   payments.forEach((payment) => {
@@ -246,8 +248,7 @@ export const buildOperationalGuide = (
   const receivablesWithBalance = events
     .filter(
       (event) =>
-        isActiveFesta(event) &&
-        getEventOpenBalance(event, paidByEvent) > 0 &&
+        getEventOpenBalance(event, paidByEvent, receivableByEvent) > 0 &&
         shouldShowInReceivablesCard(event, weekRange.startDate, weekRange.endDate, todayIso),
     )
     .sort((left, right) => {
@@ -266,12 +267,12 @@ export const buildOperationalGuide = (
     return mapEventToOperationalItem(event, {
       dueDateLabel: dueDate ? formatOperationalPartyDateLabel(dueDate) : undefined,
       isOverdue: isReceivableOverdue(event, todayIso),
-      valueLabel: currencyFormatter.format(getEventOpenBalance(event, paidByEvent)),
+      valueLabel: currencyFormatter.format(getEventOpenBalance(event, paidByEvent, receivableByEvent)),
     });
   });
 
   const receivablesTotal = receivablesWithBalance.reduce(
-    (sum, event) => sum + getEventOpenBalance(event, paidByEvent),
+    (sum, event) => sum + getEventOpenBalance(event, paidByEvent, receivableByEvent),
     0,
   );
 

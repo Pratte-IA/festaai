@@ -67,6 +67,7 @@ const FUP_TEMPLATE_VARIABLES = [
   "{{nome_aniversariante}}",
   "{{data_festa}}",
   "{{nome_empresa}}",
+  "{{resumo_agenda_casas}}",
 ];
 
 const TEMPLATE_VARIABLES = [

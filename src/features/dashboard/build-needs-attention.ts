@@ -113,10 +113,11 @@ const sortByPartyDateOldestFirst = (left: Evento, right: Evento) =>
 export const buildNeedsAttention = (
   events: Evento[],
   payments: EventoPagamento[],
-  options?: { referenceDate?: Date },
+  options?: { receivableByEvent?: Map<number, number>; referenceDate?: Date },
 ): NeedsAttention => {
   const referenceDate = options?.referenceDate ?? getTodayAtNoon();
   const todayIso = toLocalIsoDateKey(referenceDate);
+  const receivableByEvent = options?.receivableByEvent;
 
   const paidByEvent = new Map<number, number>();
   payments.forEach((payment) => {
@@ -126,12 +127,17 @@ export const buildNeedsAttention = (
   const financeiroEvents = events
     .filter(
       (event) =>
-        isFestaWithOpenBalance(event, paidByEvent) && isReceivableOverdue(event, todayIso),
+        isFestaWithOpenBalance(event, paidByEvent, receivableByEvent) &&
+        isReceivableOverdue(event, todayIso),
     )
     .sort((left, right) => {
-      const leftBalance = getEventOpenBalance(left, paidByEvent);
-      const rightBalance = getEventOpenBalance(right, paidByEvent);
-      return rightBalance - leftBalance;
+      // Festas mais recentes primeiro — saldos novos (ex.: acabou de executar) não somem no fim.
+      const byDate = String(right.data_evento ?? "").localeCompare(String(left.data_evento ?? ""));
+      if (byDate !== 0) return byDate;
+      return (
+        getEventOpenBalance(right, paidByEvent, receivableByEvent) -
+        getEventOpenBalance(left, paidByEvent, receivableByEvent)
+      );
     });
 
   const followsParados = events
@@ -162,7 +168,7 @@ export const buildNeedsAttention = (
       emptyMessage: "Nenhum saldo com vencimento ultrapassado.",
       id: "financeiro",
       items: financeiroEvents.map((event) => ({
-        description: `Saldo ${currencyFormatter.format(getEventOpenBalance(event, paidByEvent))} com vencimento ultrapassado`,
+        description: `Saldo ${currencyFormatter.format(getEventOpenBalance(event, paidByEvent, receivableByEvent))} com vencimento ultrapassado`,
         eventoId: event.id,
         title: eventTitle(event),
       })),

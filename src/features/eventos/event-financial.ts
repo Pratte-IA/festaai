@@ -1,6 +1,6 @@
 import { Evento } from "./types";
 
-/** Festas no funil executadas são consideradas quitadas, independente dos pagamentos registrados. */
+/** Festas no funil executadas (marcação operacional; não implica quitação financeira). */
 export const isEventFullySettled = (event: Pick<Evento, "funil">) => event.funil === "executadas";
 
 export const getEventRecordedPaid = (
@@ -8,27 +8,22 @@ export const getEventRecordedPaid = (
   additionalPayments = 0,
 ) => event.valor_entrada + additionalPayments;
 
+/** Total pago exibido = entrada + pagamentos registrados (mesmo em executadas). */
 export const getEventDisplayTotalPaid = (
-  event: Pick<Evento, "funil" | "valor_total" | "valor_entrada">,
+  event: Pick<Evento, "valor_entrada">,
   additionalPayments = 0,
-) => (isEventFullySettled(event) ? event.valor_total : getEventRecordedPaid(event, additionalPayments));
+) => getEventRecordedPaid(event, additionalPayments);
 
 export const getEventBalance = (
-  event: Pick<Evento, "funil" | "valor_total" | "valor_entrada">,
+  event: Pick<Evento, "valor_total" | "valor_entrada">,
   additionalPayments = 0,
-) =>
-  isEventFullySettled(event)
-    ? 0
-    : Math.max(event.valor_total - getEventRecordedPaid(event, additionalPayments), 0);
+) => Math.max(event.valor_total - getEventRecordedPaid(event, additionalPayments), 0);
 
 export const getEventBalanceFromReceivable = (
-  event: Pick<Evento, "funil" | "valor_entrada">,
+  event: Pick<Evento, "valor_entrada">,
   receivableTotal: number,
   additionalPayments = 0,
-) =>
-  isEventFullySettled(event)
-    ? 0
-    : Math.max(receivableTotal - getEventRecordedPaid(event, additionalPayments), 0);
+) => Math.max(receivableTotal - getEventRecordedPaid(event, additionalPayments), 0);
 
 /** Saldo devedor do formulário de fechamento: total menos entrada (campo derivado). */
 export const computeClosingFormValorSaldo = (valorTotal: number, valorEntrada: number) =>

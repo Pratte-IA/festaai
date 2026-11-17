@@ -27,7 +27,7 @@ interface FinanceiroLancamentoLike {
 
 const toNumber = (value: unknown) => Number(value ?? 0) || 0;
 
-/** Festas no funil executadas são consideradas quitadas, independente dos pagamentos registrados. */
+/** Festas no funil executadas (marcação operacional; não implica quitação financeira). */
 export const isEventFullySettled = (event: EventoFinanceiroFields) => event.funil === "executadas";
 
 /** Soma de entradas adicionais (upsell / manual que não seja pagamento de contrato ou desconto). */
@@ -59,21 +59,16 @@ export const computeEventReceivableTotal = (
 export const getEventRecordedPaid = (event: EventoFinanceiroFields, additionalPayments = 0) =>
   toNumber(event.valor_entrada) + additionalPayments;
 
-/** Valor exibido como pago (festas executadas são consideradas totalmente pagas). */
+/** Valor exibido como pago = entrada + pagamentos registrados (mesmo em executadas). */
 export const getEventDisplayTotalPaid = (event: EventoFinanceiroFields, additionalPayments = 0) =>
-  isEventFullySettled(event)
-    ? toNumber(event.valor_total)
-    : getEventRecordedPaid(event, additionalPayments);
+  getEventRecordedPaid(event, additionalPayments);
 
 /** Saldo devedor calculado a partir do total a receber, considerando pagamentos adicionais. */
 export const getEventBalanceFromReceivable = (
   event: EventoFinanceiroFields,
   receivableTotal: number,
   additionalPayments = 0,
-) =>
-  isEventFullySettled(event)
-    ? 0
-    : Math.max(receivableTotal - getEventRecordedPaid(event, additionalPayments), 0);
+) => Math.max(receivableTotal - getEventRecordedPaid(event, additionalPayments), 0);
 
 export interface EventoFinanceiroValores {
   saldoAPagar: number;

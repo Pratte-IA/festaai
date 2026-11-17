@@ -1,3 +1,4 @@
+import { applyFollowupAgendaResumo } from "./apply-followup-agenda-resumo.ts";
 import { extractFirstName, formatCompanyDisplayName } from "./company-display-name.ts";
 import {
   PERDIDO_FUTURO_FUP1_TEMPLATE_DATA_INDISPONIVEL,
@@ -10,7 +11,7 @@ export const DEFAULT_PERDIDO_FUTURO_FUP1_DATA_LIVRE = `Oi, {{primeiro_nome}}! Tu
 
 Lembrei da festa do(a) {{nome_aniversariante}}, prevista para {{data_festa}}, e passei para saber se vocês já decidiram onde será a comemoração. 🎉
 
-Consultei nossa agenda e tenho uma boa notícia: essa data ainda está disponível para vocês. ✨
+Consultei nossa agenda: {{resumo_agenda_casas}} ✨
 
 Como faltam cerca de 60 dias, este é um ótimo momento para organizar tudo com calma, definir os detalhes e garantir a data antes que ela seja reservada.
 
@@ -20,7 +21,7 @@ export const DEFAULT_PERDIDO_FUTURO_FUP1_DATA_INDISPONIVEL = `Oi, {{primeiro_nom
 
 Lembrei da festa do(a) {{nome_aniversariante}}, prevista para {{data_festa}}, e passei para saber se vocês já decidiram onde será a comemoração. 🎉
 
-Consultei nossa agenda e essa data já foi reservada, mas ainda temos outras opções próximas disponíveis. ✨
+Consultei nossa agenda: {{resumo_agenda_casas}} Ainda temos outras opções próximas disponíveis. ✨
 
 Como faltam cerca de 60 dias, ainda dá tempo de organizar uma festa linda, com tranquilidade e todo o carinho que esse momento merece.
 
@@ -46,6 +47,7 @@ export interface BuildPerdidoFuturoFup1MessageInput {
   clienteNome: string | null;
   companyLegalName: string;
   dataEvento: string;
+  resumoAgendaCasas: string;
   templateBody?: string | null;
   variante: PerdidoFuturoFup1Variante;
 }
@@ -68,14 +70,18 @@ export const buildPerdidoFuturoFup1Message = (input: BuildPerdidoFuturoFup1Messa
   const dataFesta = formatPerdidoFuturoDateBR(input.dataEvento);
   const nomeEmpresa = formatCompanyDisplayName(input.companyLegalName);
 
-  return template
+  const rendered = template
     .replaceAll("{{primeiro_nome}}", primeiroNome)
     .replaceAll("{{nome_aniversariante}}", nomeAniversariante)
     .replaceAll("{{data_festa}}", dataFesta)
-    .replaceAll("{{nome_empresa}}", nomeEmpresa);
+    .replaceAll("{{nome_empresa}}", nomeEmpresa)
+    .replaceAll("{{resumo_agenda_casas}}", input.resumoAgendaCasas);
+
+  return applyFollowupAgendaResumo(rendered, template, input.resumoAgendaCasas);
 };
 
 export const buildPerdidoFuturoFup1Nota = (input: {
+  agendaCasasNota: string;
   dataEvento: string;
   enviadoEm: string;
   variante: PerdidoFuturoFup1Variante;
@@ -93,8 +99,8 @@ export const buildPerdidoFuturoFup1Nota = (input: {
 
   const varianteLabel =
     input.variante === "data_livre"
-      ? "data livre (disponível)"
-      : "data indisponível (reservada por outra família)";
+      ? "data livre (ao menos uma casa liberada)"
+      : "data indisponível (todas as casas fechadas)";
 
-  return `[Automação] Follow-up FUP1 enviado — ${enviadoBR}\nVariante: ${varianteLabel}\nData verificada: ${dataBR}`;
+  return `[Automação] Follow-up FUP1 enviado — ${enviadoBR}\nVariante: ${varianteLabel}\nData verificada: ${dataBR}\n${input.agendaCasasNota}`;
 };

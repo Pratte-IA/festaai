@@ -22,12 +22,13 @@ const baseEvento = (overrides: Partial<Evento> = {}): Evento =>
   }) as Evento;
 
 describe("event-financial", () => {
-  it("considera festas executadas como quitadas", () => {
-    const event = baseEvento({ funil: "executadas", valor_entrada: 0 });
+  it("mantém total pago e saldo reais mesmo em executadas", () => {
+    const event = baseEvento({ funil: "executadas", valor_entrada: 1000 });
 
     expect(isEventFullySettled(event)).toBe(true);
-    expect(getEventDisplayTotalPaid(event, 0)).toBe(5000);
-    expect(getEventBalance(event, 0)).toBe(0);
+    expect(getEventDisplayTotalPaid(event, 500)).toBe(1500);
+    expect(getEventBalance(event, 500)).toBe(3500);
+    expect(getEventBalanceFromReceivable(event, 4700, 500)).toBe(3200);
   });
 
   it("calcula saldo normalmente para festas em andamento", () => {

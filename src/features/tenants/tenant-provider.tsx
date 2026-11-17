@@ -198,7 +198,9 @@ export const TenantProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (currentUnitId == null) return;
 
-    void queryClient.removeQueries({
+    // resetQueries evita o estado "isFetching preso" que removeQueries pode deixar
+    // quando cancela um fetch em andamento ao trocar unidade/escopo.
+    void queryClient.resetQueries({
       predicate: (query) => {
         const root = query.queryKey[0];
         return root !== "tenants" && root !== "tenant-units" && root !== "tenant-memberships";

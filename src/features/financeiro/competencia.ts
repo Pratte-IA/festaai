@@ -483,12 +483,8 @@ export const buildFinanceiroFestasOverview = (
         .reduce((sum, item) => sum + Number(item.valor || 0), 0);
       const pagamentosExtras = paymentsByEvento.get(evento.id) ?? pagamentosLedger;
       const { valorContratado } = computeCompetenciaReceitaFesta(evento, eventLancamentos);
-      const valorRecebido =
-        evento.funil === "executadas"
-          ? valorContratado
-          : Number(evento.valor_entrada || 0) + pagamentosExtras;
-      const saldoAReceber =
-        evento.funil === "executadas" ? 0 : Math.max(valorContratado - valorRecebido, 0);
+      const valorRecebido = Number(evento.valor_entrada || 0) + pagamentosExtras;
+      const saldoAReceber = Math.max(valorContratado - valorRecebido, 0);
       const resultado = computeEventResult(valorContratado, custosDiretos);
 
       return {

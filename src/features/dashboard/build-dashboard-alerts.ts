@@ -47,12 +47,13 @@ export const isStalePropostaWithoutActiveFollowup = (event: Evento, referenceNow
 export const buildDashboardAlerts = (
   events: Evento[],
   payments: EventoPagamento[],
-  options?: { limit?: number; referenceDate?: Date },
+  options?: { limit?: number; receivableByEvent?: Map<number, number>; referenceDate?: Date },
 ): DashboardAlert[] => {
   const limit = options?.limit ?? 5;
   const referenceDate = options?.referenceDate ?? new Date();
   const todayIso = toLocalIsoDateKey(referenceDate);
   const referenceNow = referenceDate.getTime();
+  const receivableByEvent = options?.receivableByEvent;
 
   const paidByEvent = new Map<number, number>();
   payments.forEach((payment) => {
@@ -74,9 +75,9 @@ export const buildDashboardAlerts = (
     }
 
     if (
-      isFestaWithOpenBalance(event, paidByEvent) &&
+      isFestaWithOpenBalance(event, paidByEvent, receivableByEvent) &&
       isReceivableOverdue(event, todayIso) &&
-      getEventOpenBalance(event, paidByEvent) > 0
+      getEventOpenBalance(event, paidByEvent, receivableByEvent) > 0
     ) {
       alerts.push({
         description: "Saldo pendente com vencimento ja ultrapassado",

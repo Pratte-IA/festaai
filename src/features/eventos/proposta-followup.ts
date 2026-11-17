@@ -92,7 +92,7 @@ Passei aqui para ver se ficou alguma dúvida sobre a proposta da festa de {{nome
 
 Sei que escolher o lugar da festa envolve carinho, organização e também segurança de que tudo vai dar certo no dia. Por isso, quero te ajudar a deixar essa decisão mais fácil. ✨
 
-A data {{data_festa}} ainda está livre por enquanto.
+{{resumo_agenda_casas}}
 
 Quer que eu te explique como funciona para garantir essa data ou prefere que eu ajuste algum ponto da proposta?`;
 
@@ -100,7 +100,9 @@ export const DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL = `Oi, {{primeiro_nom
 
 Passei aqui para te atualizar sobre a festa de {{nome_aniversariante}}.
 
-A data {{data_festa}} acabou sendo reservada por outra família, mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}} para viver esse dia especial. ✨
+{{resumo_agenda_casas}}
+
+Mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}} para viver esse dia especial. ✨
 
 Às vezes uma nova data também pode funcionar muito bem para a família, e eu posso te ajudar a encontrar a melhor opção disponível na nossa agenda.
 
@@ -108,7 +110,9 @@ Quer que eu veja quais datas ainda temos livres para a festa de {{nome_aniversar
 
 export const DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
-Passei aqui porque a data {{data_festa}} para a festa de {{nome_aniversariante}} ainda está disponível, mas eu não queria deixar passar muito tempo sem te avisar.
+Passei aqui sobre a festa de {{nome_aniversariante}} na data {{data_festa}} — eu não queria deixar passar muito tempo sem te avisar.
+
+{{resumo_agenda_casas}}
 
 A gente adoraria receber vocês aqui na {{nome_empresa}} e preparar uma festa linda, leve e especial para {{nome_aniversariante}}. Tenho certeza de que seria um dia muito gostoso para a família aproveitar de verdade. ✨
 
@@ -120,7 +124,9 @@ export const DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL = `Oi, {{primeiro_nom
 
 Passei aqui para retomar o contato sobre a festa de {{nome_aniversariante}}.
 
-A data {{data_festa}} acabou sendo reservada por outra família, mas a gente adoraria receber vocês na {{nome_empresa}} e preparar uma festa linda, leve e especial — mesmo que seja em outra data. ✨
+{{resumo_agenda_casas}}
+
+Mas a gente adoraria receber vocês na {{nome_empresa}} e preparar uma festa linda, leve e especial — mesmo que seja em outra data. ✨
 
 Como nossa agenda vai sendo preenchida conforme as reservas são confirmadas, queria entender com você:
 
@@ -129,6 +135,8 @@ O que falta para conseguirmos seguir com a festa de {{nome_aniversariante}}?`;
 export const DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA = `Oi, {{primeiro_nome}}! Tudo bem? 🥰
 
 Passei aqui de novo sobre a festa de {{nome_aniversariante}} na data {{data_festa}}.
+
+{{resumo_agenda_casas}}
 
 Às vezes, só pela proposta, não dá para sentir tudo que a {{nome_empresa}} oferece: o espaço, os brinquedos, a estrutura, o carinho nos detalhes e como a festa pode ficar linda para a família aproveitar de verdade. ✨
 
@@ -142,7 +150,9 @@ export const DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL = `Oi, {{primeiro_nom
 
 Passei aqui de novo sobre a festa de {{nome_aniversariante}}.
 
-A data {{data_festa}} acabou sendo reservada por outra família, mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}}. ✨
+{{resumo_agenda_casas}}
+
+Mas a gente continua com muito carinho e interesse em receber vocês na {{nome_empresa}}. ✨
 
 Que tal vir conhecer o espaço pessoalmente? Assim você vê tudo com calma, tira suas dúvidas e a gente já aproveita para olhar juntas outras datas disponíveis.
 
@@ -154,7 +164,7 @@ Como não tivemos seu retorno, vou pausar por aqui — e se fizer sentido no fut
 
 A gente segue com muito carinho e interesse em receber vocês na {{nome_empresa}} para celebrar a festa de {{nome_aniversariante}}, mas também entendemos que cada família tem seu tempo para decidir. ✨
 
-Por enquanto, a data {{data_festa}} continuará disponível para novas reservas.
+{{resumo_agenda_casas}}
 
 Se em algum momento você quiser retomar a proposta, ajustar algum detalhe ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
 
@@ -164,7 +174,9 @@ Como não tivemos seu retorno, vou pausar por aqui — e se fizer sentido no fut
 
 A gente segue com muito carinho e interesse em receber vocês na {{nome_empresa}} para celebrar a festa de {{nome_aniversariante}}, mas também entendemos que cada família tem seu tempo para decidir. ✨
 
-A data {{data_festa}} já não está mais disponível, mas se em algum momento você quiser retomar a proposta, escolher outra data ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
+{{resumo_agenda_casas}}
+
+Se em algum momento você quiser retomar a proposta, escolher outra data ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
 
 export const getPropostaFollowupKanbanBadge = (evento: {
   contato_inicial_ultima_mensagem_em?: string | null;

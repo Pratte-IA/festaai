@@ -66,6 +66,7 @@ const TEMPLATE_VARIABLES = [
   "{{nome_aniversariante}}",
   "{{data_festa}}",
   "{{nome_empresa}}",
+  "{{resumo_agenda_casas}}",
 ];
 
 const FU0_TEMPLATE_VARIABLES = ["{{primeiro_nome}}", "{{nome_empresa}}"];

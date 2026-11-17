@@ -1,3 +1,4 @@
+import { applyFollowupAgendaResumo } from "./apply-followup-agenda-resumo.ts";
 import { extractFirstName, formatCompanyDisplayName } from "./company-display-name.ts";
 import {
   PROPOSTA_FOLLOWUP_4_TEMPLATE_DATA_INDISPONIVEL,
@@ -13,7 +14,7 @@ Como não tivemos seu retorno, vou pausar por aqui — e se fizer sentido no fut
 
 A gente segue com muito carinho e interesse em receber vocês na {{nome_empresa}} para celebrar a festa de {{nome_aniversariante}}, mas também entendemos que cada família tem seu tempo para decidir. ✨
 
-Por enquanto, a data {{data_festa}} continuará disponível para novas reservas.
+{{resumo_agenda_casas}}
 
 Se em algum momento você quiser retomar a proposta, ajustar algum detalhe ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
 
@@ -23,7 +24,9 @@ Como não tivemos seu retorno, vou pausar por aqui — e se fizer sentido no fut
 
 A gente segue com muito carinho e interesse em receber vocês na {{nome_empresa}} para celebrar a festa de {{nome_aniversariante}}, mas também entendemos que cada família tem seu tempo para decidir. ✨
 
-A data {{data_festa}} já não está mais disponível, mas se em algum momento você quiser retomar a proposta, escolher outra data ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
+{{resumo_agenda_casas}}
+
+Se em algum momento você quiser retomar a proposta, escolher outra data ou agendar uma visita, é só me chamar por aqui. Vai ser uma alegria te ajudar.`;
 
 const defaultTemplateByKey: Record<string, string> = {
   [PROPOSTA_FOLLOWUP_4_TEMPLATE_ENCERRAMENTO]: DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO,
@@ -36,6 +39,7 @@ export interface BuildPropostaFollowup4MessageInput {
   clienteNome: string | null;
   companyLegalName: string;
   dataEvento: string;
+  resumoAgendaCasas: string;
   templateBody?: string | null;
   variante: PropostaFollowup4Variante;
 }
@@ -60,14 +64,18 @@ export const buildPropostaFollowup4Message = (
   const nomeEmpresa = formatCompanyDisplayName(input.companyLegalName);
   const dataFesta = formatPropostaFollowupDateBR(input.dataEvento);
 
-  return template
+  const rendered = template
     .replaceAll("{{primeiro_nome}}", primeiroNome)
     .replaceAll("{{nome_aniversariante}}", nomeAniversariante)
     .replaceAll("{{data_festa}}", dataFesta)
-    .replaceAll("{{nome_empresa}}", nomeEmpresa);
+    .replaceAll("{{nome_empresa}}", nomeEmpresa)
+    .replaceAll("{{resumo_agenda_casas}}", input.resumoAgendaCasas);
+
+  return applyFollowupAgendaResumo(rendered, template, input.resumoAgendaCasas);
 };
 
 export const buildPropostaFollowup4Nota = (input: {
+  agendaCasasNota: string;
   dataEvento: string;
   enviadoEm: string;
   variante: PropostaFollowup4Variante;
@@ -85,8 +93,8 @@ export const buildPropostaFollowup4Nota = (input: {
 
   const varianteLabel =
     input.variante === "data_livre"
-      ? "data livre (disponível)"
-      : "data indisponível (reservada por outra família)";
+      ? "data livre (ao menos uma casa liberada)"
+      : "data indisponível (todas as casas fechadas)";
 
-  return `[Automação] Follow-up 4 enviado (encerramento) — ${enviadoBR}\nVariante: ${varianteLabel}\nData verificada: ${dataBR}\nLead movido para Perdido — sem retorno após a sequência de follow-ups.`;
+  return `[Automação] Follow-up 4 enviado (encerramento) — ${enviadoBR}\nVariante: ${varianteLabel}\nData verificada: ${dataBR}\n${input.agendaCasasNota}\nLead movido para Perdido — sem retorno após a sequência de follow-ups.`;
 };

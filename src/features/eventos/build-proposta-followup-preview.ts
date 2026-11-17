@@ -35,6 +35,34 @@ const extractFirstName = (fullName: string): string => {
   return trimmed.split(/\s+/)[0] ?? trimmed;
 };
 
+const previewResumoAgendaCasas = (
+  dataEvento: string,
+  variante: "data_livre" | "data_indisponivel",
+): string => {
+  const dataBR = formatDateBR(dataEvento);
+  if (variante === "data_livre") {
+    return `Sobre a data ${dataBR}: na Classic ainda está liberada e na Premium já está fechada.`;
+  }
+  return `Sobre a data ${dataBR}: na Classic já está fechada e na Premium já está fechada.`;
+};
+
+const applyPropostaFollowupPlaceholders = (
+  template: string,
+  input: {
+    aniversarianteNome: string;
+    clienteNome: string;
+    companyLegalName: string;
+    dataEvento: string;
+    variante: "data_livre" | "data_indisponivel";
+  },
+): string =>
+  template
+    .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
+    .replaceAll("{{nome_aniversariante}}", input.aniversarianteNome)
+    .replaceAll("{{data_festa}}", formatDateBR(input.dataEvento))
+    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName))
+    .replaceAll("{{resumo_agenda_casas}}", previewResumoAgendaCasas(input.dataEvento, input.variante));
+
 export const buildPropostaFollowup0PreviewMessage = (input: {
   clienteNome: string;
   companyLegalName: string;
@@ -73,11 +101,7 @@ export const buildPropostaFollowup1PreviewMessage = (input: {
       ? DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_LIVRE
       : DEFAULT_PROPOSTA_FOLLOWUP_1_DATA_INDISPONIVEL);
 
-  return template
-    .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
-    .replaceAll("{{nome_aniversariante}}", input.aniversarianteNome)
-    .replaceAll("{{data_festa}}", formatDateBR(input.dataEvento))
-    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName));
+  return applyPropostaFollowupPlaceholders(template, input);
 };
 
 export const buildPropostaFollowup2PreviewMessage = (input: {
@@ -94,11 +118,7 @@ export const buildPropostaFollowup2PreviewMessage = (input: {
       ? DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_LIVRE
       : DEFAULT_PROPOSTA_FOLLOWUP_2_DATA_INDISPONIVEL);
 
-  return template
-    .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
-    .replaceAll("{{nome_aniversariante}}", input.aniversarianteNome)
-    .replaceAll("{{data_festa}}", formatDateBR(input.dataEvento))
-    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName));
+  return applyPropostaFollowupPlaceholders(template, input);
 };
 
 export const buildPropostaFollowup3PreviewMessage = (input: {
@@ -115,11 +135,7 @@ export const buildPropostaFollowup3PreviewMessage = (input: {
       ? DEFAULT_PROPOSTA_FOLLOWUP_3_VISITA
       : DEFAULT_PROPOSTA_FOLLOWUP_3_DATA_INDISPONIVEL);
 
-  return template
-    .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
-    .replaceAll("{{nome_aniversariante}}", input.aniversarianteNome)
-    .replaceAll("{{data_festa}}", formatDateBR(input.dataEvento))
-    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName));
+  return applyPropostaFollowupPlaceholders(template, input);
 };
 
 export const buildPropostaFollowup4PreviewMessage = (input: {
@@ -136,9 +152,5 @@ export const buildPropostaFollowup4PreviewMessage = (input: {
       ? DEFAULT_PROPOSTA_FOLLOWUP_4_ENCERRAMENTO
       : DEFAULT_PROPOSTA_FOLLOWUP_4_DATA_INDISPONIVEL);
 
-  return template
-    .replaceAll("{{primeiro_nome}}", extractFirstName(input.clienteNome))
-    .replaceAll("{{nome_aniversariante}}", input.aniversarianteNome)
-    .replaceAll("{{data_festa}}", formatDateBR(input.dataEvento))
-    .replaceAll("{{nome_empresa}}", formatCompanyDisplayName(input.companyLegalName));
+  return applyPropostaFollowupPlaceholders(template, input);
 };
